@@ -5,7 +5,6 @@ terraform {
       source  = "hashicorp/aws"
     }
   }
-
 }
 
 provider "aws" {
@@ -24,7 +23,6 @@ resource "aws_s3_bucket_public_access_block" "bucket" {
   block_public_acls   = true
   block_public_policy = true
 }
-
 
 resource "aws_dynamodb_table" "epbr_dynamo_terraform_state" {
   name           = "epbr-terraform-state"
