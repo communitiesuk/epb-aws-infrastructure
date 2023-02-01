@@ -86,17 +86,6 @@ Example:
 `aws-vault exec integration -- terraform plan`
 
 
-## Commit messages
-When making a commit to the repo, please follow a semantic commit message format, see the link below for more info:  
-https://gist.github.com/joshbuchea/6f47e86d2510bce28f8e7f42ae84c716
-
-If the commit is not attached to a ticket then the format will generally be:  
-`type: Subject`
-
-And if it is for a particular ticket, prefix the ticket number e.g.  
-`EPBR-XXXX: type: Subject`
-
-
 ## Making changes
 
 1. First, generate a plan to check the changes Terraform wants to make
