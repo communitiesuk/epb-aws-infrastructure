@@ -5,6 +5,6 @@ resource "aws_subnet" "public_subnet" {
   map_public_ip_on_launch = true
 
   tags = {
-    Name = "public-subnet-${var.environment}"
+    Name = "epbr-${var.environment}-public-subnet"
   }
 }

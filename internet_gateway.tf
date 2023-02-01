@@ -2,6 +2,6 @@ resource "aws_internet_gateway" "internet_gateway" {
   vpc_id = aws_vpc.main.id
 
   tags = {
-    Name = "internet-gateway-${var.environment}"
+    Name = "epbr-${var.environment}-internet-gateway"
   }
 }

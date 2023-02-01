@@ -3,6 +3,6 @@ resource "aws_subnet" "private_subnet" {
   cidr_block = "10.0.128.0/17"
 
   tags = {
-    Name = "private-subnet-${var.environment}"
+    Name = "epbr-${var.environment}-private-subnet"
   }
 }
