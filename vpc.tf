@@ -1,14 +1,14 @@
-resource "aws_vpc" "main" {
+resource "aws_vpc" "this" {
   cidr_block = "10.0.0.0/16"
   tags = {
-    Name = "epbr-${var.environment}"
+    Name = "epbr-${var.environment}-vpc"
   }
 }
 
 resource "aws_security_group" "internet_access" {
   name        = "internet-access-${var.environment}"
   description = "Allow TLS inbound traffic"
-  vpc_id      = aws_vpc.main.id
+  vpc_id      = aws_vpc.this.id
 
   ingress {
     description = "TLS from VPC"

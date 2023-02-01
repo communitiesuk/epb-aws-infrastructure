@@ -35,5 +35,4 @@ data "aws_iam_policy_document" "dynamo_db_policy" {
       aws_dynamodb_table.epbr_dynamo_terraform_state.arn
     ]
   }
-
 }
