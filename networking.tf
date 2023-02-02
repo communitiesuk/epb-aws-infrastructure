@@ -1,41 +1,13 @@
 locals {
-  vpc_cidr = "10.0.0.0/16"
-  public_subnet_cidr = cidrsubnet(local.vpc_cidr, 2, 0)
-  private_subnet_cidr = cidrsubnet(local.vpc_cidr, 2, 1)
+  vpc_cidr           = "10.0.0.0/16"
+  availability_zones = ["a", "b"]
 }
 
 
 resource "aws_vpc" "this" {
   cidr_block = local.vpc_cidr
   tags = {
-    Name = "${var.prefix}-vpc"
-  }
-}
-
-resource "aws_security_group" "internet_access" {
-  name        = "${var.prefix}-internet-access"
-  description = "Allow TLS inbound traffic"
-  vpc_id      = aws_vpc.this.id
-
-  ingress {
-    description = "TLS from VPC"
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    #    Terraform docs say the cidr_blocks are optional, however you can't see the rules being applied in the console without them
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port = 0
-    to_port   = 0
-    protocol  = "-1"
-    #    Terraform docs say the cidr_blocks are optional, however you can't see the rules being applied in the console without them
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = {
-    Name = "${var.prefix}-internet-access"
+    Name = "${local.prefix}-vpc"
   }
 }
 
@@ -43,27 +15,31 @@ resource "aws_internet_gateway" "this" {
   vpc_id = aws_vpc.this.id
 
   tags = {
-    Name = "${var.prefix}-internet-gateway"
+    Name = "${local.prefix}-internet-gateway"
   }
 }
 
 resource "aws_subnet" "public" {
-  vpc_id     = aws_vpc.this.id
-  cidr_block = local.public_subnet_cidr
+  count             = length(local.availability_zones)
+  vpc_id            = aws_vpc.this.id
+  cidr_block        = cidrsubnet(local.vpc_cidr, 3, 0 + count.index)
+  availability_zone = "${var.region}${local.availability_zones[count.index]}"
 
   map_public_ip_on_launch = true
 
   tags = {
-    Name = "${var.prefix}-public-subnet"
+    Name = "${local.prefix}-public-subnet-${local.availability_zones[count.index]}"
   }
 }
 
 resource "aws_subnet" "private" {
-  vpc_id     = aws_vpc.this.id
-  cidr_block = local.private_subnet_cidr
+  count             = length(local.availability_zones)
+  vpc_id            = aws_vpc.this.id
+  cidr_block        = cidrsubnet(local.vpc_cidr, 3, 4 + count.index)
+  availability_zone = "${var.region}${local.availability_zones[count.index]}"
 
   tags = {
-    Name = "${var.prefix}-private-subnet"
+    Name = "${local.prefix}-private-subnet-${local.availability_zones[count.index]}"
   }
 }
 
