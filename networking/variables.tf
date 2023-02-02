@@ -7,5 +7,5 @@ variable "region" {
 }
 
 variable "container_port" {
-  type = string
+  type = number
 }
