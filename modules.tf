@@ -20,3 +20,12 @@ module "containers" {
   health_check_path     = "/healthcheck"
   vpc_id                = module.networking.vpc_id
 }
+
+module "rds" {
+  source             = "./rds"
+  prefix             = local.prefix
+  vpc_id             = module.networking.vpc_id
+  ecs_cluster_id     = module.containers.ecs_cluster_id
+  private_subnet_ids = module.networking.private_subnet_ids
+  security_group_ids = module.networking.security_group_ids
+}
