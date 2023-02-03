@@ -19,6 +19,7 @@ module "containers" {
   security_group_ids    = module.networking.security_group_ids
   health_check_path     = "/healthcheck"
   vpc_id                = module.networking.vpc_id
+  rds_db_arn            = module.rds.rds_db_arn
 }
 
 module "rds" {

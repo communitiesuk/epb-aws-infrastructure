@@ -30,7 +30,7 @@ resource "aws_iam_policy" "rds" {
       {
          "Effect": "Allow",
          "Action": "rds:*",
-         "Resource": "arn:aws:rds:${var.region}:123456789012:db:mydb"
+         "Resource": "${var.rds_db_arn}"
       }
    ]
 }

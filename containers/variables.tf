@@ -37,3 +37,7 @@ variable "health_check_path" {
 variable "vpc_id" {
   type = string
 }
+
+variable "rds_db_arn" {
+  type = string
+}
