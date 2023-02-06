@@ -55,6 +55,10 @@ module "secrets" {
     {
       name  = "RDS_AUTH_SERVICE_DB_NAME"
       value = module.rds_auth_service.rds_db_name
+    },
+    {
+      name  = "RDS_AUTH_SERVICE_URL"
+      value = module.rds_auth_service.rds_db_endpoint
     }
   ]
 }
