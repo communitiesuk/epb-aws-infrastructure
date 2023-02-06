@@ -11,15 +11,16 @@ module "ecs_auth_service" {
   prefix = local.prefix
   region = var.region
   #  to be updated when we have the containers set up
-  container_port        = "55555"
-  container_image       = "ruby" # TODO add correct image
-  environment_variables = []
-  public_subnet_ids     = module.networking.public_subnet_ids
-  private_subnet_ids    = module.networking.private_subnet_ids
-  security_group_ids    = module.networking.security_group_ids
-  health_check_path     = "/healthcheck"
-  vpc_id                = module.networking.vpc_id
-  rds_db_arn            = module.rds_auth_service.rds_db_arn
+  container_port                      = "55555"
+  container_image                     = "ruby" # TODO add correct image
+  environment_variables               = []
+  public_subnet_ids                   = module.networking.public_subnet_ids
+  private_subnet_ids                  = module.networking.private_subnet_ids
+  security_group_ids                  = module.networking.security_group_ids
+  health_check_path                   = "/healthcheck"
+  vpc_id                              = module.networking.vpc_id
+  rds_db_arn                          = module.rds_auth_service.rds_db_arn
+  rds_db_connection_string_secret_arn = module.secrets.secret_arns["RDS_AUTH_SERVICE_CONNECTION_STRING"]
 }
 
 module "rds_auth_service" {
