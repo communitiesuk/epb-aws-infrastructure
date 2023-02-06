@@ -8,7 +8,7 @@ resource "aws_db_instance" "postgres_rds" {
   db_name                 = var.db_name
   engine                  = "postgres"
   instance_class          = "db.t3.micro"
-  vpc_security_group_ids  = var.security_group_ids
+  vpc_security_group_ids  = [aws_security_group.rds_security_group.id]
   db_subnet_group_name    = aws_db_subnet_group.rds_subnet_group.name
   allocated_storage       = 5
   storage_type            = "gp2"
