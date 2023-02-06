@@ -28,7 +28,7 @@ There are 2 options:
     `mfa_serial=arn:aws:iam::111111111:mfa/firstname.surname`  
     `role_arn=arn:aws:iam::123456789:role/developer`
 
-2. Add the access key id and secret key for the profile in the AWS credentials file. Use the credentials for your existing IAM user, check in the AWS console to verify they match.
+1. Add the access key id and secret key for the profile in the AWS credentials file. Use the credentials for your existing IAM user, check in the AWS console to verify they match.
 
     `[{profile_name_for_AWS_environment}]`  
     `aws_access_key_id = {IAMUser_aws_access_key_id}`  
@@ -39,7 +39,7 @@ There are 2 options:
     `aws_access_key_id = ABC123DEF456GHI789`  
     `aws_secret_access_key = B1l1o1o1p123456879`
 
-3. If using `aws-vault` to execute commands later, you will also need add a user:  
+1. If using `aws-vault` to execute commands later, you will also need add a user:  
     `aws-vault add {profile_name_for_AWS_environment}`
 
     Example:  
@@ -51,39 +51,44 @@ There are 2 options:
 Follow instructions in [official AWS Valut documentation](https://github.com/99designs/aws-vault/blob/master/USAGE.md#config)
 
 
-### Setting up tfstate management
+## Setting up tfstate management (Initial setup only)
+
+**Skip this if the infrastructure state management exists already**
 
 Before starting to terraform the infrastructure of an environment, you will need to use the pre-configured S3
-backend, so that terraform can store / lock the state
+backend, so that terraform can store / lock the state.
 
-The infrastructure used for the S3 backend is defined via terraform in the `/state-init` directory
-
-1. Run:
+The infrastructure used for the S3 backend is defined via terraform in the `/state-init` directory:
     
-    `cd /state-init`   
+1. `cd /state-init`   
 
-    To initialise the backend S3 bucket and dynamo db config, run:  
+1. Initialize your Terraform enivronment  
     `aws-vault exec {profile_name_for_AWS_environment} -- terraform init`
 
     Example:  
     `aws-vault exec integration -- terraform init`
 
-2. Go to the root of the project `cd ..`
+1. Create infrastructure
+    `aws-vault exec {profile_name_for_AWS_environment} -- terraform apply`
+    
 
-    To initialise the backend and environment infrastructure config, run:  
+    Example:  
+    `aws-vault exec integration -- terraform apply`
+
+## Setup making changes
+1. Go to the root of the project
+
+1. Initialize your Terraform environment
     `aws-vault exec {profile_name_for_AWS_environment} -- terraform init -backend-config=backend_{profile}.hcl`
 
     Example:  
     `aws-vault exec integration -- terraform init -backend-config=backend_integration.hcl`
 
+1. Run a terraform plan and check you see everything is upto date:  
+    `aws-vault exec {profile_name_for_AWS_environment} -- terraform plan`
 
-## Checking if the infrastructure is in synch with current Terraform code
-
-Run a terraform plan and check you see everything is upto date:  
-`aws-vault exec {profile_name_for_AWS_environment} -- terraform plan`
-
-Example:  
-`aws-vault exec integration -- terraform plan`
+    Example:  
+    `aws-vault exec integration -- terraform plan`
 
 
 ## Making changes
@@ -96,7 +101,7 @@ Example:
 
     `aws-vault exec {profile_name_for_AWS_environment} -- terraform apply tfplan`
 
-1. (Optional) Once successfully applied, it is recommended that you go into the AWS Management Console and sanity check the changes have been applied as you expected
+1. (Optional) Once successfully applied, you should be able to see the changes in the AWS Management Console. Sanity check the changes have been applied as you expected
 
 
 ## Deleting infrastructure
