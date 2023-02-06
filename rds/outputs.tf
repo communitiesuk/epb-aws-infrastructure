@@ -1,7 +1,3 @@
-output "rds_db_cluster_arn" {
-  value = aws_rds_cluster.postgres_rds_cluster.arn
-}
-
 output "rds_db_arn" {
   value = aws_db_instance.postgres_rds.arn
 }
@@ -23,7 +19,7 @@ output "rds_db_port" {
 }
 
 output "rds_db_name" {
-  value = aws_db_instance.postgres_rds.name
+  value = aws_db_instance.postgres_rds.db_name
 }
 
 output "rds_db_endpoint" {
