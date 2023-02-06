@@ -1,7 +1,13 @@
+resource "random_password" "password" {
+  length  = 16
+  special = false
+}
+
 resource "aws_db_instance" "postgres_rds" {
+  identifier              = "${var.prefix}-postgres-db"
+  db_name                 = var.db_name
   engine                  = "postgres"
   instance_class          = "db.t3.micro"
-  db_name                 = replace("${var.prefix}-postgres-db", "-", "")
   vpc_security_group_ids  = var.security_group_ids
   db_subnet_group_name    = aws_db_subnet_group.rds_subnet_group.name
   allocated_storage       = 5
@@ -9,9 +15,8 @@ resource "aws_db_instance" "postgres_rds" {
   backup_retention_period = 0
   skip_final_snapshot     = true
   username                = "postgres"
-  password                = "postgres-password"
+  password                = random_password.password.result
   engine_version          = "14.6"
-  identifier              = "${var.prefix}-postgres-db"
 }
 
 resource "aws_db_subnet_group" "rds_subnet_group" {
@@ -24,9 +29,9 @@ resource "aws_security_group" "rds_security_group" {
   vpc_id = var.vpc_id
 
   ingress {
-    from_port   = 5432
-    to_port     = 5432
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    security_groups = var.security_group_ids
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
   }
 }

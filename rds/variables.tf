@@ -17,3 +17,7 @@ variable "private_subnet_ids" {
 variable "security_group_ids" {
   type = list(string)
 }
+
+variable "db_name" {
+  type = string
+}
