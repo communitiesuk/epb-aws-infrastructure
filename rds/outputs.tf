@@ -10,18 +10,8 @@ output "rds_db_username" {
   value = aws_db_instance.postgres_rds.username
 }
 
-output "rds_db_hostname" {
-  value = aws_db_instance.postgres_rds.endpoint
-}
-
-output "rds_db_port" {
-  value = aws_db_instance.postgres_rds.port
-}
-
-output "rds_db_name" {
-  value = aws_db_instance.postgres_rds.db_name
-}
-
-output "rds_db_endpoint" {
-  value = aws_db_instance.postgres_rds.endpoint
+output "rds_db_connection_string" {
+  description = "A libpq (Postgresql) connection string for consuming this database, intended to be set as the environment variable DATABASE_URL"
+  value       = "postgresql://${aws_db_instance.postgres_rds.username}@${aws_db_instance.postgres_rds.endpoint}/${aws_db_instance.postgres_rds.db_name}?password=${aws_db_instance.postgres_rds.password}"
+  sensitive = true
 }

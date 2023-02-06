@@ -38,9 +38,6 @@ module "secrets" {
   secrets = {
     "RDS_AUTH_SERVICE_PASSWORD" : module.rds_auth_service.rds_db_password,
     "RDS_AUTH_SERVICE_USERNAME" : module.rds_auth_service.rds_db_username,
-    "RDS_AUTH_SERVICE_HOSTNAME" : module.rds_auth_service.rds_db_hostname,
-    "RDS_AUTH_SERVICE_PORT" : module.rds_auth_service.rds_db_port,
-    "RDS_AUTH_SERVICE_DB_NAME" : module.rds_auth_service.rds_db_name,
-    "RDS_AUTH_SERVICE_ENDPOINT" : module.rds_auth_service.rds_db_endpoint
+    "RDS_AUTH_SERVICE_CONNECTION_STRING" : module.rds_auth_service.rds_db_connection_string
   }
 }
