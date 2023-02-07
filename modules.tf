@@ -7,9 +7,10 @@ module "networking" {
 }
 
 module "ecs_auth_service" {
-  source = "./ecs_service"
-  prefix = "${local.prefix}-auth-service"
-  region = var.region
+  source                              = "./ecs_service"
+  prefix                              = "${local.prefix}-auth-service"
+  environment                         = var.environment
+  region                              = var.region
   container_port                      = "80"
   environment_variables               = []
   public_subnet_ids                   = module.networking.public_subnet_ids
