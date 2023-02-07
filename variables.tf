@@ -1,5 +1,5 @@
 variable "environment" {
-  default = "integration"
+  default = "intg"
   type    = string
 }
 

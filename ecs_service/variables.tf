@@ -10,10 +10,6 @@ variable "container_port" {
   type = number
 }
 
-variable "container_image" {
-  type = string
-}
-
 variable "environment_variables" {
   type = list(map(string))
 }

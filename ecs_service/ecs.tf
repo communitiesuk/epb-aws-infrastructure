@@ -13,7 +13,7 @@ resource "aws_ecs_task_definition" "this" {
   container_definitions = jsonencode([
     {
       name        = "${var.prefix}-container"
-      image       = "${var.container_image}:latest"
+      image       = "${aws_ecr_repository.this.repository_url}:latest"
       essential   = true
       environment = var.environment_variables
       secrets = [
