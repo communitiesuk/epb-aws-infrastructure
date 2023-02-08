@@ -111,3 +111,35 @@ When deployed infrastructure is no longer needed
 1. `aws-vault exec {profile_name_for_AWS_environment} -- terraform destroy`
 
 1. Because the state of the S3 and DynamoDB are not stored in a permanent backend, those resources should be deleted through AWS console
+
+
+## Deploying image to ECR 
+
+1. Retrieve an authentication token and authenticate your Docker client to your registry.
+    Use the AWS CLI:
+
+    `docker login -u AWS -p $(aws-vault exec {profile_name_for_AWS_environment} -- aws ecr get-login-password --region eu-west-2) {account_id}.dkr.ecr.eu-west-2.amazonaws.com`
+
+    Note: if you receive an error using the AWS CLI, make sure that you have the latest version of the AWS CLI and Docker installed.
+
+1. Build your Docker image using the following command. For information on building a Docker file from scratch, see the instructions here . You can skip this step if your image has already been built:
+
+    `docker build -t {local_image_name} .`
+
+1. After the build is completed, tag your image so you can push the image to this repository:
+
+    `docker tag {local_image_name}:latest {account_id}.dkr.ecr.eu-west-2.amazonaws.com/{ecr_name}:latest`
+
+1. Run the following command to push this image to your newly created AWS repository:
+
+    `docker push {account_id}.dkr.ecr.eu-west-2.amazonaws.com/{ecr_name}:latest`
+
+### e.g for auth server in integration run the following commands:
+
+   `docker login -u AWS -p $(aws-vault exec integration -- aws ecr get-login-password --region eu-west-2) 851965904888.dkr.ecr.eu-west-2.amazonaws.com`
+
+   `docker build -t epb-auth-service .`
+
+   `docker tag epb-auth-service:latest 851965904888.dkr.ecr.eu-west-2.amazonaws.com/epb-intg-auth-service-ecr:latest`
+
+   `docker push 851965904888.dkr.ecr.eu-west-2.amazonaws.com/epb-intg-auth-service-ecr:latest`
