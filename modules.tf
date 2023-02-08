@@ -41,3 +41,13 @@ module "secrets" {
     "RDS_AUTH_SERVICE_CONNECTION_STRING" : module.rds_auth_service.rds_db_connection_string
   }
 }
+
+module "data_migration_auth_service" {
+  source                              = "./data_migration"
+  prefix                              = "${local.prefix}-data-migration"
+  environment                         = var.environment
+  region                              = var.region
+  rds_db_arn                          = module.rds_auth_service.rds_db_arn
+  rds_db_connection_string_secret_arn = module.secrets.secret_arns["RDS_AUTH_SERVICE_CONNECTION_STRING"]
+  backup_file                         = "epbr-auth-integration.dump"
+}
