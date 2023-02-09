@@ -23,7 +23,7 @@ resource "aws_ecs_task_definition" "this" {
         },
         {
           name      = "BACKUP_FILE",
-          valueFrom = var.backup_file
+          value = var.backup_file
         }
       ]
       secrets = [
