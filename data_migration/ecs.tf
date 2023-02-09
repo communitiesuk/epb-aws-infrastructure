@@ -1,7 +1,6 @@
 resource "aws_ecs_cluster" "this" {
-  name = "${var.prefix}-data-migration-cluster"
+  name = "${var.prefix}-cluster"
 }
-
 
 resource "aws_ecs_task_definition" "this" {
   family                   = "${var.prefix}-ecs-task"
@@ -13,7 +12,7 @@ resource "aws_ecs_task_definition" "this" {
   task_role_arn            = aws_iam_role.ecs_task_role.arn
   container_definitions = jsonencode([
     {
-      name      = "${var.prefix}-data-migration-container"
+      name      = "${var.prefix}-container"
       image     = "${aws_ecr_repository.this.repository_url}:latest"
       essential = true
       environment = [
@@ -22,7 +21,7 @@ resource "aws_ecs_task_definition" "this" {
           value = aws_s3_bucket.this.bucket
         },
         {
-          name      = "BACKUP_FILE",
+          name  = "BACKUP_FILE",
           value = var.backup_file
         }
       ]
@@ -42,6 +41,7 @@ resource "aws_ecs_task_definition" "this" {
         }
       }
   }])
+
   runtime_platform {
     operating_system_family = "LINUX"
     cpu_architecture        = "ARM64"
