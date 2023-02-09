@@ -30,7 +30,7 @@ resource "aws_ecs_task_definition" "this" {
       logConfiguration = {
         logDriver = "awslogs",
         options = {
-          awslogs-group         = aws_cloudwatch_log_group.this.id,
+          awslogs-group         = var.aws_cloudwatch_log_group_id,
           awslogs-region        = var.region,
           awslogs-stream-prefix = "ecs"
         }

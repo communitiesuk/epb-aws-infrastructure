@@ -45,3 +45,7 @@ variable "vpc_id" {
 variable "rds_db_arn" {
   type = string
 }
+
+variable "aws_cloudwatch_log_group_id" {
+  type = string
+}
