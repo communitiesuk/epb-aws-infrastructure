@@ -16,12 +16,10 @@ resource "aws_ecs_task_definition" "this" {
       image       = "${aws_ecr_repository.this.repository_url}:latest"
       essential   = true
       environment = var.environment_variables
-      secrets = [
-        {
-          name      = "DATABASE_URL",
-          valueFrom = var.rds_db_connection_string_secret_arn
-        }
-      ]
+      secrets = [for key, value in var.secrets : {
+        name      = key
+        valueFrom = value
+      }]
       portMappings = [
         {
           protocol      = "tcp"

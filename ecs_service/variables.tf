@@ -18,6 +18,10 @@ variable "environment_variables" {
   type = list(map(string))
 }
 
+variable "secrets" {
+  type = map(string)
+}
+
 variable "public_subnet_ids" {
   type = list(string)
 }
@@ -39,9 +43,5 @@ variable "vpc_id" {
 }
 
 variable "rds_db_arn" {
-  type = string
-}
-
-variable "rds_db_connection_string_secret_arn" {
   type = string
 }
