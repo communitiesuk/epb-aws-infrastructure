@@ -29,7 +29,7 @@ module "rds_auth_service" {
   vpc_id             = module.networking.vpc_id
   ecs_cluster_id     = module.ecs_auth_service.ecs_cluster_id
   private_subnet_ids = module.networking.private_subnet_ids
-  security_group_ids = module.networking.security_group_ids
+  security_group_ids = concat(module.networking.security_group_ids, [module.bastion.security_group_id])
 }
 
 module "secrets" {
@@ -66,4 +66,10 @@ module "data_migration_auth_service" {
   rds_db_arn                          = module.rds_auth_service.rds_db_arn
   rds_db_connection_string_secret_arn = module.secrets.secret_arns["RDS_AUTH_SERVICE_CONNECTION_STRING"]
   backup_file                         = "epbr-auth-integration.dump"
+}
+
+module "bastion" {
+  source    = "./bastion"
+  subnet_id = module.networking.private_subnet_ids[0]
+  vpc_id    = module.networking.vpc_id
 }
