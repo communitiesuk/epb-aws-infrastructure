@@ -69,7 +69,8 @@ module "data_migration_auth_service" {
 }
 
 module "bastion" {
-  source    = "./bastion"
-  subnet_id = module.networking.private_subnet_ids[0]
-  vpc_id    = module.networking.vpc_id
+  source             = "./bastion"
+  subnet_id          = module.networking.private_subnet_ids[0]
+  vpc_id             = module.networking.vpc_id
+  iam_policy_rds_arn = module.ecs_auth_service.iam_policy_rds_arn
 }

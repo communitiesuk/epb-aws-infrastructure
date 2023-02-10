@@ -5,3 +5,7 @@ variable "subnet_id" {
 variable "vpc_id" {
   type = string
 }
+
+variable "iam_policy_rds_arn" {
+  type = string
+}
