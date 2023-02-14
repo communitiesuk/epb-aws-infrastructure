@@ -9,6 +9,6 @@ variable "region" {
 }
 
 variable "storage_backup_period" {
-  default = 0
+  default = 1
   type    = number
 }

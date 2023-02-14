@@ -1,18 +1,17 @@
 resource "aws_db_instance" "postgres_rds" {
-  identifier              = "${var.prefix}-${var.engine}-db"
+  identifier              = "${var.prefix}-postgres-db"
   db_name                 = var.db_name
-  engine                  = var.engine
+  engine                  = "postgres"
   instance_class          = var.instance_class
   vpc_security_group_ids  = [aws_security_group.rds_security_group.id]
   db_subnet_group_name    = var.subnet_group_name
   allocated_storage       = var.storage_size
-  storage_type            = var.engine == "aurora-postgresql" ? "io1" : "gp2"
+  storage_type            = "gp2"
   backup_retention_period = var.storage_backup_period
   skip_final_snapshot     = true
   username                = "postgres"
   password                = random_password.password.result
-  engine_version          = local.engine_version
-  iops = var.engine == "aurora-postgresql" ? 1000 : null
+  engine_version          = "14.6"
 }
 
 resource "aws_security_group" "rds_security_group" {
