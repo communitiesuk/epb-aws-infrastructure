@@ -21,8 +21,8 @@ variable "db_name" {
 variable "engine" {
   type = string
   validation {
-    condition     = contains(["postgres", "aurora-postgres"], var.engine)
-    error_message = "Engine must be either postgres or aurora-postgres"
+    condition     = contains(["postgres", "aurora-postgresql"], var.engine)
+    error_message = "Engine must be either postgres or aurora-postgresql"
   }
 }
 
@@ -32,4 +32,8 @@ variable "storage_backup_period" {
 
 variable "storage_size" {
   type = number
+}
+
+variable "instance_class" {
+  type = string
 }

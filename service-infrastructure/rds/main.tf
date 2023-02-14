@@ -4,5 +4,5 @@ resource "random_password" "password" {
 }
 
 locals {
-  engine_version = var.engine == "postgres" ? "14.6" : "13.7"
+  engine_version = var.engine == "postgres" ? "14.6" : "14.5"
 }
