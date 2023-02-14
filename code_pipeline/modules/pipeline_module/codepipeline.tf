@@ -52,3 +52,6 @@ resource "aws_codepipeline" "codepipeline" {
 }
 
 
+data "aws_ssm_parameter" "codebuild_ecr_url" {
+  name = "codebuild-cloudfoundry-ecr-url"
+}

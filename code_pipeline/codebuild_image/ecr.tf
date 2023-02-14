@@ -1,12 +1,15 @@
 resource "aws_ecr_repository" "this" {
   for_each             = var.configurations
-  name                 = "${var.project_name}-${each.key}"
+  name                 = "epbr-${each.key}"
   image_tag_mutability = "MUTABLE"
   tags                 = var.tags
+  force_delete         = true
+
 }
 
 resource "aws_ecr_repository_policy" "policy" {
-  repository = aws_ecr_repository.this.name
+  for_each   = aws_ecr_repository.this
+  repository = each.value.name
   policy     = data.aws_iam_policy_document.ecr_policy.json
 }
 

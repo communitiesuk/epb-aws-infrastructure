@@ -17,7 +17,7 @@ resource "aws_codebuild_project" "build_images" {
 
     environment_variable {
       name  = "REPOSITORY_URI"
-      value = aws_ecr_repository.this.repository_url
+      value = aws_ecr_repository.this[each.key].repository_url
     }
   }
 
