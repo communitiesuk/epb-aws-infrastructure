@@ -7,6 +7,7 @@ resource "aws_instance" "bastion" {
   ]
 
   subnet_id = var.subnet_id
+  iam_instance_profile = aws_iam_instance_profile.bastion.name
 
   tags = {
     Name = "bastion-host"
