@@ -67,7 +67,7 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy_attach
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
-resource "aws_iam_role_policy" "password_policy_secretsmanager" {
+resource "aws_iam_role_policy" "policy_secretsmanager" {
   name = "${var.prefix}-secret-access"
   role = aws_iam_role.ecs_task_execution_role.id
 
@@ -81,6 +81,13 @@ resource "aws_iam_role_policy" "password_policy_secretsmanager" {
         ],
         "Effect": "Allow",
         "Resource": "arn:aws:secretsmanager:eu-west-2:851965904888:secret:*"
+      },
+      {
+        "Action": [
+          "ssm:GetParameters"
+        ],
+        "Effect": "Allow",
+        "Resource": "arn:aws:ssm:eu-west-2:851965904888:parameter/*"
       }
     ]
   }
