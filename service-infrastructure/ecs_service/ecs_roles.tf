@@ -86,8 +86,3 @@ resource "aws_iam_role_policy" "password_policy_secretsmanager" {
   }
   EOF
 }
-
-resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy_attachment" {
-  role       = aws_iam_role.ecs_task_role.name
-  policy_arn = aws_iam_role_policy.password_policy_secretsmanager.arn
-}

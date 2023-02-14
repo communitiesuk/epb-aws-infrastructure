@@ -1,3 +1,3 @@
-module "back-end"{
+module "back-end" {
   source = "../modules/backend_module"
 }

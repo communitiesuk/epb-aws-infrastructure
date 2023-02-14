@@ -6,7 +6,7 @@ resource "aws_instance" "bastion" {
     aws_security_group.bastion.id,
   ]
 
-  subnet_id = var.subnet_id
+  subnet_id            = var.subnet_id
   iam_instance_profile = aws_iam_instance_profile.bastion.name
 
   tags = {

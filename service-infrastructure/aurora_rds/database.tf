@@ -9,7 +9,7 @@ resource "aws_rds_cluster" "this" {
   backup_retention_period = var.storage_backup_period
   preferred_backup_window = "02:00-04:00"
 
-  db_subnet_group_name    = var.subnet_group_name
+  db_subnet_group_name   = var.subnet_group_name
   vpc_security_group_ids = [aws_security_group.rds_security_group.id]
 
   storage_encrypted   = true

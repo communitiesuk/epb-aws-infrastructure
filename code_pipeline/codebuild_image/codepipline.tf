@@ -68,7 +68,7 @@ resource "aws_codepipeline" "codepipeline" {
 
 data "aws_iam_policy_document" "codepipeline_role_policy" {
   statement {
-    effect  = "Allow"
+    effect = "Allow"
     actions = [
       "s3:GetObject",
       "s3:GetObjectVersion",

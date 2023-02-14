@@ -7,13 +7,13 @@ resource "aws_codebuild_project" "build_and_test" {
   }
 
   environment {
-    compute_type = "BUILD_GENERAL1_SMALL"
-    image        = "ruby:3.0"
-    type         = "LINUX_CONTAINER"
+    compute_type    = "BUILD_GENERAL1_SMALL"
+    image           = "ruby:3.0"
+    type            = "LINUX_CONTAINER"
     privileged_mode = true
   }
 
   source {
-    type      = "CODEPIPELINE"
+    type = "CODEPIPELINE"
   }
 }

@@ -95,7 +95,7 @@ data "aws_iam_policy_document" "codebuild_role_policy" {
 }
 
 resource "aws_iam_role" "codebuild_role" {
-  name    = "${var.project_name}-codebuild-role"
+  name               = "${var.project_name}-codebuild-role"
   assume_role_policy = data.aws_iam_policy_document.assume_role_codebuild.json
 }
 
