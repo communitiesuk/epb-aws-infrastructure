@@ -76,7 +76,8 @@ The infrastructure used for the S3 backend is defined via terraform in the `/sta
     `aws-vault exec integration -- terraform apply`
 
 ## Setup making changes
-1. Go to the root of the project
+
+1. From root `cd service-infrastructure`
 
 1. Initialize your Terraform environment
     `aws-vault exec {profile_name_for_AWS_environment} -- terraform init -backend-config=backend_{profile}.hcl`
