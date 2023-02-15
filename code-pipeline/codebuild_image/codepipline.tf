@@ -20,7 +20,7 @@ resource "aws_s3_bucket_public_access_block" "bucket" {
 
 resource "aws_codepipeline" "codepipeline" {
   for_each = var.configurations
-  name     = "${var.project_name}s-${each.key}-pipeline"
+  name     = "epbr-${each.key}-image-pipeline"
   role_arn = aws_iam_role.codepipeline_role.arn
 
   artifact_store {

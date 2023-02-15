@@ -2,9 +2,6 @@ variable "region" {
   default = "eu-west-2"
 }
 
-variable "codebuild_image" {
-  default = "689681667086.dkr.ecr.eu-west-2.amazonaws.com/codebuild-image-codebuild-cloudfoundry:latest"
-}
 
 
 variable "github_organisation" {

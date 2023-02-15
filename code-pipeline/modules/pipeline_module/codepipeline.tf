@@ -49,6 +49,24 @@ resource "aws_codepipeline" "codepipeline" {
     }
   }
 
+  stage {
+    name = "deploy-to-integration"
+
+    action {
+      name             = "Build"
+      category         = "Build"
+      owner            = "AWS"
+      provider         = "CodeBuild"
+      version          = "1"
+      input_artifacts  = ["source_output"]
+      output_artifacts = ["eploy-to-integration_output"]
+
+      configuration = {
+        ProjectName = aws_codebuild_project.build_and_test.name
+      }
+    }
+  }
+
 }
 
 
