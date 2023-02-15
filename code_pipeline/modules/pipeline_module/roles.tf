@@ -55,6 +55,13 @@ data "aws_iam_policy_document" "codebuild_role_policy" {
     ]
     resources = [aws_codestarconnections_connection.communitiesuk_connection.arn]
   }
+  statement {
+    effect = "Allow"
+    actions = [
+      "ssm:GetParameters"
+    ]
+    resources = ["*"]
+  }
 
 }
 
