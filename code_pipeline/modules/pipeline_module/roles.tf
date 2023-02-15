@@ -111,17 +111,17 @@ data "aws_iam_policy_document" "codepipeline_role_policy" {
   }
 }
 
-#resource "aws_iam_role" "codebuild_role" {
-#  name               = "epb-data-warehouse-codebuild-role"
-#  assume_role_policy = data.aws_iam_policy_document.assume_role_codebuild.json
-#}
-#
-#resource "aws_iam_role_policy" "codebuild_policy" {
-#  name   = "epb-data-warehouse-codebuild-policy"
-#  role   = aws_iam_role.codebuild_role.id
-#  policy = data.aws_iam_policy_document.codebuild_role_policy.json
-#}
-#
+resource "aws_iam_role" "codebuild_role" {
+  name               = "${var.project_name}-codebuild-role"
+  assume_role_policy = data.aws_iam_policy_document.assume_role_codebuild.json
+}
+
+resource "aws_iam_role_policy" "codebuild_policy" {
+  name   = "${var.project_name}-codebuild-policy"
+  role   = aws_iam_role.codebuild_role.id
+  policy = data.aws_iam_policy_document.codebuild_role_policy.json
+}
+
 resource "aws_iam_role" "codepipeline_role" {
   name               = "${var.pipeline_name}-role"
   assume_role_policy = data.aws_iam_policy_document.assume_role_codepipeline.json
@@ -131,11 +131,6 @@ resource "aws_iam_role_policy" "codepipeline_policy" {
   name   = "${var.pipeline_name}-policy"
   role   = aws_iam_role.codepipeline_role.id
   policy = data.aws_iam_policy_document.codepipeline_role_policy.json
-}
-
-resource "aws_iam_role" "codebuild_role" {
-  name               = "${var.project_name}-codebuild-role"
-  assume_role_policy = data.aws_iam_policy_document.assume_role_codebuild.json
 }
 
 
