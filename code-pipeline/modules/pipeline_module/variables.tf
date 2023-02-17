@@ -23,6 +23,11 @@ variable "pipeline_name" {
 variable "project_name" {
   type = string
 }
+variable "app_ecr_name" {
+  type = string
+}
+
+
 
 variable "tags" {
   description = "AWS asset tags"
@@ -30,4 +35,26 @@ variable "tags" {
     Project   = "epb"
     Terraform = true
   }
+}
+
+
+variable "codepipeline_bucket_arn" {
+  type = string
+}
+
+
+variable "codepipeline_bucket" {
+  type = string
+}
+
+variable "communitiesuk_connection_arn" {
+  type = string
+}
+
+variable "codebuild_role_arn" {
+  type = string
+}
+
+variable "account_ids" {
+  type = map(string)
 }

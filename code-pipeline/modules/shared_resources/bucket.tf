@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "codepipeline_bucket" {
-  bucket        = "${var.pipeline_name}-storage"
+  bucket        = "epbr-pipeline-storage"
   force_destroy = true
 }
 
