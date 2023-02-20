@@ -6,6 +6,6 @@ variable "vpc_id" {
   type = string
 }
 
-variable "iam_policy_rds_arn" {
-  type = string
+variable "rds_access_policy_arns" {
+  type = map(string)
 }

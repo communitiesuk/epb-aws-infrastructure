@@ -13,20 +13,21 @@ module "logging" {
 }
 
 module "ecs_auth_service" {
-  source                      = "./ecs_service"
-  prefix                      = "${local.prefix}-auth-service"
-  environment                 = var.environment
-  region                      = var.region
-  container_port              = "80"
-  environment_variables       = []
-  secrets                     = merge(module.parameter_store.parameter_arns, { "DATABASE_URL" : module.secrets.secret_arns["RDS_AUTH_SERVICE_CONNECTION_STRING"] })
-  vpc_id                      = module.networking.vpc_id
-  private_subnet_ids          = module.networking.private_subnet_ids
-  public_subnet_ids           = module.networking.public_subnet_ids
-  security_group_ids          = module.networking.security_group_ids
-  health_check_path           = "/auth/healthcheck"
-  rds_db_arn                  = module.rds_auth_service.rds_db_arn
-  aws_cloudwatch_log_group_id = module.logging.cloudwatch_log_group_id
+  source                           = "./ecs_service"
+  prefix                           = "${local.prefix}-auth-service"
+  environment                      = var.environment
+  region                           = var.region
+  container_port                   = "80"
+  environment_variables            = []
+  secrets                          = { "DATABASE_URL" : module.secrets.secret_arns["RDS_AUTH_SERVICE_CONNECTION_STRING"] }
+  parameters                       = module.parameter_store.parameter_arns
+  vpc_id                           = module.networking.vpc_id
+  private_subnet_ids               = module.networking.private_subnet_ids
+  public_subnet_ids                = module.networking.public_subnet_ids
+  security_group_ids               = module.networking.security_group_ids
+  health_check_path                = "/auth/healthcheck"
+  additional_task_role_policy_arns = { "RDS_access" : module.rds_auth_service.rds_full_access_policy_arn }
+  aws_cloudwatch_log_group_id      = module.logging.cloudwatch_log_group_id
 }
 
 module "rds_auth_service" {
@@ -42,20 +43,21 @@ module "rds_auth_service" {
 }
 
 module "ecs_api_service" {
-  source                      = "./ecs_service"
-  prefix                      = "${local.prefix}-api-service"
-  environment                 = var.environment
-  region                      = var.region
-  container_port              = "80"
-  environment_variables       = []
-  secrets                     = merge(module.parameter_store.parameter_arns, { "DATABASE_URL" : module.secrets.secret_arns["RDS_API_SERVICE_CONNECTION_STRING"] })
-  vpc_id                      = module.networking.vpc_id
-  private_subnet_ids          = module.networking.private_subnet_ids
-  public_subnet_ids           = module.networking.public_subnet_ids
-  security_group_ids          = module.networking.security_group_ids
-  health_check_path           = "/healthcheck"
-  rds_db_arn                  = module.rds_api_service.rds_db_arn
-  aws_cloudwatch_log_group_id = module.logging.cloudwatch_log_group_id
+  source                           = "./ecs_service"
+  prefix                           = "${local.prefix}-api-service"
+  environment                      = var.environment
+  region                           = var.region
+  container_port                   = "80"
+  environment_variables            = []
+  secrets                          = { "DATABASE_URL" : module.secrets.secret_arns["RDS_API_SERVICE_CONNECTION_STRING"] }
+  parameters                       = module.parameter_store.parameter_arns
+  vpc_id                           = module.networking.vpc_id
+  private_subnet_ids               = module.networking.private_subnet_ids
+  public_subnet_ids                = module.networking.public_subnet_ids
+  security_group_ids               = module.networking.security_group_ids
+  health_check_path                = "/healthcheck"
+  additional_task_role_policy_arns = { "RDS_access" : module.rds_api_service.rds_full_access_policy_arn }
+  aws_cloudwatch_log_group_id      = module.logging.cloudwatch_log_group_id
 }
 
 module "rds_api_service" {
@@ -73,6 +75,7 @@ module "rds_api_service" {
 module "secrets" {
   source = "./secrets"
   prefix = local.prefix
+  region = var.region
   secrets = {
     "RDS_AUTH_SERVICE_PASSWORD" : module.rds_auth_service.rds_db_password,
     "RDS_AUTH_SERVICE_USERNAME" : module.rds_auth_service.rds_db_username,
@@ -83,40 +86,17 @@ module "secrets" {
   }
 }
 
+
 module "parameter_store" {
   source = "./parameter_store"
-  parameters = [
-    {
-      name  = "JWT_ISSUER"
-      type  = "String"
-      value = "placeholder"
-    },
-    {
-      name  = "JWT_SECRET"
-      type  = "String"
-      value = "placeholder"
-    },
-    {
-      name  = "LANG"
-      type  = "String"
-      value = "placeholder"
-    },
-    {
-      name  = "EPB_UNLEASH_URI"
-      type  = "String"
-      value = "placeholder"
-    },
-    {
-      name  = "VALID_DOMESTIC_SCHEMAS"
-      type  = "String"
-      value = "placeholder"
-    },
-    {
-      name  = "VALID_NON_DOMESTIC_SCHEMAS"
-      type  = "String"
-      value = "placeholder"
-    }
-  ]
+  parameters = {
+    "JWT_ISSUER" : "String",
+    "JWT_SECRET" : "String",
+    "LANG" : "String",
+    "EPB_UNLEASH_URI" : "String",
+    "VALID_DOMESTIC_SCHEMAS" : "String",
+    "VALID_NON_DOMESTIC_SCHEMAS" : "String"
+  }
 }
 
 module "data_migration_auth_service" {
@@ -124,14 +104,17 @@ module "data_migration_auth_service" {
   prefix                              = "${local.prefix}-data-migration"
   environment                         = var.environment
   region                              = var.region
-  rds_db_arn                          = module.rds_auth_service.rds_db_arn
+  rds_full_access_policy_arn          = module.rds_auth_service.rds_full_access_policy_arn
   rds_db_connection_string_secret_arn = module.secrets.secret_arns["RDS_AUTH_SERVICE_CONNECTION_STRING"]
   backup_file                         = "epbr-auth-integration.dump"
 }
 
 module "bastion" {
-  source             = "./bastion"
-  subnet_id          = module.networking.private_subnet_ids[0]
-  vpc_id             = module.networking.vpc_id
-  iam_policy_rds_arn = module.ecs_auth_service.iam_policy_rds_arn
+  source    = "./bastion"
+  subnet_id = module.networking.private_subnet_ids[0]
+  vpc_id    = module.networking.vpc_id
+  rds_access_policy_arns = {
+    "Auth" : module.rds_auth_service.rds_full_access_policy_arn,
+    "API" : module.rds_api_service.rds_full_access_policy_arn
+  }
 }

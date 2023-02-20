@@ -22,6 +22,10 @@ variable "secrets" {
   type = map(string)
 }
 
+variable "parameters" {
+  type = map(string)
+}
+
 variable "public_subnet_ids" {
   type = list(string)
 }
@@ -42,8 +46,16 @@ variable "vpc_id" {
   type = string
 }
 
-variable "rds_db_arn" {
-  type = string
+variable "additional_task_role_policy_arns" {
+  type        = map(string)
+  default     = {}
+  description = "these should not include secrets, parameters or ECS execution specific policies"
+}
+
+variable "additional_task_execution_role_policy_arns" {
+  type        = map(string)
+  default     = {}
+  description = "these should not include secrets, parameters or ECS execution specific policies"
 }
 
 variable "aws_cloudwatch_log_group_id" {

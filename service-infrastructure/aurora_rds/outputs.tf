@@ -1,5 +1,5 @@
-output "rds_db_arn" {
-  value = aws_rds_cluster.this.arn
+output "rds_full_access_policy_arn" {
+  value = aws_iam_policy.rds.arn
 }
 
 output "rds_db_password" {

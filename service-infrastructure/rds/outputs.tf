@@ -1,5 +1,5 @@
-output "rds_db_arn" {
-  value = aws_db_instance.postgres_rds.arn
+output "rds_full_access_policy_arn" {
+  value = aws_iam_policy.rds.arn
 }
 
 output "rds_db_password" {

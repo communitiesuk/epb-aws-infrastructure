@@ -16,7 +16,7 @@ resource "aws_ecs_task_definition" "this" {
       image       = "${aws_ecr_repository.this.repository_url}:latest"
       essential   = true
       environment = var.environment_variables
-      secrets = [for key, value in var.secrets : {
+      secrets = [for key, value in merge(var.secrets, var.parameters) : {
         name      = key
         valueFrom = value
       }]

@@ -10,10 +10,6 @@ variable "region" {
   type = string
 }
 
-variable "rds_db_arn" {
-  type = string
-}
-
 variable "rds_db_connection_string_secret_arn" {
   type = string
 }
@@ -22,4 +18,6 @@ variable "backup_file" {
   type = string
 }
 
-
+variable "rds_full_access_policy_arn" {
+  type = string
+}
