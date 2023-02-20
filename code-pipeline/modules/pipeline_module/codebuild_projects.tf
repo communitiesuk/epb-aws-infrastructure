@@ -1,19 +1,11 @@
-data "aws_ecr_repository" "codebuild_image" {
-  name = "epbr-codebuild-cloudfoundry"
-}
 
-data "aws_ecr_repository" "postgres_image" {
-  name = "epbr-postgres"
-}
 
 data "aws_caller_identity" "current" {}
 
 
-
 resource "aws_codebuild_project" "build_and_test" {
   name         = "${var.project_name}-codebuild-build-and-test"
-  service_role = aws_iam_role.codebuild_role.arn
-
+  service_role = var.codebuild_role_arn
 
   artifacts {
     type = "CODEPIPELINE"
@@ -21,7 +13,7 @@ resource "aws_codebuild_project" "build_and_test" {
 
   environment {
     compute_type    = "BUILD_GENERAL1_SMALL"
-    image           =  data.aws_ecr_repository.codebuild_image.repository_url
+    image           = data.aws_ecr_repository.codebuild_image.repository_url
     type            = "LINUX_CONTAINER"
     privileged_mode = true
 
@@ -48,8 +40,44 @@ resource "aws_codebuild_project" "build_and_test" {
   }
 
   source {
-    type = "CODEPIPELINE"
+    type      = "CODEPIPELINE"
     buildspec = "buildspec/build_and_test_migration.yml"
+  }
+}
+
+
+resource "aws_codebuild_project" "build_and_push_image" {
+  name         = "${var.project_name}-codebuild-build-image"
+  service_role = var.codebuild_role_arn
+  tags         = var.tags
+  artifacts {
+    type = "CODEPIPELINE"
+  }
+  environment {
+    compute_type    = "BUILD_GENERAL1_MEDIUM"
+    image           = "aws/codebuild/standard:2.0"
+    type            = "LINUX_CONTAINER"
+    privileged_mode = true
+
+    environment_variable {
+      name  = "AWS_DEFAULT_REGION"
+      value = var.region
+    }
+
+    environment_variable {
+      name  = "AWS_ACCOUNT_ID"
+      value = var.account_ids["integration"]
+    }
+
+    environment_variable {
+      name  = "DOCKER_IMAGE_URI"
+      value = "${var.account_ids["integration"]}.dkr.ecr.${var.region}.amazonaws.com/${var.app_ecr_name}"
+    }
+
+  }
+  source {
+    type      = "CODEPIPELINE"
+    buildspec = "buildspec/build_push_docker_image.yml"
   }
 }
 

@@ -1,14 +1,10 @@
-resource "aws_codestarconnections_connection" "communitiesuk_connection" {
-  name          = "communitiesuk-connection"
-  provider_type = "GitHub"
-}
 
 resource "aws_codepipeline" "codepipeline" {
   name     = var.pipeline_name
   role_arn = aws_iam_role.codepipeline_role.arn
 
   artifact_store {
-    location = aws_s3_bucket.codepipeline_bucket.bucket
+    location = var.codepipeline_bucket
     type     = "S3"
   }
 
@@ -24,7 +20,7 @@ resource "aws_codepipeline" "codepipeline" {
       output_artifacts = ["source_output"]
 
       configuration = {
-        ConnectionArn        = aws_codestarconnections_connection.communitiesuk_connection.arn
+        ConnectionArn        = var.communitiesuk_connection_arn
         FullRepositoryId     = format("%s/%s", var.github_organisation, var.github_repository)
         BranchName           = var.github_branch
         OutputArtifactFormat = "CODEBUILD_CLONE_REF"
@@ -45,6 +41,25 @@ resource "aws_codepipeline" "codepipeline" {
 
       configuration = {
         ProjectName = aws_codebuild_project.build_and_test.name
+      }
+    }
+  }
+
+
+  stage {
+    name = "build-and-push-to-ecr"
+
+    action {
+      name             = "Build"
+      category         = "Build"
+      owner            = "AWS"
+      provider         = "CodeBuild"
+      version          = "1"
+      input_artifacts  = ["source_output"]
+      output_artifacts = ["build-push-ecr"]
+
+      configuration = {
+        ProjectName = aws_codebuild_project.build_and_push_image.name
       }
     }
   }
