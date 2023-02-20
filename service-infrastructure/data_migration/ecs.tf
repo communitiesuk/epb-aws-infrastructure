@@ -13,12 +13,12 @@ resource "aws_ecs_task_definition" "this" {
   container_definitions = jsonencode([
     {
       name      = "${var.prefix}-container"
-      image     = "${aws_ecr_repository.this.repository_url}:latest"
+      image     = "${var.ecr_repository_url}:latest"
       essential = true
       environment = [
         {
           name  = "BUCKET_NAME",
-          value = aws_s3_bucket.this.bucket
+          value = var.backup_bucket_name
         },
         {
           name  = "BACKUP_FILE",
@@ -35,7 +35,7 @@ resource "aws_ecs_task_definition" "this" {
       logConfiguration = {
         logDriver = "awslogs",
         options = {
-          awslogs-group         = aws_cloudwatch_log_group.this.id,
+          awslogs-group         = var.log_group,
           awslogs-region        = var.region,
           awslogs-stream-prefix = "ecs"
         }

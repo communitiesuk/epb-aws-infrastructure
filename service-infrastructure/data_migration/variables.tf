@@ -21,3 +21,19 @@ variable "backup_file" {
 variable "rds_full_access_policy_arn" {
   type = string
 }
+
+variable "ecr_repository_url" {
+  type = string
+}
+
+variable "backup_bucket_name" {
+  type = string
+}
+
+variable "backup_bucket_arn" {
+  type = string
+}
+
+variable "log_group" {
+  type = string
+}

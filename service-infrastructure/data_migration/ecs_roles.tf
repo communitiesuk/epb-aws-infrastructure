@@ -26,12 +26,12 @@ resource "aws_iam_policy" "s3" {
       {
         Effect   = "Allow",
         Action   = "s3:ListObjects",
-        Resource = "${aws_s3_bucket.this.arn}"
+        Resource = "${var.backup_bucket_arn}"
       },
       {
         Effect   = "Allow",
         Action   = "s3:*",
-        Resource = "${aws_s3_bucket.this.arn}/*"
+        Resource = "${var.backup_bucket_arn}/*"
       }
 
     ]
@@ -72,8 +72,8 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy_attach
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
-resource "aws_iam_role_policy" "password_policy_secretsmanager" {
-  name = "${var.prefix}-secret-access"
+resource "aws_iam_role_policy" "secret_access" {
+  name = "${var.prefix}-connection-string-secret-access"
   role = aws_iam_role.ecs_task_execution_role.id
 
   policy = jsonencode({
@@ -84,7 +84,7 @@ resource "aws_iam_role_policy" "password_policy_secretsmanager" {
           "secretsmanager:GetSecretValue"
         ],
         Effect   = "Allow",
-        Resource = "arn:aws:secretsmanager:eu-west-2:851965904888:secret:*"
+        Resource = var.rds_db_connection_string_secret_arn
       }
     ]
   })

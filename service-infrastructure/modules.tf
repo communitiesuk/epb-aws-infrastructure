@@ -1,5 +1,6 @@
 module "networking" {
   source = "./networking"
+
   prefix = local.prefix
   region = var.region
   #  to be updated when we have the containers set up
@@ -7,13 +8,15 @@ module "networking" {
 }
 
 module "logging" {
-  source      = "./logging"
+  source = "./logging"
+
   prefix      = local.prefix
   environment = var.environment
 }
 
 module "ecs_auth_service" {
-  source                           = "./ecs_service"
+  source = "./ecs_service"
+
   prefix                           = "${local.prefix}-auth-service"
   environment                      = var.environment
   region                           = var.region
@@ -31,7 +34,8 @@ module "ecs_auth_service" {
 }
 
 module "rds_auth_service" {
-  source                = "./rds"
+  source = "./rds"
+
   prefix                = "${local.prefix}-auth-service"
   db_name               = "epb"
   vpc_id                = module.networking.vpc_id
@@ -43,7 +47,8 @@ module "rds_auth_service" {
 }
 
 module "ecs_api_service" {
-  source                           = "./ecs_service"
+  source = "./ecs_service"
+
   prefix                           = "${local.prefix}-api-service"
   environment                      = var.environment
   region                           = var.region
@@ -61,7 +66,8 @@ module "ecs_api_service" {
 }
 
 module "rds_api_service" {
-  source                = "./aurora_rds"
+  source = "./aurora_rds"
+
   prefix                = "${local.prefix}-api-service"
   db_name               = "epb"
   vpc_id                = module.networking.vpc_id
@@ -74,6 +80,7 @@ module "rds_api_service" {
 
 module "secrets" {
   source = "./secrets"
+
   prefix = local.prefix
   region = var.region
   secrets = {
@@ -89,6 +96,7 @@ module "secrets" {
 
 module "parameter_store" {
   source = "./parameter_store"
+
   parameters = {
     "JWT_ISSUER" : "String",
     "JWT_SECRET" : "String",
@@ -99,22 +107,50 @@ module "parameter_store" {
   }
 }
 
-module "data_migration_auth_service" {
-  source                              = "./data_migration"
-  prefix                              = "${local.prefix}-data-migration"
-  environment                         = var.environment
-  region                              = var.region
-  rds_full_access_policy_arn          = module.rds_auth_service.rds_full_access_policy_arn
-  rds_db_connection_string_secret_arn = module.secrets.secret_arns["RDS_AUTH_SERVICE_CONNECTION_STRING"]
-  backup_file                         = "epbr-auth-integration.dump"
-}
 
 module "bastion" {
-  source    = "./bastion"
+  source = "./bastion"
+
   subnet_id = module.networking.private_subnet_ids[0]
   vpc_id    = module.networking.vpc_id
   rds_access_policy_arns = {
     "Auth" : module.rds_auth_service.rds_full_access_policy_arn,
     "API" : module.rds_api_service.rds_full_access_policy_arn
   }
+}
+
+module "data_migration_shared" {
+  source = "./data_migration_shared"
+
+  prefix = "${local.prefix}-data-migration"
+}
+
+module "data_migration_auth_service" {
+  source = "./data_migration"
+
+  prefix                              = "${local.prefix}-auth-migration"
+  environment                         = var.environment
+  region                              = var.region
+  rds_full_access_policy_arn          = module.rds_auth_service.rds_full_access_policy_arn
+  rds_db_connection_string_secret_arn = module.secrets.secret_arns["RDS_AUTH_SERVICE_CONNECTION_STRING"]
+  backup_file                         = "epbr-auth-integration.dump"
+  ecr_repository_url                  = module.data_migration_shared.ecr_repository_url
+  backup_bucket_name                  = module.data_migration_shared.backup_bucket_name
+  backup_bucket_arn                   = module.data_migration_shared.backup_bucket_arn
+  log_group                           = module.data_migration_shared.log_group
+}
+
+module "data_migration_api_service" {
+  source = "./data_migration"
+
+  prefix                              = "${local.prefix}-api-migration"
+  environment                         = var.environment
+  region                              = var.region
+  rds_full_access_policy_arn          = module.rds_api_service.rds_full_access_policy_arn
+  rds_db_connection_string_secret_arn = module.secrets.secret_arns["RDS_API_SERVICE_CONNECTION_STRING"]
+  backup_file                         = "epbr-api-integration.dump"
+  ecr_repository_url                  = module.data_migration_shared.ecr_repository_url
+  backup_bucket_name                  = module.data_migration_shared.backup_bucket_name
+  backup_bucket_arn                   = module.data_migration_shared.backup_bucket_arn
+  log_group                           = module.data_migration_shared.log_group
 }
