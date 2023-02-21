@@ -74,7 +74,7 @@ resource "aws_codepipeline" "codepipeline" {
       version          = "1"
       input_artifacts  = ["docker_image"]
       configuration = {
-        ProjectName = aws_codebuild_project.deploy.name
+        ProjectName = aws_codebuild_project.deploy_to_cluster.name
       }
     }
   }

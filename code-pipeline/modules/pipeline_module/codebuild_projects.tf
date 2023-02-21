@@ -83,7 +83,7 @@ resource "aws_codebuild_project" "build_image" {
 
 
 
-resource "aws_codebuild_project" "deploy" {
+resource "aws_codebuild_project" "deploy_to_cluster" {
   name         = "${var.project_name}-codebuild-deploy"
   service_role = var.codebuild_role_arn
   tags         = var.tags
@@ -127,6 +127,6 @@ resource "aws_codebuild_project" "deploy" {
 
   source {
     type      = "CODEPIPELINE"
-    buildspec = "buildspec/push_docker_image.yml"
+    buildspec = "buildspec/deploy_to_cluster.yml"
   }
 }
