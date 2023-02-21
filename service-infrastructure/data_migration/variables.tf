@@ -37,3 +37,13 @@ variable "backup_bucket_arn" {
 variable "log_group" {
   type = string
 }
+
+variable "minimum_cpu" {
+  type = number
+  default = 256
+}
+
+variable "minimum_memory_mb" {
+  type = number
+  default = 512
+}

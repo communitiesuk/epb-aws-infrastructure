@@ -153,4 +153,7 @@ module "data_migration_api_service" {
   backup_bucket_name                  = module.data_migration_shared.backup_bucket_name
   backup_bucket_arn                   = module.data_migration_shared.backup_bucket_arn
   log_group                           = module.data_migration_shared.log_group
+
+  minimum_cpu = 1024
+  minimum_memory_mb = 4096
 }
