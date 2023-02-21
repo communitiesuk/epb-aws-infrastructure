@@ -28,7 +28,7 @@ resource "aws_s3_bucket_policy" "root_log_bucket_access" {
     Version = "2012-10-17",
     Statement = [
       {
-        Effect   = "Allow",
+        Effect = "Allow",
         Principal = {
           AWS = "arn:aws:iam::652711504416:root"
         }
