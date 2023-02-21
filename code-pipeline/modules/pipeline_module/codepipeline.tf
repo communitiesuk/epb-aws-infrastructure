@@ -45,9 +45,8 @@ resource "aws_codepipeline" "codepipeline" {
     }
   }
 
-
   stage {
-    name = "build-and-push-to-ecr"
+    name = "build-docker-image"
 
     action {
       name             = "Build"
@@ -56,10 +55,10 @@ resource "aws_codepipeline" "codepipeline" {
       provider         = "CodeBuild"
       version          = "1"
       input_artifacts  = ["source_output"]
-      output_artifacts = ["build-push-ecr"]
+      output_artifacts = ["docker_image"]
 
       configuration = {
-        ProjectName = aws_codebuild_project.build_and_push_image.name
+        ProjectName = aws_codebuild_project.build_image.name
       }
     }
   }
@@ -73,11 +72,9 @@ resource "aws_codepipeline" "codepipeline" {
       owner            = "AWS"
       provider         = "CodeBuild"
       version          = "1"
-      input_artifacts  = ["source_output"]
-      output_artifacts = ["eploy-to-integration_output"]
-
+      input_artifacts  = ["docker_image"]
       configuration = {
-        ProjectName = aws_codebuild_project.build_and_test.name
+        ProjectName = aws_codebuild_project.deploy.name
       }
     }
   }

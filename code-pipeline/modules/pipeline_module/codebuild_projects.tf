@@ -46,7 +46,7 @@ resource "aws_codebuild_project" "build_and_test" {
 }
 
 
-resource "aws_codebuild_project" "build_and_push_image" {
+resource "aws_codebuild_project" "build_image" {
   name         = "${var.project_name}-codebuild-build-image"
   service_role = var.codebuild_role_arn
   tags         = var.tags
@@ -54,7 +54,7 @@ resource "aws_codebuild_project" "build_and_push_image" {
     type = "CODEPIPELINE"
   }
   environment {
-    compute_type    = "BUILD_GENERAL1_MEDIUM"
+    compute_type    = "BUILD_GENERAL1_SMALL"
     image           = "aws/codebuild/standard:2.0"
     type            = "LINUX_CONTAINER"
     privileged_mode = true
@@ -77,9 +77,56 @@ resource "aws_codebuild_project" "build_and_push_image" {
   }
   source {
     type      = "CODEPIPELINE"
-    buildspec = "buildspec/build_push_docker_image.yml"
+    buildspec = "buildspec/build_docker_image.yml"
   }
 }
 
 
 
+resource "aws_codebuild_project" "deploy" {
+  name         = "${var.project_name}-codebuild-deploy"
+  service_role = var.codebuild_role_arn
+  tags         = var.tags
+  artifacts {
+    type = "CODEPIPELINE"
+  }
+  environment {
+    compute_type    = "BUILD_GENERAL1_SMALL"
+    image           = "aws/codebuild/standard:2.0"
+    type            = "LINUX_CONTAINER"
+    privileged_mode = true
+
+    environment_variable {
+      name  = "AWS_DEFAULT_REGION"
+      value = var.region
+    }
+
+    environment_variable {
+      name  = "CLUSTER_NAME"
+      value = var.ecs_cluster_name
+    }
+
+
+    environment_variable {
+      name  = "SERVICE_NAME"
+      value = var.ecs_service_name
+    }
+
+
+    environment_variable {
+      name  = "AWS_ACCOUNT_ID"
+      value = var.account_ids["integration"]
+    }
+
+
+    environment_variable {
+      name  = "DOCKER_IMAGE_URI"
+      value = "${var.account_ids["integration"]}.dkr.ecr.${var.region}.amazonaws.com/${var.app_ecr_name}"
+    }
+  }
+
+  source {
+    type      = "CODEPIPELINE"
+    buildspec = "buildspec/push_docker_image.yml"
+  }
+}

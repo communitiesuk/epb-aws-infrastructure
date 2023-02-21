@@ -19,4 +19,6 @@ module "pipeline" {
   codepipeline_bucket          = module.shared_resources.codepipeline_bucket_bucket
   communitiesuk_connection_arn = module.shared_resources.communitiesuk_connection_arn
   account_ids                  = var.account_ids
+  ecs_cluster_name             =            "epb-intg-auth-service-cluster"
+  ecs_service_name = "epb-intg-auth-service"
 }
