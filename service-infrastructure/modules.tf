@@ -31,6 +31,7 @@ module "ecs_auth_service" {
   health_check_path                = "/auth/healthcheck"
   additional_task_role_policy_arns = { "RDS_access" : module.rds_auth_service.rds_full_access_policy_arn }
   aws_cloudwatch_log_group_id      = module.logging.cloudwatch_log_group_id
+  logs_bucket_name                 = module.logging.logs_bucket_name
 }
 
 module "rds_auth_service" {
@@ -41,7 +42,7 @@ module "rds_auth_service" {
   vpc_id                = module.networking.vpc_id
   subnet_group_name     = module.networking.private_subnet_group_name
   security_group_ids    = concat(module.networking.security_group_ids, [module.bastion.security_group_id])
-  storage_backup_period = 0
+  storage_backup_period = 1
   storage_size          = 5
   instance_class        = "db.t3.micro"
 }
@@ -63,6 +64,7 @@ module "ecs_api_service" {
   health_check_path                = "/healthcheck"
   additional_task_role_policy_arns = { "RDS_access" : module.rds_api_service.rds_full_access_policy_arn }
   aws_cloudwatch_log_group_id      = module.logging.cloudwatch_log_group_id
+  logs_bucket_name                 = module.logging.logs_bucket_name
 }
 
 module "rds_api_service" {
@@ -154,6 +156,6 @@ module "data_migration_api_service" {
   backup_bucket_arn                   = module.data_migration_shared.backup_bucket_arn
   log_group                           = module.data_migration_shared.log_group
 
-  minimum_cpu = 1024
+  minimum_cpu       = 1024
   minimum_memory_mb = 4096
 }

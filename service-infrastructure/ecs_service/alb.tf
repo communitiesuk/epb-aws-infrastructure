@@ -5,6 +5,12 @@ resource "aws_lb" "this" {
   security_groups    = var.security_group_ids
   subnets            = var.public_subnet_ids
 
+  access_logs {
+    bucket  = var.logs_bucket_name
+    prefix  = "${var.prefix}-alb"
+    enabled = true
+  }
+
   enable_deletion_protection = false
 }
 

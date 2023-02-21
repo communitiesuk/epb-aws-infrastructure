@@ -61,3 +61,7 @@ variable "additional_task_execution_role_policy_arns" {
 variable "aws_cloudwatch_log_group_id" {
   type = string
 }
+
+variable "logs_bucket_name" {
+  type = string
+}

@@ -67,12 +67,12 @@ resource "aws_codepipeline" "codepipeline" {
     name = "deploy-to-integration"
 
     action {
-      name             = "Build"
-      category         = "Build"
-      owner            = "AWS"
-      provider         = "CodeBuild"
-      version          = "1"
-      input_artifacts  = ["docker_image"]
+      name            = "Build"
+      category        = "Build"
+      owner           = "AWS"
+      provider        = "CodeBuild"
+      version         = "1"
+      input_artifacts = ["docker_image"]
       configuration = {
         ProjectName = aws_codebuild_project.deploy_to_cluster.name
       }

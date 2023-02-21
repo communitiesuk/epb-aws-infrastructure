@@ -12,6 +12,13 @@ resource "aws_instance" "bastion" {
   tags = {
     Name = "bastion-host"
   }
+
+  lifecycle {
+    ignore_changes = [
+      ami,
+      user_data,
+    ]
+  }
 }
 
 data "aws_ami" "ubuntu" {

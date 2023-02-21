@@ -39,11 +39,11 @@ variable "log_group" {
 }
 
 variable "minimum_cpu" {
-  type = number
+  type    = number
   default = 256
 }
 
 variable "minimum_memory_mb" {
-  type = number
+  type    = number
   default = 512
 }
