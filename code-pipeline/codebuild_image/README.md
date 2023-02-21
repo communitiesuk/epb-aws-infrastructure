@@ -1,21 +1,29 @@
-# Codebuild Image Pipeline
+# Codepipeline for EBPR Codebuild images
 
-Pipeline for building dockers images from a named repo.
+Pipeline for building dockers images from a named repo used in the build and test phase of service pipelines
 
-## Adding a new image
+1. Set up environment for CICD
 
-1. Add the dockerfile and required files to the `communitiesuk/epb-docker-images` repo
-2. Add an entry to the `variables.tf` file in this repo, the key must be the name
-    of the folder where the dockerfile is located in the 
-    `communitiesuk/epb-docker-images` repo. eg:
-    ```hcl-terraform
-    variable "configurations" {
-      description = "The configurations to create docker pipelines for"
-      default = {
-        "codebuild-cloudfoundry" = {
-    
-        }
-      }
-    }
-    ```
-3. Run `tf apply`
+Before you run you will need the ID of the aws epbr cicd account
+Open the AWS config file ~/.aws/config and the configuration
+
+`[profile cicd]
+mfa_serial=arn:aws:iam::{aws_organisation_account_id}:mfa/{aws_iam_user}
+role_arn=arn:aws:iam::{aws_cicd_account_id}:role/developer`
+
+- update the  ~/.aws/credentials 
+
+`[cicd]
+aws_access_key_id = {aws_iam_user_access_key}
+aws_secret_access_key = {aws_iam_user_secret_access_key}`
+
+- if using aws-vault added the cicd profile to aws-vault
+`aws-vault add cicd`
+
+
+2 Initialize your Terraform environment  
+make sure you have changed your current working directory to /code-pipeline/codebuild_image
+`aws-vault exec cicd -- terraform init`
+
+3  Create infrastructure
+`aws-vault exec cicd -- terraform apply`
