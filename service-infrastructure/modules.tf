@@ -80,6 +80,26 @@ module "rds_api_service" {
   instance_class        = "db.t3.medium"
 }
 
+module "frontend" {
+  source = "./ecs_service"
+
+  prefix                           = "${local.prefix}-frontend"
+  environment                      = var.environment
+  region                           = var.region
+  container_port                   = "80"
+  environment_variables            = []
+  secrets                          = {}
+  parameters                       = module.parameter_store.parameter_arns
+  vpc_id                           = module.networking.vpc_id
+  private_subnet_ids               = module.networking.private_subnet_ids
+  public_subnet_ids                = module.networking.public_subnet_ids
+  security_group_ids               = module.networking.security_group_ids
+  health_check_path                = "/healhcheck"
+  additional_task_role_policy_arns = { }
+  aws_cloudwatch_log_group_id      = module.logging.cloudwatch_log_group_id
+  logs_bucket_name                 = module.logging.logs_bucket_name
+}
+
 module "secrets" {
   source = "./secrets"
 
