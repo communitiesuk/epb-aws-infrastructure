@@ -4,6 +4,7 @@ module "back-end" {
 
 module "shared_resources" {
   source = "../modules/shared_resources"
+  cross_account_role_arns      = var.cross_account_role_arns
 }
 
 

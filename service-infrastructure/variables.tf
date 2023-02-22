@@ -12,3 +12,8 @@ variable "storage_backup_period" {
   default = 1
   type    = number
 }
+
+variable "ci_account_id" {
+  default = "145141030745"
+  type    = string
+}

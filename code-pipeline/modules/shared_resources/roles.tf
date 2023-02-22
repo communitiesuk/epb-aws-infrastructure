@@ -67,6 +67,12 @@ data "aws_iam_policy_document" "codebuild_role_policy" {
     resources = ["*"]
   }
 
+  statement {
+    effect = "Allow"
+    actions = ["sts:AssumeRole"]
+    resources = var.cross_account_role_arns
+  }
+
 }
 
 resource "aws_iam_role" "codebuild_role" {

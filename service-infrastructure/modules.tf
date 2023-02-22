@@ -14,6 +14,12 @@ module "logging" {
   environment = var.environment
 }
 
+module "access" {
+  source = "./access"
+
+  ci_account_id = var.ci_account_id
+}
+
 module "ecs_auth_service" {
   source = "./ecs_service"
 

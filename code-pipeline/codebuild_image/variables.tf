@@ -35,4 +35,3 @@ variable "region" {
 variable "project_name" {
   default = "epb-codebuild-image"
 }
-
