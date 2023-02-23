@@ -5,3 +5,7 @@ variable "account_ids" {
 variable "cross_account_role_arns" {
   type = list(string)
 }
+
+variable "github_organisation" {
+  default = "communitiesuk"
+}
