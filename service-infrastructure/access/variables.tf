@@ -1,3 +1,3 @@
 variable "ci_account_id" {
-    type = string
+  type = string
 }

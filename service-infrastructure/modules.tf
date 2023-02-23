@@ -89,21 +89,32 @@ module "rds_api_service" {
 module "frontend" {
   source = "./ecs_service"
 
-  prefix                           = "${local.prefix}-frontend"
-  environment                      = var.environment
-  region                           = var.region
-  container_port                   = "80"
-  environment_variables            = []
+  prefix         = "${local.prefix}-frontend"
+  environment    = var.environment
+  region         = var.region
+  container_port = "80"
+  environment_variables = [
+    {
+      "name"  = "EPB_API_URL",
+      "value" = module.ecs_api_service.private_alb_dns,
+    },
+    {
+      "name"  = "EPB_AUTH_SERVER",
+      "value" = module.ecs_auth_service.private_alb_dns
+    }
+  ]
   secrets                          = {}
   parameters                       = module.parameter_store.parameter_arns
   vpc_id                           = module.networking.vpc_id
   private_subnet_ids               = module.networking.private_subnet_ids
   public_subnet_ids                = module.networking.public_subnet_ids
   security_group_ids               = module.networking.security_group_ids
-  health_check_path                = "/healhcheck"
-  additional_task_role_policy_arns = { }
+  health_check_path                = "/"
+  additional_task_role_policy_arns = {}
   aws_cloudwatch_log_group_id      = module.logging.cloudwatch_log_group_id
   logs_bucket_name                 = module.logging.logs_bucket_name
+
+  create_private_alb = false
 }
 
 module "secrets" {
@@ -132,6 +143,7 @@ module "parameter_store" {
     "EPB_UNLEASH_URI" : "String",
     "VALID_DOMESTIC_SCHEMAS" : "String",
     "VALID_NON_DOMESTIC_SCHEMAS" : "String"
+    "STAGE" : "String"
   }
 }
 

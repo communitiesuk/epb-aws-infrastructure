@@ -1,5 +1,5 @@
 resource "aws_iam_role" "ci_role" {
-  name = "ci-server"
+  name        = "ci-server"
   description = "Used by a CI server operating from a separate account"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"

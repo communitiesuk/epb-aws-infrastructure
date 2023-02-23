@@ -65,3 +65,8 @@ variable "aws_cloudwatch_log_group_id" {
 variable "logs_bucket_name" {
   type = string
 }
+
+variable "create_private_alb" {
+  type    = bool
+  default = true
+}

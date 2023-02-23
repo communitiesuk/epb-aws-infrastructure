@@ -1,3 +1,7 @@
+locals {
+  container_name = "${var.prefix}-container"
+}
+
 resource "aws_ecs_cluster" "this" {
   name = "${var.prefix}-cluster"
 }
@@ -12,7 +16,7 @@ resource "aws_ecs_task_definition" "this" {
   task_role_arn            = aws_iam_role.ecs_task_role.arn
   container_definitions = jsonencode([
     {
-      name        = "${var.prefix}-container"
+      name        = local.container_name
       image       = "${aws_ecr_repository.this.repository_url}:latest"
       essential   = true
       environment = var.environment_variables
@@ -59,12 +63,22 @@ resource "aws_ecs_service" "this" {
   }
 
   load_balancer {
-    target_group_arn = aws_lb_target_group.this.arn
-    container_name   = "${var.prefix}-container"
+    target_group_arn = aws_lb_target_group.public.arn
+    container_name   = local.container_name
     container_port   = var.container_port
   }
 
+  dynamic "load_balancer" {
+    for_each = local.create_private_alb ? [0] : []
+
+    content {
+      target_group_arn = aws_lb_target_group.private[0].arn // update
+      container_name   = local.container_name
+      container_port   = var.container_port
+    }
+  }
+
   lifecycle {
-    ignore_changes = [task_definition, desired_count]
+    ignore_changes = [desired_count]
   }
 }
