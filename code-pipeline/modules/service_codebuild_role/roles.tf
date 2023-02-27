@@ -2,6 +2,7 @@ data "aws_iam_policy_document" "assume_role_codebuild" {
   statement {
     effect  = "Allow"
     actions = ["sts:AssumeRole"]
+
     principals {
       identifiers = ["codebuild.amazonaws.com"]
       type        = "Service"
@@ -21,6 +22,7 @@ data "aws_iam_policy_document" "codebuild_role_policy" {
       "*"
     ]
   }
+
   statement {
     effect = "Allow"
     actions = [
@@ -38,6 +40,7 @@ data "aws_iam_policy_document" "codebuild_role_policy" {
     ]
     resources = ["*"]
   }
+
   statement {
     effect = "Allow"
     actions = [
@@ -52,6 +55,7 @@ data "aws_iam_policy_document" "codebuild_role_policy" {
       "${var.codepipeline_bucket_arn}/*",
     ]
   }
+
   statement {
     effect = "Allow"
     actions = [
@@ -59,6 +63,7 @@ data "aws_iam_policy_document" "codebuild_role_policy" {
     ]
     resources = [var.codestar_connection_arn]
   }
+
   statement {
     effect = "Allow"
     actions = [
@@ -68,11 +73,10 @@ data "aws_iam_policy_document" "codebuild_role_policy" {
   }
 
   statement {
-    effect = "Allow"
-    actions = ["sts:AssumeRole"]
+    effect    = "Allow"
+    actions   = ["sts:AssumeRole"]
     resources = var.cross_account_role_arns
   }
-
 }
 
 resource "aws_iam_role" "codebuild_role" {

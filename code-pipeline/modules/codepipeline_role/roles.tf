@@ -2,6 +2,7 @@ data "aws_iam_policy_document" "assume_role_codepipeline" {
   statement {
     effect  = "Allow"
     actions = ["sts:AssumeRole"]
+
     principals {
       identifiers = ["codepipeline.amazonaws.com"]
       type        = "Service"
@@ -20,6 +21,7 @@ data "aws_iam_policy_document" "codepipeline_role_policy" {
     ]
     resources = ["*"]
   }
+
   statement {
     effect = "Allow"
     actions = [
@@ -28,6 +30,7 @@ data "aws_iam_policy_document" "codepipeline_role_policy" {
     ]
     resources = ["*"]
   }
+
   statement {
     effect = "Allow"
     actions = [
@@ -37,6 +40,7 @@ data "aws_iam_policy_document" "codepipeline_role_policy" {
     ]
     resources = ["*"]
   }
+
   statement {
     effect = "Allow"
     actions = [

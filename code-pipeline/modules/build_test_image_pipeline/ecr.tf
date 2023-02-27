@@ -15,10 +15,12 @@ data "aws_iam_policy_document" "ecr_policy" {
   statement {
     sid    = "ECRAccessPolicy"
     effect = "Allow"
+
     principals {
       identifiers = ["codebuild.amazonaws.com"]
       type        = "Service"
     }
+
     actions = [
       "ecr:GetDownloadUrlForLayer",
       "ecr:BatchGetImage",

@@ -1,4 +1,3 @@
-#### CODEBUILD ####
 resource "aws_codebuild_project" "build_images" {
   name         = "epbr-codebuild-images-${var.configuration}-project"
   service_role = aws_iam_role.codebuild_role.arn
@@ -26,7 +25,6 @@ resource "aws_codebuild_project" "build_images" {
   }
 }
 
-#### IAM ####
 data "aws_iam_policy_document" "assume_role_codebuild" {
   statement {
     effect  = "Allow"

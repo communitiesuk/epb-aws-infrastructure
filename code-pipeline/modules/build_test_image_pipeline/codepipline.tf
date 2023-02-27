@@ -1,4 +1,3 @@
-#### ARTIFACT STORAGE ####
 resource "aws_codepipeline" "codepipeline" {
   name     = "epbr-${var.configuration}-image-pipeline"
   role_arn = var.codepipeline_arn

@@ -1,4 +1,3 @@
-#### IAM ####
 data "aws_iam_policy_document" "assume_role_codebuild_image" {
   statement {
     effect  = "Allow"

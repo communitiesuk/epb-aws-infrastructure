@@ -1,7 +1,3 @@
-variable "configuration" {
-  type = string
-}
-
 variable "artefact_bucket" {
   type = string
 }
@@ -10,11 +6,19 @@ variable "artefact_bucket_arn" {
   type = string
 }
 
-variable "region" {
+variable "codepipeline_arn" {
   type = string
 }
 
-variable "codepipeline_arn" {
+variable "codestar_connection_arn" {
+  type = string
+}
+
+variable "configuration" {
+  type = string
+}
+
+variable "github_branch" {
   type = string
 }
 
@@ -26,11 +30,11 @@ variable "github_repository" {
   type = string
 }
 
-variable "github_branch" {
+variable "project_name" {
   type = string
 }
 
-variable "project_name" {
+variable "region" {
   type = string
 }
 
@@ -40,8 +44,4 @@ variable "tags" {
     Project   = "epb"
     Terraform = true
   }
-}
-
-variable "codestar_connection_arn" {
-  type = string
 }

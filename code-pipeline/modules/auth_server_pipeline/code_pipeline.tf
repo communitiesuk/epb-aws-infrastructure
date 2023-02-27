@@ -30,6 +30,7 @@ resource "aws_codepipeline" "codepipeline" {
 
   stage {
     name = "build-and-test"
+
     action {
       name             = "Build"
       category         = "Build"
@@ -78,8 +79,4 @@ resource "aws_codepipeline" "codepipeline" {
       }
     }
   }
-
-
 }
-
-
