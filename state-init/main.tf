@@ -14,7 +14,7 @@ provider "aws" {
 }
 
 resource "aws_s3_bucket" "epbr_s3_terraform_state" {
-  bucket        = "epbr-integration-terraform-state"
+  bucket        = "epbr-terraform-state"
   force_destroy = false
 }
 

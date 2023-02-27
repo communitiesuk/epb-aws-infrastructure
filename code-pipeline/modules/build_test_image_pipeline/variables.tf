@@ -8,6 +8,32 @@ variable "configurations" {
   }
 }
 
+variable "region" {
+  type = string
+}
+
+variable "codepipeline_arn" {
+  type = string
+}
+
+variable "github_organisation" {
+  type = string
+}
+
+variable "github_repository" {
+  type = string
+}
+
+variable "github_branch" {
+  type = string
+}
+
+
+variable "project_name" {
+  type = string
+}
+
+
 variable "tags" {
   description = "AWS asset tags"
   default = {
@@ -16,22 +42,6 @@ variable "tags" {
   }
 }
 
-variable "github_organisation" {
-  default = "communitiesuk"
-}
-
-variable "github_repository" {
-  default = "epb-docker-images"
-}
-
-variable "github_branch" {
-  default = "master"
-}
-
-variable "region" {
-  default = "eu-west-2"
-}
-
-variable "project_name" {
-  default = "epb-codebuild-image"
+variable "codestar_connection_arn" {
+  type = string
 }
