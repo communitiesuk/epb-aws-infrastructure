@@ -144,3 +144,6 @@ When deployed infrastructure is no longer needed
    `docker tag epb-auth-service:latest 851965904888.dkr.ecr.eu-west-2.amazonaws.com/epb-intg-auth-service-ecr:latest`
 
    `docker push 851965904888.dkr.ecr.eu-west-2.amazonaws.com/epb-intg-auth-service-ecr:latest`
+   
+
+For information on Terraforming the EPBR Code pipelines go to `/code-pipelines/README.md`
