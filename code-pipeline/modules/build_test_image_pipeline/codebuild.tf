@@ -1,7 +1,6 @@
 #### CODEBUILD ####
 resource "aws_codebuild_project" "build_images" {
-  for_each     = var.configurations
-  name         = "epbr-codebuild-images-${each.key}-project"
+  name         = "epbr-codebuild-images-${var.configuration}-project"
   service_role = aws_iam_role.codebuild_role.arn
   tags         = var.tags
 
@@ -17,13 +16,13 @@ resource "aws_codebuild_project" "build_images" {
 
     environment_variable {
       name  = "REPOSITORY_URI"
-      value = aws_ecr_repository.this[each.key].repository_url
+      value = aws_ecr_repository.this.repository_url
     }
   }
 
   source {
     type      = "CODEPIPELINE"
-    buildspec = "${each.key}/buildspec.yml"
+    buildspec = "${var.configuration}/buildspec.yml"
   }
 }
 

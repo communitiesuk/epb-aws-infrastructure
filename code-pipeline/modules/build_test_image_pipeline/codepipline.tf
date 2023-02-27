@@ -1,20 +1,10 @@
-
-
 #### ARTIFACT STORAGE ####
-resource "aws_s3_bucket" "build_artefacts" {
-  for_each      = var.configurations
-  bucket        = "${var.project_name}-storage-${each.key}"
-  tags          = var.tags
-  force_destroy = true
-}
-
 resource "aws_codepipeline" "codepipeline" {
-  for_each = var.configurations
-  name     = "epbr-${each.key}-image-pipeline"
+  name     = "epbr-${var.configuration}-image-pipeline"
   role_arn = var.codepipeline_arn
 
   artifact_store {
-    location = aws_s3_bucket.build_artefacts[each.key].bucket
+    location = var.artefact_bucket
     type     = "S3"
   }
 
@@ -50,7 +40,7 @@ resource "aws_codepipeline" "codepipeline" {
       input_artifacts = ["source_output"]
 
       configuration = {
-        ProjectName = aws_codebuild_project.build_images[each.key].name
+        ProjectName = aws_codebuild_project.build_images.name
       }
     }
   }

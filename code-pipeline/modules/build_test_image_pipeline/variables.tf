@@ -1,11 +1,13 @@
-variable "configurations" {
-  description = "The configurations to create docker pipelines for"
-  default = {
-    "codebuild-cloudfoundry" = {
-    }
-    "postgres" = {
-    }
-  }
+variable "configuration" {
+  type = string
+}
+
+variable "artefact_bucket" {
+  type = string
+}
+
+variable "artefact_bucket_arn" {
+  type = string
 }
 
 variable "region" {
@@ -28,11 +30,9 @@ variable "github_branch" {
   type = string
 }
 
-
 variable "project_name" {
   type = string
 }
-
 
 variable "tags" {
   description = "AWS asset tags"

@@ -19,15 +19,12 @@ data "aws_iam_policy_document" "codebuild_image_role_policy" {
       "s3:GetBucketVersioning",
       "s3:PutObject"
     ]
-    resources = flatten([
-      for bucket in aws_s3_bucket.build_artefacts :
-      [
-        bucket.arn,
-        "${bucket.arn}/*"
-      ]
+    resources = ([
+      var.artefact_bucket_arn,
+      "${var.artefact_bucket_arn}/*"
     ])
-
   }
+
   statement {
     effect = "Allow"
     actions = [
@@ -35,6 +32,7 @@ data "aws_iam_policy_document" "codebuild_image_role_policy" {
     ]
     resources = [var.codestar_connection_arn]
   }
+
   statement {
     effect = "Allow"
     actions = [
@@ -46,6 +44,7 @@ data "aws_iam_policy_document" "codebuild_image_role_policy" {
       "*"
     ]
   }
+
   statement {
     effect = "Allow"
     actions = [
