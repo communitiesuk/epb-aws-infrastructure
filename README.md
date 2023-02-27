@@ -10,8 +10,7 @@ https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli
 
 ## Local AWS profile management
 To change the AWS infrastructure for each environment, you need to setup an AWS 
-profile on your machine. 
-There are 2 options:
+profile on your machine. There are 2 options:
 * manually
 * `aws-vault`
 
@@ -28,7 +27,8 @@ There are 2 options:
     `mfa_serial=arn:aws:iam::111111111:mfa/firstname.surname`  
     `role_arn=arn:aws:iam::123456789:role/developer`
 
-1. Add the access key id and secret key for the profile in the AWS credentials file. Use the credentials for your existing IAM user, check in the AWS console to verify they match.
+2. Add the access key id and secret key for the profile in the AWS credentials file. Use the credentials for your 
+existing IAM user, check in the AWS console to verify they match.
 
     `[{profile_name_for_AWS_environment}]`  
     `aws_access_key_id = {IAMUser_aws_access_key_id}`  
@@ -39,7 +39,7 @@ There are 2 options:
     `aws_access_key_id = ABC123DEF456GHI789`  
     `aws_secret_access_key = B1l1o1o1p123456879`
 
-1. If using `aws-vault` to execute commands later, you will also need add a user:  
+3. If using `aws-vault` to execute commands later, you will also need add a user:  
     `aws-vault add {profile_name_for_AWS_environment}`
 
     Example:  
@@ -48,7 +48,7 @@ There are 2 options:
 
 ### AWS Vault option
 
-Follow instructions in [official AWS Valut documentation](https://github.com/99designs/aws-vault/blob/master/USAGE.md#config)
+Follow instructions in [official AWS Vault documentation](https://github.com/99designs/aws-vault/blob/master/USAGE.md#config)
 
 
 ## Setting up tfstate management (Initial setup only)
@@ -79,7 +79,7 @@ The infrastructure used for the S3 backend is defined via terraform in the `/sta
 
 1. From root `cd service-infrastructure`
 
-1. Initialize your Terraform environment
+1. Initialize your Terraform environment  
     `aws-vault exec {profile_name_for_AWS_environment} -- terraform init -backend-config=backend_{profile}.hcl`
 
     Example:  
@@ -102,7 +102,8 @@ The infrastructure used for the S3 backend is defined via terraform in the `/sta
 
     `aws-vault exec {profile_name_for_AWS_environment} -- terraform apply tfplan`
 
-1. (Optional) Once successfully applied, you should be able to see the changes in the AWS Management Console. Sanity check the changes have been applied as you expected
+1. (Optional) Once successfully applied, you should be able to see the changes in the AWS Management Console. 
+Sanity check the changes have been applied as you expected
 
 
 ## Deleting infrastructure
@@ -111,7 +112,8 @@ When deployed infrastructure is no longer needed
 
 1. `aws-vault exec {profile_name_for_AWS_environment} -- terraform destroy`
 
-1. Because the state of the S3 and DynamoDB are not stored in a permanent backend, those resources should be deleted through AWS console
+1. Because the state of the S3 and DynamoDB are not stored in a permanent backend, those resources should be deleted 
+through AWS console
 
 
 ## Deploying image to ECR 
@@ -123,7 +125,8 @@ When deployed infrastructure is no longer needed
 
     Note: if you receive an error using the AWS CLI, make sure that you have the latest version of the AWS CLI and Docker installed.
 
-1. Build your Docker image using the following command. For information on building a Docker file from scratch, see the instructions here . You can skip this step if your image has already been built:
+1. Build your Docker image using the following command. For information on building a Docker file from scratch, see the 
+instructions here . You can skip this step if your image has already been built:
 
     `docker build -t {local_image_name} .`
 
@@ -146,4 +149,4 @@ When deployed infrastructure is no longer needed
    `docker push 851965904888.dkr.ecr.eu-west-2.amazonaws.com/epb-intg-auth-service-ecr:latest`
    
 
-For information on Terraforming the EPBR Code pipelines go to `/code-pipelines/README.md`
+For information on Terraforming the EPBR Code pipelines go to `/code-pipeline/README.md`
