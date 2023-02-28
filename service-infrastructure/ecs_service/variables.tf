@@ -66,7 +66,7 @@ variable "logs_bucket_name" {
   type = string
 }
 
-variable "create_private_alb" {
+variable "create_internal_alb" {
   type    = bool
   default = true
 }

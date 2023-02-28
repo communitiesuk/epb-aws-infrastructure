@@ -3,5 +3,5 @@ output "ecs_cluster_id" {
 }
 
 output "private_alb_dns" {
-  value = var.create_private_alb ? aws_lb.private[0].dns_name : ""
+  value = var.create_internal_alb ? aws_lb.internal[0].dns_name : ""
 }

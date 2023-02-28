@@ -40,20 +40,24 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy_attach
 }
 
 resource "aws_iam_role_policy_attachment" "ecs_task_additional_role_policy_attachment" {
-  for_each   = var.additional_task_role_policy_arns
+  for_each = var.additional_task_role_policy_arns
+
   role       = aws_iam_role.ecs_task_execution_role.name
   policy_arn = each.value
 }
 
 resource "aws_iam_role_policy_attachment" "ecs_task_execution_additional_role_policy_attachment" {
-  for_each   = var.additional_task_execution_role_policy_arns
+  for_each = var.additional_task_execution_role_policy_arns
+
   role       = aws_iam_role.ecs_task_execution_role.name
   policy_arn = each.value
 }
 
 resource "aws_iam_role_policy" "secret_access" {
   for_each = var.secrets
-  role     = aws_iam_role.ecs_task_execution_role.id
+
+  name = "${var.prefix}-secret-access-${each.key}"
+  role = aws_iam_role.ecs_task_execution_role.id
 
   policy = jsonencode({
     Version = "2012-10-17",
@@ -71,7 +75,9 @@ resource "aws_iam_role_policy" "secret_access" {
 
 resource "aws_iam_role_policy" "parameter_access" {
   for_each = var.parameters
-  role     = aws_iam_role.ecs_task_execution_role.id
+
+  name = "${var.prefix}-parameter-access-${each.key}"
+  role = aws_iam_role.ecs_task_execution_role.id
 
   policy = jsonencode({
     Version = "2012-10-17",

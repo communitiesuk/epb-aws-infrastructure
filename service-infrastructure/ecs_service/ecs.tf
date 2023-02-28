@@ -69,10 +69,10 @@ resource "aws_ecs_service" "this" {
   }
 
   dynamic "load_balancer" {
-    for_each = local.create_private_alb ? [0] : []
+    for_each = local.create_internal_alb ? [0] : []
 
     content {
-      target_group_arn = aws_lb_target_group.private[0].arn // update
+      target_group_arn = aws_lb_target_group.internal[0].arn // update
       container_name   = local.container_name
       container_port   = var.container_port
     }
