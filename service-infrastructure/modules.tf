@@ -4,7 +4,7 @@ module "networking" {
   prefix = local.prefix
   region = var.region
 
-  container_port = "80"  # We may need to change it to 443
+  container_port = 80  # We may need to change it to 443
 }
 
 module "logging" {
@@ -26,7 +26,7 @@ module "ecs_auth_service" {
   prefix                           = "${local.prefix}-auth-service"
   environment                      = var.environment
   region                           = var.region
-  container_port                   = "80"
+  container_port                   = 80
   environment_variables = [
     {
       "name"  = "EPB_UNLEASH_URI",
@@ -64,7 +64,7 @@ module "ecs_api_service" {
   prefix                           = "${local.prefix}-api-service"
   environment                      = var.environment
   region                           = var.region
-  container_port                   = "80"
+  container_port                   = 80
   environment_variables = [
     {
       "name"  = "EPB_UNLEASH_URI",
@@ -104,7 +104,7 @@ module "ecs_toggles" {
   prefix                           = "${local.prefix}-toggles"
   environment                      = var.environment
   region                           = var.region
-  container_port                   = "80"
+  container_port                   = 4242
   environment_variables            = []
   secrets                          = { "DATABASE_URL" : module.secrets.secret_arns["RDS_TOGGLES_CONNECTION_STRING"] }
   parameters                       = module.parameter_store.parameter_arns
@@ -137,7 +137,7 @@ module "frontend" {
   prefix         = "${local.prefix}-frontend"
   environment    = var.environment
   region         = var.region
-  container_port = "80"
+  container_port = 80
   environment_variables = [
     {
       "name"  = "EPB_API_URL",

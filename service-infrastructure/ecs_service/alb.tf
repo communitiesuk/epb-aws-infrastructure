@@ -16,7 +16,7 @@ resource "aws_lb" "public" {
 
 resource "aws_lb_target_group" "public" {
   name        = "${var.prefix}-alb-tg"
-  port        = 80
+  port        = var.container_port
   protocol    = "HTTP"
   vpc_id      = var.vpc_id
   target_type = "ip"

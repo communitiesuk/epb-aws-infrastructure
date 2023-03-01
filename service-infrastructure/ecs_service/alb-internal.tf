@@ -45,39 +45,11 @@ resource "aws_lb_listener" "internal_http" {
   count = local.create_internal_alb ? 1 : 0
 
   load_balancer_arn = aws_lb.internal[0].id
-  port              = 80
+  port              = var.container_port
   protocol          = "HTTP"
 
-  #  default_action {
-  #    type = "redirect"
-  #
-  #    redirect {
-  #      port        = 443
-  #      protocol    = "HTTPS"
-  #      status_code = "HTTP_301"
-  #    }
-  #  }
-
-  # TODO replace this action with the one above when enabling the HTTPS load balancer
   default_action {
     target_group_arn = aws_lb_target_group.internal[0].id
     type             = "forward"
   }
 }
-
-#resource "aws_lb_listener" "internal_https" {
-#  count = local.create_internal_alb ? 1 : 0
-
-#  load_balancer_arn = aws_lb.internal.id
-#  port              = 443
-#  protocol          = "HTTPS"
-#
-#  ssl_policy        = "ELBSecurityPolicy-2016-08"
-##  TODO will need to add this when certificates can be made available
-##  certificate_arn   = var.alb_tls_cert_arn
-#
-#  default_action {
-#    target_group_arn = aws_lb_target_group.internal[0].id
-#    type             = "forward"
-#  }
-#}
