@@ -68,3 +68,23 @@ module "auth-server-pipeline" {
   codebuild_image_ecr_url = module.build_test_image_pipeline.image_repository_url
   postgres_image_ecr_url  = module.postgres_test_image_pipeline.image_repository_url
 }
+
+module "register-api-pipeline" {
+  source                  = "../modules/register_api_pipeline"
+  codepipeline_bucket_arn = module.artefact.codepipeline_bucket_arn
+  codepipeline_bucket     = module.artefact.codepipeline_bucket
+  codepipeline_arn        = module.codepipeline_role.aws_codepipeline_arn
+  codebuild_role_arn      = module.codebuild_role.aws_codebuild_role_arn
+  pipeline_name           = "epbr-register-api-pipeline"
+  github_repository       = "epb-register-api"
+  github_branch           = "master"
+  github_organisation     = var.github_organisation
+  codestar_connection_arn = module.codestar_connection.codestar_connection_arn
+  account_ids             = var.account_ids
+  ecs_cluster_name        = "epb-intg-api-service-cluster"
+  ecs_service_name        = "epb-intg-api-service"
+  app_ecr_name            = "epb-intg-api-service-ecr"
+  project_name            = "epbr-register-api"
+  codebuild_image_ecr_url = module.build_test_image_pipeline.image_repository_url
+  postgres_image_ecr_url  = module.postgres_test_image_pipeline.image_repository_url
+}
