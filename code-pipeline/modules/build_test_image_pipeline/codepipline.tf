@@ -39,7 +39,7 @@ resource "aws_codepipeline" "codepipeline" {
       input_artifacts = ["source_output"]
 
       configuration = {
-        ProjectName = aws_codebuild_project.build_images.name
+        ProjectName = module.codebuild_build_push_image.codebuild_name
       }
     }
   }

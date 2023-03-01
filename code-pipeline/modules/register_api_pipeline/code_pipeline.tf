@@ -29,7 +29,7 @@ resource "aws_codepipeline" "codepipeline" {
   }
 
   stage {
-    name = "build-and-test"
+    name = "run-app-tests"
 
     action {
       name             = "Build"
@@ -41,7 +41,7 @@ resource "aws_codepipeline" "codepipeline" {
       output_artifacts = ["build_and_test_output"]
 
       configuration = {
-        ProjectName = aws_codebuild_project.build_and_test.name
+        ProjectName = module.codebuild_run_app_test.codebuild_name
       }
     }
   }
@@ -59,7 +59,7 @@ resource "aws_codepipeline" "codepipeline" {
       output_artifacts = ["docker_image"]
 
       configuration = {
-        ProjectName = aws_codebuild_project.build_image.name
+        ProjectName = module.codebuild_build_app_image.codebuild_name
       }
     }
   }
@@ -75,7 +75,7 @@ resource "aws_codepipeline" "codepipeline" {
       version         = "1"
       input_artifacts = ["docker_image"]
       configuration = {
-        ProjectName = aws_codebuild_project.deploy_to_cluster.name
+        ProjectName = module.codebuild_deploy_integration.codebuild_name
       }
     }
   }
