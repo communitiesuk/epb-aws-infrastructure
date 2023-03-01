@@ -10,7 +10,7 @@ resource "aws_nat_gateway" "this" {
   count         = length(aws_subnet.private)
   allocation_id = element(aws_eip.nat.*.id, count.index)
   subnet_id     = element(aws_subnet.public.*.id, count.index)
-  tags          = {
+  tags = {
     Name = "${var.prefix}-nat-gateway-${count.index}"
   }
 

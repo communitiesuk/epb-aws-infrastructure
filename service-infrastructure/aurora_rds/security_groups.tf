@@ -9,6 +9,10 @@ resource "aws_security_group" "rds_security_group" {
     protocol        = "tcp"
   }
 
+  tags = {
+    Name = "${var.prefix}-rds-sg"
+  }
+
   lifecycle {
     create_before_destroy = true
   }

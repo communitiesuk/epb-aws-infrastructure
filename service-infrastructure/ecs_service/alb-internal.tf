@@ -8,7 +8,7 @@ resource "aws_lb" "internal" {
   name                             = "${var.prefix}-in-alb"
   internal                         = true
   load_balancer_type               = "application"
-  security_groups                  = var.security_group_ids
+  security_groups                  = [aws_security_group.alb.id]
   subnets                          = var.public_subnet_ids
   enable_cross_zone_load_balancing = true
 
@@ -25,7 +25,7 @@ resource "aws_lb_target_group" "internal" {
   count = local.create_internal_alb ? 1 : 0
 
   name        = "${var.prefix}-in-alb-tg"
-  port        = 80
+  port        = var.container_port
   protocol    = "HTTP"
   vpc_id      = var.vpc_id
   target_type = "ip"
@@ -45,11 +45,15 @@ resource "aws_lb_listener" "internal_http" {
   count = local.create_internal_alb ? 1 : 0
 
   load_balancer_arn = aws_lb.internal[0].id
-  port              = var.container_port
+  port              = 80
   protocol          = "HTTP"
 
   default_action {
     target_group_arn = aws_lb_target_group.internal[0].id
     type             = "forward"
+  }
+
+  lifecycle {
+    replace_triggered_by = [aws_lb_target_group.internal[0].id]
   }
 }

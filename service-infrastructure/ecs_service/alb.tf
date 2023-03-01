@@ -2,7 +2,7 @@ resource "aws_lb" "public" {
   name               = "${var.prefix}-alb"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = var.security_group_ids
+  security_groups    = [aws_security_group.alb.id]
   subnets            = var.public_subnet_ids
 
   access_logs {
@@ -51,6 +51,10 @@ resource "aws_lb_listener" "public_http" {
   default_action {
     target_group_arn = aws_lb_target_group.public.id
     type             = "forward"
+  }
+
+  lifecycle {
+    replace_triggered_by = [aws_lb_target_group.public.id]
   }
 }
 

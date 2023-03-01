@@ -3,8 +3,6 @@ module "networking" {
 
   prefix = local.prefix
   region = var.region
-
-  container_port = 80  # We may need to change it to 443
 }
 
 module "logging" {
@@ -23,10 +21,10 @@ module "access" {
 module "ecs_auth_service" {
   source = "./ecs_service"
 
-  prefix                           = "${local.prefix}-auth-service"
-  environment                      = var.environment
-  region                           = var.region
-  container_port                   = 80
+  prefix         = "${local.prefix}-auth-service"
+  environment    = var.environment
+  region         = var.region
+  container_port = 80
   environment_variables = [
     {
       "name"  = "EPB_UNLEASH_URI",
@@ -38,7 +36,6 @@ module "ecs_auth_service" {
   vpc_id                           = module.networking.vpc_id
   private_subnet_ids               = module.networking.private_subnet_ids
   public_subnet_ids                = module.networking.public_subnet_ids
-  security_group_ids               = module.networking.security_group_ids
   health_check_path                = "/auth/healthcheck"
   additional_task_role_policy_arns = { "RDS_access" : module.rds_auth_service.rds_full_access_policy_arn }
   aws_cloudwatch_log_group_id      = module.logging.cloudwatch_log_group_id
@@ -52,7 +49,7 @@ module "rds_auth_service" {
   db_name               = "epb"
   vpc_id                = module.networking.vpc_id
   subnet_group_name     = module.networking.private_subnet_group_name
-  security_group_ids    = concat(module.networking.security_group_ids, [module.bastion.security_group_id])
+  security_group_ids    = [module.ecs_auth_service.ecs_security_group_id, module.bastion.security_group_id]
   storage_backup_period = 0
   storage_size          = 5
   instance_class        = "db.t3.micro"
@@ -61,10 +58,10 @@ module "rds_auth_service" {
 module "ecs_api_service" {
   source = "./ecs_service"
 
-  prefix                           = "${local.prefix}-api-service"
-  environment                      = var.environment
-  region                           = var.region
-  container_port                   = 80
+  prefix         = "${local.prefix}-api-service"
+  environment    = var.environment
+  region         = var.region
+  container_port = 80
   environment_variables = [
     {
       "name"  = "EPB_UNLEASH_URI",
@@ -76,7 +73,6 @@ module "ecs_api_service" {
   vpc_id                           = module.networking.vpc_id
   private_subnet_ids               = module.networking.private_subnet_ids
   public_subnet_ids                = module.networking.public_subnet_ids
-  security_group_ids               = module.networking.security_group_ids
   health_check_path                = "/healthcheck"
   additional_task_role_policy_arns = { "RDS_access" : module.rds_api_service.rds_full_access_policy_arn }
   aws_cloudwatch_log_group_id      = module.logging.cloudwatch_log_group_id
@@ -90,7 +86,7 @@ module "rds_api_service" {
   db_name               = "epb"
   vpc_id                = module.networking.vpc_id
   subnet_group_name     = module.networking.private_subnet_group_name
-  security_group_ids    = concat(module.networking.security_group_ids, [module.bastion.security_group_id])
+  security_group_ids    = [module.ecs_api_service.ecs_security_group_id, module.bastion.security_group_id]
   storage_backup_period = var.storage_backup_period
   storage_size          = 100
   instance_class        = "db.t3.medium"
@@ -111,7 +107,6 @@ module "ecs_toggles" {
   vpc_id                           = module.networking.vpc_id
   private_subnet_ids               = module.networking.private_subnet_ids
   public_subnet_ids                = module.networking.public_subnet_ids
-  security_group_ids               = module.networking.security_group_ids
   health_check_path                = "/health"
   additional_task_role_policy_arns = { "RDS_access" : module.rds_toggles.rds_full_access_policy_arn }
   aws_cloudwatch_log_group_id      = module.logging.cloudwatch_log_group_id
@@ -125,7 +120,7 @@ module "rds_toggles" {
   db_name               = "unleash"
   vpc_id                = module.networking.vpc_id
   subnet_group_name     = module.networking.private_subnet_group_name
-  security_group_ids    = concat(module.networking.security_group_ids, [module.bastion.security_group_id])
+  security_group_ids    = [module.ecs_toggles.ecs_security_group_id, module.bastion.security_group_id]
   storage_backup_period = 1
   storage_size          = 5
   instance_class        = "db.t3.micro"
@@ -157,7 +152,6 @@ module "frontend" {
   vpc_id                           = module.networking.vpc_id
   private_subnet_ids               = module.networking.private_subnet_ids
   public_subnet_ids                = module.networking.public_subnet_ids
-  security_group_ids               = module.networking.security_group_ids
   health_check_path                = "/healthcheck"
   additional_task_role_policy_arns = {}
   aws_cloudwatch_log_group_id      = module.logging.cloudwatch_log_group_id

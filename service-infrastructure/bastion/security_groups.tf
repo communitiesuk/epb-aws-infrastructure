@@ -15,4 +15,12 @@ resource "aws_security_group" "bastion" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
+  tags = {
+    Name = "bastion-sg"
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }

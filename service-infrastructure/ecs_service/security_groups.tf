@@ -1,6 +1,6 @@
 resource "aws_security_group" "alb" {
-  name   = "${var.prefix}-alb-security-group"
-  vpc_id = aws_vpc.this.id
+  name   = "${var.prefix}-alb-sg"
+  vpc_id = var.vpc_id
 
   ingress {
     protocol         = "tcp"
@@ -14,14 +14,6 @@ resource "aws_security_group" "alb" {
     protocol         = "tcp"
     from_port        = 443
     to_port          = 443
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
-
-  ingress {
-    protocol         = "tcp"
-    from_port        = 80
-    to_port          = 4242
     cidr_blocks      = ["0.0.0.0/0"]
     ipv6_cidr_blocks = ["::/0"]
   }
@@ -43,22 +35,29 @@ resource "aws_security_group" "alb" {
   }
 
   egress {
-    protocol         = "-1"
-    from_port        = 0
-    to_port          = 0
+    protocol         = "tcp"
+    from_port        = var.container_port
+    to_port          = var.container_port
     cidr_blocks      = ["0.0.0.0/0"]
     ipv6_cidr_blocks = ["::/0"]
   }
 
-  lifecycle {
-    create_before_destroy = true
+  tags = {
+    Name = "${var.prefix}-alb-sg"
   }
 }
 
-resource "aws_security_group" "ecs_tasks" {
-  name   = "${var.prefix}-ecs-tasks-security-group"
-  vpc_id = aws_vpc.this.id
+resource "aws_security_group" "ecs" {
+  name   = "${var.prefix}-ecs-sg"
+  vpc_id = var.vpc_id
 
+  ingress {
+    protocol         = "tcp"
+    from_port        = var.container_port
+    to_port          = var.container_port
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
 
   egress {
     protocol         = "tcp"
@@ -77,14 +76,14 @@ resource "aws_security_group" "ecs_tasks" {
   }
 
   egress {
-    protocol         = "-1"
-    from_port        = 0
-    to_port          = 0
+    protocol         = "tcp"
+    from_port        = 5432
+    to_port          = 5432
     cidr_blocks      = ["0.0.0.0/0"]
     ipv6_cidr_blocks = ["::/0"]
   }
 
-  lifecycle {
-    create_before_destroy = true
+  tags = {
+    Name = "${var.prefix}-ecs-sg"
   }
 }
