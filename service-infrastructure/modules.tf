@@ -27,7 +27,12 @@ module "ecs_auth_service" {
   environment                      = var.environment
   region                           = var.region
   container_port                   = "80"
-  environment_variables            = []
+  environment_variables = [
+    {
+      "name"  = "EPB_UNLEASH_URI",
+      "value" = "http://${module.ecs_toggles.internal_alb_dns}/api",
+    },
+  ]
   secrets                          = { "DATABASE_URL" : module.secrets.secret_arns["RDS_AUTH_SERVICE_CONNECTION_STRING"] }
   parameters                       = module.parameter_store.parameter_arns
   vpc_id                           = module.networking.vpc_id
@@ -60,7 +65,12 @@ module "ecs_api_service" {
   environment                      = var.environment
   region                           = var.region
   container_port                   = "80"
-  environment_variables            = []
+  environment_variables = [
+    {
+      "name"  = "EPB_UNLEASH_URI",
+      "value" = "http://${module.ecs_toggles.internal_alb_dns}/api",
+    },
+  ]
   secrets                          = { "DATABASE_URL" : module.secrets.secret_arns["RDS_API_SERVICE_CONNECTION_STRING"] }
   parameters                       = module.parameter_store.parameter_arns
   vpc_id                           = module.networking.vpc_id
@@ -86,6 +96,41 @@ module "rds_api_service" {
   instance_class        = "db.t3.medium"
 }
 
+
+
+module "ecs_toggles" {
+  source = "./ecs_service"
+
+  prefix                           = "${local.prefix}-toggles"
+  environment                      = var.environment
+  region                           = var.region
+  container_port                   = "80"
+  environment_variables            = []
+  secrets                          = { "DATABASE_URL" : module.secrets.secret_arns["RDS_TOGGLES_CONNECTION_STRING"] }
+  parameters                       = module.parameter_store.parameter_arns
+  vpc_id                           = module.networking.vpc_id
+  private_subnet_ids               = module.networking.private_subnet_ids
+  public_subnet_ids                = module.networking.public_subnet_ids
+  security_group_ids               = module.networking.security_group_ids
+  health_check_path                = "/health"
+  additional_task_role_policy_arns = { "RDS_access" : module.rds_toggles.rds_full_access_policy_arn }
+  aws_cloudwatch_log_group_id      = module.logging.cloudwatch_log_group_id
+  logs_bucket_name                 = module.logging.logs_bucket_name
+}
+
+module "rds_toggles" {
+  source = "./rds"
+
+  prefix                = "${local.prefix}-toggles"
+  db_name               = "unleash"
+  vpc_id                = module.networking.vpc_id
+  subnet_group_name     = module.networking.private_subnet_group_name
+  security_group_ids    = concat(module.networking.security_group_ids, [module.bastion.security_group_id])
+  storage_backup_period = 1
+  storage_size          = 5
+  instance_class        = "db.t3.micro"
+}
+
 module "frontend" {
   source = "./ecs_service"
 
@@ -96,11 +141,15 @@ module "frontend" {
   environment_variables = [
     {
       "name"  = "EPB_API_URL",
-      "value" = "http://${module.ecs_api_service.private_alb_dns}",
+      "value" = "http://${module.ecs_api_service.internal_alb_dns}",
     },
     {
       "name"  = "EPB_AUTH_SERVER",
-      "value" = "http://${module.ecs_auth_service.private_alb_dns}/auth",
+      "value" = "http://${module.ecs_auth_service.internal_alb_dns}/auth",
+    },
+    {
+      "name"  = "EPB_UNLEASH_URI",
+      "value" = "http://${module.ecs_toggles.internal_alb_dns}/api",
     },
   ]
   secrets                          = {}
@@ -128,7 +177,10 @@ module "secrets" {
     "RDS_AUTH_SERVICE_CONNECTION_STRING" : module.rds_auth_service.rds_db_connection_string,
     "RDS_API_SERVICE_PASSWORD" : module.rds_api_service.rds_db_password,
     "RDS_API_SERVICE_USERNAME" : module.rds_api_service.rds_db_username,
-    "RDS_API_SERVICE_CONNECTION_STRING" : module.rds_api_service.rds_db_connection_string
+    "RDS_API_SERVICE_CONNECTION_STRING" : module.rds_api_service.rds_db_connection_string,
+    "RDS_TOGGLES_CONNECTION_STRING" : module.rds_toggles.rds_db_connection_string,
+    "RDS_TOGGLES_PASSWORD" : module.rds_toggles.rds_db_password,
+    "RDS_TOGGLES_USERNAME" : module.rds_toggles.rds_db_username,
   }
 }
 
@@ -140,7 +192,6 @@ module "parameter_store" {
     "JWT_ISSUER" : "SecureString",
     "JWT_SECRET" : "SecureString",
     "LANG" : "String",
-    "EPB_UNLEASH_URI" : "String",
     "VALID_DOMESTIC_SCHEMAS" : "String",
     "VALID_NON_DOMESTIC_SCHEMAS" : "String"
     "STAGE" : "String",
@@ -157,7 +208,8 @@ module "bastion" {
   vpc_id    = module.networking.vpc_id
   rds_access_policy_arns = {
     "Auth" : module.rds_auth_service.rds_full_access_policy_arn,
-    "API" : module.rds_api_service.rds_full_access_policy_arn
+    "API" : module.rds_api_service.rds_full_access_policy_arn,
+    "Toggles" : module.rds_toggles.rds_full_access_policy_arn,
   }
 }
 
@@ -198,4 +250,19 @@ module "data_migration_api_service" {
 
   minimum_cpu       = 1024
   minimum_memory_mb = 4096
+}
+
+module "data_migration_toggles" {
+  source = "./data_migration"
+
+  prefix                              = "${local.prefix}-toggles-migration"
+  environment                         = var.environment
+  region                              = var.region
+  rds_full_access_policy_arn          = module.rds_toggles.rds_full_access_policy_arn
+  rds_db_connection_string_secret_arn = module.secrets.secret_arns["RDS_TOGGLES_CONNECTION_STRING"]
+  backup_file                         = "epbr-toggles-integration.dump"
+  ecr_repository_url                  = module.data_migration_shared.ecr_repository_url
+  backup_bucket_name                  = module.data_migration_shared.backup_bucket_name
+  backup_bucket_arn                   = module.data_migration_shared.backup_bucket_arn
+  log_group                           = module.data_migration_shared.log_group
 }
