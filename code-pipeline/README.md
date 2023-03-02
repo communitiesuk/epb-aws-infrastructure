@@ -47,7 +47,7 @@ The code pipelines reside in the AWS CICD account, but need access to the AWS ac
 The account IDs of any service environments need to be referenced from a local file you'll need to add. This file is in 
 the .gitignore and not a public parameter. To set this up:
 
-1. Changed your current working directory to `/code-pipeline/service-pipeline`
+1. Change your current working directory to `/code-pipeline/service-pipelines`
 2. Create a file `.auto.tfvars` in that directory
 3. In the file add the following, replacing `{aws_integration_account_id}` with the integration account ID  
    `account_ids = { {environment_name}="{aws_environment_account_id}" }`   
