@@ -9,3 +9,7 @@ variable "cross_account_role_arns" {
 variable "github_organisation" {
   default = "communitiesuk"
 }
+
+variable "region" {
+  default = "eu-west-2"
+}

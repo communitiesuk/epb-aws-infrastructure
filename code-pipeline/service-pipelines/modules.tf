@@ -6,6 +6,8 @@ module "codestar_connection" {
   source = "../modules/codestar_connection"
 }
 
+
+
 module "codepipeline_role" {
   source                  = "../modules/codepipeline_role"
   codepipeline_bucket     = module.artefact.codepipeline_bucket
@@ -31,8 +33,22 @@ module "build_test_image_pipeline" {
   github_branch           = "master"
   github_organisation     = var.github_organisation
   codestar_connection_arn = module.codestar_connection.codestar_connection_arn
-  region                  = "eu-west-2"
+  region                  = var.region
   project_name            = "epbr-codebuild-image"
+}
+
+module "app_test_image_pipeline" {
+  artefact_bucket         = module.artefact.codepipeline_bucket
+  artefact_bucket_arn     = module.artefact.codepipeline_bucket_arn
+  configuration           = "aws-ruby-node"
+  source                  = "../modules/build_test_image_pipeline"
+  codepipeline_arn        = module.codepipeline_role.aws_codepipeline_arn
+  github_repository       = "epb-docker-images"
+  github_branch           = "master"
+  github_organisation     = var.github_organisation
+  codestar_connection_arn = module.codestar_connection.codestar_connection_arn
+  region                  = var.region
+  project_name            = "epbr-aws-ruby-node-image"
 }
 
 module "postgres_test_image_pipeline" {
@@ -45,7 +61,7 @@ module "postgres_test_image_pipeline" {
   github_branch           = "master"
   github_organisation     = var.github_organisation
   codestar_connection_arn = module.codestar_connection.codestar_connection_arn
-  region                  = "eu-west-2"
+  region                  = var.region
   project_name            = "epbr-postgres-image"
 }
 
@@ -67,6 +83,7 @@ module "auth-server-pipeline" {
   project_name            = "epbr-auth-server"
   codebuild_image_ecr_url = module.build_test_image_pipeline.image_repository_url
   postgres_image_ecr_url  = module.postgres_test_image_pipeline.image_repository_url
+  region                  = var.region
 }
 
 module "register-api-pipeline" {
@@ -87,4 +104,5 @@ module "register-api-pipeline" {
   project_name            = "epbr-register-api"
   codebuild_image_ecr_url = module.build_test_image_pipeline.image_repository_url
   postgres_image_ecr_url  = module.postgres_test_image_pipeline.image_repository_url
+  region                  = var.region
 }

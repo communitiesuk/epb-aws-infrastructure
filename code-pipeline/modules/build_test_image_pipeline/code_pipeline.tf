@@ -28,7 +28,7 @@ resource "aws_codepipeline" "codepipeline" {
   }
 
   stage {
-    name = "build-image"
+    name = "build-push-image"
 
     action {
       name            = "Build"
