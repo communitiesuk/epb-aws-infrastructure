@@ -165,8 +165,6 @@ module "frontend" {
 module "secrets" {
   source = "./secrets"
 
-  prefix = local.prefix
-  region = var.region
   secrets = {
     "RDS_AUTH_SERVICE_PASSWORD" : module.rds_auth_service.rds_db_password,
     "RDS_AUTH_SERVICE_USERNAME" : module.rds_auth_service.rds_db_username,

@@ -168,8 +168,17 @@ On Mac `brew install tflint`
 
 On Windows `choco install tflint`
 
+Note: Windows version doesn't allow for recursive call, which is sad.
+You may be better off running docker version
+
 ### Running tflint
 
-`cd {code-pipeline|service-infrastructure|state-init}`
+You need to be in the project root
 
-`tflint --recursive`
+On Mac `tflint --recursive`
+
+On Windows you don't have `--recursive`, so `tflint {path_to_module}`
+
+On Windows with Docker `docker run --rm -v ${pwd}:/data -t ghcr.io/terraform-linters/tflint --recursive`
+
+*TIP: use `--format=compact` to make output easier to read.*
