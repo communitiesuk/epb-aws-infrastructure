@@ -155,9 +155,7 @@ where `service_name` should be replaced with the name of the service, e.g. `auth
 
 ## Linting with tflint
 
-### Prerequisites
-
-You will need TFLint installed
+You will need tflint installed
 
 On Mac `brew install tflint`
 
@@ -177,3 +175,21 @@ On Windows you don't have `--recursive`, so `tflint {path_to_module}`
 On Windows with Docker `docker run --rm -v ${pwd}:/data -t ghcr.io/terraform-linters/tflint --recursive`
 
 *TIP: use `--format=compact` to make output easier to read.*
+
+## Static analysis with tfsec
+
+You will need tfsec installed
+
+On Mac `brew install tfsec`
+
+On Windows `choco install tfsec`
+
+### Running tfsec
+
+You can simply run `tfsec` in root folder
+
+You can see the options with `tfsec -h`
+
+one useful option is setting `--minimum-severity` flag
+
+`tfsec --minimum-severity HIGH` will ignore any *Low* adn *Medium* issues
