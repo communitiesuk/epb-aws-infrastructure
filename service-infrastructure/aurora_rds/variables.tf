@@ -22,10 +22,6 @@ variable "storage_backup_period" {
   type = number
 }
 
-variable "storage_size" {
-  type = number
-}
-
 variable "instance_class" {
   type = string
 }

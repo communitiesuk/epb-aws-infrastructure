@@ -26,7 +26,7 @@ resource "aws_iam_policy" "s3" {
       {
         Effect   = "Allow",
         Action   = "s3:ListObjects",
-        Resource = "${var.backup_bucket_arn}"
+        Resource = var.backup_bucket_arn
       },
       {
         Effect   = "Allow",

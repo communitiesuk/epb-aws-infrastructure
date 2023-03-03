@@ -22,7 +22,6 @@ module "ecs_auth_service" {
   source = "./ecs_service"
 
   prefix         = "${local.prefix}-auth-service"
-  environment    = var.environment
   region         = var.region
   container_port = 80
   environment_variables = [
@@ -59,7 +58,6 @@ module "ecs_api_service" {
   source = "./ecs_service"
 
   prefix         = "${local.prefix}-api-service"
-  environment    = var.environment
   region         = var.region
   container_port = 80
   environment_variables = [
@@ -88,7 +86,6 @@ module "rds_api_service" {
   subnet_group_name     = module.networking.private_subnet_group_name
   security_group_ids    = [module.ecs_api_service.ecs_security_group_id, module.bastion.security_group_id]
   storage_backup_period = var.storage_backup_period
-  storage_size          = 100
   instance_class        = "db.t3.medium"
 }
 
@@ -98,7 +95,6 @@ module "ecs_toggles" {
   source = "./ecs_service"
 
   prefix                           = "${local.prefix}-toggles"
-  environment                      = var.environment
   region                           = var.region
   container_port                   = 4242
   environment_variables            = []
@@ -132,7 +128,6 @@ module "frontend" {
   source = "./ecs_service"
 
   prefix         = "${local.prefix}-frontend"
-  environment    = var.environment
   region         = var.region
   container_port = 80
   environment_variables = [
@@ -219,7 +214,6 @@ module "data_migration_auth_service" {
   source = "./data_migration"
 
   prefix                              = "${local.prefix}-auth-migration"
-  environment                         = var.environment
   region                              = var.region
   rds_full_access_policy_arn          = module.rds_auth_service.rds_full_access_policy_arn
   rds_db_connection_string_secret_arn = module.secrets.secret_arns["RDS_AUTH_SERVICE_CONNECTION_STRING"]
@@ -234,7 +228,6 @@ module "data_migration_api_service" {
   source = "./data_migration"
 
   prefix                              = "${local.prefix}-api-migration"
-  environment                         = var.environment
   region                              = var.region
   rds_full_access_policy_arn          = module.rds_api_service.rds_full_access_policy_arn
   rds_db_connection_string_secret_arn = module.secrets.secret_arns["RDS_API_SERVICE_CONNECTION_STRING"]
@@ -252,7 +245,6 @@ module "data_migration_toggles" {
   source = "./data_migration"
 
   prefix                              = "${local.prefix}-toggles-migration"
-  environment                         = var.environment
   region                              = var.region
   rds_full_access_policy_arn          = module.rds_toggles.rds_full_access_policy_arn
   rds_db_connection_string_secret_arn = module.secrets.secret_arns["RDS_TOGGLES_CONNECTION_STRING"]
