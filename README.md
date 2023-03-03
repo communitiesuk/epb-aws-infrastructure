@@ -121,9 +121,16 @@ through AWS console
     Note: if you receive an error using the AWS CLI, make sure that you have the latest version of the AWS CLI and Docker installed.
 
 1. Build your Docker image using the following command. For information on building a Docker file from scratch, see the
-instructions here . You can skip this step if your image has already been built:
+   instructions here. You can skip this step if your image has already been built:
 
-    `docker build -t {local_image_name} .`
+   `docker build -t {local_image_name} .`
+
+   If you need to build the image to run on a different platform architecture e.g. the ECS service the image is running on is ARM64, then you may need to build the image using `buildx`
+   with the command below: (see [target platform for build using docker buildx](https://docs.docker.com/engine/reference/commandline/buildx_build/#platform) for more information)
+
+   `docker buildx build --platform {desired_platform} -t {local_image_name}`
+   Example:
+   `docker buildx build --platform linux/arm64 --t epb-toggles .`
 
 1. After the build is completed, tag your image so you can push the image to this repository:
 
