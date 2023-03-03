@@ -193,8 +193,8 @@ module "parameter_store" {
     "STAGE" : "String",
     "EPB_AUTH_CLIENT_ID" : "SecureString",
     "EPB_AUTH_CLIENT_SECRET" : "SecureString",
+    "EPB_UNLEASH_AUTH_TOKEN" : "SecureString",
     "TOGGLES_SECRET" : "SecureString",
-    "UNLEASH_AUTH_TOKEN" : "SecureString",
   }
 }
 
