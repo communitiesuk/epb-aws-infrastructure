@@ -150,3 +150,20 @@ instructions here . You can skip this step if your image has already been built:
    
 
 For information on Terraforming the EPBR Code pipelines go to `/code-pipeline/README.md`
+
+
+## Linting with tflint
+
+### Prerequisites
+
+You will need TFLint installed
+
+On Mac `brew install tflint`
+
+On Windows `choco install tflint`
+
+### Running tflint
+
+`cd {code-pipeline|service-infrastructure|state-init}`
+
+`tflint --recursive`
