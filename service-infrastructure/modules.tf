@@ -102,7 +102,9 @@ module "ecs_toggles" {
   region                           = var.region
   container_port                   = 4242
   environment_variables            = []
-  secrets                          = { "DATABASE_URL" : module.secrets.secret_arns["RDS_TOGGLES_CONNECTION_STRING"] }
+  secrets                          = {
+    "DATABASE_URL" : module.secrets.secret_arns["RDS_TOGGLES_CONNECTION_STRING"],
+  }
   parameters                       = module.parameter_store.parameter_arns
   vpc_id                           = module.networking.vpc_id
   private_subnet_ids               = module.networking.private_subnet_ids
@@ -191,6 +193,8 @@ module "parameter_store" {
     "STAGE" : "String",
     "EPB_AUTH_CLIENT_ID" : "SecureString",
     "EPB_AUTH_CLIENT_SECRET" : "SecureString",
+    "TOGGLES_SECRET" : "SecureString",
+    "UNLEASH_AUTH_TOKEN" : "SecureString",
   }
 }
 
