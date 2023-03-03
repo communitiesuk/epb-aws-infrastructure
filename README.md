@@ -147,10 +147,16 @@ instructions here . You can skip this step if your image has already been built:
    `docker tag epb-auth-service:latest 851965904888.dkr.ecr.eu-west-2.amazonaws.com/epb-intg-auth-service-ecr:latest`
 
    `docker push 851965904888.dkr.ecr.eu-west-2.amazonaws.com/epb-intg-auth-service-ecr:latest`
-   
 
 For information on Terraforming the EPBR Code pipelines go to `/code-pipeline/README.md`
 
+## Restarting a service
+
+After making changes to secrets or parameters, you will need to restart a service for changes to take place
+
+`SERVICE={service_name}; aws-vault exec integration -- aws ecs update-service --cluster epb-intg-$SERVICE-cluster --service epb-intg-$SERVICE --force-new-deployment`
+
+where `service_name` should be replaced with the name of the service, e.g. `auth-service`
 
 ## Linting with tflint
 
