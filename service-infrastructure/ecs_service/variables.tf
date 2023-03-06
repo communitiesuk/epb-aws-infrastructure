@@ -61,3 +61,7 @@ variable "create_internal_alb" {
   type    = bool
   default = true
 }
+
+variable "aws_ssl_certificate_arn" {
+  type = string
+}

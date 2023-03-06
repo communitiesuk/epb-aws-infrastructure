@@ -18,6 +18,10 @@ module "access" {
   ci_account_id = var.ci_account_id
 }
 
+module "ssl_certificate" {
+  source = "./ssl"
+}
+
 module "ecs_auth_service" {
   source = "./ecs_service"
 
@@ -39,6 +43,7 @@ module "ecs_auth_service" {
   additional_task_role_policy_arns = { "RDS_access" : module.rds_auth_service.rds_full_access_policy_arn }
   aws_cloudwatch_log_group_id      = module.logging.cloudwatch_log_group_id
   logs_bucket_name                 = module.logging.logs_bucket_name
+  aws_ssl_certificate_arn          = module.ssl_certificate.certificate_arn
 }
 
 module "rds_auth_service" {
@@ -75,6 +80,7 @@ module "ecs_api_service" {
   additional_task_role_policy_arns = { "RDS_access" : module.rds_api_service.rds_full_access_policy_arn }
   aws_cloudwatch_log_group_id      = module.logging.cloudwatch_log_group_id
   logs_bucket_name                 = module.logging.logs_bucket_name
+  aws_ssl_certificate_arn          = module.ssl_certificate.certificate_arn
 }
 
 module "rds_api_service" {
@@ -109,6 +115,7 @@ module "ecs_toggles" {
   additional_task_role_policy_arns = { "RDS_access" : module.rds_toggles.rds_full_access_policy_arn }
   aws_cloudwatch_log_group_id      = module.logging.cloudwatch_log_group_id
   logs_bucket_name                 = module.logging.logs_bucket_name
+  aws_ssl_certificate_arn          = module.ssl_certificate.certificate_arn
 }
 
 module "rds_toggles" {
@@ -153,8 +160,8 @@ module "frontend" {
   additional_task_role_policy_arns = {}
   aws_cloudwatch_log_group_id      = module.logging.cloudwatch_log_group_id
   logs_bucket_name                 = module.logging.logs_bucket_name
-
   create_internal_alb = false
+  aws_ssl_certificate_arn          = module.ssl_certificate.certificate_arn
 }
 
 module "secrets" {
