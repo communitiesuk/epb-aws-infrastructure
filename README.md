@@ -1,12 +1,35 @@
 # EPB AWS Infrastructure
 
+## just
+
+A lot of tasks described in this readme have been made easier using `just`. It is similar to `make`, but with some neater syntax and cross platform support.
+
+### Installation
+
+Mac: `brew install just`
+
+Windows: `choco install just`
+
+On Windows, open your bash of choice (e.g. Git bash).
+Make sure you are in the root, where `justfile` is located.
+
+Run `just install`
+
+This sets up alias `.j` to this specific file.
+
+Example usage: `.j tfsec`
+
+### Usage
+
+To view available recipes, run `just` in this project or `.j` anywhere
+
 ## Terraform Setup
 
 ### Installation
 
 1. Install Terraform:
 <https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli>
-2. Install AWS Vault: <https://github.com/99designs/aws-vault>
+1. Install AWS Vault: <https://github.com/99designs/aws-vault>
 
 ## Local AWS profile management
 
@@ -156,9 +179,9 @@ For information on Terraforming the EPBR Code pipelines go to `/code-pipeline/RE
 
 After making changes to secrets or parameters, you will need to restart a service for changes to take place
 
-`SERVICE={service_name}; aws-vault exec integration -- aws ecs update-service --cluster epb-intg-$SERVICE-cluster --service epb-intg-$SERVICE --force-new-deployment`
+`SERVICE={service_name}; aws-vault exec integration -- aws ecs update-service --cluster $SERVICE-cluster --service $SERVICE --force-new-deployment`
 
-where `service_name` should be replaced with the name of the service, e.g. `auth-service`
+where `service_name` should be replaced with the name of the service, e.g. `epb-intg-auth-service`
 
 ## Setting up SSL Certificates
 
