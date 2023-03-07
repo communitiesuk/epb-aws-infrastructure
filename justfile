@@ -20,7 +20,7 @@ install:
 
 _alias_this:
     #!/usr/bin/env bash
-    export ALIAS_COMMAND="alias .j='just --justfile $(pwd)/justfile'"
+    ALIAS_COMMAND="alias .j='just --justfile $(pwd)/justfile --'"
 
     if [ -f ~/.bash_profile ]; then
         if ! grep -q "$ALIAS_COMMAND" ~/.bash_profile; then
@@ -30,15 +30,13 @@ _alias_this:
         echo $ALIAS_COMMAND > ~/.bash_profile
     fi
 
-    source ~/.bash_profile
-
 # Add AWS config and aws-vault profile required to run many commangs. Note: this will update .env file in current directory
 add-profile profile:
     #!/usr/bin/env bash
 
-    profile=$(cat ~/.aws/config | grep "\[profile {{profile}}\]")
+    PROFILE=$(cat ~/.aws/config | grep "\[profile {{profile}}\]")
     
-    if [ -z "$profile" ]; then
+    if [ -z "$PROFILE" ]; then
         mfa_serial=$(cat ~/.aws/config | grep -m 1 mfa_serial | cut -d'=' -f2)
         account_id=$(read -p "Enter account id: " account_id; echo $account_id)
         role=$(read -p "Enter account role: " role; echo $role)
@@ -64,9 +62,9 @@ add-profile profile:
 # Set previously added aws-vault profile. Note: this will update .env file in current directory
 set-profile profile:
     #!/usr/bin/env bash
+    PROFILE=$(aws-vault list --profiles | grep {{profile}})
 
-    profile=$(aws-vault list --profiles | grep {{profile}})
-    if [ -z "$profile" ]; then
+    if [ -z "$PROFILE" ]; then
         echo "profile {{profile}} does not exist. Run 'just add-profile {{profile}}' to add it."
     else
         just _set-profile {{profile}}
@@ -75,7 +73,6 @@ set-profile profile:
 
 _set-profile profile:
     #!/usr/bin/env bash
-
     echo "setting current profile to {{profile}}"
 
     if [ -f .env ]; then
@@ -95,7 +92,7 @@ rds-list:
 # Creates connection to RDS instance. requires bastion host 'bastion-host' to be running in currenct account. Run 'just rds-list' to get available endpoint addresses
 rds-connect rds_endpoint local_port="5432":
     #!/usr/bin/env bash
-    export BASTION_RDS_INSTANCE_ID=$(aws-vault exec $AWS_PROFILE -- aws ec2 describe-instances --filters "Name=tag:Name,Values=bastion-host" --query 'Reservations[*].Instances[*].InstanceId' --output text)
+    BASTION_RDS_INSTANCE_ID=$(aws-vault exec $AWS_PROFILE -- aws ec2 describe-instances --filters "Name=tag:Name,Values=bastion-host" --query 'Reservations[*].Instances[*].InstanceId' --output text)
     
     echo "You can connect to your Database now using your preferred interface at server address localhost:{{local_port}}"
     echo "e.g. psql -h localhost -p 5432"
@@ -107,7 +104,7 @@ rds-connect rds_endpoint local_port="5432":
 # Disconnects from RDS instance
 rds-disconnect:
     #!/usr/bin/env bash
-    export BASTION_RDS_INSTANCE_ID=$(aws-vault exec $AWS_PROFILE -- aws ec2 describe-instances --filters "Name=tag:Name,Values=bastion-host" --query 'Reservations[*].Instances[*].InstanceId' --output text)
+    BASTION_RDS_INSTANCE_ID=$(aws-vault exec $AWS_PROFILE -- aws ec2 describe-instances --filters "Name=tag:Name,Values=bastion-host" --query 'Reservations[*].Instances[*].InstanceId' --output text)
     aws-vault exec $AWS_PROFILE -- aws ssm stop-session --target $(BASTION_RDS_INSTANCE_ID)
 
 # list available secrets
@@ -156,7 +153,7 @@ tfdestroy path="service-infrastructure" force="false":
 
 tfinit path="." backend="":
     #!/usr/bin/env bash
-    if [ {{backend}} != "" ]; then
+    if [ "{{backend}}" != "" ]; then
         echo "initialising terraform with backend {{backend}}"
         cd {{path}} && aws-vault exec $AWS_PROFILE -- terraform init -backend-config={{backend}}
     else
@@ -169,26 +166,27 @@ tfsec minimum_severity="HIGH":
 
     tfsec --minimum-severity {{minimum_severity}}
 
-# Deploys local image to ECR. Requires docker to be running. If dockerfile_path is not specified, it attempt to use existing image
+# Deploys local image to ECR. Requires docker to be running. If dockerfile_path is not specified, it attempt to use existing image. dockerfile_path should be absolute path to directory containing dockerfile
 service-update-image image_name service_name dockerfile_path="":
     #!/usr/bin/env bash
 
-    export ECR_REPO_NAME={{service_name}}-ecr
-
+    ECR_REPO_NAME={{service_name}}-ecr
     ACCOUNT_ID=$(aws-vault exec $AWS_PROFILE -- aws sts get-caller-identity --query Account --output text)
 
     docker login -u AWS -p $(aws-vault exec $AWS_PROFILE -- aws ecr get-login-password --region eu-west-2) $ACCOUNT_ID.dkr.ecr.eu-west-2.amazonaws.com
-    if [ {{dockerfile_path}} != "" ]; then
-        docker buildx build --platform linux/arm64 --t {{image_name}} {{dockerfile_path}}
+    if [ "{{dockerfile_path}}" != "" ]; then
+        docker buildx build --platform linux/arm64 -t {{image_name}} {{dockerfile_path}}
     fi
     docker tag {{image_name}}:latest $ACCOUNT_ID.dkr.ecr.eu-west-2.amazonaws.com/$ECR_REPO_NAME:latest
-    docker push $ACCOUNT_ID.dkr.ecr.eu-west-2.amazonaws.com/ECR_REPO_NAME:latest
+    docker push $ACCOUNT_ID.dkr.ecr.eu-west-2.amazonaws.com/$ECR_REPO_NAME:latest
 
-    just refresh-service service_name={{service_name}}
+    just service-refresh {{service_name}}
     
 # Force redeploy of ECS service. Do this to make parameter changes take effect
 service-refresh service_name:
-    export ECS_CLUSTER_NAME={{service_name}}-cluster
+    #!/usr/bin/env bash
+
+    ECS_CLUSTER_NAME={{service_name}}-cluster
     aws-vault exec integration -- aws ecs update-service --cluster $ECS_CLUSTER_NAME --service {{service_name}} --force-new-deployment
 
 parameters-list:

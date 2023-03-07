@@ -13,7 +13,9 @@ Windows: `choco install just`
 On Windows, open your bash of choice (e.g. Git bash).
 Make sure you are in the root, where `justfile` is located.
 
-Run `just install`
+Run:
+`just install`
+`source ~/.bash_profile`
 
 This sets up alias `.j` to this specific file.
 
