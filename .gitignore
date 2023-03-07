@@ -44,3 +44,4 @@ terraform.rc
 # Mac specific files
 .DS_Store
 
+.env
