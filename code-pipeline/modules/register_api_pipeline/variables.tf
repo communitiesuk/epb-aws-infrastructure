@@ -22,10 +22,6 @@ variable "codepipeline_bucket" {
   type = string
 }
 
-variable "codepipeline_bucket_arn" {
-  type = string
-}
-
 variable "codestar_connection_arn" {
   type = string
 }
@@ -66,10 +62,6 @@ variable "region" {
   type = string
 }
 
-variable "tags" {
-  description = "AWS asset tags"
-  default = {
-    Project   = "epb"
-    Terraform = true
-  }
+variable "aws_arm_codebuild_image" {
+  type = string
 }

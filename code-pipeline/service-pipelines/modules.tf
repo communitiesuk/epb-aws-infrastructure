@@ -1,26 +1,24 @@
 module "artefact" {
   source = "../modules/artifact_bucket"
+  region = var.region
 }
 
 module "codestar_connection" {
   source = "../modules/codestar_connection"
+  region = var.region
 }
-
-
 
 module "codepipeline_role" {
   source                  = "../modules/codepipeline_role"
-  codepipeline_bucket     = module.artefact.codepipeline_bucket
-  codepipeline_bucket_arn = module.artefact.codepipeline_bucket_arn
-  codestar_connection_arn = module.codestar_connection.codestar_connection_arn
+  region = var.region
 }
 
 module "codebuild_role" {
   source                  = "../modules/service_codebuild_role"
-  codepipeline_bucket     = module.artefact.codepipeline_bucket
   codepipeline_bucket_arn = module.artefact.codepipeline_bucket_arn
   cross_account_role_arns = var.cross_account_role_arns
   codestar_connection_arn = module.codestar_connection.codestar_connection_arn
+  region = var.region
 }
 
 
@@ -48,13 +46,13 @@ module "postgres_test_image_pipeline" {
   github_branch           = "master"
   github_organisation     = var.github_organisation
   codestar_connection_arn = module.codestar_connection.codestar_connection_arn
-  region                  = var.region
   project_name            = "epbr-postgres-image"
+  region = var.region
 }
 
 module "auth-server-pipeline" {
   source                  = "../modules/auth_server_pipeline"
-  codepipeline_bucket_arn = module.artefact.codepipeline_bucket_arn
+  aws_arm_codebuild_image = var.aws_arm_codebuild_image
   codepipeline_bucket     = module.artefact.codepipeline_bucket
   codepipeline_arn        = module.codepipeline_role.aws_codepipeline_arn
   codebuild_role_arn      = module.codebuild_role.aws_codebuild_role_arn
@@ -75,7 +73,6 @@ module "auth-server-pipeline" {
 
 module "register-api-pipeline" {
   source                  = "../modules/register_api_pipeline"
-  codepipeline_bucket_arn = module.artefact.codepipeline_bucket_arn
   codepipeline_bucket     = module.artefact.codepipeline_bucket
   codepipeline_arn        = module.codepipeline_role.aws_codepipeline_arn
   codebuild_role_arn      = module.codebuild_role.aws_codebuild_role_arn
@@ -92,4 +89,5 @@ module "register-api-pipeline" {
   codebuild_image_ecr_url = module.app_test_image_pipeline.image_repository_url
   postgres_image_ecr_url  = module.postgres_test_image_pipeline.image_repository_url
   region                  = var.region
+  aws_arm_codebuild_image = var.aws_arm_codebuild_image
 }

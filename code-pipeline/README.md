@@ -98,3 +98,27 @@ a code build role that has fewer permissions than the former
 - Add a code_pipleline.tf file and add your pipeline using the pre-existing global resources 
 - Include the module in the `code-pipeline/service-pipelines/modules.tf` file passing in any resources required.
 - Adding a new module will require you to re-initialise the Terraform in the same way as in step 3
+
+
+## Linting with tflint
+
+You will need tflint installed
+
+On Mac `brew install tflint`
+
+On Windows `choco install tflint`
+
+Note: Windows version doesn't allow for recursive call, which is sad.
+You may be better off running docker version
+
+### Running tflint
+
+You need to be in the project root
+
+On Mac `tflint --recursive`
+
+On Windows you don't have `--recursive`, so `tflint {path_to_module}`
+
+On Windows with Docker `docker run --rm -v ${pwd}:/data -t ghcr.io/terraform-linters/tflint --recursive`
+
+*TIP: use `--format=compact` to make output easier to read.*

@@ -8,4 +8,5 @@ module "codebuild_build_push_image" {
   environment_variables = [
     {name = "REPOSITORY_URI", value = aws_ecr_repository.this.repository_url },
   ]
+  region = var.region
 }

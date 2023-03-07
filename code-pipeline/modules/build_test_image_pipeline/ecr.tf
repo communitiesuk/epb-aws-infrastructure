@@ -1,7 +1,6 @@
 resource "aws_ecr_repository" "this" {
   name                 = "epbr-${var.configuration}"
   image_tag_mutability = "MUTABLE"
-  tags                 = var.tags
   force_delete         = true
 
 }

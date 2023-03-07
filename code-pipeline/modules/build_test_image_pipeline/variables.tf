@@ -37,11 +37,3 @@ variable "project_name" {
 variable "region" {
   type = string
 }
-
-variable "tags" {
-  description = "AWS asset tags"
-  default = {
-    Project   = "epb"
-    Terraform = true
-  }
-}
