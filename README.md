@@ -160,16 +160,21 @@ After making changes to secrets or parameters, you will need to restart a servic
 
 where `service_name` should be replaced with the name of the service, e.g. `auth-service`
 
+## Setting up SSL Certificates
+
+When a new SSL certificate is made because of running `terraform apply` (e.g. because we're setting up the infrastructure 
+for a new environment), you may come across issues trying to associate it with a resource because you need to validate 
+and completely setup the SSL certificate first. Check the tech-docs
+[here](https://dluhc-epb-tech-docs.london.cloudapps.digital/aws-migration.html#setting-up-ssl-certificates) for instructions
+on how to do this process
+
 ## Linting with tflint
 
 You will need tflint installed
 
 On Mac `brew install tflint`
 
-On Windows `choco install tflint`
-
-Note: Windows version doesn't allow for recursive call, which is sad.
-You may be better off running docker version
+On Windows it is recommended to use docker and the Windows locally installed version doesn't allow for a recursive call
 
 ### Running tflint
 
@@ -177,9 +182,8 @@ You need to be in the project root
 
 On Mac `tflint --recursive`
 
-On Windows you don't have `--recursive`, so `tflint {path_to_module}`
-
-On Windows with Docker `docker run --rm -v ${pwd}:/data -t ghcr.io/terraform-linters/tflint --recursive`
+On Windows, use a Powershell terminal (as the command doesn't work in a Bash terminal) and do  
+`docker run --rm -v ${pwd}:/data -t ghcr.io/terraform-linters/tflint --recursive`
 
 *TIP: use `--format=compact` to make output easier to read.*
 
