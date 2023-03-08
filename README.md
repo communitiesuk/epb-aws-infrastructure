@@ -27,6 +27,13 @@ Example usage: `.j tfsec`
 
 To view available recipes, run `just` in this project or `.j` anywhere
 
+When specifying paths in `just` command, provide absolute paths. You can use `$(pwd)` to get current path e.g.
+
+```bash
+cd code-pipeline/service-pipelines/
+.j tfinit $(pwd) $(pwd)/backend_cicd.hcl
+```
+
 ## Terraform Setup
 
 ### Installation
@@ -35,6 +42,30 @@ To view available recipes, run `just` in this project or `.j` anywhere
 <https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli>
 1. Install AWS Vault: <https://github.com/99designs/aws-vault>
 1. Setup your aws access [via aws-vault profile](https://dluhc-epb-tech-docs.london.cloudapps.digital/dev-setup.html#create-an-aws-vault-profile)
+
+### tfvars
+
+In terraform, we use modules which may require variables to be set. Even the top level (root) terraform definitions may require variables.
+
+These variables may be sensitive, so they should be stored securely and not checked into git. TODO: Add method for secure storage for easier sharing.
+
+To avoid having to type each var whenever you run `terraform apply` command, it is good idea to keep a private set of variables in `tfvars` file.
+Better yet, to make things less verbose to run, store them in `.auto.tfvars` file.
+
+Example `.auto.tfvars` file:
+
+```hcl
+account_map = {
+  "integration" = "123456789012",
+  "staging" = "1111111111111",
+}
+
+prefix = "some-string-prefix"
+
+some_list = [1, 5, 2]
+```
+
+More info in [official documentation](https://developer.hashicorp.com/terraform/language/values/variables)
 
 ## Setting up tfstate management (Initial setup only)
 
