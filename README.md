@@ -34,52 +34,11 @@ To view available recipes, run `just` in this project or `.j` anywhere
 1. Install Terraform:
 <https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli>
 1. Install AWS Vault: <https://github.com/99designs/aws-vault>
-
-## Local AWS profile management
-
-To change the AWS infrastructure for each environment, you need to setup an AWS
-profile on your machine. There are 2 options:
-
-* manually
-* `aws-vault`
-
-### Manual option
-
-1. Add a profile to your AWS config file to access the environment:  
-    `[profile {profile_name_for_AWS_environment}]`  
-    `mfa_serial=arn:aws:iam::{AWS_organisation_account_id}:mfa/{IAMUser}`  
-    `role_arn=arn:aws:iam::{AWS_environment_account_id}}:role/developer`
-
-    Example:
-    `[profile integration]`  
-    `mfa_serial=arn:aws:iam::111111111:mfa/firstname.surname`  
-    `role_arn=arn:aws:iam::123456789:role/developer`
-
-2. Add the access key id and secret key for the profile in the AWS credentials file. Use the credentials for your
-existing IAM user, check in the AWS console to verify they match.
-
-    `[{profile_name_for_AWS_environment}]`  
-    `aws_access_key_id = {IAMUser_aws_access_key_id}`  
-    `aws_secret_access_key = {IAMUser_aws_secret_access_key}`
-
-    Example:  
-    `[integration]`  
-    `aws_access_key_id = ABC123DEF456GHI789`  
-    `aws_secret_access_key = B1l1o1o1p123456879`
-
-3. If using `aws-vault` to execute commands later, you will also need add a user:  
-    `aws-vault add {profile_name_for_AWS_environment}`
-
-    Example:  
-    `aws-vault add integration`
-
-### AWS Vault option
-
-Follow instructions in [official AWS Vault documentation](https://github.com/99designs/aws-vault/blob/master/USAGE.md#config)
+1. Setup your aws access [via aws-vault profile](https://dluhc-epb-tech-docs.london.cloudapps.digital/dev-setup.html#create-an-aws-vault-profile)
 
 ## Setting up tfstate management (Initial setup only)
 
-*Skip this if the infrastructure state management exists already*
+__Note__: Skip this if the infrastructure state management exists already
 
 Before starting to terraform the infrastructure of an environment, you will need to use the pre-configured S3
 backend, so that terraform can store / lock the state.
