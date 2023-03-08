@@ -137,12 +137,12 @@ tflint:
     echo "running tflint..." 
     docker run --rm -v $(pwd):/data -t ghcr.io/terraform-linters/tflint --recursive
 
-tfapply path="service-infrastructure":
+tfapply path=".":
     #!/usr/bin/env bash
 
     cd {{path}} && aws-vault exec $AWS_PROFILE -- terraform apply
 
-tfdestroy path="service-infrastructure" force="false":
+tfdestroy path="." force="false":
     #!/usr/bin/env bash
     if [ {{force}} = "false" ]; then
         echo "Make sure you consider the consequences and call me again with 'just tfdestroy path={{path}} force=true'"
