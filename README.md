@@ -4,6 +4,8 @@
 
 A lot of tasks described in this readme have been made easier using `just`. It is similar to `make`, but with some neater syntax and cross platform support.
 
+[Official Documentation](https://github.com/casey/just)
+
 ### Installation
 
 Mac: `brew install just`
@@ -17,7 +19,7 @@ Run:
 `just install`
 `source ~/.bash_profile`
 
-This sets up alias `.j` to this specific file.
+This sets up alias `.j` to use this specific file.
 
 Example usage: `.j tfsec`
 
