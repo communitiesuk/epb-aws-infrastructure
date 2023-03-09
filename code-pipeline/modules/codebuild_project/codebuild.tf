@@ -13,11 +13,11 @@ resource "aws_codebuild_project" "this" {
     type            = var.environment_type
     privileged_mode = true
 
-    dynamic environment_variable {
+    dynamic "environment_variable" {
       for_each = var.environment_variables
       content {
-        name  =  environment_variable.value["name"]
-        value =   environment_variable.value["value"]
+        name  = environment_variable.value["name"]
+        value = environment_variable.value["value"]
       }
     }
   }

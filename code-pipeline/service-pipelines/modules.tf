@@ -9,7 +9,7 @@ module "codestar_connection" {
 }
 
 module "codepipeline_role" {
-  source                  = "../modules/codepipeline_role"
+  source = "../modules/codepipeline_role"
   region = var.region
 }
 
@@ -18,7 +18,7 @@ module "codebuild_role" {
   codepipeline_bucket_arn = module.artefact.codepipeline_bucket_arn
   cross_account_role_arns = var.cross_account_role_arns
   codestar_connection_arn = module.codestar_connection.codestar_connection_arn
-  region = var.region
+  region                  = var.region
 }
 
 
@@ -47,7 +47,7 @@ module "postgres_test_image_pipeline" {
   github_organisation     = var.github_organisation
   codestar_connection_arn = module.codestar_connection.codestar_connection_arn
   project_name            = "epbr-postgres-image"
-  region = var.region
+  region                  = var.region
 }
 
 module "auth-server-pipeline" {

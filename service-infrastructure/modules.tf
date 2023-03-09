@@ -100,11 +100,11 @@ module "rds_api_service" {
 module "ecs_toggles" {
   source = "./ecs_service"
 
-  prefix                           = "${local.prefix}-toggles"
-  region                           = var.region
-  container_port                   = 4242
-  environment_variables            = []
-  secrets                          = {
+  prefix                = "${local.prefix}-toggles"
+  region                = var.region
+  container_port        = 4242
+  environment_variables = []
+  secrets = {
     "DATABASE_URL" : module.secrets.secret_arns["RDS_TOGGLES_CONNECTION_STRING"],
   }
   parameters                       = module.parameter_store.parameter_arns
@@ -160,7 +160,7 @@ module "frontend" {
   additional_task_role_policy_arns = {}
   aws_cloudwatch_log_group_id      = module.logging.cloudwatch_log_group_id
   logs_bucket_name                 = module.logging.logs_bucket_name
-  create_internal_alb = false
+  create_internal_alb              = false
   aws_ssl_certificate_arn          = module.ssl_certificate.certificate_arn
 }
 

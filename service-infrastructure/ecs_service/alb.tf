@@ -57,10 +57,10 @@ resource "aws_lb_listener" "public_https" {
   port              = 443
   protocol          = "HTTPS"
 
-  ssl_policy        = "ELBSecurityPolicy-2016-08"
+  ssl_policy = "ELBSecurityPolicy-2016-08"
   # When trying to associate certificate with the listener, you may see terraform errors if the certificate hasn't been validated yet
   # See "Setting up SSL Certificates" in README for more info
-  certificate_arn   = var.aws_ssl_certificate_arn
+  certificate_arn = var.aws_ssl_certificate_arn
 
   default_action {
     target_group_arn = aws_lb_target_group.public.id
