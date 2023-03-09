@@ -20,10 +20,21 @@ module "access" {
 
 module "ssl_certificate" {
   source = "./ssl"
+
+  domain_name = "*.${var.domain_name}"
+}
+
+module "cdn_certificate" {
+  source = "./ssl"
+  providers = {
+    aws = aws.us-east
+  }
+
+  domain_name = "*.${var.domain_name}"
 }
 
 module "ecs_auth_service" {
-  source = "./ecs_service"
+  source = "./service"
 
   prefix         = "${local.prefix}-auth-service"
   region         = var.region
@@ -43,7 +54,13 @@ module "ecs_auth_service" {
   additional_task_role_policy_arns = { "RDS_access" : module.rds_auth_service.rds_full_access_policy_arn }
   aws_cloudwatch_log_group_id      = module.logging.cloudwatch_log_group_id
   logs_bucket_name                 = module.logging.logs_bucket_name
+  logs_bucket_url                  = module.logging.logs_bucket_url
   aws_ssl_certificate_arn          = module.ssl_certificate.certificate_arn
+  aws_cdn_certificate_arn          = module.cdn_certificate.certificate_arn
+  cdn_allowed_methods              = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
+  cdn_cached_methods               = ["GET", "HEAD", "OPTIONS"]
+  cdn_cache_ttl                    = 0
+  cdn_aliases                      = ["auth${var.subdomain_suffix}.${var.domain_name}"]
 }
 
 module "rds_auth_service" {
@@ -54,13 +71,13 @@ module "rds_auth_service" {
   vpc_id                = module.networking.vpc_id
   subnet_group_name     = module.networking.private_subnet_group_name
   security_group_ids    = [module.ecs_auth_service.ecs_security_group_id, module.bastion.security_group_id]
-  storage_backup_period = 0
+  storage_backup_period = 1
   storage_size          = 5
   instance_class        = "db.t3.micro"
 }
 
 module "ecs_api_service" {
-  source = "./ecs_service"
+  source = "./service"
 
   prefix         = "${local.prefix}-api-service"
   region         = var.region
@@ -80,7 +97,13 @@ module "ecs_api_service" {
   additional_task_role_policy_arns = { "RDS_access" : module.rds_api_service.rds_full_access_policy_arn }
   aws_cloudwatch_log_group_id      = module.logging.cloudwatch_log_group_id
   logs_bucket_name                 = module.logging.logs_bucket_name
+  logs_bucket_url                  = module.logging.logs_bucket_url
   aws_ssl_certificate_arn          = module.ssl_certificate.certificate_arn
+  aws_cdn_certificate_arn          = module.cdn_certificate.certificate_arn
+  cdn_allowed_methods              = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
+  cdn_cached_methods               = ["GET", "HEAD", "OPTIONS"]
+  cdn_cache_ttl                    = 0
+  cdn_aliases                      = ["api${var.subdomain_suffix}.${var.domain_name}"]
 }
 
 module "rds_api_service" {
@@ -98,7 +121,7 @@ module "rds_api_service" {
 
 
 module "ecs_toggles" {
-  source = "./ecs_service"
+  source = "./service"
 
   prefix                = "${local.prefix}-toggles"
   region                = var.region
@@ -115,7 +138,13 @@ module "ecs_toggles" {
   additional_task_role_policy_arns = { "RDS_access" : module.rds_toggles.rds_full_access_policy_arn }
   aws_cloudwatch_log_group_id      = module.logging.cloudwatch_log_group_id
   logs_bucket_name                 = module.logging.logs_bucket_name
+  logs_bucket_url                  = module.logging.logs_bucket_url
   aws_ssl_certificate_arn          = module.ssl_certificate.certificate_arn
+  aws_cdn_certificate_arn          = module.cdn_certificate.certificate_arn
+  cdn_allowed_methods              = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
+  cdn_cached_methods               = ["GET", "HEAD", "OPTIONS"]
+  cdn_cache_ttl                    = 0
+  cdn_aliases                      = ["toggles${var.subdomain_suffix}.${var.domain_name}"]
 }
 
 module "rds_toggles" {
@@ -132,7 +161,7 @@ module "rds_toggles" {
 }
 
 module "frontend" {
-  source = "./ecs_service"
+  source = "./service"
 
   prefix         = "${local.prefix}-frontend"
   region         = var.region
@@ -160,8 +189,17 @@ module "frontend" {
   additional_task_role_policy_arns = {}
   aws_cloudwatch_log_group_id      = module.logging.cloudwatch_log_group_id
   logs_bucket_name                 = module.logging.logs_bucket_name
+  logs_bucket_url                  = module.logging.logs_bucket_url
   create_internal_alb              = false
   aws_ssl_certificate_arn          = module.ssl_certificate.certificate_arn
+  aws_cdn_certificate_arn          = module.cdn_certificate.certificate_arn
+  cdn_allowed_methods              = ["GET", "HEAD", "OPTIONS"]
+  cdn_cached_methods               = ["GET", "HEAD", "OPTIONS"]
+  cdn_cache_ttl                    = 60 # 1 minute
+  cdn_aliases = [
+    "find-energy-certificate${var.subdomain_suffix}.${var.domain_name}",
+    "getting-new-energy-certificate${var.subdomain_suffix}.${var.domain_name}"
+  ]
 }
 
 module "secrets" {

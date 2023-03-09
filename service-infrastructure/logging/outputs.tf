@@ -5,3 +5,7 @@ output "cloudwatch_log_group_id" {
 output "logs_bucket_name" {
   value = aws_s3_bucket.logs.bucket
 }
+
+output "logs_bucket_url" {
+  value = aws_s3_bucket.logs.bucket_domain_name
+}

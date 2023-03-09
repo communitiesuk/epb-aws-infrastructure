@@ -17,3 +17,13 @@ variable "ci_account_id" {
   default = "145141030745"
   type    = string
 }
+
+variable "domain_name" {
+  default = "centraldatastore.net"
+  type    = string
+}
+
+variable "subdomain_suffix" {
+  default = "-integration"
+  type    = string
+}

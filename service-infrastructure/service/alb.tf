@@ -56,14 +56,36 @@ resource "aws_lb_listener" "public_https" {
   load_balancer_arn = aws_lb.public.id
   port              = 443
   protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-2016-08"
 
-  ssl_policy = "ELBSecurityPolicy-2016-08"
   # When trying to associate certificate with the listener, you may see terraform errors if the certificate hasn't been validated yet
   # See "Setting up SSL Certificates" in README for more info
   certificate_arn = var.aws_ssl_certificate_arn
 
   default_action {
-    target_group_arn = aws_lb_target_group.public.id
+    type = "fixed-response"
+
+    fixed_response {
+      content_type = "text/plain"
+      message_body = "403: Forbidden"
+      status_code  = "403"
+    }
+  }
+}
+
+resource "aws_lb_listener_rule" "forward_cdn" {
+  listener_arn = aws_lb_listener.public_https.arn
+  priority     = 1
+
+  action {
     type             = "forward"
+    target_group_arn = aws_lb_target_group.public.id
+  }
+
+  condition {
+    http_header {
+      http_header_name = local.cdn_header_name
+      values           = [random_password.cdn_header.result]
+    }
   }
 }

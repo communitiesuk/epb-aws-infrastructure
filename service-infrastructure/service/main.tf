@@ -8,3 +8,8 @@ terraform {
     }
   }
 }
+
+locals {
+  origin_id       = "${var.prefix}-origin"
+  cdn_header_name = "X-CDN-HEADER"
+}
