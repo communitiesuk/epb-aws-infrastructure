@@ -91,3 +91,23 @@ module "register-api-pipeline" {
   region                  = var.region
   aws_arm_codebuild_image = var.aws_arm_codebuild_image
 }
+
+module "frontend-pipeline" {
+  source = "../modules/frontend_pipeline"
+  codepipeline_bucket     = module.artefact.codepipeline_bucket
+  codepipeline_arn        = module.codepipeline_role.aws_codepipeline_arn
+  codebuild_role_arn      = module.codebuild_role.aws_codebuild_role_arn
+  pipeline_name           = "epbr-frontend-pipeline"
+  github_repository       = "epb-frontend"
+  github_branch           = "master"
+  github_organisation     = var.github_organisation
+  codestar_connection_arn = module.codestar_connection.codestar_connection_arn
+  account_ids             = var.account_ids
+  ecs_cluster_name        = "epb-intg-frontend-cluster"
+  ecs_service_name        = "epb-intg-frontend"
+  app_ecr_name            = "epb-intg-frontend-ecr"
+  project_name            = "epbr-frontend"
+  codebuild_image_ecr_url = module.app_test_image_pipeline.image_repository_url
+  region                  = var.region
+  aws_arm_codebuild_image = var.aws_arm_codebuild_image
+}
