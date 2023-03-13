@@ -31,15 +31,47 @@ resource "aws_ecs_task_definition" "this" {
           hostPort      = var.container_port
         }
       ]
+      dependsOn = [{
+        containerName = "${local.container_name}_fluentbit"
+        condition     = "START"
+      }]
       logConfiguration = {
-        logDriver = "awslogs",
+        logDriver = "awsfirelens",
+        options = {
+          Name         = "http"
+          Match        = "*"
+          Region       = var.region
+          Format       = "json"
+          tls          = "On"
+          "tls.verify" = "Off"
+        }
+        secretOptions = [for key, value in {
+          Host = "LOGSTASH_HOST"
+          Port = "LOGSTASH_PORT"
+          } : {
+          name      = key
+          valueFrom = var.parameters[value]
+        }]
+      }
+    },
+    {
+      name  = "${local.container_name}_fluentbit"
+      image = "public.ecr.aws/aws-observability/aws-for-fluent-bit:stable",
+      cpu   = 0
+      firelensConfiguration = {
+        type = "fluentbit"
+      }
+      essential = true
+      logConfiguration = {
+        logDriver = "awslogs"
         options = {
           awslogs-group         = var.aws_cloudwatch_log_group_id,
           awslogs-region        = var.region,
-          awslogs-stream-prefix = "ecs"
+          awslogs-stream-prefix = "ecs_fluentbit"
         }
       }
-  }])
+    }
+  ])
   runtime_platform {
     operating_system_family = "LINUX"
     cpu_architecture        = "ARM64"
