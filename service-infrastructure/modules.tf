@@ -234,6 +234,8 @@ module "parameter_store" {
     "EPB_AUTH_CLIENT_SECRET" : "SecureString",
     "EPB_UNLEASH_AUTH_TOKEN" : "SecureString",
     "TOGGLES_SECRET" : "SecureString",
+    "LOGSTASH_HOST" : "SecureString",
+    "LOGSTASH_PORT" : "SecureString"
   }
 }
 
