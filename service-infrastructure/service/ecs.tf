@@ -40,7 +40,7 @@ resource "aws_ecs_task_definition" "this" {
         options = {
           Name         = "http"
           Match        = "*"
-          Region       = var.region
+          region       = var.region
           Format       = "json"
           tls          = "On"
           "tls.verify" = "Off"
