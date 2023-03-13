@@ -93,7 +93,7 @@ module "register-api-pipeline" {
 }
 
 module "frontend-pipeline" {
-  source = "../modules/frontend_pipeline"
+  source                  = "../modules/frontend_pipeline"
   codepipeline_bucket     = module.artefact.codepipeline_bucket
   codepipeline_arn        = module.codepipeline_role.aws_codepipeline_arn
   codebuild_role_arn      = module.codebuild_role.aws_codebuild_role_arn
