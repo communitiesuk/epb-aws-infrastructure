@@ -194,7 +194,7 @@ module "frontend" {
   create_internal_alb              = false
   aws_ssl_certificate_arn          = module.ssl_certificate.certificate_arn
   aws_cdn_certificate_arn          = module.cdn_certificate.certificate_arn
-  cdn_allowed_methods              = ["GET", "HEAD", "OPTIONS"]
+  cdn_allowed_methods              = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
   cdn_cached_methods               = ["GET", "HEAD", "OPTIONS"]
   cdn_cache_ttl                    = 60 # 1 minute
   cdn_aliases = [
