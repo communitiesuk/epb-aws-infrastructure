@@ -34,6 +34,17 @@ module "cdn_certificate" {
   domain_name = "*.${var.domain_name}"
 }
 
+# This being on us-east-1 is a requirement for CloudFront to use the WAF
+module "waf" {
+  source = "./waf"
+  providers = {
+    aws = aws.us-east
+  }
+
+  prefix                 = local.prefix
+  forbidden_ip_addresses = []
+}
+
 module "ecs_auth_service" {
   source = "./service"
 
@@ -62,6 +73,7 @@ module "ecs_auth_service" {
   cdn_cached_methods               = ["GET", "HEAD", "OPTIONS"]
   cdn_cache_ttl                    = 0
   cdn_aliases                      = ["auth${var.subdomain_suffix}.${var.domain_name}"]
+  forbidden_ip_addresses_acl_arn   = module.waf.forbidden_ip_addresses_acl_arn
 }
 
 module "rds_auth_service" {
@@ -105,6 +117,7 @@ module "ecs_api_service" {
   cdn_cached_methods               = ["GET", "HEAD", "OPTIONS"]
   cdn_cache_ttl                    = 0
   cdn_aliases                      = ["api${var.subdomain_suffix}.${var.domain_name}"]
+  forbidden_ip_addresses_acl_arn   = module.waf.forbidden_ip_addresses_acl_arn
 }
 
 module "rds_api_service" {
@@ -146,6 +159,7 @@ module "ecs_toggles" {
   cdn_cached_methods               = ["GET", "HEAD", "OPTIONS"]
   cdn_cache_ttl                    = 0
   cdn_aliases                      = ["toggles${var.subdomain_suffix}.${var.domain_name}"]
+  forbidden_ip_addresses_acl_arn   = module.waf.forbidden_ip_addresses_acl_arn
 }
 
 module "rds_toggles" {
@@ -201,6 +215,7 @@ module "frontend" {
     "find-energy-certificate${var.subdomain_suffix}.${var.domain_name}",
     "getting-new-energy-certificate${var.subdomain_suffix}.${var.domain_name}"
   ]
+  forbidden_ip_addresses_acl_arn = module.waf.forbidden_ip_addresses_acl_arn
 }
 
 module "secrets" {

@@ -107,3 +107,8 @@ variable "cdn_aliases" {
   type        = list(string)
   description = "the aliases for the CDN. These should be the same as the domain pointing at this CDN from in Route 53"
 }
+
+variable "forbidden_ip_addresses_acl_arn" {
+  type        = string
+  description = "Web ACL ARN for WAF. This should be in the us-east-1 region"
+}

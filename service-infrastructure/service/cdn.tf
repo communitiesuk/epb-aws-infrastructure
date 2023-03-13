@@ -9,6 +9,7 @@ resource "aws_cloudfront_distribution" "cdn" {
   comment         = "${var.prefix} entrypoint"
   price_class     = "PriceClass_100" # Affects CDN distribution https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/PriceClass.html
   aliases         = var.cdn_aliases
+  web_acl_id      = var.forbidden_ip_addresses_acl_arn
 
   origin {
     domain_name = aws_lb.public.dns_name
