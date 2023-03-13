@@ -24,6 +24,7 @@ module "ssl_certificate" {
   domain_name = "*.${var.domain_name}"
 }
 
+# This being on us-east-1 is a requirement for CloudFront to use the SSL certificate
 module "cdn_certificate" {
   source = "./ssl"
   providers = {
