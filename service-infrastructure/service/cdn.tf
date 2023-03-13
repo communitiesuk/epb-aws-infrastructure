@@ -36,7 +36,7 @@ resource "aws_cloudfront_distribution" "cdn" {
     viewer_protocol_policy   = "redirect-to-https"
     origin_request_policy_id = aws_cloudfront_origin_request_policy.cdn.id
 
-    cache_policy_id = data.aws_cloudfront_cache_policy.caching_disabled.id
+    cache_policy_id = var.cdn_cache_ttl > 0 ? aws_cloudfront_cache_policy.ttl_based[0].id : data.aws_cloudfront_cache_policy.caching_disabled.id
   }
 
   ordered_cache_behavior {
