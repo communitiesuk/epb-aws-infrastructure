@@ -94,7 +94,8 @@ resource "aws_cloudfront_cache_policy" "ttl_based" {
   count = var.cdn_cache_ttl > 0 ? 1 : 0
 
   name    = "${var.prefix}-ttl-${var.cdn_cache_ttl}"
-  min_ttl = var.cdn_cache_ttl
+  min_ttl = 1
+  default_ttl = var.cdn_cache_ttl
 
   parameters_in_cache_key_and_forwarded_to_origin {
     cookies_config {
