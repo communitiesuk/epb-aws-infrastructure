@@ -30,7 +30,7 @@ _alias_this:
         echo $ALIAS_COMMAND > ~/.bash_profile
     fi
 
-# Add AWS config and aws-vault profile required to run many commangs. Note: this will update .env file in current directory
+# Add AWS config and aws-vault profile required to run many commands. Note: this will update .env file in current directory
 add-profile profile:
     #!/usr/bin/env bash
 
