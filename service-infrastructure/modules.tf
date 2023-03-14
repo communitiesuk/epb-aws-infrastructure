@@ -84,7 +84,7 @@ module "rds_auth_service" {
   vpc_id                = module.networking.vpc_id
   subnet_group_name     = module.networking.private_subnet_group_name
   security_group_ids    = [module.ecs_auth_service.ecs_security_group_id, module.bastion.security_group_id]
-  storage_backup_period = 1
+  storage_backup_period = 0
   storage_size          = 5
   instance_class        = "db.t3.micro"
 }

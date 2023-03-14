@@ -115,3 +115,8 @@ resource "aws_cloudfront_cache_policy" "ttl_based" {
     enable_accept_encoding_brotli = true
   }
 }
+
+resource "aws_shield_protection" "cdn" {
+  name         = "${var.prefix}-cdn-protection"
+  resource_arn = aws_cloudfront_distribution.cdn.arn
+}
