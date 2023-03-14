@@ -22,13 +22,10 @@ variable "parameters" {
   type = map(string)
 }
 
-variable "public_subnet_ids" {
-  type = list(string)
-}
-
 variable "private_subnet_ids" {
   type = list(string)
 }
+
 variable "health_check_path" {
   type = string
 }
@@ -75,6 +72,7 @@ variable "front_door_config" {
     cdn_cache_ttl                  = number,
     cdn_aliases                    = list(string),
     forbidden_ip_addresses_acl_arn = string,
+    public_subnet_ids              = list(string),
   })
 
   default = null
