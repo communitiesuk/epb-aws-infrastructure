@@ -132,6 +132,30 @@ module "rds_api_service" {
   instance_class        = "db.t3.medium"
 }
 
+module "ecs_data_service" {
+  source = "./private_service"
+
+  prefix = "${local.prefix}-data-service"
+  region         = var.region
+  container_port = 80
+  # TODO 2905
+  environment_variables = [
+    {
+      "name"  = "EPB_UNLEASH_URI",
+      "value" = "http://${module.ecs_toggles.internal_alb_dns}/api",
+    },
+  ]
+  secrets                          = { "EPB_QUEUES_URI" : module.secrets.secret_arns["RDS_API_SERVICE_CONNECTION_STRING"] } # TODO 2905
+  parameters                       = module.parameter_store.parameter_arns # TODO 2905
+  vpc_id                           = module.networking.vpc_id
+  private_subnet_ids               = module.networking.private_subnet_ids
+  health_check_path                = "/healthcheck"
+  additional_task_role_policy_arns = { "RDS_access" : module.rds_api_service.rds_full_access_policy_arn } # TODO 2905
+  aws_cloudwatch_log_group_id      = module.logging.cloudwatch_log_group_id # TODO 2905
+  logs_bucket_name                 = module.logging.logs_bucket_name # TODO 2905
+  logs_bucket_url                  = module.logging.logs_bucket_url # TODO 2905
+}
+
 
 
 module "ecs_toggles" {

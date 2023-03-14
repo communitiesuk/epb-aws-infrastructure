@@ -9,7 +9,7 @@ resource "aws_lb" "internal" {
   internal                         = true
   load_balancer_type               = "application"
   security_groups                  = [aws_security_group.alb.id]
-  subnets                          = var.public_subnet_ids # TODO 2905 - why do we pass public subnet ids to an internal LB
+  subnets                          = var.private_subnet_ids # TODO 2905 - should this be private instead of public?
   enable_cross_zone_load_balancing = true
 
   access_logs {
