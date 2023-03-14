@@ -38,12 +38,13 @@ resource "aws_ecs_task_definition" "this" {
       logConfiguration = {
         logDriver = "awsfirelens",
         options = {
-          Name         = "http"
-          Match        = "*"
-          aws_region   = var.region
-          Format       = "json"
-          tls          = "On"
-          "tls.verify" = "Off"
+          Name                    = "http"
+          Match                   = "*"
+          aws_region              = var.region
+          Format                  = "json"
+          tls                     = "On"
+          "tls.verify"            = "Off"
+          log-driver-buffer-limit = "4194304"
         }
         secretOptions = [for key, value in {
           Host = "LOGSTASH_HOST"
