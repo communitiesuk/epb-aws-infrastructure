@@ -103,17 +103,22 @@ resource "aws_ecs_service" "this" {
     assign_public_ip = false
   }
 
-  load_balancer {
-    target_group_arn = aws_lb_target_group.public.arn
-    container_name   = local.container_name
-    container_port   = var.container_port
+  dynamic "load_balancer" {
+    for_each = var.front_door_config != null ? [0] : []
+
+    content {
+      target_group_arn = module.front_door[0].lb_target_group_arn
+      container_name   = local.container_name
+      container_port   = var.container_port
+    }
   }
+
 
   dynamic "load_balancer" {
     for_each = local.create_internal_alb ? [0] : []
 
     content {
-      target_group_arn = aws_lb_target_group.internal[0].arn // update
+      target_group_arn = aws_lb_target_group.internal[0].arn
       container_name   = local.container_name
       container_port   = var.container_port
     }
