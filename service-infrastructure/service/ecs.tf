@@ -53,6 +53,9 @@ resource "aws_ecs_task_definition" "this" {
           valueFrom = var.parameters[value]
         }]
       }
+      cpu         = 0
+      mountPoints = []
+      volumesFrom = []
     },
     {
       name  = "${local.container_name}_fluentbit"
@@ -70,6 +73,11 @@ resource "aws_ecs_task_definition" "this" {
           awslogs-stream-prefix = "ecs_fluentbit"
         }
       }
+      environment  = []
+      mountPoints  = []
+      portMappings = []
+      user         = "0"
+      volumesFrom  = []
     }
   ])
   runtime_platform {
