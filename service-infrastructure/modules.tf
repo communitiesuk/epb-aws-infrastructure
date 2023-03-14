@@ -61,7 +61,6 @@ module "ecs_auth_service" {
   parameters                       = module.parameter_store.parameter_arns
   vpc_id                           = module.networking.vpc_id
   private_subnet_ids               = module.networking.private_subnet_ids
-  public_subnet_ids                = module.networking.public_subnet_ids
   health_check_path                = "/auth/healthcheck"
   additional_task_role_policy_arns = { "RDS_access" : module.rds_auth_service.rds_full_access_policy_arn }
   aws_cloudwatch_log_group_id      = module.logging.cloudwatch_log_group_id
@@ -75,6 +74,7 @@ module "ecs_auth_service" {
     cdn_cache_ttl                  = 0
     cdn_aliases                    = ["auth${var.subdomain_suffix}.${var.domain_name}"]
     forbidden_ip_addresses_acl_arn = module.waf.forbidden_ip_addresses_acl_arn
+    public_subnet_ids              = module.networking.public_subnet_ids
   }
 }
 
@@ -107,7 +107,6 @@ module "ecs_api_service" {
   parameters                       = module.parameter_store.parameter_arns
   vpc_id                           = module.networking.vpc_id
   private_subnet_ids               = module.networking.private_subnet_ids
-  public_subnet_ids                = module.networking.public_subnet_ids
   health_check_path                = "/healthcheck"
   additional_task_role_policy_arns = { "RDS_access" : module.rds_api_service.rds_full_access_policy_arn }
   aws_cloudwatch_log_group_id      = module.logging.cloudwatch_log_group_id
@@ -121,6 +120,7 @@ module "ecs_api_service" {
     cdn_cache_ttl                  = 0
     cdn_aliases                    = ["api${var.subdomain_suffix}.${var.domain_name}"]
     forbidden_ip_addresses_acl_arn = module.waf.forbidden_ip_addresses_acl_arn
+    public_subnet_ids              = module.networking.public_subnet_ids
   }
 }
 
@@ -128,6 +128,46 @@ module "rds_api_service" {
   source = "./aurora_rds"
 
   prefix                = "${local.prefix}-api-service"
+  db_name               = "epb"
+  vpc_id                = module.networking.vpc_id
+  subnet_group_name     = module.networking.private_subnet_group_name
+  security_group_ids    = [module.ecs_api_service.ecs_security_group_id, module.bastion.security_group_id]
+  storage_backup_period = var.storage_backup_period
+  instance_class        = "db.t3.medium"
+}
+
+module "ecs_warehouse" {
+  source = "./service"
+
+  prefix         = "${local.prefix}-warehouse"
+  region         = var.region
+  container_port = 80
+  environment_variables = [
+    {
+      "name"  = "EPB_API_URL",
+      "value" = "http://${module.ecs_api_service.internal_alb_dns}",
+    },
+    {
+      "name"  = "EPB_QUEUES_URI",
+      "value" = "http://${module.ecs_toggles.internal_alb_dns}/api", # TODO EPBR-2905 - set this once elasticache has been defined
+    },
+  ]
+  secrets                          = { "DATABASE_URL" : module.secrets.secret_arns["RDS_DATA_SERVICE_CONNECTION_STRING"] }
+  parameters                       = module.parameter_store.parameter_arns
+  vpc_id                           = module.networking.vpc_id
+  private_subnet_ids               = module.networking.private_subnet_ids
+  health_check_path                = "/healthcheck"
+  additional_task_role_policy_arns = { "RDS_access" : module.rds_api_service.rds_full_access_policy_arn }
+  aws_cloudwatch_log_group_id      = module.logging.cloudwatch_log_group_id
+  logs_bucket_name                 = module.logging.logs_bucket_name
+  logs_bucket_url                  = module.logging.logs_bucket_url
+  create_internal_alb              = false
+}
+
+module "rds_warehouse" {
+  source = "./aurora_rds"
+
+  prefix                = "${local.prefix}-warehouse"
   db_name               = "epb"
   vpc_id                = module.networking.vpc_id
   subnet_group_name     = module.networking.private_subnet_group_name
@@ -149,7 +189,6 @@ module "ecs_toggles" {
   parameters                       = module.parameter_store.parameter_arns
   vpc_id                           = module.networking.vpc_id
   private_subnet_ids               = module.networking.private_subnet_ids
-  public_subnet_ids                = module.networking.public_subnet_ids
   health_check_path                = "/health"
   additional_task_role_policy_arns = { "RDS_access" : module.rds_toggles.rds_full_access_policy_arn }
   aws_cloudwatch_log_group_id      = module.logging.cloudwatch_log_group_id
@@ -163,6 +202,7 @@ module "ecs_toggles" {
     cdn_cache_ttl                  = 0
     cdn_aliases                    = ["toggles${var.subdomain_suffix}.${var.domain_name}"]
     forbidden_ip_addresses_acl_arn = module.waf.forbidden_ip_addresses_acl_arn
+    public_subnet_ids              = module.networking.public_subnet_ids
   }
 }
 
@@ -203,7 +243,6 @@ module "frontend" {
   parameters                       = module.parameter_store.parameter_arns
   vpc_id                           = module.networking.vpc_id
   private_subnet_ids               = module.networking.private_subnet_ids
-  public_subnet_ids                = module.networking.public_subnet_ids
   health_check_path                = "/healthcheck"
   additional_task_role_policy_arns = {}
   aws_cloudwatch_log_group_id      = module.logging.cloudwatch_log_group_id
@@ -221,6 +260,7 @@ module "frontend" {
       "getting-new-energy-certificate${var.subdomain_suffix}.${var.domain_name}"
     ]
     forbidden_ip_addresses_acl_arn = module.waf.forbidden_ip_addresses_acl_arn
+    public_subnet_ids              = module.networking.public_subnet_ids
   }
 }
 
@@ -234,6 +274,9 @@ module "secrets" {
     "RDS_API_SERVICE_PASSWORD" : module.rds_api_service.rds_db_password,
     "RDS_API_SERVICE_USERNAME" : module.rds_api_service.rds_db_username,
     "RDS_API_SERVICE_CONNECTION_STRING" : module.rds_api_service.rds_db_connection_string,
+    "RDS_DATA_SERVICE_PASSWORD" : module.rds_warehouse.rds_db_password,
+    "RDS_DATA_SERVICE_USERNAME" : module.rds_warehouse.rds_db_username,
+    "RDS_DATA_SERVICE_CONNECTION_STRING" : module.rds_warehouse.rds_db_connection_string,
     "RDS_TOGGLES_CONNECTION_STRING" : module.rds_toggles.rds_db_connection_string,
     "RDS_TOGGLES_PASSWORD" : module.rds_toggles.rds_db_password,
     "RDS_TOGGLES_USERNAME" : module.rds_toggles.rds_db_username,
