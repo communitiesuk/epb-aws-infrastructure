@@ -67,13 +67,15 @@ module "ecs_auth_service" {
   aws_cloudwatch_log_group_id      = module.logging.cloudwatch_log_group_id
   logs_bucket_name                 = module.logging.logs_bucket_name
   logs_bucket_url                  = module.logging.logs_bucket_url
-  aws_ssl_certificate_arn          = module.ssl_certificate.certificate_arn
-  aws_cdn_certificate_arn          = module.cdn_certificate.certificate_arn
-  cdn_allowed_methods              = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
-  cdn_cached_methods               = ["GET", "HEAD", "OPTIONS"]
-  cdn_cache_ttl                    = 0
-  cdn_aliases                      = ["auth${var.subdomain_suffix}.${var.domain_name}"]
-  forbidden_ip_addresses_acl_arn   = module.waf.forbidden_ip_addresses_acl_arn
+  front_door_config = {
+    aws_ssl_certificate_arn        = module.ssl_certificate.certificate_arn
+    aws_cdn_certificate_arn        = module.cdn_certificate.certificate_arn
+    cdn_allowed_methods            = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
+    cdn_cached_methods             = ["GET", "HEAD", "OPTIONS"]
+    cdn_cache_ttl                  = 0
+    cdn_aliases                    = ["auth${var.subdomain_suffix}.${var.domain_name}"]
+    forbidden_ip_addresses_acl_arn = module.waf.forbidden_ip_addresses_acl_arn
+  }
 }
 
 module "rds_auth_service" {
@@ -111,13 +113,15 @@ module "ecs_api_service" {
   aws_cloudwatch_log_group_id      = module.logging.cloudwatch_log_group_id
   logs_bucket_name                 = module.logging.logs_bucket_name
   logs_bucket_url                  = module.logging.logs_bucket_url
-  aws_ssl_certificate_arn          = module.ssl_certificate.certificate_arn
-  aws_cdn_certificate_arn          = module.cdn_certificate.certificate_arn
-  cdn_allowed_methods              = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
-  cdn_cached_methods               = ["GET", "HEAD", "OPTIONS"]
-  cdn_cache_ttl                    = 0
-  cdn_aliases                      = ["api${var.subdomain_suffix}.${var.domain_name}"]
-  forbidden_ip_addresses_acl_arn   = module.waf.forbidden_ip_addresses_acl_arn
+  front_door_config = {
+    aws_ssl_certificate_arn        = module.ssl_certificate.certificate_arn
+    aws_cdn_certificate_arn        = module.cdn_certificate.certificate_arn
+    cdn_allowed_methods            = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
+    cdn_cached_methods             = ["GET", "HEAD", "OPTIONS"]
+    cdn_cache_ttl                  = 0
+    cdn_aliases                    = ["api${var.subdomain_suffix}.${var.domain_name}"]
+    forbidden_ip_addresses_acl_arn = module.waf.forbidden_ip_addresses_acl_arn
+  }
 }
 
 module "rds_api_service" {
@@ -131,8 +135,6 @@ module "rds_api_service" {
   storage_backup_period = var.storage_backup_period
   instance_class        = "db.t3.medium"
 }
-
-
 
 module "ecs_toggles" {
   source = "./service"
@@ -153,13 +155,15 @@ module "ecs_toggles" {
   aws_cloudwatch_log_group_id      = module.logging.cloudwatch_log_group_id
   logs_bucket_name                 = module.logging.logs_bucket_name
   logs_bucket_url                  = module.logging.logs_bucket_url
-  aws_ssl_certificate_arn          = module.ssl_certificate.certificate_arn
-  aws_cdn_certificate_arn          = module.cdn_certificate.certificate_arn
-  cdn_allowed_methods              = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
-  cdn_cached_methods               = ["GET", "HEAD", "OPTIONS"]
-  cdn_cache_ttl                    = 0
-  cdn_aliases                      = ["toggles${var.subdomain_suffix}.${var.domain_name}"]
-  forbidden_ip_addresses_acl_arn   = module.waf.forbidden_ip_addresses_acl_arn
+  front_door_config = {
+    aws_ssl_certificate_arn        = module.ssl_certificate.certificate_arn
+    aws_cdn_certificate_arn        = module.cdn_certificate.certificate_arn
+    cdn_allowed_methods            = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
+    cdn_cached_methods             = ["GET", "HEAD", "OPTIONS"]
+    cdn_cache_ttl                  = 0
+    cdn_aliases                    = ["toggles${var.subdomain_suffix}.${var.domain_name}"]
+    forbidden_ip_addresses_acl_arn = module.waf.forbidden_ip_addresses_acl_arn
+  }
 }
 
 module "rds_toggles" {
@@ -206,16 +210,18 @@ module "frontend" {
   logs_bucket_name                 = module.logging.logs_bucket_name
   logs_bucket_url                  = module.logging.logs_bucket_url
   create_internal_alb              = false
-  aws_ssl_certificate_arn          = module.ssl_certificate.certificate_arn
-  aws_cdn_certificate_arn          = module.cdn_certificate.certificate_arn
-  cdn_allowed_methods              = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
-  cdn_cached_methods               = ["GET", "HEAD", "OPTIONS"]
-  cdn_cache_ttl                    = 60 # 1 minute
-  cdn_aliases = [
-    "find-energy-certificate${var.subdomain_suffix}.${var.domain_name}",
-    "getting-new-energy-certificate${var.subdomain_suffix}.${var.domain_name}"
-  ]
-  forbidden_ip_addresses_acl_arn = module.waf.forbidden_ip_addresses_acl_arn
+  front_door_config = {
+    aws_ssl_certificate_arn = module.ssl_certificate.certificate_arn
+    aws_cdn_certificate_arn = module.cdn_certificate.certificate_arn
+    cdn_allowed_methods     = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
+    cdn_cached_methods      = ["GET", "HEAD", "OPTIONS"]
+    cdn_cache_ttl           = 60 # 1 minute
+    cdn_aliases = [
+      "find-energy-certificate${var.subdomain_suffix}.${var.domain_name}",
+      "getting-new-energy-certificate${var.subdomain_suffix}.${var.domain_name}"
+    ]
+    forbidden_ip_addresses_acl_arn = module.waf.forbidden_ip_addresses_acl_arn
+  }
 }
 
 module "secrets" {

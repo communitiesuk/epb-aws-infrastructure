@@ -2,8 +2,10 @@ data "aws_ssm_parameter" "logstash_port" {
   name = "LOGSTASH_PORT"
 }
 
-resource "aws_security_group" "alb" {
-  name   = "${var.prefix}-alb-sg"
+resource "aws_security_group" "alb_internal" {
+  count = var.create_internal_alb ? 1 : 0
+
+  name   = "${var.prefix}-alb-internal-sg"
   vpc_id = var.vpc_id
 
   ingress {
@@ -46,16 +48,8 @@ resource "aws_security_group" "alb" {
     ipv6_cidr_blocks = ["::/0"]
   }
 
-  egress {
-    protocol         = "tcp"
-    from_port        = data.aws_ssm_parameter.logstash_port.value
-    to_port          = data.aws_ssm_parameter.logstash_port.value
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
-
   tags = {
-    Name = "${var.prefix}-alb-sg"
+    Name = "${var.prefix}-alb-internal-sg"
   }
 }
 

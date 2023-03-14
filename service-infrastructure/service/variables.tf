@@ -66,49 +66,16 @@ variable "create_internal_alb" {
   default = true
 }
 
-variable "aws_ssl_certificate_arn" {
-  type = string
-}
+variable "front_door_config" {
+  type = object({
+    aws_ssl_certificate_arn        = string,
+    aws_cdn_certificate_arn        = string,
+    cdn_allowed_methods            = list(string),
+    cdn_cached_methods             = list(string),
+    cdn_cache_ttl                  = number,
+    cdn_aliases                    = list(string),
+    forbidden_ip_addresses_acl_arn = string,
+  })
 
-variable "aws_cdn_certificate_arn" {
-  type = string
-}
-
-
-variable "cdn_allowed_methods" {
-  type        = list(string)
-  description = "all by default, otherwise a list of allowed methods to be used by the CDN"
-  default     = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
-
-  validation {
-    condition     = length(var.cdn_allowed_methods) == 0 || length(var.cdn_allowed_methods) > 0
-    error_message = "cdn_cached_methods must be empty"
-  }
-}
-
-variable "cdn_cached_methods" {
-  type        = list(string)
-  description = "all by default, otherwise a list of methods cached by the CDN"
-  default     = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
-
-  validation {
-    condition     = length(var.cdn_cached_methods) == 0 || length(var.cdn_cached_methods) > 0
-    error_message = "cdn_cached_methods must be empty"
-  }
-}
-
-variable "cdn_cache_ttl" {
-  type        = number
-  description = "default cache TTL for the CDN"
-  default     = 0
-}
-
-variable "cdn_aliases" {
-  type        = list(string)
-  description = "the aliases for the CDN. These should be the same as the domain pointing at this CDN from in Route 53"
-}
-
-variable "forbidden_ip_addresses_acl_arn" {
-  type        = string
-  description = "Web ACL ARN for WAF. This should be in the us-east-1 region"
+  default = null
 }

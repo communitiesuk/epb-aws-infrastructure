@@ -8,8 +8,8 @@ resource "aws_lb" "internal" {
   name                             = "${var.prefix}-in-alb"
   internal                         = true
   load_balancer_type               = "application"
-  security_groups                  = [aws_security_group.alb.id]
-  subnets                          = var.public_subnet_ids
+  security_groups                  = [aws_security_group.alb_internal[0].id]
+  subnets                          = var.private_subnet_ids
   enable_cross_zone_load_balancing = true
 
   access_logs {
