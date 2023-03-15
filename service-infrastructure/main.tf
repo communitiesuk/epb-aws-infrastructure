@@ -23,6 +23,6 @@ provider "aws" {
 }
 
 locals {
-  prefix = "epb-${var.environment}"
+  prefix     = "epb-${var.environment}"
+  redis_port = 6379
 }
-

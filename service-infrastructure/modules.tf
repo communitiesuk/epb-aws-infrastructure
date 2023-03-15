@@ -51,6 +51,7 @@ module "ecs_auth_service" {
   prefix         = "${local.prefix}-auth-service"
   region         = var.region
   container_port = 80
+  egress_ports   = [80, 443, 5432, data.aws_ssm_parameter.logstash_port.value]
   environment_variables = [
     {
       "name"  = "EPB_UNLEASH_URI",
@@ -97,10 +98,15 @@ module "ecs_api_service" {
   prefix         = "${local.prefix}-api-service"
   region         = var.region
   container_port = 80
+  egress_ports   = [80, 443, 5432, local.redis_port, data.aws_ssm_parameter.logstash_port.value]
   environment_variables = [
     {
       "name"  = "EPB_UNLEASH_URI",
       "value" = "http://${module.ecs_toggles.internal_alb_dns}/api",
+    },
+    {
+      "name"  = "EPB_DATA_WAREHOUSE_QUEUES_URI",
+      "value" = module.redis_warehouse.redis_uri,
     },
   ]
   secrets                          = { "DATABASE_URL" : module.secrets.secret_arns["RDS_API_SERVICE_CONNECTION_STRING"] }
@@ -142,6 +148,7 @@ module "ecs_warehouse" {
   prefix         = "${local.prefix}-warehouse"
   region         = var.region
   container_port = 80
+  egress_ports   = [80, 443, 5432, local.redis_port, data.aws_ssm_parameter.logstash_port.value]
   environment_variables = [
     {
       "name"  = "EPB_API_URL",
@@ -149,7 +156,7 @@ module "ecs_warehouse" {
     },
     {
       "name"  = "EPB_QUEUES_URI",
-      "value" = "http://${module.ecs_toggles.internal_alb_dns}/api", # TODO EPBR-2905 - set this once elasticache has been defined
+      "value" = module.redis_warehouse.redis_uri,
     },
   ]
   secrets                          = { "DATABASE_URL" : module.secrets.secret_arns["RDS_DATA_SERVICE_CONNECTION_STRING"] }
@@ -176,12 +183,23 @@ module "rds_warehouse" {
   instance_class        = "db.t3.medium"
 }
 
+module "redis_warehouse" {
+  source = "./elasticache"
+
+  prefix                        = "${local.prefix}-warehouse"
+  aws_cloudwatch_log_group_name = module.logging.cloudwatch_log_group_name
+  redis_port                    = local.redis_port
+  subnet_group_name             = module.networking.private_subnet_group_name
+  vpc_id                        = module.networking.vpc_id
+}
+
 module "ecs_toggles" {
   source = "./service"
 
   prefix                = "${local.prefix}-toggles"
   region                = var.region
   container_port        = 4242
+  egress_ports          = [80, 443, 5432, data.aws_ssm_parameter.logstash_port.value]
   environment_variables = []
   secrets = {
     "DATABASE_URL" : module.secrets.secret_arns["RDS_TOGGLES_CONNECTION_STRING"],
@@ -225,6 +243,7 @@ module "frontend" {
   prefix         = "${local.prefix}-frontend"
   region         = var.region
   container_port = 80
+  egress_ports   = [80, 443, 5432, data.aws_ssm_parameter.logstash_port.value]
   environment_variables = [
     {
       "name"  = "EPB_API_URL",

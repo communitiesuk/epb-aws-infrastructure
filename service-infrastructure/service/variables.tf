@@ -10,6 +10,10 @@ variable "container_port" {
   type = number
 }
 
+variable "egress_ports" {
+  type = list(number)
+}
+
 variable "environment_variables" {
   type = list(map(string))
 }
