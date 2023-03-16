@@ -189,7 +189,7 @@ module "redis_warehouse" {
   prefix                        = "${local.prefix}-warehouse"
   aws_cloudwatch_log_group_name = module.logging.cloudwatch_log_group_name
   redis_port                    = local.redis_port
-  subnet_group_name             = module.networking.private_subnet_group_name
+  subnet_ids                    = module.networking.private_subnet_ids
   vpc_id                        = module.networking.vpc_id
 }
 

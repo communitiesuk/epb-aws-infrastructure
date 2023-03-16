@@ -10,8 +10,8 @@ variable "redis_port" {
   type = number
 }
 
-variable "subnet_group_name" {
-  type = string
+variable "subnet_ids" {
+  type = list(string)
 }
 
 variable "vpc_id" {
