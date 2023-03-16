@@ -109,15 +109,18 @@ module "ecs_api_service" {
       "value" = module.redis_warehouse.redis_uri,
     },
   ]
-  secrets                          = { "DATABASE_URL" : module.secrets.secret_arns["RDS_API_SERVICE_CONNECTION_STRING"] }
-  parameters                       = module.parameter_store.parameter_arns
-  vpc_id                           = module.networking.vpc_id
-  private_subnet_ids               = module.networking.private_subnet_ids
-  health_check_path                = "/healthcheck"
-  additional_task_role_policy_arns = { "RDS_access" : module.rds_api_service.rds_full_access_policy_arn }
-  aws_cloudwatch_log_group_id      = module.logging.cloudwatch_log_group_id
-  logs_bucket_name                 = module.logging.logs_bucket_name
-  logs_bucket_url                  = module.logging.logs_bucket_url
+  secrets            = { "DATABASE_URL" : module.secrets.secret_arns["RDS_API_SERVICE_CONNECTION_STRING"] }
+  parameters         = module.parameter_store.parameter_arns
+  vpc_id             = module.networking.vpc_id
+  private_subnet_ids = module.networking.private_subnet_ids
+  health_check_path  = "/healthcheck"
+  additional_task_role_policy_arns = {
+    "RDS_access" : module.rds_api_service.rds_full_access_policy_arn,
+    "Redis_access" : data.aws_iam_policy.elasticache_full_access.arn
+  }
+  aws_cloudwatch_log_group_id = module.logging.cloudwatch_log_group_id
+  logs_bucket_name            = module.logging.logs_bucket_name
+  logs_bucket_url             = module.logging.logs_bucket_url
   front_door_config = {
     aws_ssl_certificate_arn        = module.ssl_certificate.certificate_arn
     aws_cdn_certificate_arn        = module.cdn_certificate.certificate_arn
@@ -159,16 +162,19 @@ module "ecs_warehouse" {
       "value" = module.redis_warehouse.redis_uri,
     },
   ]
-  secrets                          = { "DATABASE_URL" : module.secrets.secret_arns["RDS_DATA_SERVICE_CONNECTION_STRING"] }
-  parameters                       = module.parameter_store.parameter_arns
-  vpc_id                           = module.networking.vpc_id
-  private_subnet_ids               = module.networking.private_subnet_ids
-  health_check_path                = "/healthcheck"
-  additional_task_role_policy_arns = { "RDS_access" : module.rds_api_service.rds_full_access_policy_arn }
-  aws_cloudwatch_log_group_id      = module.logging.cloudwatch_log_group_id
-  logs_bucket_name                 = module.logging.logs_bucket_name
-  logs_bucket_url                  = module.logging.logs_bucket_url
-  create_internal_alb              = false
+  secrets            = { "DATABASE_URL" : module.secrets.secret_arns["RDS_DATA_SERVICE_CONNECTION_STRING"] }
+  parameters         = module.parameter_store.parameter_arns
+  vpc_id             = module.networking.vpc_id
+  private_subnet_ids = module.networking.private_subnet_ids
+  health_check_path  = "/healthcheck"
+  additional_task_role_policy_arns = {
+    "RDS_access" : module.rds_api_service.rds_full_access_policy_arn,
+    "Redis_access" : data.aws_iam_policy.elasticache_full_access.arn
+  }
+  aws_cloudwatch_log_group_id = module.logging.cloudwatch_log_group_id
+  logs_bucket_name            = module.logging.logs_bucket_name
+  logs_bucket_url             = module.logging.logs_bucket_url
+  create_internal_alb         = false
 }
 
 module "rds_warehouse" {
