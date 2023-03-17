@@ -64,7 +64,7 @@ variable "cdn_cache_ttl" {
 }
 
 variable "cdn_aliases" {
-  type        = list(string)
+  type        = set(string)
   description = "the aliases for the CDN. These should be the same as the domain pointing at this CDN from in Route 53"
 }
 

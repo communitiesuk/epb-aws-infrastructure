@@ -73,7 +73,7 @@ module "ecs_auth_service" {
     cdn_allowed_methods            = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
     cdn_cached_methods             = ["GET", "HEAD", "OPTIONS"]
     cdn_cache_ttl                  = 0
-    cdn_aliases                    = ["auth${var.subdomain_suffix}.${var.domain_name}"]
+    cdn_aliases                    = toset(["auth${var.subdomain_suffix}.${var.domain_name}"])
     forbidden_ip_addresses_acl_arn = module.waf.forbidden_ip_addresses_acl_arn
     public_subnet_ids              = module.networking.public_subnet_ids
   }
@@ -127,7 +127,7 @@ module "ecs_api_service" {
     cdn_allowed_methods            = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
     cdn_cached_methods             = ["GET", "HEAD", "OPTIONS"]
     cdn_cache_ttl                  = 0
-    cdn_aliases                    = ["api${var.subdomain_suffix}.${var.domain_name}"]
+    cdn_aliases                    = toset(["api${var.subdomain_suffix}.${var.domain_name}"])
     forbidden_ip_addresses_acl_arn = module.waf.forbidden_ip_addresses_acl_arn
     public_subnet_ids              = module.networking.public_subnet_ids
   }
@@ -228,7 +228,7 @@ module "ecs_toggles" {
     cdn_allowed_methods            = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
     cdn_cached_methods             = ["GET", "HEAD", "OPTIONS"]
     cdn_cache_ttl                  = 0
-    cdn_aliases                    = ["toggles${var.subdomain_suffix}.${var.domain_name}"]
+    cdn_aliases                    = toset(["toggles${var.subdomain_suffix}.${var.domain_name}"])
     forbidden_ip_addresses_acl_arn = module.waf.forbidden_ip_addresses_acl_arn
     public_subnet_ids              = module.networking.public_subnet_ids
   }
@@ -284,10 +284,10 @@ module "frontend" {
     cdn_allowed_methods     = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
     cdn_cached_methods      = ["GET", "HEAD", "OPTIONS"]
     cdn_cache_ttl           = 60 # 1 minute
-    cdn_aliases = [
+    cdn_aliases = toset([
       "find-energy-certificate${var.subdomain_suffix}.${var.domain_name}",
       "getting-new-energy-certificate${var.subdomain_suffix}.${var.domain_name}"
-    ]
+    ])
     forbidden_ip_addresses_acl_arn = module.waf.forbidden_ip_addresses_acl_arn
     public_subnet_ids              = module.networking.public_subnet_ids
   }

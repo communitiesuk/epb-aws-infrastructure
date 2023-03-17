@@ -74,7 +74,7 @@ variable "front_door_config" {
     cdn_allowed_methods            = list(string),
     cdn_cached_methods             = list(string),
     cdn_cache_ttl                  = number,
-    cdn_aliases                    = list(string),
+    cdn_aliases                    = set(string),
     forbidden_ip_addresses_acl_arn = string,
     public_subnet_ids              = list(string),
   })

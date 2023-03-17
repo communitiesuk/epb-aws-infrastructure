@@ -4,11 +4,13 @@ resource "random_password" "cdn_header" {
 }
 
 resource "aws_cloudfront_distribution" "cdn" {
+  for_each = var.cdn_aliases
+
   enabled         = true
   is_ipv6_enabled = true
   comment         = "${var.prefix} entrypoint"
   price_class     = "PriceClass_100" # Affects CDN distribution https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/PriceClass.html
-  aliases         = var.cdn_aliases
+  aliases         = [each.value]
   web_acl_id      = var.forbidden_ip_addresses_acl_arn
 
   origin {
@@ -69,7 +71,8 @@ resource "aws_cloudfront_distribution" "cdn" {
   }
 
   tags = {
-    Name = "CDN Distribution"
+    Name    = "CDN Distribution"
+    Address = each.value
   }
 }
 
@@ -117,6 +120,8 @@ resource "aws_cloudfront_cache_policy" "ttl_based" {
 }
 
 resource "aws_shield_protection" "cdn" {
-  name         = "${var.prefix}-cdn-protection"
-  resource_arn = aws_cloudfront_distribution.cdn.arn
+  for_each = var.cdn_aliases
+
+  name         = "${var.prefix}-cdn-protection-${each.key}"
+  resource_arn = aws_cloudfront_distribution.cdn[each.key].arn
 }
