@@ -162,11 +162,11 @@ module "ecs_warehouse" {
       "value" = module.redis_warehouse.redis_uri,
     },
   ]
-  secrets            = { "DATABASE_URL" : module.secrets.secret_arns["RDS_DATA_SERVICE_CONNECTION_STRING"] }
+  secrets            = { "DATABASE_URL" : module.secrets.secret_arns["RDS_WAREHOUSE_CONNECTION_STRING"] }
   parameters         = module.parameter_store.parameter_arns
   vpc_id             = module.networking.vpc_id
   private_subnet_ids = module.networking.private_subnet_ids
-  health_check_path  = "/healthcheck"
+  health_check_path  = null
   additional_task_role_policy_arns = {
     "RDS_access" : module.rds_api_service.rds_full_access_policy_arn,
     "Redis_access" : data.aws_iam_policy.elasticache_full_access.arn
@@ -184,7 +184,7 @@ module "rds_warehouse" {
   db_name               = "epb"
   vpc_id                = module.networking.vpc_id
   subnet_group_name     = module.networking.private_subnet_group_name
-  security_group_ids    = [module.ecs_api_service.ecs_security_group_id, module.bastion.security_group_id]
+  security_group_ids    = [module.ecs_warehouse.ecs_security_group_id, module.bastion.security_group_id]
   storage_backup_period = var.storage_backup_period
   instance_class        = "db.t3.medium"
 }
@@ -299,9 +299,9 @@ module "secrets" {
     "RDS_API_SERVICE_PASSWORD" : module.rds_api_service.rds_db_password,
     "RDS_API_SERVICE_USERNAME" : module.rds_api_service.rds_db_username,
     "RDS_API_SERVICE_CONNECTION_STRING" : module.rds_api_service.rds_db_connection_string,
-    "RDS_DATA_SERVICE_PASSWORD" : module.rds_warehouse.rds_db_password,
-    "RDS_DATA_SERVICE_USERNAME" : module.rds_warehouse.rds_db_username,
-    "RDS_DATA_SERVICE_CONNECTION_STRING" : module.rds_warehouse.rds_db_connection_string,
+    "RDS_WAREHOUSE_PASSWORD" : module.rds_warehouse.rds_db_password,
+    "RDS_WAREHOUSE_USERNAME" : module.rds_warehouse.rds_db_username,
+    "RDS_WAREHOUSE_CONNECTION_STRING" : module.rds_warehouse.rds_db_connection_string,
     "RDS_TOGGLES_CONNECTION_STRING" : module.rds_toggles.rds_db_connection_string,
     "RDS_TOGGLES_PASSWORD" : module.rds_toggles.rds_db_password,
     "RDS_TOGGLES_USERNAME" : module.rds_toggles.rds_db_username,
@@ -391,4 +391,21 @@ module "data_migration_toggles" {
   backup_bucket_name                  = module.data_migration_shared.backup_bucket_name
   backup_bucket_arn                   = module.data_migration_shared.backup_bucket_arn
   log_group                           = module.data_migration_shared.log_group
+}
+
+module "data_migration_warehouse" {
+  source = "./data_migration"
+
+  prefix                              = "${local.prefix}-warehouse-migration"
+  region                              = var.region
+  rds_full_access_policy_arn          = module.rds_warehouse.rds_full_access_policy_arn
+  rds_db_connection_string_secret_arn = module.secrets.secret_arns["RDS_WAREHOUSE_CONNECTION_STRING"]
+  backup_file                         = "epbr-data-warehouse-integration.dump"
+  ecr_repository_url                  = module.data_migration_shared.ecr_repository_url
+  backup_bucket_name                  = module.data_migration_shared.backup_bucket_name
+  backup_bucket_arn                   = module.data_migration_shared.backup_bucket_arn
+  log_group                           = module.data_migration_shared.log_group
+
+  minimum_cpu       = 1024
+  minimum_memory_mb = 2048
 }
