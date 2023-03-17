@@ -161,6 +161,10 @@ module "ecs_warehouse" {
       "name"  = "EPB_QUEUES_URI",
       "value" = module.redis_warehouse.redis_uri,
     },
+    {
+      "name"  = "EPB_UNLEASH_URI",
+      "value" = "http://${module.ecs_toggles.internal_alb_dns}/api",
+    },
   ]
   secrets            = { "DATABASE_URL" : module.secrets.secret_arns["RDS_WAREHOUSE_CONNECTION_STRING"] }
   parameters         = module.parameter_store.parameter_arns
