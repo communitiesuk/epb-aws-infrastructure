@@ -44,7 +44,7 @@ resource "aws_security_group" "alb" {
 
   egress {
     protocol         = "tcp"
-    from_port        = var.logstash_port
+    from_port        = 0
     to_port          = var.logstash_port
     cidr_blocks      = ["0.0.0.0/0"]
     ipv6_cidr_blocks = ["::/0"]

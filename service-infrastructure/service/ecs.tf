@@ -1,5 +1,6 @@
 locals {
-  container_name = "${var.prefix}-container"
+  container_name           = "${var.prefix}-container"
+  container_name_fluentbit = "${var.prefix}-container-fluentbit"
 }
 
 resource "aws_ecs_cluster" "this" {
@@ -32,7 +33,7 @@ resource "aws_ecs_task_definition" "this" {
         }
       ]
       dependsOn = [{
-        containerName = "${local.container_name}_fluentbit"
+        containerName = local.container_name_fluentbit
         condition     = "START"
       }]
       logConfiguration = {
@@ -59,8 +60,8 @@ resource "aws_ecs_task_definition" "this" {
       volumesFrom = []
     },
     {
-      name  = "${local.container_name}_fluentbit"
-      image = "public.ecr.aws/aws-observability/aws-for-fluent-bit:stable",
+      name  = local.container_name_fluentbit
+      image = "public.ecr.aws/aws-observability/aws-for-fluent-bit:stable"
       cpu   = 0
       firelensConfiguration = {
         type = "fluentbit"
@@ -69,9 +70,9 @@ resource "aws_ecs_task_definition" "this" {
       logConfiguration = {
         logDriver = "awslogs"
         options = {
-          awslogs-group         = var.aws_cloudwatch_log_group_id,
-          awslogs-region        = var.region,
-          awslogs-stream-prefix = "ecs_fluentbit"
+          awslogs-group         = var.aws_cloudwatch_log_group_id
+          awslogs-region        = var.region
+          awslogs-stream-prefix = "ecs-fluentbit"
         }
       }
       environment  = []
