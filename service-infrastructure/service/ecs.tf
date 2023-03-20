@@ -1,6 +1,6 @@
 locals {
   container_name           = "${var.prefix}-container"
-  container_name_fluentbit = "${var.prefix}-container-fluentbit"
+  fluentbit_container_name = "${var.prefix}-container-fluentbit"
 }
 
 resource "aws_ecs_cluster" "this" {
@@ -33,7 +33,7 @@ resource "aws_ecs_task_definition" "this" {
         }
       ]
       dependsOn = [{
-        containerName = local.container_name_fluentbit
+        containerName = local.fluentbit_container_name
         condition     = "START"
       }]
       logConfiguration = {
@@ -60,7 +60,7 @@ resource "aws_ecs_task_definition" "this" {
       volumesFrom = []
     },
     {
-      name  = local.container_name_fluentbit
+      name  = local.fluentbit_container_name
       image = "public.ecr.aws/aws-observability/aws-for-fluent-bit:stable"
       cpu   = 0
       firelensConfiguration = {

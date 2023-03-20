@@ -5,7 +5,6 @@ module "front_door" {
   prefix            = var.prefix
   region            = var.region
   container_port    = var.container_port
-  logstash_port     = data.aws_ssm_parameter.logstash_port.value
   health_check_path = var.health_check_path
   vpc_id            = var.vpc_id
   logs_bucket_name  = var.logs_bucket_name
