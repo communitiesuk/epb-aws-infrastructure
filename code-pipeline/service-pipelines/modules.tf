@@ -111,3 +111,24 @@ module "frontend-pipeline" {
   region                  = var.region
   aws_arm_codebuild_image = var.aws_arm_codebuild_image
 }
+
+module "data_warehouse-pipeline" {
+  source                  = "../modules/data_warehouse_pipeline"
+  codepipeline_bucket     = module.artefact.codepipeline_bucket
+  codepipeline_arn        = module.codepipeline_role.aws_codepipeline_arn
+  codebuild_role_arn      = module.codebuild_role.aws_codebuild_role_arn
+  pipeline_name           = "epbr-data-warehouse-pipeline"
+  github_repository       = "epb-data-warehouse"
+  github_branch           = "main"
+  github_organisation     = var.github_organisation
+  codestar_connection_arn = module.codestar_connection.codestar_connection_arn
+  account_ids             = var.account_ids
+  ecs_cluster_name        = "epb-intg-warehouse-cluster"
+  ecs_service_name        = "epb-intg-warehouse"
+  app_ecr_name            = "epb-intg-warehouse-ecr"
+  project_name            = "epbr-data-warehouse"
+  codebuild_image_ecr_url = module.app_test_image_pipeline.image_repository_url
+  postgres_image_ecr_url  = module.postgres_test_image_pipeline.image_repository_url
+  region                  = var.region
+  aws_arm_codebuild_image = var.aws_arm_codebuild_image
+}
