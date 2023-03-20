@@ -61,14 +61,6 @@ resource "aws_security_group" "ecs" {
     ipv6_cidr_blocks = ["::/0"]
   }
 
-  ingress {
-    protocol         = "tcp"
-    from_port        = data.aws_ssm_parameter.logstash_port.value
-    to_port          = data.aws_ssm_parameter.logstash_port.value
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
-
   dynamic "egress" {
     for_each = var.egress_ports
 
@@ -79,6 +71,14 @@ resource "aws_security_group" "ecs" {
       cidr_blocks      = ["0.0.0.0/0"]
       ipv6_cidr_blocks = ["::/0"]
     }
+  }
+
+  egress {
+    protocol         = "tcp"
+    from_port        = data.aws_ssm_parameter.logstash_port.value
+    to_port          = data.aws_ssm_parameter.logstash_port.value
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
   }
 
   tags = {
