@@ -10,6 +10,10 @@ variable "container_port" {
   type = number
 }
 
+variable "logstash_port" {
+  type = number
+}
+
 variable "public_subnet_ids" {
   type = list(string)
 }

@@ -51,7 +51,7 @@ module "ecs_auth_service" {
   prefix         = "${local.prefix}-auth-service"
   region         = var.region
   container_port = 80
-  egress_ports   = [80, 443, 5432, data.aws_ssm_parameter.logstash_port.value]
+  egress_ports   = [80, 443, 5432]
   environment_variables = [
     {
       "name"  = "EPB_UNLEASH_URI",
@@ -98,7 +98,7 @@ module "ecs_api_service" {
   prefix         = "${local.prefix}-api-service"
   region         = var.region
   container_port = 80
-  egress_ports   = [80, 443, 5432, local.redis_port, data.aws_ssm_parameter.logstash_port.value]
+  egress_ports   = [80, 443, 5432, local.redis_port]
   environment_variables = [
     {
       "name"  = "EPB_UNLEASH_URI",
@@ -151,7 +151,7 @@ module "ecs_warehouse" {
   prefix         = "${local.prefix}-warehouse"
   region         = var.region
   container_port = 80
-  egress_ports   = [80, 443, 5432, local.redis_port, data.aws_ssm_parameter.logstash_port.value]
+  egress_ports   = [80, 443, 5432, local.redis_port]
   environment_variables = [
     {
       "name"  = "EPB_API_URL",
@@ -209,7 +209,7 @@ module "ecs_toggles" {
   prefix                = "${local.prefix}-toggles"
   region                = var.region
   container_port        = 4242
-  egress_ports          = [80, 443, 5432, data.aws_ssm_parameter.logstash_port.value]
+  egress_ports          = [80, 443, 5432]
   environment_variables = []
   secrets = {
     "DATABASE_URL" : module.secrets.secret_arns["RDS_TOGGLES_CONNECTION_STRING"],
@@ -253,7 +253,7 @@ module "frontend" {
   prefix         = "${local.prefix}-frontend"
   region         = var.region
   container_port = 80
-  egress_ports   = [80, 443, 5432, data.aws_ssm_parameter.logstash_port.value]
+  egress_ports   = [80, 443, 5432]
   environment_variables = [
     {
       "name"  = "EPB_API_URL",
