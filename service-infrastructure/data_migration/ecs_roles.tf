@@ -2,15 +2,15 @@ resource "aws_iam_role" "ecs_task_role" {
   name = "${var.prefix}-ecsTaskRole"
 
   assume_role_policy = jsonencode({
-    "Version" : "2012-10-17",
-    "Statement" : [
+    Version = "2012-10-17"
+    Statement = [
       {
-        "Action" : "sts:AssumeRole",
-        "Principal" : {
-          "Service" : "ecs-tasks.amazonaws.com"
-        },
-        "Effect" : "Allow",
-        "Sid" : ""
+        Action = "sts:AssumeRole"
+        Principal = {
+          Service = "ecs-tasks.amazonaws.com"
+        }
+        Effect = "Allow"
+        Sid    = ""
       }
     ]
   })
@@ -21,16 +21,16 @@ resource "aws_iam_policy" "s3" {
   description = "Policy that allows access to S3"
 
   policy = jsonencode({
-    Version = "2012-10-17",
+    Version = "2012-10-17"
     Statement = [
       {
-        Effect   = "Allow",
-        Action   = "s3:ListObjects",
+        Effect   = "Allow"
+        Action   = "s3:ListObjects"
         Resource = var.backup_bucket_arn
       },
       {
-        Effect   = "Allow",
-        Action   = "s3:*",
+        Effect   = "Allow"
+        Action   = "s3:*"
         Resource = "${var.backup_bucket_arn}/*"
       }
 
@@ -53,14 +53,14 @@ resource "aws_iam_role" "ecs_task_execution_role" {
   name = "${var.prefix}-ecsTaskExecutionRole"
 
   assume_role_policy = jsonencode({
-    Version = "2012-10-17",
+    Version = "2012-10-17"
     Statement = [
       {
-        Action = "sts:AssumeRole",
+        Action = "sts:AssumeRole"
         Principal = {
           Service = "ecs-tasks.amazonaws.com"
-        },
-        Effect = "Allow",
+        }
+        Effect = "Allow"
         Sid    = ""
       }
     ]
@@ -77,13 +77,13 @@ resource "aws_iam_role_policy" "secret_access" {
   role = aws_iam_role.ecs_task_execution_role.id
 
   policy = jsonencode({
-    Version = "2012-10-17",
+    Version = "2012-10-17"
     Statement = [
       {
         Action = [
           "secretsmanager:GetSecretValue"
-        ],
-        Effect   = "Allow",
+        ]
+        Effect   = "Allow"
         Resource = var.rds_db_connection_string_secret_arn
       }
     ]

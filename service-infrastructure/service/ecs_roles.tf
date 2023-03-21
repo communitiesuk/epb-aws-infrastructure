@@ -2,14 +2,14 @@ resource "aws_iam_role" "ecs_task_role" {
   name = "${var.prefix}-ecsTaskRole"
 
   assume_role_policy = jsonencode({
-    Version = "2012-10-17",
+    Version = "2012-10-17"
     Statement = [
       {
-        Action = "sts:AssumeRole",
+        Action = "sts:AssumeRole"
         Principal = {
           Service = "ecs-tasks.amazonaws.com"
-        },
-        Effect = "Allow",
+        }
+        Effect = "Allow"
         Sid    = ""
       }
     ]
@@ -20,14 +20,14 @@ resource "aws_iam_role" "ecs_task_execution_role" {
   name = "${var.prefix}-ecsTaskExecutionRole"
 
   assume_role_policy = jsonencode({
-    Version = "2012-10-17",
+    Version = "2012-10-17"
     Statement = [
       {
-        Action = "sts:AssumeRole",
+        Action = "sts:AssumeRole"
         Principal = {
           Service = "ecs-tasks.amazonaws.com"
-        },
-        Effect = "Allow",
+        }
+        Effect = "Allow"
         Sid    = ""
       }
     ]
@@ -60,13 +60,13 @@ resource "aws_iam_role_policy" "secret_access" {
   role = aws_iam_role.ecs_task_execution_role.id
 
   policy = jsonencode({
-    Version = "2012-10-17",
+    Version = "2012-10-17"
     Statement = [
       {
         Action = [
           "secretsmanager:GetSecretValue"
-        ],
-        Effect   = "Allow",
+        ]
+        Effect   = "Allow"
         Resource = each.value
       }
     ]
@@ -80,14 +80,32 @@ resource "aws_iam_role_policy" "parameter_access" {
   role = aws_iam_role.ecs_task_execution_role.id
 
   policy = jsonencode({
-    Version = "2012-10-17",
+    Version = "2012-10-17"
     Statement = [
       {
         Action = [
           "ssm:GetParameters"
-        ],
-        Effect   = "Allow",
+        ]
+        Effect   = "Allow"
         Resource = each.value
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy" "firehose_access" {
+  name = "${var.prefix}-firehose-access"
+  role = aws_iam_role.ecs_task_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "firehose:PutRecordBatch"
+        ]
+        Resource = ["*"]
       }
     ]
   })

@@ -37,13 +37,14 @@ resource "aws_ecs_task_definition" "this" {
         condition     = "START"
       }]
       logConfiguration = {
-        logDriver = "awsfirelens",
+        logDriver = "awsfirelens"
         options = {
-          Name                    = "http"
-          Match                   = "*"
+          name                    = "http"
+          match                   = "*"
           aws_region              = var.region
-          Format                  = "json"
+          format                  = "json"
           tls                     = "On"
+          auto_create_group       = "true"
           "tls.verify"            = "Off"
           log-driver-buffer-limit = "4194304"
         }
@@ -55,6 +56,14 @@ resource "aws_ecs_task_definition" "this" {
           valueFrom = var.parameters[value]
         }]
       }
+      # logConfiguration = {
+      #   logDriver = "awslogs"
+      #   options = {
+      #     awslogs-group         = var.aws_cloudwatch_log_group_id
+      #     awslogs-region        = var.region
+      #     awslogs-stream-prefix = "ecs"
+      #   }
+      # }
       cpu         = 0
       mountPoints = []
       volumesFrom = []

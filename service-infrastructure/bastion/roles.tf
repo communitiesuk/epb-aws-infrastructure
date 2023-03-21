@@ -12,7 +12,7 @@ resource "aws_iam_role" "ec2_rds_access" {
         Principal = {
           Service = "ec2.amazonaws.com"
         }
-      },
+      }
     ]
   })
 }

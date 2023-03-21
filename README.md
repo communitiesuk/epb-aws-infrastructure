@@ -138,19 +138,19 @@ where `service_name` should be replaced with the name of the service, e.g. `epb-
 
 ## Setting up SSL Certificates
 
-When a new SSL certificate is made because of running `terraform apply` (e.g. because we're setting up the infrastructure 
-for a new environment), you may come across issues trying to associate it with a resource because you need to validate 
+When a new SSL certificate is made because of running `terraform apply` (e.g. because we're setting up the infrastructure
+for a new environment), you may come across issues trying to associate it with a resource because you need to validate
 and completely setup the SSL certificate first. See the tech-docs
 [here](https://dluhc-epb-tech-docs.london.cloudapps.digital/aws-migration.html#setting-up-ssl-certificates) for instructions
 on how to do this
 
 ## Setting up DNS Alias Records for CloudFront
 
-When new CloudFront distributions are made for each of the services (say because you run `terraform apply` to deploy 
-infrastructure to an AWS environment for the first time), AWS will give domain names for each distribution, 
-and we need to put/add these in DNS Alias Records in order to be able to complete the CloudFront setup. See the tech-docs 
-[here](https://dluhc-epb-tech-docs.london.cloudapps.digital/aws-migration.html#adding-dns-alias-records-for-cloudfront) 
-for instructions on how to do this 
+When new CloudFront distributions are made for each of the services (say because you run `terraform apply` to deploy
+infrastructure to an AWS environment for the first time), AWS will give domain names for each distribution,
+and we need to put/add these in DNS Alias Records in order to be able to complete the CloudFront setup. See the tech-docs
+[here](https://dluhc-epb-tech-docs.london.cloudapps.digital/aws-migration.html#adding-dns-alias-records-for-cloudfront)
+for instructions on how to do this
 
 ## Linting with tflint
 

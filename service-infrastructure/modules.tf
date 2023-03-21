@@ -54,9 +54,9 @@ module "ecs_auth_service" {
   egress_ports   = [80, 443, 5432]
   environment_variables = [
     {
-      "name"  = "EPB_UNLEASH_URI",
-      "value" = "http://${module.ecs_toggles.internal_alb_dns}/api",
-    },
+      "name"  = "EPB_UNLEASH_URI"
+      "value" = "http://${module.ecs_toggles.internal_alb_dns}/api"
+    }
   ]
   secrets                          = { "DATABASE_URL" : module.secrets.secret_arns["RDS_AUTH_SERVICE_CONNECTION_STRING"] }
   parameters                       = module.parameter_store.parameter_arns
@@ -101,13 +101,13 @@ module "ecs_api_service" {
   egress_ports   = [80, 443, 5432, local.redis_port]
   environment_variables = [
     {
-      "name"  = "EPB_UNLEASH_URI",
-      "value" = "http://${module.ecs_toggles.internal_alb_dns}/api",
+      name  = "EPB_UNLEASH_URI"
+      value = "http://${module.ecs_toggles.internal_alb_dns}/api"
     },
     {
-      "name"  = "EPB_DATA_WAREHOUSE_QUEUES_URI",
-      "value" = module.redis_warehouse.redis_uri,
-    },
+      name  = "EPB_DATA_WAREHOUSE_QUEUES_URI"
+      value = module.redis_warehouse.redis_uri
+    }
   ]
   secrets            = { "DATABASE_URL" : module.secrets.secret_arns["RDS_API_SERVICE_CONNECTION_STRING"] }
   parameters         = module.parameter_store.parameter_arns
@@ -154,16 +154,16 @@ module "ecs_warehouse" {
   egress_ports   = [80, 443, 5432, local.redis_port]
   environment_variables = [
     {
-      "name"  = "EPB_API_URL",
-      "value" = "http://${module.ecs_api_service.internal_alb_dns}",
+      name  = "EPB_API_URL"
+      value = "http://${module.ecs_api_service.internal_alb_dns}"
     },
     {
-      "name"  = "EPB_QUEUES_URI",
-      "value" = module.redis_warehouse.redis_uri,
+      name  = "EPB_QUEUES_URI"
+      value = module.redis_warehouse.redis_uri
     },
     {
-      "name"  = "EPB_UNLEASH_URI",
-      "value" = "http://${module.ecs_toggles.internal_alb_dns}/api",
+      name  = "EPB_UNLEASH_URI"
+      value = "http://${module.ecs_toggles.internal_alb_dns}/api"
     },
   ]
   secrets            = { "DATABASE_URL" : module.secrets.secret_arns["RDS_WAREHOUSE_CONNECTION_STRING"] }
@@ -172,7 +172,7 @@ module "ecs_warehouse" {
   private_subnet_ids = module.networking.private_subnet_ids
   health_check_path  = null
   additional_task_role_policy_arns = {
-    "RDS_access" : module.rds_api_service.rds_full_access_policy_arn,
+    "RDS_access" : module.rds_api_service.rds_full_access_policy_arn
     "Redis_access" : data.aws_iam_policy.elasticache_full_access.arn
   }
   aws_cloudwatch_log_group_id = module.logging.cloudwatch_log_group_id
@@ -256,17 +256,17 @@ module "frontend" {
   egress_ports   = [80, 443, 5432]
   environment_variables = [
     {
-      "name"  = "EPB_API_URL",
-      "value" = "http://${module.ecs_api_service.internal_alb_dns}",
+      name  = "EPB_API_URL"
+      value = "http://${module.ecs_api_service.internal_alb_dns}"
     },
     {
-      "name"  = "EPB_AUTH_SERVER",
-      "value" = "http://${module.ecs_auth_service.internal_alb_dns}/auth",
+      name  = "EPB_AUTH_SERVER"
+      value = "http://${module.ecs_auth_service.internal_alb_dns}/auth"
     },
     {
-      "name"  = "EPB_UNLEASH_URI",
-      "value" = "http://${module.ecs_toggles.internal_alb_dns}/api",
-    },
+      name  = "EPB_UNLEASH_URI"
+      value = "http://${module.ecs_toggles.internal_alb_dns}/api"
+    }
   ]
   secrets                          = {}
   parameters                       = module.parameter_store.parameter_arns
@@ -297,18 +297,18 @@ module "secrets" {
   source = "./secrets"
 
   secrets = {
-    "RDS_AUTH_SERVICE_PASSWORD" : module.rds_auth_service.rds_db_password,
-    "RDS_AUTH_SERVICE_USERNAME" : module.rds_auth_service.rds_db_username,
-    "RDS_AUTH_SERVICE_CONNECTION_STRING" : module.rds_auth_service.rds_db_connection_string,
-    "RDS_API_SERVICE_PASSWORD" : module.rds_api_service.rds_db_password,
-    "RDS_API_SERVICE_USERNAME" : module.rds_api_service.rds_db_username,
-    "RDS_API_SERVICE_CONNECTION_STRING" : module.rds_api_service.rds_db_connection_string,
-    "RDS_WAREHOUSE_PASSWORD" : module.rds_warehouse.rds_db_password,
-    "RDS_WAREHOUSE_USERNAME" : module.rds_warehouse.rds_db_username,
-    "RDS_WAREHOUSE_CONNECTION_STRING" : module.rds_warehouse.rds_db_connection_string,
-    "RDS_TOGGLES_CONNECTION_STRING" : module.rds_toggles.rds_db_connection_string,
-    "RDS_TOGGLES_PASSWORD" : module.rds_toggles.rds_db_password,
-    "RDS_TOGGLES_USERNAME" : module.rds_toggles.rds_db_username,
+    "RDS_AUTH_SERVICE_PASSWORD" : module.rds_auth_service.rds_db_password
+    "RDS_AUTH_SERVICE_USERNAME" : module.rds_auth_service.rds_db_username
+    "RDS_AUTH_SERVICE_CONNECTION_STRING" : module.rds_auth_service.rds_db_connection_string
+    "RDS_API_SERVICE_PASSWORD" : module.rds_api_service.rds_db_password
+    "RDS_API_SERVICE_USERNAME" : module.rds_api_service.rds_db_username
+    "RDS_API_SERVICE_CONNECTION_STRING" : module.rds_api_service.rds_db_connection_string
+    "RDS_WAREHOUSE_PASSWORD" : module.rds_warehouse.rds_db_password
+    "RDS_WAREHOUSE_USERNAME" : module.rds_warehouse.rds_db_username
+    "RDS_WAREHOUSE_CONNECTION_STRING" : module.rds_warehouse.rds_db_connection_string
+    "RDS_TOGGLES_CONNECTION_STRING" : module.rds_toggles.rds_db_connection_string
+    "RDS_TOGGLES_PASSWORD" : module.rds_toggles.rds_db_password
+    "RDS_TOGGLES_USERNAME" : module.rds_toggles.rds_db_username
   }
 }
 
@@ -317,18 +317,19 @@ module "parameter_store" {
   source = "./parameter_store"
 
   parameters = {
-    "JWT_ISSUER" : "SecureString",
-    "JWT_SECRET" : "SecureString",
-    "LANG" : "String",
-    "VALID_DOMESTIC_SCHEMAS" : "String",
+    "JWT_ISSUER" : "SecureString"
+    "JWT_SECRET" : "SecureString"
+    "LANG" : "String"
+    "VALID_DOMESTIC_SCHEMAS" : "String"
     "VALID_NON_DOMESTIC_SCHEMAS" : "String"
-    "STAGE" : "String",
-    "EPB_AUTH_CLIENT_ID" : "SecureString",
-    "EPB_AUTH_CLIENT_SECRET" : "SecureString",
-    "EPB_UNLEASH_AUTH_TOKEN" : "SecureString",
-    "TOGGLES_SECRET" : "SecureString",
-    "LOGSTASH_HOST" : "SecureString",
+    "STAGE" : "String"
+    "EPB_AUTH_CLIENT_ID" : "SecureString"
+    "EPB_AUTH_CLIENT_SECRET" : "SecureString"
+    "EPB_UNLEASH_AUTH_TOKEN" : "SecureString"
+    "TOGGLES_SECRET" : "SecureString"
+    "LOGSTASH_HOST" : "SecureString"
     "LOGSTASH_PORT" : "SecureString"
+    "RACK_ENV" : "String"
   }
 }
 
@@ -339,10 +340,10 @@ module "bastion" {
   subnet_id = module.networking.private_subnet_ids[0]
   vpc_id    = module.networking.vpc_id
   rds_access_policy_arns = {
-    "Auth" : module.rds_auth_service.rds_full_access_policy_arn,
-    "API" : module.rds_api_service.rds_full_access_policy_arn,
-    "Toggles" : module.rds_toggles.rds_full_access_policy_arn,
-    "Warehouse" : module.rds_warehouse.rds_full_access_policy_arn,
+    "Auth" : module.rds_auth_service.rds_full_access_policy_arn
+    "API" : module.rds_api_service.rds_full_access_policy_arn
+    "Toggles" : module.rds_toggles.rds_full_access_policy_arn
+    "Warehouse" : module.rds_warehouse.rds_full_access_policy_arn
   }
 }
 

@@ -69,14 +69,14 @@ variable "create_internal_alb" {
 
 variable "front_door_config" {
   type = object({
-    aws_ssl_certificate_arn        = string,
-    aws_cdn_certificate_arn        = string,
-    cdn_allowed_methods            = list(string),
-    cdn_cached_methods             = list(string),
-    cdn_cache_ttl                  = number,
-    cdn_aliases                    = set(string),
-    forbidden_ip_addresses_acl_arn = string,
-    public_subnet_ids              = list(string),
+    aws_ssl_certificate_arn        = string
+    aws_cdn_certificate_arn        = string
+    cdn_allowed_methods            = list(string)
+    cdn_cached_methods             = list(string)
+    cdn_cache_ttl                  = number
+    cdn_aliases                    = set(string)
+    forbidden_ip_addresses_acl_arn = string
+    public_subnet_ids              = list(string)
   })
 
   default = null

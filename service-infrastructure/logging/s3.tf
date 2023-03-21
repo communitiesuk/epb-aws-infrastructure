@@ -25,14 +25,14 @@ resource "aws_s3_bucket_policy" "root_log_bucket_access" {
   bucket = aws_s3_bucket.logs.id
 
   policy = jsonencode({
-    Version = "2012-10-17",
+    Version = "2012-10-17"
     Statement = [
       {
-        Effect = "Allow",
+        Effect = "Allow"
         Principal = {
           AWS = "arn:aws:iam::652711504416:root"
         }
-        Action   = "s3:*",
+        Action   = "s3:*"
         Resource = "${aws_s3_bucket.logs.arn}/*"
       }
     ]

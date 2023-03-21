@@ -17,26 +17,26 @@ resource "aws_ecs_task_definition" "this" {
       essential = true
       environment = [
         {
-          name  = "BUCKET_NAME",
+          name  = "BUCKET_NAME"
           value = var.backup_bucket_name
         },
         {
-          name  = "BACKUP_FILE",
+          name  = "BACKUP_FILE"
           value = var.backup_file
         }
       ]
       secrets = [
         {
-          name      = "DATABASE_URL",
+          name      = "DATABASE_URL"
           valueFrom = var.rds_db_connection_string_secret_arn
         }
       ]
 
       logConfiguration = {
-        logDriver = "awslogs",
+        logDriver = "awslogs"
         options = {
-          awslogs-group         = var.log_group,
-          awslogs-region        = var.region,
+          awslogs-group         = var.log_group
+          awslogs-region        = var.region
           awslogs-stream-prefix = "ecs"
         }
       }
