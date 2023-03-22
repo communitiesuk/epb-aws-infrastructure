@@ -32,64 +32,70 @@ resource "aws_ecs_task_definition" "this" {
           hostPort      = var.container_port
         }
       ]
-      dependsOn = [{
-        containerName = local.fluentbit_container_name
-        condition     = "START"
-      }]
-      logConfiguration = {
-        logDriver = "awsfirelens"
-        options = {
-          name                    = "http"
-          match                   = "*"
-          aws_region              = var.region
-          format                  = "json"
-          tls                     = "On"
-          auto_create_group       = "true"
-          "tls.verify"            = "Off"
-          log-driver-buffer-limit = "4194304"
-        }
-        secretOptions = [for key, value in {
-          Host = "LOGSTASH_HOST"
-          Port = "LOGSTASH_PORT"
-          } : {
-          name      = key
-          valueFrom = var.parameters[value]
-        }]
-      }
+      # dependsOn = [{
+      #   containerName = local.fluentbit_container_name
+      #   condition     = "START"
+      # }]
       # logConfiguration = {
-      #   logDriver = "awslogs"
+      #   logDriver = "awsfirelens"
       #   options = {
-      #     awslogs-group         = var.aws_cloudwatch_log_group_id
-      #     awslogs-region        = var.region
-      #     awslogs-stream-prefix = "ecs"
+      #     Name                    = "http"
+      #     Match                   = "*"
+      #     aws_region              = var.region
+      #     Format                  = "json"
+      #     tls                     = "On"
+      #     "tls.verify"            = "Off"
+      #     log-driver-buffer-limit = "4194304"
       #   }
+      #   secretOptions = [for key, value in {
+      #     Host = "LOGSTASH_HOST"
+      #     Port = "LOGSTASH_PORT"
+      #     } : {
+      #     name      = key
+      #     valueFrom = var.parameters[value]
+      #   }]
       # }
-      cpu         = 0
-      mountPoints = []
-      volumesFrom = []
-    },
-    {
-      name  = local.fluentbit_container_name
-      image = "public.ecr.aws/aws-observability/aws-for-fluent-bit:stable"
-      cpu   = 0
-      firelensConfiguration = {
-        type = "fluentbit"
-      }
-      essential = true
       logConfiguration = {
         logDriver = "awslogs"
         options = {
           awslogs-group         = var.aws_cloudwatch_log_group_id
           awslogs-region        = var.region
-          awslogs-stream-prefix = "ecs-fluentbit"
+          awslogs-stream-prefix = "ecs"
         }
       }
-      environment  = []
-      mountPoints  = []
-      portMappings = []
-      user         = "0"
-      volumesFrom  = []
-    }
+      cpu         = 0
+      mountPoints = []
+      volumesFrom = []
+    },
+    # {
+    #   name  = local.fluentbit_container_name
+    #   image = "public.ecr.aws/aws-observability/aws-for-fluent-bit:stable"
+    #   cpu   = 0
+    #   firelensConfiguration = {
+    #     type = "fluentbit"
+    #   }
+    #   essential = true
+    #   logConfiguration = {
+    #     logDriver = "awslogs"
+    #     options = {
+    #       awslogs-group         = var.aws_cloudwatch_log_group_id
+    #       awslogs-region        = var.region
+    #       awslogs-stream-prefix = "ecs-fluentbit"
+    #     }
+    #   }
+    #   # healthcheck = {
+    #   #   command     = ["CMD-SHELL", "curl -f http://localhost:2020/ || exit 1"]
+    #   #   interval    = 10
+    #   #   retries     = 3
+    #   #   startPeriod = 10
+    #   #   timeout     = 5
+    #   # }
+    #   environment  = []
+    #   mountPoints  = []
+    #   portMappings = []
+    #   user         = "0"
+    #   volumesFrom  = []
+    # }
   ])
   runtime_platform {
     operating_system_family = "LINUX"
