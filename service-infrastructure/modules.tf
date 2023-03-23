@@ -43,6 +43,7 @@ module "waf" {
 
   prefix                 = local.prefix
   forbidden_ip_addresses = []
+  forbidden_ipv6_addresses = []
 }
 
 module "ecs_auth_service" {
