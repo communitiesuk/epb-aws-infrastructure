@@ -158,8 +158,8 @@ module "ecs_warehouse" {
       value = "http://${module.ecs_api_service.internal_alb_dns}"
     },
     {
-      "name"  = "EPB_AUTH_SERVER",
-      "value" = "http://${module.ecs_auth_service.internal_alb_dns}/auth",
+      "name"  = "EPB_AUTH_SERVER"
+      "value" = "http://${module.ecs_auth_service.internal_alb_dns}/auth"
     },
     {
       name  = "EPB_QUEUES_URI"
