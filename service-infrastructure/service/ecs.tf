@@ -21,10 +21,12 @@ resource "aws_ecs_task_definition" "this" {
       image       = "${aws_ecr_repository.this.repository_url}:latest"
       essential   = true
       environment = var.environment_variables
+
       secrets = [for key, value in merge(var.secrets, var.parameters) : {
         name      = key
         valueFrom = value
       }]
+
       portMappings = [
         {
           protocol      = "tcp"
@@ -32,70 +34,79 @@ resource "aws_ecs_task_definition" "this" {
           hostPort      = var.container_port
         }
       ]
-      # dependsOn = [{
-      #   containerName = local.fluentbit_container_name
-      #   condition     = "START"
-      # }]
+
+      dependsOn = [{
+        containerName = local.fluentbit_container_name
+        condition     = "START"
+      }]
+
+      logConfiguration = {
+        logDriver = "awsfirelens"
+        options = {
+          Name                    = "http"
+          Match                   = "*"
+          aws_region              = var.region
+          Format                  = "json"
+          tls                     = "On"
+          "tls.verify"            = "Off"
+          log-driver-buffer-limit = "4194304"
+        }
+        secretOptions = [for key, value in {
+          Host = "LOGSTASH_HOST"
+          Port = "LOGSTASH_PORT"
+          } : {
+          name      = key
+          valueFrom = var.parameters[value]
+        }]
+      }
       # logConfiguration = {
-      #   logDriver = "awsfirelens"
+      #   logDriver = "awslogs"
       #   options = {
-      #     Name                    = "http"
-      #     Match                   = "*"
-      #     aws_region              = var.region
-      #     Format                  = "json"
-      #     tls                     = "On"
-      #     "tls.verify"            = "Off"
-      #     log-driver-buffer-limit = "4194304"
+      #     awslogs-group         = var.aws_cloudwatch_log_group_id
+      #     awslogs-region        = var.region
+      #     awslogs-stream-prefix = "ecs"
       #   }
-      #   secretOptions = [for key, value in {
-      #     Host = "LOGSTASH_HOST"
-      #     Port = "LOGSTASH_PORT"
-      #     } : {
-      #     name      = key
-      #     valueFrom = var.parameters[value]
-      #   }]
       # }
+      cpu         = 0
+      mountPoints = []
+      volumesFrom = []
+    },
+    {
+      name      = local.fluentbit_container_name
+      image     = "public.ecr.aws/aws-observability/aws-for-fluent-bit:stable"
+      cpu       = 0
+      essential = true
+
+      environment = [
+        { Name = "FLB_LOG_LEVEL", Value = "debug" }
+      ]
+
+      firelensConfiguration = {
+        type = "fluentbit"
+      }
+
       logConfiguration = {
         logDriver = "awslogs"
         options = {
           awslogs-group         = var.aws_cloudwatch_log_group_id
           awslogs-region        = var.region
-          awslogs-stream-prefix = "ecs"
+          awslogs-stream-prefix = "ecs-fluentbit"
         }
       }
-      cpu         = 0
-      mountPoints = []
-      volumesFrom = []
-    },
-    # {
-    #   name  = local.fluentbit_container_name
-    #   image = "public.ecr.aws/aws-observability/aws-for-fluent-bit:stable"
-    #   cpu   = 0
-    #   firelensConfiguration = {
-    #     type = "fluentbit"
-    #   }
-    #   essential = true
-    #   logConfiguration = {
-    #     logDriver = "awslogs"
-    #     options = {
-    #       awslogs-group         = var.aws_cloudwatch_log_group_id
-    #       awslogs-region        = var.region
-    #       awslogs-stream-prefix = "ecs-fluentbit"
-    #     }
-    #   }
-    #   # healthcheck = {
-    #   #   command     = ["CMD-SHELL", "curl -f http://localhost:2020/ || exit 1"]
-    #   #   interval    = 10
-    #   #   retries     = 3
-    #   #   startPeriod = 10
-    #   #   timeout     = 5
-    #   # }
-    #   environment  = []
-    #   mountPoints  = []
-    #   portMappings = []
-    #   user         = "0"
-    #   volumesFrom  = []
-    # }
+
+      # healthcheck = {
+      #   command     = ["CMD-SHELL", "curl -f http://127.0.0.1:8877/ || exit 1"]
+      #   interval    = 10
+      #   retries     = 3
+      #   startPeriod = 10
+      #   timeout     = 5
+      # }
+
+      mountPoints  = []
+      portMappings = []
+      user         = "0"
+      volumesFrom  = []
+    }
   ])
   runtime_platform {
     operating_system_family = "LINUX"
@@ -129,7 +140,6 @@ resource "aws_ecs_service" "this" {
     }
   }
 
-
   dynamic "load_balancer" {
     for_each = local.create_internal_alb ? [0] : []
 
@@ -143,4 +153,6 @@ resource "aws_ecs_service" "this" {
   lifecycle {
     ignore_changes = [desired_count]
   }
+
+  force_new_deployment = true
 }
