@@ -41,8 +41,8 @@ module "waf" {
     aws = aws.us-east
   }
 
-  prefix                 = local.prefix
-  forbidden_ip_addresses = []
+  prefix                   = local.prefix
+  forbidden_ip_addresses   = []
   forbidden_ipv6_addresses = []
 }
 
@@ -66,6 +66,7 @@ module "ecs_auth_service" {
   health_check_path                = "/auth/healthcheck"
   additional_task_role_policy_arns = { "RDS_access" : module.rds_auth_service.rds_full_access_policy_arn }
   aws_cloudwatch_log_group_id      = module.logging.cloudwatch_log_group_id
+  aws_cloudwatch_log_group_name    = module.logging.cloudwatch_log_group_name
   logs_bucket_name                 = module.logging.logs_bucket_name
   logs_bucket_url                  = module.logging.logs_bucket_url
   front_door_config = {
@@ -119,9 +120,10 @@ module "ecs_api_service" {
     "RDS_access" : module.rds_api_service.rds_full_access_policy_arn,
     "Redis_access" : data.aws_iam_policy.elasticache_full_access.arn
   }
-  aws_cloudwatch_log_group_id = module.logging.cloudwatch_log_group_id
-  logs_bucket_name            = module.logging.logs_bucket_name
-  logs_bucket_url             = module.logging.logs_bucket_url
+  aws_cloudwatch_log_group_id   = module.logging.cloudwatch_log_group_id
+  aws_cloudwatch_log_group_name = module.logging.cloudwatch_log_group_name
+  logs_bucket_name              = module.logging.logs_bucket_name
+  logs_bucket_url               = module.logging.logs_bucket_url
   front_door_config = {
     aws_ssl_certificate_arn        = module.ssl_certificate.certificate_arn
     aws_cdn_certificate_arn        = module.cdn_certificate.certificate_arn
@@ -171,8 +173,8 @@ module "ecs_warehouse" {
       value = "http://${module.ecs_toggles.internal_alb_dns}/api"
     },
   ]
-  secrets            = { "DATABASE_URL" : module.secrets.secret_arns["RDS_WAREHOUSE_CONNECTION_STRING"] }
-  parameters         = merge(module.parameter_store.parameter_arns, {
+  secrets = { "DATABASE_URL" : module.secrets.secret_arns["RDS_WAREHOUSE_CONNECTION_STRING"] }
+  parameters = merge(module.parameter_store.parameter_arns, {
     "EPB_AUTH_CLIENT_ID" : module.parameter_store.parameter_arns["WAREHOUSE_EPB_AUTH_CLIENT_ID"],
     "EPB_AUTH_CLIENT_SECRET" : module.parameter_store.parameter_arns["WAREHOUSE_EPB_AUTH_CLIENT_SECRET"]
   })
@@ -183,10 +185,11 @@ module "ecs_warehouse" {
     "RDS_access" : module.rds_api_service.rds_full_access_policy_arn
     "Redis_access" : data.aws_iam_policy.elasticache_full_access.arn
   }
-  aws_cloudwatch_log_group_id = module.logging.cloudwatch_log_group_id
-  logs_bucket_name            = module.logging.logs_bucket_name
-  logs_bucket_url             = module.logging.logs_bucket_url
-  create_internal_alb         = false
+  aws_cloudwatch_log_group_id   = module.logging.cloudwatch_log_group_id
+  aws_cloudwatch_log_group_name = module.logging.cloudwatch_log_group_name
+  logs_bucket_name              = module.logging.logs_bucket_name
+  logs_bucket_url               = module.logging.logs_bucket_url
+  create_internal_alb           = false
 }
 
 module "rds_warehouse" {
@@ -228,6 +231,7 @@ module "ecs_toggles" {
   health_check_path                = "/health"
   additional_task_role_policy_arns = { "RDS_access" : module.rds_toggles.rds_full_access_policy_arn }
   aws_cloudwatch_log_group_id      = module.logging.cloudwatch_log_group_id
+  aws_cloudwatch_log_group_name    = module.logging.cloudwatch_log_group_name
   logs_bucket_name                 = module.logging.logs_bucket_name
   logs_bucket_url                  = module.logging.logs_bucket_url
   front_door_config = {
@@ -276,8 +280,8 @@ module "frontend" {
       value = "http://${module.ecs_toggles.internal_alb_dns}/api"
     }
   ]
-  secrets                          = {}
-  parameters                       = merge(module.parameter_store.parameter_arns, {
+  secrets = {}
+  parameters = merge(module.parameter_store.parameter_arns, {
     "EPB_AUTH_CLIENT_ID" : module.parameter_store.parameter_arns["FRONTEND_EPB_AUTH_CLIENT_ID"],
     "EPB_AUTH_CLIENT_SECRET" : module.parameter_store.parameter_arns["FRONTEND_EPB_AUTH_CLIENT_SECRET"]
   })
@@ -286,6 +290,7 @@ module "frontend" {
   health_check_path                = "/healthcheck"
   additional_task_role_policy_arns = {}
   aws_cloudwatch_log_group_id      = module.logging.cloudwatch_log_group_id
+  aws_cloudwatch_log_group_name    = module.logging.cloudwatch_log_group_name
   logs_bucket_name                 = module.logging.logs_bucket_name
   logs_bucket_url                  = module.logging.logs_bucket_url
   create_internal_alb              = false

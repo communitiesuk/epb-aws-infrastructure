@@ -93,20 +93,25 @@ resource "aws_iam_role_policy" "parameter_access" {
   })
 }
 
-resource "aws_iam_role_policy" "firehose_access" {
-  name = "${var.prefix}-firehose-access"
+resource "aws_iam_role_policy" "cloudwatch_logs_access" {
+  name = "${var.prefix}-cloudwatch-logs-access"
   role = aws_iam_role.ecs_task_role.id
 
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = [
-          "firehose:PutRecordBatch"
-        ]
-        Resource = ["*"]
-      }
-    ]
+  policy = jsonencode(
+    {
+      Version = "2012-10-17"
+      Statement = [
+        {
+          Action = [
+            "logs:CreateLogGroup",
+            "logs:CreateLogStream",
+            "logs:DescribeLogStreams",
+            "logs:PutLogEvents",
+            "logs:PutRetentionPolicy"
+          ]
+          Effect   = "Allow"
+          Resource = "*"
+        }
+      ]
   })
 }
