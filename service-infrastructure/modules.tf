@@ -172,7 +172,10 @@ module "ecs_warehouse" {
     },
   ]
   secrets            = { "DATABASE_URL" : module.secrets.secret_arns["RDS_WAREHOUSE_CONNECTION_STRING"] }
-  parameters         = module.parameter_store.parameter_arns
+  parameters         = merge(module.parameter_store.parameter_arns, {
+    "EPB_AUTH_CLIENT_ID" : module.parameter_store.parameter_arns["WAREHOUSE_EPB_AUTH_CLIENT_ID"],
+    "EPB_AUTH_CLIENT_SECRET" : module.parameter_store.parameter_arns["WAREHOUSE_EPB_AUTH_CLIENT_SECRET"]
+  })
   vpc_id             = module.networking.vpc_id
   private_subnet_ids = module.networking.private_subnet_ids
   health_check_path  = null
@@ -274,7 +277,10 @@ module "frontend" {
     }
   ]
   secrets                          = {}
-  parameters                       = module.parameter_store.parameter_arns
+  parameters                       = merge(module.parameter_store.parameter_arns, {
+    "EPB_AUTH_CLIENT_ID" : module.parameter_store.parameter_arns["FRONTEND_EPB_AUTH_CLIENT_ID"],
+    "EPB_AUTH_CLIENT_SECRET" : module.parameter_store.parameter_arns["FRONTEND_EPB_AUTH_CLIENT_SECRET"]
+  })
   vpc_id                           = module.networking.vpc_id
   private_subnet_ids               = module.networking.private_subnet_ids
   health_check_path                = "/healthcheck"
@@ -327,8 +333,10 @@ module "parameter_store" {
     "VALID_DOMESTIC_SCHEMAS" : "String"
     "VALID_NON_DOMESTIC_SCHEMAS" : "String"
     "STAGE" : "String"
-    "EPB_AUTH_CLIENT_ID" : "SecureString"
-    "EPB_AUTH_CLIENT_SECRET" : "SecureString"
+    "FRONTEND_EPB_AUTH_CLIENT_ID" : "SecureString"
+    "FRONTEND_EPB_AUTH_CLIENT_SECRET" : "SecureString"
+    "WAREHOUSE_EPB_AUTH_CLIENT_ID" : "SecureString"
+    "WAREHOUSE_EPB_AUTH_CLIENT_SECRET" : "SecureString"
     "EPB_UNLEASH_AUTH_TOKEN" : "SecureString"
     "TOGGLES_SECRET" : "SecureString"
     "LOGSTASH_HOST" : "SecureString"
