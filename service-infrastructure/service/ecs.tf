@@ -12,7 +12,7 @@ resource "aws_ecs_task_definition" "this" {
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   cpu                      = 256
-  memory                   = 512
+  memory                   = 1024
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
   task_role_arn            = aws_iam_role.ecs_task_role.arn
   container_definitions = jsonencode([
@@ -42,47 +42,39 @@ resource "aws_ecs_task_definition" "this" {
 
       logConfiguration = {
         logDriver = "awsfirelens"
-        options = {
-          Name                    = "http"
-          Match                   = "*"
-          aws_region              = var.region
-          Format                  = "json"
-          tls                     = "On"
-          "tls.verify"            = "Off"
-          log-driver-buffer-limit = "4194304"
-        }
-        secretOptions = [for key, value in {
-          Host = "LOGSTASH_HOST"
-          Port = "LOGSTASH_PORT"
-          } : {
-          name      = key
-          valueFrom = var.parameters[value]
-        }]
       }
-      # logConfiguration = {
-      #   logDriver = "awslogs"
-      #   options = {
-      #     awslogs-group         = var.aws_cloudwatch_log_group_id
-      #     awslogs-region        = var.region
-      #     awslogs-stream-prefix = "ecs"
-      #   }
-      # }
+
       cpu         = 0
       mountPoints = []
       volumesFrom = []
+
+      memoryReservation = 512
     },
     {
       name      = local.fluentbit_container_name
-      image     = "public.ecr.aws/aws-observability/aws-for-fluent-bit:stable"
+      image     = "851965904888.dkr.ecr.eu-west-2.amazonaws.com/fluentbit:latest"
       cpu       = 0
       essential = true
 
       environment = [
-        { Name = "FLB_LOG_LEVEL", Value = "debug" }
+        { Name = "FLB_LOG_LEVEL", Value = "debug" },
+        { Name = "LOG_LEVEL", Value = "debug" },
+        { Name = "LOG_GROUP_NAME", Value = var.aws_cloudwatch_log_group_name },
+        { Name = "LOG_STREAM_NAME", Value = "${var.prefix}" }
       ]
+
+      secrets = [for value in ["LOGSTASH_HOST", "LOGSTASH_PORT"] : {
+        name      = value
+        valueFrom = var.parameters[value]
+      }]
 
       firelensConfiguration = {
         type = "fluentbit"
+        options = {
+          "config-file-type"  = "file",
+          "config-file-value" = "/fluent-bit.conf"
+        }
+
       }
 
       logConfiguration = {
@@ -95,7 +87,7 @@ resource "aws_ecs_task_definition" "this" {
       }
 
       # healthcheck = {
-      #   command     = ["CMD-SHELL", "curl -f http://127.0.0.1:8877/ || exit 1"]
+      #   command     = ["CMD-SHELL", "curl -f http://127.0.0.1:2020/ || exit 1"]
       #   interval    = 10
       #   retries     = 3
       #   startPeriod = 10
@@ -106,6 +98,8 @@ resource "aws_ecs_task_definition" "this" {
       portMappings = []
       user         = "0"
       volumesFrom  = []
+
+      memoryReservation = 512
     }
   ])
   runtime_platform {

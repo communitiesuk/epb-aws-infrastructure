@@ -54,6 +54,10 @@ variable "aws_cloudwatch_log_group_id" {
   type = string
 }
 
+variable "aws_cloudwatch_log_group_name" {
+  type = string
+}
+
 variable "logs_bucket_name" {
   type = string
 }

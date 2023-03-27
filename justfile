@@ -181,7 +181,21 @@ service-update-image image_name service_name dockerfile_path="":
     docker push $ACCOUNT_ID.dkr.ecr.eu-west-2.amazonaws.com/$ECR_REPO_NAME:latest
 
     just service-refresh {{service_name}}
-    
+
+fluentbit-update-image image_name dockerfile_path="":
+    #!/usr/bin/env bash
+
+    ECR_REPO_NAME=fluentbit
+    ACCOUNT_ID=$(aws-vault exec $AWS_PROFILE -- aws sts get-caller-identity --query Account --output text)
+
+    docker login -u AWS -p $(aws-vault exec $AWS_PROFILE -- aws ecr get-login-password --region eu-west-2) $ACCOUNT_ID.dkr.ecr.eu-west-2.amazonaws.com
+    if [ "{{dockerfile_path}}" != "" ]; then
+        docker buildx build --platform linux/arm64 -t {{image_name}} {{dockerfile_path}}
+    fi
+    docker tag {{image_name}}:latest $ACCOUNT_ID.dkr.ecr.eu-west-2.amazonaws.com/$ECR_REPO_NAME:latest
+    docker push $ACCOUNT_ID.dkr.ecr.eu-west-2.amazonaws.com/$ECR_REPO_NAME:latest
+
+
 # Force redeploy of ECS service. Do this to make parameter changes take effect
 service-refresh service_name:
     #!/usr/bin/env bash
