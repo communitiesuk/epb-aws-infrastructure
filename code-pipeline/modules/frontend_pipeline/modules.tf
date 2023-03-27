@@ -48,3 +48,14 @@ module "codebuild_deploy_integration" {
   ]
   region = var.region
 }
+
+module "codebuild_frontend_smoke_test" {
+  source             = "../codebuild_project"
+  codebuild_role_arn = var.codebuild_role_arn
+  name               = "${var.project_name}-codebuild-frontend-smoke-test"
+  environment_type   = "LINUX_CONTAINER"
+  build_image_uri    = var.codebuild_image_ecr_url
+  buildspec_file     = "buildspec/run_smoke_test_in_code_build.yml"
+  environment_variables = []
+  region             = var.region
+}
