@@ -95,4 +95,22 @@ resource "aws_codepipeline" "codepipeline" {
       }
     }
   }
+
+  stage {
+    name = "frontend-smoke-test"
+
+    action {
+      name             = "Build"
+      category         = "Build"
+      owner            = "AWS"
+      provider         = "CodeBuild"
+      version          = "1"
+      input_artifacts  = ["smoke_tests_source_output"]
+      output_artifacts = ["frontend_smoke_test_output"]
+
+      configuration = {
+        ProjectName = module.codebuild_frontend_smoke_test.codebuild_name
+      }
+    }
+  }
 }
