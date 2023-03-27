@@ -136,6 +136,34 @@ module "ecs_api_service" {
   }
 }
 
+module "ecs_sidekiq_service" {
+  source = "./service"
+
+  prefix         = "${local.prefix}-sidekiq"
+  region         = var.region
+  container_port = 80
+  egress_ports   = [80, 443, 5432, local.redis_port]
+  environment_variables = [
+    {
+      name  = "EPB_UNLEASH_URI"
+      value = "http://${module.ecs_toggles.internal_alb_dns}/api"
+    },
+  ]
+  secrets            = { "DATABASE_URL" : module.secrets.secret_arns["RDS_API_SERVICE_CONNECTION_STRING"] }
+  parameters         = module.parameter_store.parameter_arns
+  vpc_id             = module.networking.vpc_id
+  private_subnet_ids = module.networking.private_subnet_ids
+  health_check_path  = "/healthcheck"
+  additional_task_role_policy_arns = {
+    "RDS_access" : module.rds_api_service.rds_full_access_policy_arn,
+    "Redis_access" : data.aws_iam_policy.elasticache_full_access.arn
+  }
+  aws_cloudwatch_log_group_id   = module.logging.cloudwatch_log_group_id
+  aws_cloudwatch_log_group_name = module.logging.cloudwatch_log_group_name
+  logs_bucket_name              = module.logging.logs_bucket_name
+  logs_bucket_url               = module.logging.logs_bucket_url
+}
+
 module "rds_api_service" {
   source = "./aurora_rds"
 
