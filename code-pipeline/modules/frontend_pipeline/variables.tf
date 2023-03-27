@@ -58,6 +58,14 @@ variable "region" {
   type = string
 }
 
+variable "smoketests_repository" {
+  type = string
+}
+
+variable "smoketests_branch" {
+  type = string
+}
+
 variable "aws_arm_codebuild_image" {
   type = string
 }
