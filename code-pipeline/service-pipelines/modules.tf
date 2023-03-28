@@ -90,6 +90,8 @@ module "register-api-pipeline" {
   postgres_image_ecr_url  = module.postgres_test_image_pipeline.image_repository_url
   region                  = var.region
   aws_arm_codebuild_image = var.aws_arm_codebuild_image
+  smoketests_repository = var.smoketests_repository
+  smoketests_branch = var.smoketests_branch
 }
 
 module "frontend-pipeline" {
