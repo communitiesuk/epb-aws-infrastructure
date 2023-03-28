@@ -148,6 +148,10 @@ module "ecs_sidekiq_service" {
       name  = "EPB_UNLEASH_URI"
       value = "http://${module.ecs_toggles.internal_alb_dns}/api"
     },
+    {
+      name = "EPB_WORKER_REDIS_URI"
+      value = module.sidekiq_warehouse.redis_uri
+    }
   ]
   secrets            = { "DATABASE_URL" : module.secrets.secret_arns["RDS_API_SERVICE_CONNECTION_STRING"] }
   parameters         = module.parameter_store.parameter_arns
@@ -162,6 +166,16 @@ module "ecs_sidekiq_service" {
   aws_cloudwatch_log_group_name = module.logging.cloudwatch_log_group_name
   logs_bucket_name              = module.logging.logs_bucket_name
   logs_bucket_url               = module.logging.logs_bucket_url
+}
+
+module "sidekiq_warehouse" {
+  source = "./elasticache"
+
+  prefix                        = "${local.prefix}-sidekiq"
+  aws_cloudwatch_log_group_name = module.logging.cloudwatch_log_group_name
+  redis_port                    = local.redis_port
+  subnet_ids                    = module.networking.private_subnet_ids
+  vpc_id                        = module.networking.vpc_id
 }
 
 module "rds_api_service" {
