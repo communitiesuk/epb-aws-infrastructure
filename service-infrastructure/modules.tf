@@ -166,6 +166,7 @@ module "ecs_sidekiq_service" {
   aws_cloudwatch_log_group_name = module.logging.cloudwatch_log_group_name
   logs_bucket_name              = module.logging.logs_bucket_name
   logs_bucket_url               = module.logging.logs_bucket_url
+  create_internal_alb           = false
 }
 
 module "sidekiq_warehouse" {
