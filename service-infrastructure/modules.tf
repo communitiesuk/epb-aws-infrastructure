@@ -150,8 +150,8 @@ module "ecs_sidekiq_service" {
     },
     {
       name = "EPB_WORKER_REDIS_URI"
-      value = module.sidekiq_warehouse.redis_uri
-    }
+      value = module.redis_sidekiq.redis_uri
+    },
   ]
   secrets            = { "DATABASE_URL" : module.secrets.secret_arns["RDS_API_SERVICE_CONNECTION_STRING"] }
   parameters         = module.parameter_store.parameter_arns
@@ -169,7 +169,7 @@ module "ecs_sidekiq_service" {
   create_internal_alb           = false
 }
 
-module "sidekiq_warehouse" {
+module "redis_sidekiq" {
   source = "./elasticache"
 
   prefix                        = "${local.prefix}-sidekiq"
@@ -391,6 +391,10 @@ module "parameter_store" {
     "LOGSTASH_PORT" : "SecureString"
     "RACK_ENV" : "String"
     "APP_ENV" : "String"
+    "EPB_TEAM_SLACK_URL" : "SecureString"
+    "OPEN_DATA_REPORT_TYPE": "String"
+    "OS_DATA_HUB_API_KEY": "SecureString"
+    "SLACK_EPB_BOT_TOKEN": "SecureString"
   }
 }
 
