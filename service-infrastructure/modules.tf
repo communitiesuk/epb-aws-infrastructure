@@ -186,7 +186,7 @@ module "rds_api_service" {
   db_name               = "epb"
   vpc_id                = module.networking.vpc_id
   subnet_group_name     = module.networking.private_subnet_group_name
-  security_group_ids    = [module.ecs_api_service.ecs_security_group_id, module.bastion.security_group_id]
+  security_group_ids    = [module.ecs_api_service.ecs_security_group_id, module.ecs_sidekiq_service.ecs_security_group_id, module.bastion.security_group_id]
   storage_backup_period = var.storage_backup_period
   instance_class        = "db.t3.medium"
 }
