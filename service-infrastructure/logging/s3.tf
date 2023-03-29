@@ -38,3 +38,33 @@ resource "aws_s3_bucket_policy" "root_log_bucket_access" {
     ]
   })
 }
+
+resource "aws_iam_policy" "s3_logs_read_access" {
+  name = "${var.prefix}-s3-logs-read-access"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "Read"
+        Effect = "Allow"
+        Action = [
+          "s3:GetObject"
+        ]
+        Resource = [
+          "${aws_s3_bucket.logs.arn}/*"
+        ]
+      },
+      {
+        Sid    = "List"
+        Effect = "Allow"
+        Action = [
+          "s3:ListBucket"
+        ]
+        Resource = [
+          aws_s3_bucket.logs.arn
+        ]
+      }
+    ]
+  })
+}
