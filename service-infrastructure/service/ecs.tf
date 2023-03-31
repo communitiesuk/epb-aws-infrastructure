@@ -86,13 +86,13 @@ resource "aws_ecs_task_definition" "this" {
         }
       }
 
-      # healthcheck = {
-      #   command     = ["CMD-SHELL", "curl -f http://127.0.0.1:2020/ || exit 1"]
-      #   interval    = 10
-      #   retries     = 3
-      #   startPeriod = 10
-      #   timeout     = 5
-      # }
+      healthcheck = {
+        command     = ["CMD-SHELL", "curl -f http://127.0.0.1:2020/api/v1/health || exit 1"]
+        interval    = 10
+        retries     = 3
+        startPeriod = 10
+        timeout     = 5
+      }
 
       mountPoints  = []
       portMappings = []
