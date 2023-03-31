@@ -2,10 +2,6 @@ resource "aws_iam_user" "cloudwatch_user" {
   name = "logit_user"
 }
 
-resource "aws_iam_access_key" "cloudwatch_user_access_key" {
-  user = aws_iam_user.cloudwatch_user.name
-}
-
 resource "aws_iam_user_policy_attachment" "logit_user_s3" {
   user       = aws_iam_user.cloudwatch_user.name
   policy_arn = aws_iam_policy.s3_logs_read_access.arn
