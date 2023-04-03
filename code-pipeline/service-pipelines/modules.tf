@@ -90,8 +90,8 @@ module "register-api-pipeline" {
   postgres_image_ecr_url  = module.postgres_test_image_pipeline.image_repository_url
   region                  = var.region
   aws_arm_codebuild_image = var.aws_arm_codebuild_image
-  smoketests_repository = var.smoketests_repository
-  smoketests_branch = var.smoketests_branch
+  smoketests_repository   = var.smoketests_repository
+  smoketests_branch       = var.smoketests_branch
 }
 
 module "frontend-pipeline" {
@@ -112,8 +112,8 @@ module "frontend-pipeline" {
   codebuild_image_ecr_url = module.app_test_image_pipeline.image_repository_url
   region                  = var.region
   aws_arm_codebuild_image = var.aws_arm_codebuild_image
-  smoketests_repository = var.smoketests_repository
-  smoketests_branch = var.smoketests_branch
+  smoketests_repository   = var.smoketests_repository
+  smoketests_branch       = var.smoketests_branch
 }
 
 module "data_warehouse-pipeline" {

@@ -12,6 +12,6 @@ output "rds_db_username" {
 
 output "rds_db_connection_string" {
   description = "A libpq (Postgresql) connection string for consuming this database, intended to be set as the environment variable DATABASE_URL"
-  value       = "postgresql://${aws_db_instance.postgres_rds.username}@${aws_db_instance.postgres_rds.endpoint}/${aws_db_instance.postgres_rds.db_name}?password=${aws_db_instance.postgres_rds.password}"
+  value       = "postgresql://${aws_db_instance.postgres_rds.username}:${aws_db_instance.postgres_rds.password}@${aws_db_instance.postgres_rds.endpoint}/${aws_db_instance.postgres_rds.db_name}"
   sensitive   = true
 }
