@@ -149,7 +149,7 @@ module "ecs_sidekiq_service" {
       value = "http://${module.ecs_toggles.internal_alb_dns}/api"
     },
     {
-      name = "EPB_WORKER_REDIS_URI"
+      name  = "EPB_WORKER_REDIS_URI"
       value = module.redis_sidekiq.redis_uri
     },
   ]
@@ -392,9 +392,9 @@ module "parameter_store" {
     "RACK_ENV" : "String"
     "APP_ENV" : "String"
     "EPB_TEAM_SLACK_URL" : "SecureString"
-    "OPEN_DATA_REPORT_TYPE": "String"
-    "OS_DATA_HUB_API_KEY": "SecureString"
-    "SLACK_EPB_BOT_TOKEN": "SecureString"
+    "OPEN_DATA_REPORT_TYPE" : "String"
+    "OS_DATA_HUB_API_KEY" : "SecureString"
+    "SLACK_EPB_BOT_TOKEN" : "SecureString"
   }
 }
 

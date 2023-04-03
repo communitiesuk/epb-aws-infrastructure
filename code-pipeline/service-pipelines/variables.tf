@@ -18,12 +18,12 @@ variable "region" {
 
 variable "smoketests_branch" {
   default = "master"
-  type = string
+  type    = string
 }
 
 variable "smoketests_repository" {
   default = "epb-frontend-smoke-tests"
-  type = string
+  type    = string
 }
 
 variable "aws_arm_codebuild_image" {

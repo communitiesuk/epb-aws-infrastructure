@@ -59,7 +59,7 @@ module "codebuild_frontend_smoke_test" {
   build_image_uri    = var.codebuild_image_ecr_url
   buildspec_file     = "buildspec/run_smoke_test_in_code_build.yml"
   environment_variables = [
-    { name  = "cypress_get_service_en_integration", value = "http://epb-static-start-pages-integration.s3-website.eu-west-2.amazonaws.com/getting-a-new-energy-certificate.html" },
+    { name = "cypress_get_service_en_integration", value = "http://epb-static-start-pages-integration.s3-website.eu-west-2.amazonaws.com/getting-a-new-energy-certificate.html" },
     { name = "cypress_get_domain_integration", value = "https://getting-new-energy-certificate-integration.centraldatastore.net" },
     { name = "cypress_get_service_cy_integration", value = "http://epb-static-start-pages-integration.s3-website.eu-west-2.amazonaws.com/sicrhau-tystysgrif-ynni-newydd.html" },
     { name = "cypress_find_service_en_integration", value = "http://epb-static-start-pages-integration.s3-website.eu-west-2.amazonaws.com/find-an-energy-certificate.html" },

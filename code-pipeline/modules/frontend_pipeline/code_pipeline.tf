@@ -28,17 +28,17 @@ resource "aws_codepipeline" "codepipeline" {
     }
 
     action {
-      name     = "SmokeTestsSource"
-      category = "Source"
-      owner    = "AWS"
-      provider = "CodeStarSourceConnection"
-      version  = "1"
+      name             = "SmokeTestsSource"
+      category         = "Source"
+      owner            = "AWS"
+      provider         = "CodeStarSourceConnection"
+      version          = "1"
       output_artifacts = ["smoke_tests_source_output"]
 
       configuration = {
-        ConnectionArn = var.codestar_connection_arn
+        ConnectionArn        = var.codestar_connection_arn
         FullRepositoryId     = format("%s/%s", var.github_organisation, var.smoketests_repository)
-        BranchName = var.smoketests_branch
+        BranchName           = var.smoketests_branch
         OutputArtifactFormat = "CODEBUILD_CLONE_REF"
       }
     }
