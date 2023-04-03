@@ -12,6 +12,41 @@ module "logging" {
   environment = var.environment
 }
 
+module "alerts" {
+  source = "./alerts"
+
+  prefix                    = local.prefix
+  environment               = var.environment
+  cloudwatch_log_group_id   = module.logging.cloudwatch_log_group_id
+  cloudwatch_log_group_name = module.logging.cloudwatch_log_group_name
+  ecs_services = {
+    api_service = {
+      cluster_name = module.ecs_api_service.ecs_cluster_name
+      service_name = module.ecs_api_service.ecs_service_name
+    },
+    auth_service = {
+      cluster_name = module.ecs_auth_service.ecs_cluster_name
+      service_name = module.ecs_auth_service.ecs_service_name
+    },
+    frontend = {
+      cluster_name = module.frontend.ecs_cluster_name
+      service_name = module.frontend.ecs_service_name
+    },
+    toggles = {
+      cluster_name = module.ecs_toggles.ecs_cluster_name
+      service_name = module.ecs_toggles.ecs_service_name
+    },
+    sidekiq_service = {
+      cluster_name = module.ecs_sidekiq_service.ecs_cluster_name
+      service_name = module.ecs_sidekiq_service.ecs_service_name
+    },
+    warehouse = {
+      cluster_name = module.ecs_warehouse.ecs_cluster_name
+      service_name = module.ecs_warehouse.ecs_service_name
+    },
+  }
+}
+
 module "access" {
   source = "./access"
 
@@ -149,7 +184,7 @@ module "ecs_sidekiq_service" {
       value = "http://${module.ecs_toggles.internal_alb_dns}/api"
     },
     {
-      name = "EPB_WORKER_REDIS_URI"
+      name  = "EPB_WORKER_REDIS_URI"
       value = module.redis_sidekiq.redis_uri
     },
   ]
@@ -392,9 +427,9 @@ module "parameter_store" {
     "RACK_ENV" : "String"
     "APP_ENV" : "String"
     "EPB_TEAM_SLACK_URL" : "SecureString"
-    "OPEN_DATA_REPORT_TYPE": "String"
-    "OS_DATA_HUB_API_KEY": "SecureString"
-    "SLACK_EPB_BOT_TOKEN": "SecureString"
+    "OPEN_DATA_REPORT_TYPE" : "String"
+    "OS_DATA_HUB_API_KEY" : "SecureString"
+    "SLACK_EPB_BOT_TOKEN" : "SecureString"
   }
 }
 

@@ -45,3 +45,6 @@ terraform.rc
 .DS_Store
 
 .env
+
+# ignore generated zip files
+*.zip

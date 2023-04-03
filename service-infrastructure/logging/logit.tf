@@ -1,5 +1,13 @@
 resource "aws_iam_user" "cloudwatch_user" {
   name = "logit_user"
+
+  lifecycle {
+    # required as this is overwritten by Logit
+    ignore_changes = [
+      tags,
+      tags_all,
+    ]
+  }
 }
 
 resource "aws_iam_user_policy_attachment" "logit_user_s3" {
