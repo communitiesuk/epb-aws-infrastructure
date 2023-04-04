@@ -22,12 +22,18 @@ _alias_this:
     #!/usr/bin/env bash
     ALIAS_COMMAND="alias .j='just --justfile $(pwd)/justfile --'"
 
-    if [ -f ~/.bash_profile ]; then
-        if ! grep -q "$ALIAS_COMMAND" ~/.bash_profile; then
-            echo $ALIAS_COMMAND >> ~/.bash_profile
+    if [ -n "$($SHELL -c 'echo $ZSH_VERSION')" ]; then
+        if ! grep -q "$ALIAS_COMMAND" ~/.zshrc; then
+            echo $ALIAS_COMMAND >> ~/.zshrc
         fi
-    else
-        echo $ALIAS_COMMAND > ~/.bash_profile
+    elif [ -n "$($SHELL -c 'echo $BASH_VERSION')" ]; then
+        if [ -f ~/.bash_profile ]; then
+            if ! grep -q "$ALIAS_COMMAND" ~/.bash_profile; then
+                echo $ALIAS_COMMAND >> ~/.bash_profile
+            fi
+        else
+            echo $ALIAS_COMMAND > ~/.bash_profile
+        fi
     fi
 
 # Add AWS config and aws-vault profile required to run many commands. Note: this will update .env file in current directory
