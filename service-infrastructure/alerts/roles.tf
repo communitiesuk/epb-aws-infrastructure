@@ -16,7 +16,7 @@ resource "aws_iam_role" "lambda_sns_subscriber" {
 }
 
 resource "aws_iam_policy" "cloudwatch_sns_subscriber" {
-  name = "cloudwatch_alerts_sns_subscriber"
+  name = "${var.prefix}-clourdwach-sns-subscriber"
 
   policy = jsonencode({
     Version = "2012-10-17"
