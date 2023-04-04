@@ -56,9 +56,20 @@ module "alerts" {
     api_service = module.rds_api_service.rds_cluster_identifier
   }
 
-  albs = {
-    api_service = module.ecs_api_service.alb_arn
-  }
+  albs = { for k, v in {
+    auth_service             = module.ecs_auth_service.front_door_alb_arn
+    auth_service_internal    = module.ecs_auth_service.internal_alb_arn
+    api_service              = module.ecs_api_service.front_door_alb_arn
+    api_service_internal     = module.ecs_api_service.internal_alb_arn
+    toggles                  = module.ecs_toggles.front_door_alb_arn
+    toggles_internal         = module.ecs_toggles.internal_alb_arn
+    frontend                 = module.frontend.front_door_alb_arn
+    frontend_internal        = module.frontend.internal_alb_arn
+    sidekiq_service          = module.ecs_sidekiq_service.front_door_alb_arn
+    sidekiq_service_internal = module.ecs_sidekiq_service.internal_alb_arn
+    warehouse                = module.ecs_warehouse.front_door_alb_arn
+    warehouse_internal       = module.ecs_warehouse.internal_alb_arn
+  } : k => v if v != "" }
 }
 
 module "access" {

@@ -14,6 +14,14 @@ output "internal_alb_dns" {
   value = var.create_internal_alb ? aws_lb.internal[0].dns_name : ""
 }
 
+output "internal_alb_arn" {
+  value = var.create_internal_alb ? aws_lb.internal[0].arn : ""
+}
+
+output "front_door_alb_arn" {
+  value = var.front_door_config != null ? module.front_door[0].alb_arn : ""
+}
+
 output "ecs_security_group_id" {
   value = aws_security_group.ecs.id
 }

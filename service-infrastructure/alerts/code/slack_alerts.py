@@ -38,8 +38,7 @@ def get_alarm_attributes(sns_message):
         'description': sns_message['AlarmDescription'],
         'reason': sns_message['NewStateReason'],
         'region': sns_message['Region'],
-        'service_name': sns_message['Trigger']['Dimensions'][0]['value'],
-        'cluster_name': sns_message['Trigger']['Dimensions'][1]['value'],
+        'resource_name': sns_message['Trigger']['Dimensions'][0]['value'],
         'state': sns_message['NewStateValue'],
         'previous_state': sns_message['OldStateValue'],
     }
@@ -77,7 +76,7 @@ def register_alarm(alarm):
                 "elements": [
                     {
                         "type": "mrkdwn",
-                        "text": f"Service: *{alarm['cluster_name']}\{alarm['service_name']}*"
+                        "text": f"Service: *{alarm['resource_name']}*"
                     }
                 ]
             }
@@ -115,7 +114,7 @@ def activate_alarm(alarm):
                 "elements": [
                     {
                         "type": "mrkdwn",
-                        "text": f"Service: *{alarm['cluster_name']}\{alarm['service_name']}*"
+                        "text": f"Service: *{alarm['resource_name']}*"
                     }
                 ]
             }
@@ -153,7 +152,7 @@ def resolve_alarm(alarm):
                 "elements": [
                     {
                         "type": "mrkdwn",
-                        "text": f"Service: *{alarm['cluster_name']}\{alarm['service_name']}*"
+                        "text": f"Service: *{alarm['resource_name']}*"
                     }
                 ]
             }

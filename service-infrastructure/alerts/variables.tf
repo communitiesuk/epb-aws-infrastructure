@@ -28,3 +28,7 @@ variable "rds_instances" {
 variable "rds_clusters" {
   type = map(string)
 }
+
+variable "albs" {
+  type = map(string)
+}
