@@ -38,7 +38,7 @@ def get_alarm_attributes(sns_message):
         'description': sns_message['AlarmDescription'],
         'reason': sns_message['NewStateReason'],
         'region': sns_message['Region'],
-        'resource_name': sns_message['Trigger']['Dimensions'][0]['value'],
+        'resource_name': " - ".join([d['value'] for d in sns_message['Trigger']['Dimensions']]),
         'state': sns_message['NewStateValue'],
         'previous_state': sns_message['OldStateValue'],
     }
