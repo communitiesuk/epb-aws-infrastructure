@@ -106,341 +106,22 @@ module "waf" {
   forbidden_ipv6_addresses = []
 }
 
-module "ecs_auth_service" {
-  source = "./service"
-
-  prefix         = "${local.prefix}-auth-service"
-  region         = var.region
-  container_port = 80
-  egress_ports   = [80, 443, 5432]
-  environment_variables = [
-    {
-      "name"  = "EPB_UNLEASH_URI"
-      "value" = "http://${module.ecs_toggles.internal_alb_dns}/api"
-    }
-  ]
-  secrets                          = { "DATABASE_URL" : module.secrets.secret_arns["RDS_AUTH_SERVICE_CONNECTION_STRING"] }
-  parameters                       = module.parameter_store.parameter_arns
-  vpc_id                           = module.networking.vpc_id
-  private_subnet_ids               = module.networking.private_subnet_ids
-  health_check_path                = "/auth/healthcheck"
-  additional_task_role_policy_arns = { "RDS_access" : module.rds_auth_service.rds_full_access_policy_arn }
-  aws_cloudwatch_log_group_id      = module.logging.cloudwatch_log_group_id
-  aws_cloudwatch_log_group_name    = module.logging.cloudwatch_log_group_name
-  logs_bucket_name                 = module.logging.logs_bucket_name
-  logs_bucket_url                  = module.logging.logs_bucket_url
-  front_door_config = {
-    aws_ssl_certificate_arn        = module.ssl_certificate.certificate_arn
-    aws_cdn_certificate_arn        = module.cdn_certificate.certificate_arn
-    cdn_allowed_methods            = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
-    cdn_cached_methods             = ["GET", "HEAD", "OPTIONS"]
-    cdn_cache_ttl                  = 0
-    cdn_aliases                    = toset(["auth${var.subdomain_suffix}.${var.domain_name}"])
-    forbidden_ip_addresses_acl_arn = module.waf.forbidden_ip_addresses_acl_arn
-    public_subnet_ids              = module.networking.public_subnet_ids
-  }
-}
-
-module "rds_auth_service" {
-  source = "./rds"
-
-  prefix                = "${local.prefix}-auth-service"
-  db_name               = "epb"
-  vpc_id                = module.networking.vpc_id
-  subnet_group_name     = module.networking.private_subnet_group_name
-  security_group_ids    = [module.ecs_auth_service.ecs_security_group_id, module.bastion.security_group_id]
-  storage_backup_period = 1 # to prevent weird behaviour when the backup window is set to 0
-  storage_size          = 5
-  instance_class        = "db.t3.micro"
-}
-
-module "rds_test" {
-  source = "./rds"
-
-  prefix                = "${local.prefix}-test"
-  db_name               = "epb"
-  vpc_id                = module.networking.vpc_id
-  subnet_group_name     = module.networking.private_subnet_group_name
-  security_group_ids    = [module.ecs_auth_service.ecs_security_group_id, module.bastion.security_group_id]
-  storage_backup_period = 1 # to prevent weird behaviour when the backup window is set to 0
-  storage_size          = 5
-  instance_class        = "db.t3.micro"
-}
-
-module "ecs_api_service" {
-  source = "./service"
-
-  prefix         = "${local.prefix}-api-service"
-  region         = var.region
-  container_port = 80
-  egress_ports   = [80, 443, 5432, local.redis_port]
-  environment_variables = [
-    {
-      name  = "EPB_UNLEASH_URI"
-      value = "http://${module.ecs_toggles.internal_alb_dns}/api"
-    },
-    {
-      name  = "EPB_DATA_WAREHOUSE_QUEUES_URI"
-      value = module.redis_warehouse.redis_uri
-    }
-  ]
-  secrets            = { "DATABASE_URL" : module.secrets.secret_arns["RDS_API_SERVICE_CONNECTION_STRING"] }
-  parameters         = module.parameter_store.parameter_arns
-  vpc_id             = module.networking.vpc_id
-  private_subnet_ids = module.networking.private_subnet_ids
-  health_check_path  = "/healthcheck"
-  additional_task_role_policy_arns = {
-    "RDS_access" : module.rds_api_service.rds_full_access_policy_arn,
-    "Redis_access" : data.aws_iam_policy.elasticache_full_access.arn
-  }
-  aws_cloudwatch_log_group_id   = module.logging.cloudwatch_log_group_id
-  aws_cloudwatch_log_group_name = module.logging.cloudwatch_log_group_name
-  logs_bucket_name              = module.logging.logs_bucket_name
-  logs_bucket_url               = module.logging.logs_bucket_url
-  front_door_config = {
-    aws_ssl_certificate_arn        = module.ssl_certificate.certificate_arn
-    aws_cdn_certificate_arn        = module.cdn_certificate.certificate_arn
-    cdn_allowed_methods            = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
-    cdn_cached_methods             = ["GET", "HEAD", "OPTIONS"]
-    cdn_cache_ttl                  = 0
-    cdn_aliases                    = toset(["api${var.subdomain_suffix}.${var.domain_name}"])
-    forbidden_ip_addresses_acl_arn = module.waf.forbidden_ip_addresses_acl_arn
-    public_subnet_ids              = module.networking.public_subnet_ids
-  }
-}
-
-module "ecs_sidekiq_service" {
-  source = "./service"
-
-  prefix         = "${local.prefix}-sidekiq"
-  region         = var.region
-  container_port = 80
-  egress_ports   = [80, 443, 5432, local.redis_port]
-  environment_variables = [
-    {
-      name  = "EPB_UNLEASH_URI"
-      value = "http://${module.ecs_toggles.internal_alb_dns}/api"
-    },
-    {
-      name  = "EPB_WORKER_REDIS_URI"
-      value = module.redis_sidekiq.redis_uri
-    },
-  ]
-  secrets            = { "DATABASE_URL" : module.secrets.secret_arns["RDS_API_SERVICE_CONNECTION_STRING"] }
-  parameters         = module.parameter_store.parameter_arns
-  vpc_id             = module.networking.vpc_id
-  private_subnet_ids = module.networking.private_subnet_ids
-  health_check_path  = "/healthcheck"
-  additional_task_role_policy_arns = {
-    "RDS_access" : module.rds_api_service.rds_full_access_policy_arn,
-    "Redis_access" : data.aws_iam_policy.elasticache_full_access.arn
-  }
-  aws_cloudwatch_log_group_id   = module.logging.cloudwatch_log_group_id
-  aws_cloudwatch_log_group_name = module.logging.cloudwatch_log_group_name
-  logs_bucket_name              = module.logging.logs_bucket_name
-  logs_bucket_url               = module.logging.logs_bucket_url
-  create_internal_alb           = false
-}
-
-module "redis_sidekiq" {
-  source = "./elasticache"
-
-  prefix                        = "${local.prefix}-sidekiq"
-  aws_cloudwatch_log_group_name = module.logging.cloudwatch_log_group_name
-  redis_port                    = local.redis_port
-  subnet_ids                    = module.networking.private_subnet_ids
-  vpc_id                        = module.networking.vpc_id
-}
-
-module "rds_api_service" {
-  source = "./aurora_rds"
-
-  prefix                = "${local.prefix}-api-service"
-  db_name               = "epb"
-  vpc_id                = module.networking.vpc_id
-  subnet_group_name     = module.networking.private_subnet_group_name
-  security_group_ids    = [module.ecs_api_service.ecs_security_group_id, module.ecs_sidekiq_service.ecs_security_group_id, module.bastion.security_group_id]
-  storage_backup_period = var.storage_backup_period
-  instance_class        = "db.t3.medium"
-}
-
-module "ecs_warehouse" {
-  source = "./service"
-
-  prefix         = "${local.prefix}-warehouse"
-  region         = var.region
-  container_port = 80
-  egress_ports   = [80, 443, 5432, local.redis_port]
-  environment_variables = [
-    {
-      name  = "EPB_API_URL"
-      value = "http://${module.ecs_api_service.internal_alb_dns}"
-    },
-    {
-      "name"  = "EPB_AUTH_SERVER"
-      "value" = "http://${module.ecs_auth_service.internal_alb_dns}/auth"
-    },
-    {
-      name  = "EPB_QUEUES_URI"
-      value = module.redis_warehouse.redis_uri
-    },
-    {
-      name  = "EPB_UNLEASH_URI"
-      value = "http://${module.ecs_toggles.internal_alb_dns}/api"
-    },
-  ]
-  secrets = { "DATABASE_URL" : module.secrets.secret_arns["RDS_WAREHOUSE_CONNECTION_STRING"] }
-  parameters = merge(module.parameter_store.parameter_arns, {
-    "EPB_AUTH_CLIENT_ID" : module.parameter_store.parameter_arns["WAREHOUSE_EPB_AUTH_CLIENT_ID"],
-    "EPB_AUTH_CLIENT_SECRET" : module.parameter_store.parameter_arns["WAREHOUSE_EPB_AUTH_CLIENT_SECRET"]
-  })
-  vpc_id             = module.networking.vpc_id
-  private_subnet_ids = module.networking.private_subnet_ids
-  health_check_path  = null
-  additional_task_role_policy_arns = {
-    "RDS_access" : module.rds_api_service.rds_full_access_policy_arn
-    "Redis_access" : data.aws_iam_policy.elasticache_full_access.arn
-  }
-  aws_cloudwatch_log_group_id   = module.logging.cloudwatch_log_group_id
-  aws_cloudwatch_log_group_name = module.logging.cloudwatch_log_group_name
-  logs_bucket_name              = module.logging.logs_bucket_name
-  logs_bucket_url               = module.logging.logs_bucket_url
-  create_internal_alb           = false
-}
-
-module "rds_warehouse" {
-  source = "./aurora_rds"
-
-  prefix                = "${local.prefix}-warehouse"
-  db_name               = "epb"
-  vpc_id                = module.networking.vpc_id
-  subnet_group_name     = module.networking.private_subnet_group_name
-  security_group_ids    = [module.ecs_warehouse.ecs_security_group_id, module.bastion.security_group_id]
-  storage_backup_period = var.storage_backup_period
-  instance_class        = "db.t3.medium"
-}
-
-module "redis_warehouse" {
-  source = "./elasticache"
-
-  prefix                        = "${local.prefix}-warehouse"
-  aws_cloudwatch_log_group_name = module.logging.cloudwatch_log_group_name
-  redis_port                    = local.redis_port
-  subnet_ids                    = module.networking.private_subnet_ids
-  vpc_id                        = module.networking.vpc_id
-}
-
-module "ecs_toggles" {
-  source = "./service"
-
-  prefix                = "${local.prefix}-toggles"
-  region                = var.region
-  container_port        = 4242
-  egress_ports          = [80, 443, 5432]
-  environment_variables = []
-  secrets = {
-    "DATABASE_URL" : module.secrets.secret_arns["RDS_TOGGLES_CONNECTION_STRING"],
-  }
-  parameters                       = module.parameter_store.parameter_arns
-  vpc_id                           = module.networking.vpc_id
-  private_subnet_ids               = module.networking.private_subnet_ids
-  health_check_path                = "/health"
-  additional_task_role_policy_arns = { "RDS_access" : module.rds_toggles.rds_full_access_policy_arn }
-  aws_cloudwatch_log_group_id      = module.logging.cloudwatch_log_group_id
-  aws_cloudwatch_log_group_name    = module.logging.cloudwatch_log_group_name
-  logs_bucket_name                 = module.logging.logs_bucket_name
-  logs_bucket_url                  = module.logging.logs_bucket_url
-  front_door_config = {
-    aws_ssl_certificate_arn        = module.ssl_certificate.certificate_arn
-    aws_cdn_certificate_arn        = module.cdn_certificate.certificate_arn
-    cdn_allowed_methods            = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
-    cdn_cached_methods             = ["GET", "HEAD", "OPTIONS"]
-    cdn_cache_ttl                  = 0
-    cdn_aliases                    = toset(["toggles${var.subdomain_suffix}.${var.domain_name}"])
-    forbidden_ip_addresses_acl_arn = module.waf.forbidden_ip_addresses_acl_arn
-    public_subnet_ids              = module.networking.public_subnet_ids
-  }
-}
-
-module "rds_toggles" {
-  source = "./rds"
-
-  prefix                = "${local.prefix}-toggles"
-  db_name               = "unleash"
-  vpc_id                = module.networking.vpc_id
-  subnet_group_name     = module.networking.private_subnet_group_name
-  security_group_ids    = [module.ecs_toggles.ecs_security_group_id, module.bastion.security_group_id]
-  storage_backup_period = 1
-  storage_size          = 5
-  instance_class        = "db.t3.micro"
-}
-
-module "frontend" {
-  source = "./service"
-
-  prefix         = "${local.prefix}-frontend"
-  region         = var.region
-  container_port = 80
-  egress_ports   = [80, 443, 5432]
-  environment_variables = [
-    {
-      name  = "EPB_API_URL"
-      value = "http://${module.ecs_api_service.internal_alb_dns}"
-    },
-    {
-      name  = "EPB_AUTH_SERVER"
-      value = "http://${module.ecs_auth_service.internal_alb_dns}/auth"
-    },
-    {
-      name  = "EPB_UNLEASH_URI"
-      value = "http://${module.ecs_toggles.internal_alb_dns}/api"
-    }
-  ]
-  secrets = {}
-  parameters = merge(module.parameter_store.parameter_arns, {
-    "EPB_AUTH_CLIENT_ID" : module.parameter_store.parameter_arns["FRONTEND_EPB_AUTH_CLIENT_ID"],
-    "EPB_AUTH_CLIENT_SECRET" : module.parameter_store.parameter_arns["FRONTEND_EPB_AUTH_CLIENT_SECRET"]
-  })
-  vpc_id                           = module.networking.vpc_id
-  private_subnet_ids               = module.networking.private_subnet_ids
-  health_check_path                = "/healthcheck"
-  additional_task_role_policy_arns = {}
-  aws_cloudwatch_log_group_id      = module.logging.cloudwatch_log_group_id
-  aws_cloudwatch_log_group_name    = module.logging.cloudwatch_log_group_name
-  logs_bucket_name                 = module.logging.logs_bucket_name
-  logs_bucket_url                  = module.logging.logs_bucket_url
-  create_internal_alb              = false
-  front_door_config = {
-    aws_ssl_certificate_arn = module.ssl_certificate.certificate_arn
-    aws_cdn_certificate_arn = module.cdn_certificate.certificate_arn
-    cdn_allowed_methods     = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
-    cdn_cached_methods      = ["GET", "HEAD", "OPTIONS"]
-    cdn_cache_ttl           = 60 # 1 minute
-    cdn_aliases = toset([
-      "find-energy-certificate${var.subdomain_suffix}.${var.domain_name}",
-      "getting-new-energy-certificate${var.subdomain_suffix}.${var.domain_name}"
-    ])
-    forbidden_ip_addresses_acl_arn = module.waf.forbidden_ip_addresses_acl_arn
-    public_subnet_ids              = module.networking.public_subnet_ids
-  }
-}
-
 module "secrets" {
   source = "./secrets"
 
   secrets = {
-    "RDS_AUTH_SERVICE_PASSWORD" : module.rds_auth_service.rds_db_password
-    "RDS_AUTH_SERVICE_USERNAME" : module.rds_auth_service.rds_db_username
-    "RDS_AUTH_SERVICE_CONNECTION_STRING" : module.rds_auth_service.rds_db_connection_string
-    "RDS_API_SERVICE_PASSWORD" : module.rds_api_service.rds_db_password
-    "RDS_API_SERVICE_USERNAME" : module.rds_api_service.rds_db_username
-    "RDS_API_SERVICE_CONNECTION_STRING" : module.rds_api_service.rds_db_connection_string
-    "RDS_WAREHOUSE_PASSWORD" : module.rds_warehouse.rds_db_password
-    "RDS_WAREHOUSE_USERNAME" : module.rds_warehouse.rds_db_username
-    "RDS_WAREHOUSE_CONNECTION_STRING" : module.rds_warehouse.rds_db_connection_string
-    "RDS_TOGGLES_CONNECTION_STRING" : module.rds_toggles.rds_db_connection_string
-    "RDS_TOGGLES_PASSWORD" : module.rds_toggles.rds_db_password
-    "RDS_TOGGLES_USERNAME" : module.rds_toggles.rds_db_username
+    "RDS_AUTH_SERVICE_PASSWORD" : module.auth_database.rds_db_password
+    "RDS_AUTH_SERVICE_USERNAME" : module.auth_database.rds_db_username
+    "RDS_AUTH_SERVICE_CONNECTION_STRING" : module.auth_database.rds_db_connection_string
+    "RDS_API_SERVICE_PASSWORD" : module.register_api_database.rds_db_password
+    "RDS_API_SERVICE_USERNAME" : module.register_api_database.rds_db_username
+    "RDS_API_SERVICE_CONNECTION_STRING" : module.register_api_database.rds_db_connection_string
+    "RDS_WAREHOUSE_PASSWORD" : module.warehouse_database.rds_db_password
+    "RDS_WAREHOUSE_USERNAME" : module.warehouse_database.rds_db_username
+    "RDS_WAREHOUSE_CONNECTION_STRING" : module.warehouse_database.rds_db_connection_string
+    "RDS_TOGGLES_CONNECTION_STRING" : module.toggles_database.rds_db_connection_string
+    "RDS_TOGGLES_PASSWORD" : module.toggles_database.rds_db_password
+    "RDS_TOGGLES_USERNAME" : module.toggles_database.rds_db_username
     "RDS_TEST_PASSWORD" : module.rds_test.rds_db_password
   }
 }
@@ -472,18 +153,399 @@ module "parameter_store" {
   }
 }
 
+# applications
+
+module "toggles_application" {
+  source = "./application"
+
+  prefix                = "${local.prefix}-toggles-app"
+  region                = var.region
+  container_port        = 4242
+  egress_ports          = [80, 443, 5432]
+  environment_variables = []
+  secrets = {
+    "DATABASE_URL" : module.secrets.secret_arns["RDS_TOGGLES_CONNECTION_STRING"],
+  }
+  parameters                       = module.parameter_store.parameter_arns
+  vpc_id                           = module.networking.vpc_id
+  private_subnet_ids               = module.networking.private_subnet_ids
+  health_check_path                = "/health"
+  additional_task_role_policy_arns = { "RDS_access" : module.toggles_database.rds_full_access_policy_arn }
+  aws_cloudwatch_log_group_id      = module.logging.cloudwatch_log_group_id
+  aws_cloudwatch_log_group_name    = module.logging.cloudwatch_log_group_name
+  logs_bucket_name                 = module.logging.logs_bucket_name
+  logs_bucket_url                  = module.logging.logs_bucket_url
+  front_door_config = {
+    aws_ssl_certificate_arn        = module.ssl_certificate.certificate_arn
+    aws_cdn_certificate_arn        = module.cdn_certificate.certificate_arn
+    cdn_allowed_methods            = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
+    cdn_cached_methods             = ["GET", "HEAD", "OPTIONS"]
+    cdn_cache_ttl                  = 0
+    cdn_aliases                    = toset(["toggles${var.subdomain_suffix}.${var.domain_name}"])
+    forbidden_ip_addresses_acl_arn = module.waf.forbidden_ip_addresses_acl_arn
+    public_subnet_ids              = module.networking.public_subnet_ids
+  }
+}
+
+module "toggles_database" {
+  source = "./rds"
+
+  prefix                = "${local.prefix}-toggles-database"
+  db_name               = "unleash"
+  vpc_id                = module.networking.vpc_id
+  subnet_group_name     = module.networking.private_subnet_group_name
+  security_group_ids    = [module.toggles_application.ecs_security_group_id, module.bastion.security_group_id]
+  storage_backup_period = 1
+  storage_size          = 5
+  instance_class        = "db.t3.micro"
+}
+
+module "auth_application" {
+  source = "./application"
+
+  prefix         = "${local.prefix}-auth-app"
+  region         = var.region
+  container_port = 80
+  egress_ports   = [80, 443, 5432]
+  environment_variables = [
+    {
+      "name"  = "EPB_UNLEASH_URI"
+      "value" = "http://${module.toggles_application.internal_alb_dns}/api"
+    }
+  ]
+  secrets                          = { "DATABASE_URL" : module.secrets.secret_arns["RDS_AUTH_SERVICE_CONNECTION_STRING"] }
+  parameters                       = module.parameter_store.parameter_arns
+  vpc_id                           = module.networking.vpc_id
+  private_subnet_ids               = module.networking.private_subnet_ids
+  health_check_path                = "/auth/healthcheck"
+  additional_task_role_policy_arns = { "RDS_access" : module.auth_database.rds_full_access_policy_arn }
+  aws_cloudwatch_log_group_id      = module.logging.cloudwatch_log_group_id
+  aws_cloudwatch_log_group_name    = module.logging.cloudwatch_log_group_name
+  logs_bucket_name                 = module.logging.logs_bucket_name
+  logs_bucket_url                  = module.logging.logs_bucket_url
+  front_door_config = {
+    aws_ssl_certificate_arn        = module.ssl_certificate.certificate_arn
+    aws_cdn_certificate_arn        = module.cdn_certificate.certificate_arn
+    cdn_allowed_methods            = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
+    cdn_cached_methods             = ["GET", "HEAD", "OPTIONS"]
+    cdn_cache_ttl                  = 0
+    cdn_aliases                    = toset(["auth${var.subdomain_suffix}.${var.domain_name}"])
+    forbidden_ip_addresses_acl_arn = module.waf.forbidden_ip_addresses_acl_arn
+    public_subnet_ids              = module.networking.public_subnet_ids
+  }
+}
+
+module "auth_database" {
+  source = "./rds"
+
+  prefix                = "${local.prefix}-auth-database"
+  db_name               = "epb"
+  vpc_id                = module.networking.vpc_id
+  subnet_group_name     = module.networking.private_subnet_group_name
+  security_group_ids    = [module.auth_application.ecs_security_group_id, module.bastion.security_group_id]
+  storage_backup_period = 1 # to prevent weird behaviour when the backup window is set to 0
+  storage_size          = 5
+  instance_class        = "db.t3.micro"
+}
+
+module "rds_test" {
+  source = "./rds"
+
+  prefix                = "${local.prefix}-test"
+  db_name               = "epb"
+  vpc_id                = module.networking.vpc_id
+  subnet_group_name     = module.networking.private_subnet_group_name
+  security_group_ids    = [module.ecs_auth_service.ecs_security_group_id, module.bastion.security_group_id]
+  storage_backup_period = 1 # to prevent weird behaviour when the backup window is set to 0
+  storage_size          = 5
+  instance_class        = "db.t3.micro"
+}
+
+module "register_api_application" {
+  source = "./application"
+
+  prefix         = "${local.prefix}-reg-api-app"
+  region         = var.region
+  container_port = 80
+  egress_ports   = [80, 443, 5432, local.redis_port]
+  environment_variables = [
+    {
+      name  = "EPB_UNLEASH_URI"
+      value = "http://${module.toggles_application.internal_alb_dns}/api"
+    },
+    {
+      name  = "EPB_DATA_WAREHOUSE_QUEUES_URI"
+      value = module.warehouse_redis.redis_uri
+    }
+  ]
+  secrets            = { "DATABASE_URL" : module.secrets.secret_arns["RDS_API_SERVICE_CONNECTION_STRING"] }
+  parameters         = module.parameter_store.parameter_arns
+  vpc_id             = module.networking.vpc_id
+  private_subnet_ids = module.networking.private_subnet_ids
+  health_check_path  = "/healthcheck"
+  additional_task_role_policy_arns = {
+    "RDS_access" : module.register_api_database.rds_full_access_policy_arn,
+    "Redis_access" : data.aws_iam_policy.elasticache_full_access.arn
+  }
+  aws_cloudwatch_log_group_id   = module.logging.cloudwatch_log_group_id
+  aws_cloudwatch_log_group_name = module.logging.cloudwatch_log_group_name
+  logs_bucket_name              = module.logging.logs_bucket_name
+  logs_bucket_url               = module.logging.logs_bucket_url
+  front_door_config = {
+    aws_ssl_certificate_arn        = module.ssl_certificate.certificate_arn
+    aws_cdn_certificate_arn        = module.cdn_certificate.certificate_arn
+    cdn_allowed_methods            = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
+    cdn_cached_methods             = ["GET", "HEAD", "OPTIONS"]
+    cdn_cache_ttl                  = 0
+    cdn_aliases                    = toset(["api${var.subdomain_suffix}.${var.domain_name}"])
+    forbidden_ip_addresses_acl_arn = module.waf.forbidden_ip_addresses_acl_arn
+    public_subnet_ids              = module.networking.public_subnet_ids
+  }
+}
+
+module "register_api_database" {
+  source = "./aurora_rds"
+
+  prefix                = "${local.prefix}-reg-api-database"
+  db_name               = "epb"
+  vpc_id                = module.networking.vpc_id
+  subnet_group_name     = module.networking.private_subnet_group_name
+  security_group_ids    = [module.register_api_application.ecs_security_group_id, module.register_sidekiq_application.ecs_security_group_id, module.bastion.security_group_id]
+  storage_backup_period = var.storage_backup_period
+  instance_class        = "db.t3.medium"
+}
+
+module "register_sidekiq_application" {
+  source = "./application"
+
+  prefix         = "${local.prefix}-reg-sidekiq-app"
+  region         = var.region
+  container_port = 80
+  egress_ports   = [80, 443, 5432, local.redis_port]
+  environment_variables = [
+    {
+      name  = "EPB_UNLEASH_URI"
+      value = "http://${module.toggles_application.internal_alb_dns}/api"
+    },
+    {
+      name  = "EPB_WORKER_REDIS_URI"
+      value = module.register_sidekiq_redis.redis_uri
+    },
+  ]
+  secrets            = { "DATABASE_URL" : module.secrets.secret_arns["RDS_API_SERVICE_CONNECTION_STRING"] }
+  parameters         = module.parameter_store.parameter_arns
+  vpc_id             = module.networking.vpc_id
+  private_subnet_ids = module.networking.private_subnet_ids
+  health_check_path  = "/healthcheck"
+  additional_task_role_policy_arns = {
+    "RDS_access" : module.register_api_database.rds_full_access_policy_arn,
+    "Redis_access" : data.aws_iam_policy.elasticache_full_access.arn
+  }
+  aws_cloudwatch_log_group_id   = module.logging.cloudwatch_log_group_id
+  aws_cloudwatch_log_group_name = module.logging.cloudwatch_log_group_name
+  logs_bucket_name              = module.logging.logs_bucket_name
+  logs_bucket_url               = module.logging.logs_bucket_url
+  create_internal_alb           = false
+}
+
+module "register_sidekiq_redis" {
+  source = "./elasticache"
+
+  prefix                        = "${local.prefix}-reg-sidekiq-redis"
+  aws_cloudwatch_log_group_name = module.logging.cloudwatch_log_group_name
+  redis_port                    = local.redis_port
+  subnet_ids                    = module.networking.private_subnet_ids
+  vpc_id                        = module.networking.vpc_id
+}
+
+module "frontend_application" {
+  source = "./application"
+
+  prefix         = "${local.prefix}-frontend-app"
+  region         = var.region
+  container_port = 80
+  egress_ports   = [80, 443, 5432]
+  environment_variables = [
+    {
+      name  = "EPB_API_URL"
+      value = "http://${module.register_api_application.internal_alb_dns}"
+    },
+    {
+      name  = "EPB_AUTH_SERVER"
+      value = "http://${module.auth_application.internal_alb_dns}/auth"
+    },
+    {
+      name  = "EPB_UNLEASH_URI"
+      value = "http://${module.toggles_application.internal_alb_dns}/api"
+    }
+  ]
+  secrets = {}
+  parameters = merge(module.parameter_store.parameter_arns, {
+    "EPB_AUTH_CLIENT_ID" : module.parameter_store.parameter_arns["FRONTEND_EPB_AUTH_CLIENT_ID"],
+    "EPB_AUTH_CLIENT_SECRET" : module.parameter_store.parameter_arns["FRONTEND_EPB_AUTH_CLIENT_SECRET"]
+  })
+  vpc_id                           = module.networking.vpc_id
+  private_subnet_ids               = module.networking.private_subnet_ids
+  health_check_path                = "/healthcheck"
+  additional_task_role_policy_arns = {}
+  aws_cloudwatch_log_group_id      = module.logging.cloudwatch_log_group_id
+  aws_cloudwatch_log_group_name    = module.logging.cloudwatch_log_group_name
+  logs_bucket_name                 = module.logging.logs_bucket_name
+  logs_bucket_url                  = module.logging.logs_bucket_url
+  create_internal_alb              = false
+  front_door_config = {
+    aws_ssl_certificate_arn = module.ssl_certificate.certificate_arn
+    aws_cdn_certificate_arn = module.cdn_certificate.certificate_arn
+    cdn_allowed_methods     = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
+    cdn_cached_methods      = ["GET", "HEAD", "OPTIONS"]
+    cdn_cache_ttl           = 60 # 1 minute
+    cdn_aliases = toset([
+      "find-energy-certificate${var.subdomain_suffix}.${var.domain_name}",
+      "getting-new-energy-certificate${var.subdomain_suffix}.${var.domain_name}"
+    ])
+    forbidden_ip_addresses_acl_arn = module.waf.forbidden_ip_addresses_acl_arn
+    public_subnet_ids              = module.networking.public_subnet_ids
+  }
+}
+
+module "warehouse_application" {
+  source = "./application"
+
+  prefix         = "${local.prefix}-warehouse-app"
+  region         = var.region
+  container_port = 80
+  egress_ports   = [80, 443, 5432, local.redis_port]
+  environment_variables = [
+    {
+      name  = "EPB_API_URL"
+      value = "http://${module.register_api_application.internal_alb_dns}"
+    },
+    {
+      "name"  = "EPB_AUTH_SERVER"
+      "value" = "http://${module.auth_application.internal_alb_dns}/auth"
+    },
+    {
+      name  = "EPB_QUEUES_URI"
+      value = module.warehouse_redis.redis_uri
+    },
+    {
+      name  = "EPB_UNLEASH_URI"
+      value = "http://${module.toggles_application.internal_alb_dns}/api"
+    },
+  ]
+  secrets = { "DATABASE_URL" : module.secrets.secret_arns["RDS_WAREHOUSE_CONNECTION_STRING"] }
+  parameters = merge(module.parameter_store.parameter_arns, {
+    "EPB_AUTH_CLIENT_ID" : module.parameter_store.parameter_arns["WAREHOUSE_EPB_AUTH_CLIENT_ID"],
+    "EPB_AUTH_CLIENT_SECRET" : module.parameter_store.parameter_arns["WAREHOUSE_EPB_AUTH_CLIENT_SECRET"]
+  })
+  vpc_id             = module.networking.vpc_id
+  private_subnet_ids = module.networking.private_subnet_ids
+  health_check_path  = null
+  additional_task_role_policy_arns = {
+    "RDS_access" : module.register_api_database.rds_full_access_policy_arn
+    "Redis_access" : data.aws_iam_policy.elasticache_full_access.arn
+  }
+  aws_cloudwatch_log_group_id   = module.logging.cloudwatch_log_group_id
+  aws_cloudwatch_log_group_name = module.logging.cloudwatch_log_group_name
+  logs_bucket_name              = module.logging.logs_bucket_name
+  logs_bucket_url               = module.logging.logs_bucket_url
+  create_internal_alb           = false
+}
+
+module "warehouse_database" {
+  source = "./aurora_rds"
+
+  prefix                = "${local.prefix}-warehouse-database"
+  db_name               = "epb"
+  vpc_id                = module.networking.vpc_id
+  subnet_group_name     = module.networking.private_subnet_group_name
+  security_group_ids    = [module.warehouse_application.ecs_security_group_id, module.bastion.security_group_id]
+  storage_backup_period = var.storage_backup_period
+  instance_class        = "db.t3.medium"
+}
+
+module "warehouse_redis" {
+  source = "./elasticache"
+
+  prefix                        = "${local.prefix}-warehouse-redis"
+  aws_cloudwatch_log_group_name = module.logging.cloudwatch_log_group_name
+  redis_port                    = local.redis_port
+  subnet_ids                    = module.networking.private_subnet_ids
+  vpc_id                        = module.networking.vpc_id
+}
+
 module "bastion" {
   source = "./bastion"
 
   subnet_id = module.networking.private_subnet_ids[0]
   vpc_id    = module.networking.vpc_id
   rds_access_policy_arns = {
-    "Auth" : module.rds_auth_service.rds_full_access_policy_arn
-    "API" : module.rds_api_service.rds_full_access_policy_arn
-    "Toggles" : module.rds_toggles.rds_full_access_policy_arn
-    "Warehouse" : module.rds_warehouse.rds_full_access_policy_arn
+    "Auth" : module.auth_database.rds_full_access_policy_arn
+    "API" : module.register_api_database.rds_full_access_policy_arn
+    "Toggles" : module.toggles_database.rds_full_access_policy_arn
+    "Warehouse" : module.warehouse_database.rds_full_access_policy_arn
   }
 }
+
+# logging and alerts
+
+module "logging" {
+  source = "./logging"
+
+  prefix      = local.prefix
+  environment = var.environment
+}
+
+module "alerts" {
+  source = "./alerts"
+
+  prefix                    = local.prefix
+  environment               = var.environment
+  cloudwatch_log_group_id   = module.logging.cloudwatch_log_group_id
+  cloudwatch_log_group_name = module.logging.cloudwatch_log_group_name
+  ecs_services = {
+    api_service = {
+      cluster_name = module.register_api_application.ecs_cluster_name
+      service_name = module.register_api_application.ecs_service_name
+    },
+    auth_service = {
+      cluster_name = module.auth_application.ecs_cluster_name
+      service_name = module.auth_application.ecs_service_name
+    },
+    frontend = {
+      cluster_name = module.frontend_application.ecs_cluster_name
+      service_name = module.frontend_application.ecs_service_name
+    },
+    toggles = {
+      cluster_name = module.toggles_application.ecs_cluster_name
+      service_name = module.toggles_application.ecs_service_name
+    },
+    sidekiq_service = {
+      cluster_name = module.register_sidekiq_application.ecs_cluster_name
+      service_name = module.register_sidekiq_application.ecs_service_name
+    },
+    warehouse = {
+      cluster_name = module.warehouse_application.ecs_cluster_name
+      service_name = module.warehouse_application.ecs_service_name
+    },
+  }
+
+  rds_instances = {
+    auth_service = module.auth_database.rds_instance_identifier
+    toggles      = module.toggles_database.rds_instance_identifier
+  }
+
+  rds_clusters = {
+    warehouse   = module.warehouse_database.rds_cluster_identifier
+    api_service = module.register_api_database.rds_cluster_identifier
+  }
+
+  #  albs = {
+  #    api_service = module.ecs_api_service.alb_arn
+  #  }
+}
+
+# migration applications
 
 module "data_migration_shared" {
   source = "./data_migration_shared"
@@ -491,12 +553,12 @@ module "data_migration_shared" {
   prefix = "${local.prefix}-data-migration"
 }
 
-module "data_migration_auth_service" {
+module "data_migration_auth_application" {
   source = "./data_migration"
 
-  prefix                              = "${local.prefix}-auth-migration"
+  prefix                              = "${local.prefix}-auth-migration-app"
   region                              = var.region
-  rds_full_access_policy_arn          = module.rds_auth_service.rds_full_access_policy_arn
+  rds_full_access_policy_arn          = module.auth_database.rds_full_access_policy_arn
   rds_db_connection_string_secret_arn = module.secrets.secret_arns["RDS_AUTH_SERVICE_CONNECTION_STRING"]
   backup_file                         = "epbr-auth-integration.dump"
   ecr_repository_url                  = module.data_migration_shared.ecr_repository_url
@@ -505,12 +567,12 @@ module "data_migration_auth_service" {
   log_group                           = module.data_migration_shared.log_group
 }
 
-module "data_migration_api_service" {
+module "data_migration_api_application" {
   source = "./data_migration"
 
-  prefix                              = "${local.prefix}-api-migration"
+  prefix                              = "${local.prefix}-api-migration-app"
   region                              = var.region
-  rds_full_access_policy_arn          = module.rds_api_service.rds_full_access_policy_arn
+  rds_full_access_policy_arn          = module.register_api_database.rds_full_access_policy_arn
   rds_db_connection_string_secret_arn = module.secrets.secret_arns["RDS_API_SERVICE_CONNECTION_STRING"]
   backup_file                         = "epbr-api-integration.dump"
   ecr_repository_url                  = module.data_migration_shared.ecr_repository_url
@@ -522,12 +584,12 @@ module "data_migration_api_service" {
   minimum_memory_mb = 4096
 }
 
-module "data_migration_toggles" {
+module "data_migration_toggles_application" {
   source = "./data_migration"
 
-  prefix                              = "${local.prefix}-toggles-migration"
+  prefix                              = "${local.prefix}-toggles-migration-app"
   region                              = var.region
-  rds_full_access_policy_arn          = module.rds_toggles.rds_full_access_policy_arn
+  rds_full_access_policy_arn          = module.toggles_database.rds_full_access_policy_arn
   rds_db_connection_string_secret_arn = module.secrets.secret_arns["RDS_TOGGLES_CONNECTION_STRING"]
   backup_file                         = "epbr-toggles-integration.dump"
   ecr_repository_url                  = module.data_migration_shared.ecr_repository_url
@@ -536,12 +598,12 @@ module "data_migration_toggles" {
   log_group                           = module.data_migration_shared.log_group
 }
 
-module "data_migration_warehouse" {
+module "data_migration_warehouse_application" {
   source = "./data_migration"
 
-  prefix                              = "${local.prefix}-warehouse-migration"
+  prefix                              = "${local.prefix}-warehouse-migration-app"
   region                              = var.region
-  rds_full_access_policy_arn          = module.rds_warehouse.rds_full_access_policy_arn
+  rds_full_access_policy_arn          = module.warehouse_database.rds_full_access_policy_arn
   rds_db_connection_string_secret_arn = module.secrets.secret_arns["RDS_WAREHOUSE_CONNECTION_STRING"]
   backup_file                         = "epbr-data-warehouse-integration.dump"
   ecr_repository_url                  = module.data_migration_shared.ecr_repository_url
