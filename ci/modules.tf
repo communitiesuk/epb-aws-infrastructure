@@ -1,20 +1,20 @@
 module "artefact" {
-  source = "../modules/artifact_bucket"
+  source = "./modules/artifact_bucket"
   region = var.region
 }
 
 module "codestar_connection" {
-  source = "../modules/codestar_connection"
+  source = "./modules/codestar_connection"
   region = var.region
 }
 
 module "codepipeline_role" {
-  source = "../modules/codepipeline_role"
+  source = "./modules/codepipeline_role"
   region = var.region
 }
 
 module "codebuild_role" {
-  source                  = "../modules/service_codebuild_role"
+  source                  = "./modules/service_codebuild_role"
   codepipeline_bucket_arn = module.artefact.codepipeline_bucket_arn
   cross_account_role_arns = var.cross_account_role_arns
   codestar_connection_arn = module.codestar_connection.codestar_connection_arn
@@ -26,7 +26,7 @@ module "app_test_image_pipeline" {
   artefact_bucket         = module.artefact.codepipeline_bucket
   artefact_bucket_arn     = module.artefact.codepipeline_bucket_arn
   configuration           = "aws-ruby-node"
-  source                  = "../modules/build_test_image_pipeline"
+  source                  = "./modules/build_test_image_pipeline"
   codepipeline_arn        = module.codepipeline_role.aws_codepipeline_arn
   github_repository       = "epb-docker-images"
   github_branch           = "master"
@@ -40,7 +40,7 @@ module "postgres_test_image_pipeline" {
   artefact_bucket         = module.artefact.codepipeline_bucket
   artefact_bucket_arn     = module.artefact.codepipeline_bucket_arn
   configuration           = "postgres"
-  source                  = "../modules/build_test_image_pipeline"
+  source                  = "./modules/build_test_image_pipeline"
   codepipeline_arn        = module.codepipeline_role.aws_codepipeline_arn
   github_repository       = "epb-docker-images"
   github_branch           = "master"
@@ -51,7 +51,7 @@ module "postgres_test_image_pipeline" {
 }
 
 module "auth-server-pipeline" {
-  source                  = "../modules/auth_server_pipeline"
+  source                  = "./modules/auth_server_pipeline"
   aws_arm_codebuild_image = var.aws_arm_codebuild_image
   codepipeline_bucket     = module.artefact.codepipeline_bucket
   codepipeline_arn        = module.codepipeline_role.aws_codepipeline_arn
@@ -72,7 +72,7 @@ module "auth-server-pipeline" {
 }
 
 module "register-api-pipeline" {
-  source                  = "../modules/register_api_pipeline"
+  source                  = "./modules/register_api_pipeline"
   codepipeline_bucket     = module.artefact.codepipeline_bucket
   codepipeline_arn        = module.codepipeline_role.aws_codepipeline_arn
   codebuild_role_arn      = module.codebuild_role.aws_codebuild_role_arn
@@ -95,7 +95,7 @@ module "register-api-pipeline" {
 }
 
 module "frontend-pipeline" {
-  source                  = "../modules/frontend_pipeline"
+  source                  = "./modules/frontend_pipeline"
   codepipeline_bucket     = module.artefact.codepipeline_bucket
   codepipeline_arn        = module.codepipeline_role.aws_codepipeline_arn
   codebuild_role_arn      = module.codebuild_role.aws_codebuild_role_arn
@@ -117,7 +117,7 @@ module "frontend-pipeline" {
 }
 
 module "data_warehouse-pipeline" {
-  source                  = "../modules/data_warehouse_pipeline"
+  source                  = "./modules/data_warehouse_pipeline"
   codepipeline_bucket     = module.artefact.codepipeline_bucket
   codepipeline_arn        = module.codepipeline_role.aws_codepipeline_arn
   codebuild_role_arn      = module.codebuild_role.aws_codebuild_role_arn
@@ -138,7 +138,7 @@ module "data_warehouse-pipeline" {
 }
 
 module "toggles-pipeline" {
-  source                  = "../modules/toggles_pipeline"
+  source                  = "./modules/toggles_pipeline"
   codepipeline_bucket     = module.artefact.codepipeline_bucket
   codepipeline_arn        = module.codepipeline_role.aws_codepipeline_arn
   codebuild_role_arn      = module.codebuild_role.aws_codebuild_role_arn
@@ -152,7 +152,6 @@ module "toggles-pipeline" {
   ecs_service_name        = "epb-intg-toggles"
   app_ecr_name            = "epb-intg-toggles-ecr"
   project_name            = "epbr-toggles"
-  codebuild_image_ecr_url = module.app_test_image_pipeline.image_repository_url
   region                  = var.region
   aws_arm_codebuild_image = var.aws_arm_codebuild_image
 }

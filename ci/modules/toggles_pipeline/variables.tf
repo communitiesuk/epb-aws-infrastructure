@@ -6,10 +6,6 @@ variable "app_ecr_name" {
   type = string
 }
 
-variable "codebuild_image_ecr_url" {
-  type = string
-}
-
 variable "codebuild_role_arn" {
   type = string
 }

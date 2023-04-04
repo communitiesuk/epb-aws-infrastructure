@@ -1,4 +1,6 @@
-# EPBR Code Pipelines
+# EPBR CI (Continuous Integration)
+
+This is repo for terraforming resources in the EPBR CI account, including code pipelines.
 
 ## Local AWS profile management
 
@@ -48,7 +50,7 @@ The code pipelines reside in the AWS CICD account, but need access to the AWS ac
 The account IDs of any service environments need to be referenced from a local file you'll need to add. This file is in
 the .gitignore and not a public parameter. To set this up:
 
-1. Change your current working directory to `/code-pipeline/service-pipelines`
+1. Change your current working directory to `/ci`
 2. Create a file `.auto.tfvars` in that directory
 3. In the file add the following, replacing `{aws_integration_account_id}` with the integration account ID  
    `account_ids = { {environment_name}="{aws_environment_account_id}" }`
@@ -61,7 +63,7 @@ the .gitignore and not a public parameter. To set this up:
 
 ## Setup making changes
 
-1. Make sure you have changed your current working directory to `code-pipeline/service-pipelines`
+1. Make sure you have changed your current working directory to `ci`
 
 2. Initialize your Terraform environment  
     `aws-vault exec {aws_profile_name_for_CICD_environment} -- terraform init -backend-config=backend_cicd.hcl`  
@@ -85,9 +87,9 @@ Example:
 Each pipeline is a module which can be accessed from the `/modules/` directory
 
 Many of the resources required for each pipeline (eg. s3 bucket, codestar connector and code pipeline roles are)
-terraformed as global resources in the `code-pipeline/service-pipelines/modules.tf` file
+terraformed as global resources in the `ci/modules.tf` file
 
-These resources are then passed into each individual pipeline, see `/service-pipelines/modules.tf`
+These resources are then passed into each individual pipeline, see `ci/modules.tf`
 
 One exception is the code build role. Permission for this depend on whether the pipeline requires access to resources in
 a different account e.g. the auth server, or the same account e.g. the code build image pipeline. For the latter it uses
@@ -97,7 +99,7 @@ a code build role that has fewer permissions than the former
 
 * Create a new module with the new name of pipeline you wish to add
 * Add a code_pipleline.tf file and add your pipeline using the pre-existing global resources
-* Include the module in the `code-pipeline/service-pipelines/modules.tf` file passing in any resources required.
+* Include the module in the `ci/modules.tf` file passing in any resources required.
 * Adding a new module will require you to re-initialise the Terraform in the same way as in step 3
 
 ## Linting with tflint
