@@ -1,5 +1,3 @@
-
-
 # Create a CloudWatch alarm for ECS CPU usage
 resource "aws_cloudwatch_metric_alarm" "ecs_cpu_usage" {
   for_each = var.ecs_services

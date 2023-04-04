@@ -3,7 +3,6 @@ module "front_door" {
   count  = var.front_door_config != null ? 1 : 0
 
   prefix            = var.prefix
-  region            = var.region
   container_port    = var.container_port
   health_check_path = var.health_check_path
   vpc_id            = var.vpc_id
