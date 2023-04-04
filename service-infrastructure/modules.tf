@@ -45,6 +45,20 @@ module "alerts" {
       service_name = module.ecs_warehouse.ecs_service_name
     },
   }
+
+  rds_instances = {
+    auth_service = module.rds_auth_service.rds_instance_identifier
+    toggles      = module.rds_toggles.rds_instance_identifier
+  }
+
+  rds_clusters = {
+    warehouse   = module.rds_warehouse.rds_cluster_identifier
+    api_service = module.rds_api_service.rds_cluster_identifier
+  }
+
+  albs = {
+    api_service = module.ecs_api_service.alb_arn
+  }
 }
 
 module "access" {

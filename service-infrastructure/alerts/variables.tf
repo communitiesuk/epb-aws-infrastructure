@@ -21,9 +21,10 @@ variable "ecs_services" {
   }))
 }
 
-# variable "rds_instances" {
-#   type = list(object({
-#     cluster_name = string
-#     service_name = string
-#   }))
-# }
+variable "rds_instances" {
+  type = map(string)
+}
+
+variable "rds_clusters" {
+  type = map(string)
+}

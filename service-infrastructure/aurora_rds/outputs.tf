@@ -2,6 +2,10 @@ output "rds_full_access_policy_arn" {
   value = aws_iam_policy.rds.arn
 }
 
+output "rds_cluster_identifier" {
+  value = aws_rds_cluster.this.cluster_identifier
+}
+
 output "rds_db_password" {
   value = aws_rds_cluster.this.master_password
 }
