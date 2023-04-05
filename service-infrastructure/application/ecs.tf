@@ -60,7 +60,7 @@ resource "aws_ecs_task_definition" "this" {
         { Name = "FLB_LOG_LEVEL", Value = "debug" },
         { Name = "LOG_LEVEL", Value = "debug" },
         { Name = "LOG_GROUP_NAME", Value = var.aws_cloudwatch_log_group_name },
-        { Name = "LOG_STREAM_NAME", Value = "${var.prefix}" }
+        { Name = "LOG_STREAM_NAME", Value = var.prefix }
       ]
 
       secrets = [for value in ["LOGSTASH_HOST", "LOGSTASH_PORT"] : {
