@@ -115,3 +115,23 @@ resource "aws_iam_role_policy" "cloudwatch_logs_access" {
       ]
   })
 }
+
+resource "aws_iam_role_policy" "firehose_put_record" {
+  name = "${var.prefix}-firehose-put-record"
+  role = aws_iam_role.ecs_task_role.id
+
+  policy = jsonencode(
+    {
+      Version = "2012-10-17"
+      Statement = [
+        {
+          Action = [
+            "firehose:PutRecord",
+            "firehose:PutRecordBatch"
+          ]
+          Effect   = "Allow"
+          Resource = "*"
+        }
+      ]
+  })
+}
