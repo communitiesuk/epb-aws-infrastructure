@@ -110,18 +110,24 @@ module "secrets" {
   source = "./secrets"
 
   secrets = {
-    "RDS_AUTH_SERVICE_PASSWORD" : module.auth_database.rds_db_password
-    "RDS_AUTH_SERVICE_USERNAME" : module.auth_database.rds_db_username
-    "RDS_AUTH_SERVICE_CONNECTION_STRING" : module.auth_database.rds_db_connection_string
+    "EPB_API_URL" : "http://${module.register_api_application.internal_alb_dns}"
+    "EPB_AUTH_SERVER" : "http://${module.auth_application.internal_alb_dns}/auth"
+    "EPB_DATA_WAREHOUSE_QUEUES_URI" : module.warehouse_redis.redis_uri
+    "EPB_QUEUES_URI" : module.warehouse_redis.redis_uri
+    "EPB_UNLEASH_URI" : "http://${module.toggles_application.internal_alb_dns}/api"
+    "EPB_WORKER_REDIS_URI" : module.register_sidekiq_redis.redis_uri
+    "RDS_API_SERVICE_CONNECTION_STRING" : module.register_api_database.rds_db_connection_string
     "RDS_API_SERVICE_PASSWORD" : module.register_api_database.rds_db_password
     "RDS_API_SERVICE_USERNAME" : module.register_api_database.rds_db_username
-    "RDS_API_SERVICE_CONNECTION_STRING" : module.register_api_database.rds_db_connection_string
-    "RDS_WAREHOUSE_PASSWORD" : module.warehouse_database.rds_db_password
-    "RDS_WAREHOUSE_USERNAME" : module.warehouse_database.rds_db_username
-    "RDS_WAREHOUSE_CONNECTION_STRING" : module.warehouse_database.rds_db_connection_string
+    "RDS_AUTH_SERVICE_CONNECTION_STRING" : module.auth_database.rds_db_connection_string
+    "RDS_AUTH_SERVICE_PASSWORD" : module.auth_database.rds_db_password
+    "RDS_AUTH_SERVICE_USERNAME" : module.auth_database.rds_db_username
     "RDS_TOGGLES_CONNECTION_STRING" : module.toggles_database.rds_db_connection_string
     "RDS_TOGGLES_PASSWORD" : module.toggles_database.rds_db_password
     "RDS_TOGGLES_USERNAME" : module.toggles_database.rds_db_username
+    "RDS_WAREHOUSE_CONNECTION_STRING" : module.warehouse_database.rds_db_connection_string
+    "RDS_WAREHOUSE_PASSWORD" : module.warehouse_database.rds_db_password
+    "RDS_WAREHOUSE_USERNAME" : module.warehouse_database.rds_db_username
     "RDS_TEST_PASSWORD" : module.rds_test.rds_db_password
   }
 }
@@ -130,35 +136,48 @@ module "parameter_store" {
   source = "./parameter_store"
 
   parameters = {
+    "APP_ENV" : "String"
+    "EPB_TEAM_SLACK_URL" : "SecureString"
+    "EPB_UNLEASH_AUTH_TOKEN" : "SecureString"
+    "FRONTEND_EPB_AUTH_CLIENT_ID" : "SecureString"
+    "FRONTEND_EPB_AUTH_CLIENT_SECRET" : "SecureString"
     "JWT_ISSUER" : "SecureString"
     "JWT_SECRET" : "SecureString"
     "LANG" : "String"
-    "VALID_DOMESTIC_SCHEMAS" : "String"
-    "VALID_NON_DOMESTIC_SCHEMAS" : "String"
-    "STAGE" : "String"
-    "FRONTEND_EPB_AUTH_CLIENT_ID" : "SecureString"
-    "FRONTEND_EPB_AUTH_CLIENT_SECRET" : "SecureString"
-    "WAREHOUSE_EPB_AUTH_CLIENT_ID" : "SecureString"
-    "WAREHOUSE_EPB_AUTH_CLIENT_SECRET" : "SecureString"
-    "EPB_UNLEASH_AUTH_TOKEN" : "SecureString"
-    "TOGGLES_SECRET" : "SecureString"
     "LOGSTASH_HOST" : "SecureString"
     "LOGSTASH_PORT" : "SecureString"
-    "RACK_ENV" : "String"
-    "APP_ENV" : "String"
-    "EPB_TEAM_SLACK_URL" : "SecureString"
     "OPEN_DATA_REPORT_TYPE" : "String"
     "OS_DATA_HUB_API_KEY" : "SecureString"
+    "RACK_ENV" : "String"
     "SLACK_EPB_BOT_TOKEN" : "SecureString"
+    "STAGE" : "String"
+    "TOGGLES_SECRET" : "SecureString"
+    "VALID_DOMESTIC_SCHEMAS" : "String"
+    "VALID_NON_DOMESTIC_SCHEMAS" : "String"
+    "WAREHOUSE_EPB_AUTH_CLIENT_ID" : "SecureString"
+    "WAREHOUSE_EPB_AUTH_CLIENT_SECRET" : "SecureString"
   }
 }
 
-# applications
+# applications and backing services
+
+module "toggles_database" {
+  source = "./rds"
+
+  prefix                = "${local.prefix}-toggles"
+  db_name               = "unleash"
+  vpc_id                = module.networking.vpc_id
+  subnet_group_name     = module.networking.private_subnet_group_name
+  security_group_ids    = [module.toggles_application.ecs_security_group_id, module.bastion.security_group_id]
+  storage_backup_period = 1
+  storage_size          = 5
+  instance_class        = "db.t3.micro"
+}
 
 module "toggles_application" {
   source = "./application"
 
-  prefix                = "${local.prefix}-toggles-app"
+  prefix                = "${local.prefix}-toggles"
   region                = var.region
   container_port        = 4242
   egress_ports          = [80, 443, 5432]
@@ -187,33 +206,18 @@ module "toggles_application" {
   }
 }
 
-module "toggles_database" {
-  source = "./rds"
-
-  prefix                = "${local.prefix}-toggles-database"
-  db_name               = "unleash"
-  vpc_id                = module.networking.vpc_id
-  subnet_group_name     = module.networking.private_subnet_group_name
-  security_group_ids    = [module.toggles_application.ecs_security_group_id, module.bastion.security_group_id]
-  storage_backup_period = 1
-  storage_size          = 5
-  instance_class        = "db.t3.micro"
-}
-
 module "auth_application" {
   source = "./application"
 
-  prefix         = "${local.prefix}-auth-app"
-  region         = var.region
-  container_port = 80
-  egress_ports   = [80, 443, 5432]
-  environment_variables = [
-    {
-      "name"  = "EPB_UNLEASH_URI"
-      "value" = "http://${module.toggles_application.internal_alb_dns}/api"
-    }
-  ]
-  secrets                          = { "DATABASE_URL" : module.secrets.secret_arns["RDS_AUTH_SERVICE_CONNECTION_STRING"] }
+  prefix                = "${local.prefix}-auth"
+  region                = var.region
+  container_port        = 80
+  egress_ports          = [80, 443, 5432]
+  environment_variables = []
+  secrets = {
+    "DATABASE_URL" : module.secrets.secret_arns["RDS_AUTH_SERVICE_CONNECTION_STRING"],
+    "EPB_UNLEASH_URI" : module.secrets.secret_arns["EPB_UNLEASH_URI"]
+  }
   parameters                       = module.parameter_store.parameter_arns
   vpc_id                           = module.networking.vpc_id
   private_subnet_ids               = module.networking.private_subnet_ids
@@ -264,21 +268,16 @@ module "rds_test" {
 module "register_api_application" {
   source = "./application"
 
-  prefix         = "${local.prefix}-reg-api-app"
-  region         = var.region
-  container_port = 80
-  egress_ports   = [80, 443, 5432, local.redis_port]
-  environment_variables = [
-    {
-      name  = "EPB_UNLEASH_URI"
-      value = "http://${module.toggles_application.internal_alb_dns}/api"
-    },
-    {
-      name  = "EPB_DATA_WAREHOUSE_QUEUES_URI"
-      value = module.warehouse_redis.redis_uri
-    }
-  ]
-  secrets            = { "DATABASE_URL" : module.secrets.secret_arns["RDS_API_SERVICE_CONNECTION_STRING"] }
+  prefix                = "${local.prefix}-reg-api"
+  region                = var.region
+  container_port        = 80
+  egress_ports          = [80, 443, 5432, local.redis_port]
+  environment_variables = []
+  secrets = {
+    "DATABASE_URL" : module.secrets.secret_arns["RDS_API_SERVICE_CONNECTION_STRING"],
+    "EPB_UNLEASH_URI" : module.secrets.secret_arns["EPB_UNLEASH_URI"],
+    "EPB_DATA_WAREHOUSE_QUEUES_URI" : module.secrets.secret_arns["EPB_DATA_WAREHOUSE_QUEUES_URI"]
+  }
   parameters         = module.parameter_store.parameter_arns
   vpc_id             = module.networking.vpc_id
   private_subnet_ids = module.networking.private_subnet_ids
@@ -306,7 +305,7 @@ module "register_api_application" {
 module "register_api_database" {
   source = "./aurora_rds"
 
-  prefix                = "${local.prefix}-reg-api-database"
+  prefix                = "${local.prefix}-reg-api"
   db_name               = "epb"
   vpc_id                = module.networking.vpc_id
   subnet_group_name     = module.networking.private_subnet_group_name
@@ -318,21 +317,16 @@ module "register_api_database" {
 module "register_sidekiq_application" {
   source = "./application"
 
-  prefix         = "${local.prefix}-reg-sidekiq-app"
-  region         = var.region
-  container_port = 80
-  egress_ports   = [80, 443, 5432, local.redis_port]
-  environment_variables = [
-    {
-      name  = "EPB_UNLEASH_URI"
-      value = "http://${module.toggles_application.internal_alb_dns}/api"
-    },
-    {
-      name  = "EPB_WORKER_REDIS_URI"
-      value = module.register_sidekiq_redis.redis_uri
-    },
-  ]
-  secrets            = { "DATABASE_URL" : module.secrets.secret_arns["RDS_API_SERVICE_CONNECTION_STRING"] }
+  prefix                = "${local.prefix}-reg-sidekiq"
+  region                = var.region
+  container_port        = 80
+  egress_ports          = [80, 443, 5432, local.redis_port]
+  environment_variables = []
+  secrets = {
+    "DATABASE_URL" : module.secrets.secret_arns["RDS_API_SERVICE_CONNECTION_STRING"],
+    "EPB_UNLEASH_URI" : module.secrets.secret_arns["EPB_UNLEASH_URI"],
+    "EPB_WORKER_REDIS_URI" : module.secrets.secret_arns["EPB_WORKER_REDIS_URI"]
+  }
   parameters         = module.parameter_store.parameter_arns
   vpc_id             = module.networking.vpc_id
   private_subnet_ids = module.networking.private_subnet_ids
@@ -351,7 +345,7 @@ module "register_sidekiq_application" {
 module "register_sidekiq_redis" {
   source = "./elasticache"
 
-  prefix                        = "${local.prefix}-reg-sidekiq-redis"
+  prefix                        = "${local.prefix}-reg-sidekiq"
   aws_cloudwatch_log_group_name = module.logging.cloudwatch_log_group_name
   redis_port                    = local.redis_port
   subnet_ids                    = module.networking.private_subnet_ids
@@ -361,25 +355,16 @@ module "register_sidekiq_redis" {
 module "frontend_application" {
   source = "./application"
 
-  prefix         = "${local.prefix}-frontend-app"
-  region         = var.region
-  container_port = 80
-  egress_ports   = [80, 443, 5432]
-  environment_variables = [
-    {
-      name  = "EPB_API_URL"
-      value = "http://${module.register_api_application.internal_alb_dns}"
-    },
-    {
-      name  = "EPB_AUTH_SERVER"
-      value = "http://${module.auth_application.internal_alb_dns}/auth"
-    },
-    {
-      name  = "EPB_UNLEASH_URI"
-      value = "http://${module.toggles_application.internal_alb_dns}/api"
-    }
-  ]
-  secrets = {}
+  prefix                = "${local.prefix}-frontend"
+  region                = var.region
+  container_port        = 80
+  egress_ports          = [80, 443, 5432]
+  environment_variables = []
+  secrets = {
+    "EPB_API_URL" : module.secrets.secret_arns["EPB_API_URL"],
+    "EPB_AUTH_SERVER" : module.secrets.secret_arns["EPB_AUTH_SERVER"],
+    "EPB_UNLEASH_URI" : module.secrets.secret_arns["EPB_UNLEASH_URI"]
+  }
   parameters = merge(module.parameter_store.parameter_arns, {
     "EPB_AUTH_CLIENT_ID" : module.parameter_store.parameter_arns["FRONTEND_EPB_AUTH_CLIENT_ID"],
     "EPB_AUTH_CLIENT_SECRET" : module.parameter_store.parameter_arns["FRONTEND_EPB_AUTH_CLIENT_SECRET"]
@@ -411,29 +396,18 @@ module "frontend_application" {
 module "warehouse_application" {
   source = "./application"
 
-  prefix         = "${local.prefix}-warehouse-app"
-  region         = var.region
-  container_port = 80
-  egress_ports   = [80, 443, 5432, local.redis_port]
-  environment_variables = [
-    {
-      name  = "EPB_API_URL"
-      value = "http://${module.register_api_application.internal_alb_dns}"
-    },
-    {
-      "name"  = "EPB_AUTH_SERVER"
-      "value" = "http://${module.auth_application.internal_alb_dns}/auth"
-    },
-    {
-      name  = "EPB_QUEUES_URI"
-      value = module.warehouse_redis.redis_uri
-    },
-    {
-      name  = "EPB_UNLEASH_URI"
-      value = "http://${module.toggles_application.internal_alb_dns}/api"
-    },
-  ]
-  secrets = { "DATABASE_URL" : module.secrets.secret_arns["RDS_WAREHOUSE_CONNECTION_STRING"] }
+  prefix                = "${local.prefix}-warehouse"
+  region                = var.region
+  container_port        = 80
+  egress_ports          = [80, 443, 5432, local.redis_port]
+  environment_variables = []
+  secrets = {
+    "DATABASE_URL" : module.secrets.secret_arns["RDS_WAREHOUSE_CONNECTION_STRING"],
+    "EPB_API_URL" : module.secrets.secret_arns["EPB_API_URL"],
+    "EPB_AUTH_SERVER" : module.secrets.secret_arns["EPB_AUTH_SERVER"],
+    "EPB_QUEUES_URI" : module.secrets.secret_arns["EPB_QUEUES_URI"],
+    "EPB_UNLEASH_URI" : module.secrets.secret_arns["EPB_UNLEASH_URI"]
+  }
   parameters = merge(module.parameter_store.parameter_arns, {
     "EPB_AUTH_CLIENT_ID" : module.parameter_store.parameter_arns["WAREHOUSE_EPB_AUTH_CLIENT_ID"],
     "EPB_AUTH_CLIENT_SECRET" : module.parameter_store.parameter_arns["WAREHOUSE_EPB_AUTH_CLIENT_SECRET"]
@@ -455,7 +429,7 @@ module "warehouse_application" {
 module "warehouse_database" {
   source = "./aurora_rds"
 
-  prefix                = "${local.prefix}-warehouse-database"
+  prefix                = "${local.prefix}-warehouse"
   db_name               = "epb"
   vpc_id                = module.networking.vpc_id
   subnet_group_name     = module.networking.private_subnet_group_name
@@ -467,7 +441,7 @@ module "warehouse_database" {
 module "warehouse_redis" {
   source = "./elasticache"
 
-  prefix                        = "${local.prefix}-warehouse-redis"
+  prefix                        = "${local.prefix}-warehouse"
   aws_cloudwatch_log_group_name = module.logging.cloudwatch_log_group_name
   redis_port                    = local.redis_port
   subnet_ids                    = module.networking.private_subnet_ids
@@ -556,7 +530,7 @@ module "data_migration_shared" {
 module "data_migration_auth_application" {
   source = "./data_migration"
 
-  prefix                              = "${local.prefix}-auth-migration-app"
+  prefix                              = "${local.prefix}-auth-migration"
   region                              = var.region
   rds_full_access_policy_arn          = module.auth_database.rds_full_access_policy_arn
   rds_db_connection_string_secret_arn = module.secrets.secret_arns["RDS_AUTH_SERVICE_CONNECTION_STRING"]
@@ -570,7 +544,7 @@ module "data_migration_auth_application" {
 module "data_migration_api_application" {
   source = "./data_migration"
 
-  prefix                              = "${local.prefix}-api-migration-app"
+  prefix                              = "${local.prefix}-api-migration"
   region                              = var.region
   rds_full_access_policy_arn          = module.register_api_database.rds_full_access_policy_arn
   rds_db_connection_string_secret_arn = module.secrets.secret_arns["RDS_API_SERVICE_CONNECTION_STRING"]
@@ -587,7 +561,7 @@ module "data_migration_api_application" {
 module "data_migration_toggles_application" {
   source = "./data_migration"
 
-  prefix                              = "${local.prefix}-toggles-migration-app"
+  prefix                              = "${local.prefix}-toggles-migration"
   region                              = var.region
   rds_full_access_policy_arn          = module.toggles_database.rds_full_access_policy_arn
   rds_db_connection_string_secret_arn = module.secrets.secret_arns["RDS_TOGGLES_CONNECTION_STRING"]
@@ -601,7 +575,7 @@ module "data_migration_toggles_application" {
 module "data_migration_warehouse_application" {
   source = "./data_migration"
 
-  prefix                              = "${local.prefix}-warehouse-migration-app"
+  prefix                              = "${local.prefix}-warehouse-migration"
   region                              = var.region
   rds_full_access_policy_arn          = module.warehouse_database.rds_full_access_policy_arn
   rds_db_connection_string_secret_arn = module.secrets.secret_arns["RDS_WAREHOUSE_CONNECTION_STRING"]
