@@ -6,6 +6,18 @@ variable "app_ecr_name" {
   type = string
 }
 
+variable "docker_image_app_name" {
+  type = string
+}
+
+variable "docker_image_sidekiq_name" {
+  type = string
+}
+
+variable "sidekiq_ecr_name" {
+  type = string
+}
+
 variable "codebuild_image_ecr_url" {
   type = string
 }
@@ -30,7 +42,15 @@ variable "ecs_cluster_name" {
   type = string
 }
 
+variable "ecs_sidekiq_cluster_name" {
+  type = string
+}
+
 variable "ecs_service_name" {
+  type = string
+}
+
+variable "ecs_sidekiq_service_name" {
   type = string
 }
 

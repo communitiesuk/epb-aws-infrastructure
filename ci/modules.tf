@@ -86,10 +86,15 @@ module "register-api-pipeline" {
   ecs_service_name        = "epb-intg-api-service"
   app_ecr_name            = "epb-intg-api-service-ecr"
   project_name            = "epbr-register-api"
+  ecs_sidekiq_cluster_name = "epb-intg-sidekiq-cluster"
+  ecs_sidekiq_service_name = "epb-intg-sidekiq"
+  docker_image_app_name    = "ebpr-register-api-image"
+  docker_image_sidekiq_name = "epb-register-api-worker"
   codebuild_image_ecr_url = module.app_test_image_pipeline.image_repository_url
   postgres_image_ecr_url  = module.postgres_test_image_pipeline.image_repository_url
   region                  = var.region
   aws_arm_codebuild_image = var.aws_arm_codebuild_image
+  sidekiq_ecr_name        = "epb-intg-sidekiq-ecr"
   smoketests_repository   = var.smoketests_repository
   smoketests_branch       = var.smoketests_branch
 }
