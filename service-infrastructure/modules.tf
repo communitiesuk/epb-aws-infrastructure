@@ -49,19 +49,22 @@ module "secrets" {
     "EPB_QUEUES_URI" : module.warehouse_redis.redis_uri
     "EPB_UNLEASH_URI" : "http://${module.toggles_application.internal_alb_dns}/api"
     "EPB_WORKER_REDIS_URI" : module.register_sidekiq_redis.redis_uri
+    "ODE_BUCKET_NAME" : module.open_data_export.open_data_export_bucket_name
+    "ODE_BUCKET_ACCESS_KEY" : module.open_data_export.open_data_team_s3_access_key
+    "ODE_BUCKET_SECRET" : module.open_data_export.open_data_team_s3_secret
     "RDS_API_SERVICE_CONNECTION_STRING" : module.register_api_database.rds_db_connection_string
     "RDS_API_SERVICE_PASSWORD" : module.register_api_database.rds_db_password
     "RDS_API_SERVICE_USERNAME" : module.register_api_database.rds_db_username
     "RDS_AUTH_SERVICE_CONNECTION_STRING" : module.auth_database.rds_db_connection_string
     "RDS_AUTH_SERVICE_PASSWORD" : module.auth_database.rds_db_password
     "RDS_AUTH_SERVICE_USERNAME" : module.auth_database.rds_db_username
+    "RDS_TEST_PASSWORD" : module.rds_test.rds_db_password
     "RDS_TOGGLES_CONNECTION_STRING" : module.toggles_database.rds_db_connection_string
     "RDS_TOGGLES_PASSWORD" : module.toggles_database.rds_db_password
     "RDS_TOGGLES_USERNAME" : module.toggles_database.rds_db_username
     "RDS_WAREHOUSE_CONNECTION_STRING" : module.warehouse_database.rds_db_connection_string
     "RDS_WAREHOUSE_PASSWORD" : module.warehouse_database.rds_db_password
     "RDS_WAREHOUSE_USERNAME" : module.warehouse_database.rds_db_username
-    "RDS_TEST_PASSWORD" : module.rds_test.rds_db_password
   }
 }
 
@@ -258,7 +261,8 @@ module "register_sidekiq_application" {
   secrets = {
     "DATABASE_URL" : module.secrets.secret_arns["RDS_API_SERVICE_CONNECTION_STRING"],
     "EPB_UNLEASH_URI" : module.secrets.secret_arns["EPB_UNLEASH_URI"],
-    "EPB_WORKER_REDIS_URI" : module.secrets.secret_arns["EPB_WORKER_REDIS_URI"]
+    "EPB_WORKER_REDIS_URI" : module.secrets.secret_arns["EPB_WORKER_REDIS_URI"],
+    "ODE_BUCKET_NAME" : module.secrets.secret_arns["ODE_BUCKET_NAME"]
   }
   parameters         = module.parameter_store.parameter_arns
   vpc_id             = module.networking.vpc_id
@@ -266,7 +270,8 @@ module "register_sidekiq_application" {
   health_check_path  = "/healthcheck"
   additional_task_role_policy_arns = {
     "RDS_access" : module.register_api_database.rds_full_access_policy_arn,
-    "Redis_access" : data.aws_iam_policy.elasticache_full_access.arn
+    "Redis_access" : data.aws_iam_policy.elasticache_full_access.arn,
+    "OpenDataExport_S3_access" : module.open_data_export.open_data_s3_write_access_policy_arn
   }
   aws_cloudwatch_log_group_id   = module.logging.cloudwatch_log_group_id
   aws_cloudwatch_log_group_name = module.logging.cloudwatch_log_group_name
@@ -525,4 +530,10 @@ module "data_migration_warehouse_application" {
 
   minimum_cpu       = 1024
   minimum_memory_mb = 2048
+}
+
+module "open_data_export" {
+  source = "./open_data_export"
+
+  prefix = "${local.prefix}-open-data-export"
 }
