@@ -12,66 +12,6 @@ module "logging" {
   environment = var.environment
 }
 
-module "alerts" {
-  source = "./alerts"
-
-  prefix                    = local.prefix
-  environment               = var.environment
-  cloudwatch_log_group_id   = module.logging.cloudwatch_log_group_id
-  cloudwatch_log_group_name = module.logging.cloudwatch_log_group_name
-  ecs_services = {
-    api_service = {
-      cluster_name = module.ecs_api_service.ecs_cluster_name
-      service_name = module.ecs_api_service.ecs_service_name
-    },
-    auth_service = {
-      cluster_name = module.ecs_auth_service.ecs_cluster_name
-      service_name = module.ecs_auth_service.ecs_service_name
-    },
-    frontend = {
-      cluster_name = module.frontend.ecs_cluster_name
-      service_name = module.frontend.ecs_service_name
-    },
-    toggles = {
-      cluster_name = module.ecs_toggles.ecs_cluster_name
-      service_name = module.ecs_toggles.ecs_service_name
-    },
-    sidekiq_service = {
-      cluster_name = module.ecs_sidekiq_service.ecs_cluster_name
-      service_name = module.ecs_sidekiq_service.ecs_service_name
-    },
-    warehouse = {
-      cluster_name = module.ecs_warehouse.ecs_cluster_name
-      service_name = module.ecs_warehouse.ecs_service_name
-    },
-  }
-
-  rds_instances = {
-    auth_service = module.rds_auth_service.rds_instance_identifier
-    toggles      = module.rds_toggles.rds_instance_identifier
-  }
-
-  rds_clusters = {
-    warehouse   = module.rds_warehouse.rds_cluster_identifier
-    api_service = module.rds_api_service.rds_cluster_identifier
-  }
-
-  albs = { for k, v in {
-    auth_service             = module.ecs_auth_service.front_door_alb_arn_suffix
-    auth_service_internal    = module.ecs_auth_service.internal_alb_arn_suffix
-    api_service              = module.ecs_api_service.front_door_alb_arn_suffix
-    api_service_internal     = module.ecs_api_service.internal_alb_arn_suffix
-    toggles                  = module.ecs_toggles.front_door_alb_arn_suffix
-    toggles_internal         = module.ecs_toggles.internal_alb_arn_suffix
-    frontend                 = module.frontend.front_door_alb_arn_suffix
-    frontend_internal        = module.frontend.internal_alb_arn_suffix
-    sidekiq_service          = module.ecs_sidekiq_service.front_door_alb_arn_suffix
-    sidekiq_service_internal = module.ecs_sidekiq_service.internal_alb_arn_suffix
-    warehouse                = module.ecs_warehouse.front_door_alb_arn_suffix
-    warehouse_internal       = module.ecs_warehouse.internal_alb_arn_suffix
-  } : k => v if v != "" }
-}
-
 module "access" {
   source = "./access"
 
@@ -514,9 +454,20 @@ module "alerts" {
     api_service = module.register_api_database.rds_cluster_identifier
   }
 
-  #  albs = {
-  #    api_service = module.ecs_api_service.alb_arn
-  #  }
+  albs = { for k, v in {
+    auth_service             = module.auth_application.front_door_alb_arn_suffix
+    auth_service_internal    = module.auth_application.internal_alb_arn_suffix
+    api_service              = module.register_api_application.front_door_alb_arn_suffix
+    api_service_internal     = module.register_api_application.internal_alb_arn_suffix
+    toggles                  = module.toggles_application.front_door_alb_arn_suffix
+    toggles_internal         = module.toggles_application.internal_alb_arn_suffix
+    frontend                 = module.frontend_application.front_door_alb_arn_suffix
+    frontend_internal        = module.frontend_application.internal_alb_arn_suffix
+    sidekiq_service          = module.register_sidekiq_application.front_door_alb_arn_suffix
+    sidekiq_service_internal = module.register_sidekiq_application.internal_alb_arn_suffix
+    warehouse                = module.warehouse_application.front_door_alb_arn_suffix
+    warehouse_internal       = module.warehouse_application.internal_alb_arn_suffix
+  } : k => v if v != "" }
 }
 
 # migration applications
