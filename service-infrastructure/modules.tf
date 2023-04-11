@@ -172,7 +172,9 @@ module "ecs_api_service" {
     }
   ]
   secrets            = { "DATABASE_URL" : module.secrets.secret_arns["RDS_API_SERVICE_CONNECTION_STRING"] }
-  parameters         = module.parameter_store.parameter_arns
+  parameters         =  merge(module.parameter_store.parameter_arns, {
+    "SENTRY_DSN" : module.parameter_store.parameter_arns["epbr-sentry-dsn-register-api"]
+    })
   vpc_id             = module.networking.vpc_id
   private_subnet_ids = module.networking.private_subnet_ids
   health_check_path  = "/healthcheck"
@@ -214,7 +216,9 @@ module "ecs_sidekiq_service" {
     },
   ]
   secrets            = { "DATABASE_URL" : module.secrets.secret_arns["RDS_API_SERVICE_CONNECTION_STRING"] }
-  parameters         = module.parameter_store.parameter_arns
+  parameters         =  merge(module.parameter_store.parameter_arns, {
+    "SENTRY_DSN" : module.parameter_store.parameter_arns["epbr-sentry-dsn-register-worker"]
+  })
   vpc_id             = module.networking.vpc_id
   private_subnet_ids = module.networking.private_subnet_ids
   health_check_path  = "/healthcheck"
@@ -280,6 +284,7 @@ module "ecs_warehouse" {
   parameters = merge(module.parameter_store.parameter_arns, {
     "EPB_AUTH_CLIENT_ID" : module.parameter_store.parameter_arns["WAREHOUSE_EPB_AUTH_CLIENT_ID"],
     "EPB_AUTH_CLIENT_SECRET" : module.parameter_store.parameter_arns["WAREHOUSE_EPB_AUTH_CLIENT_SECRET"]
+    "SENTRY_DSN" : module.parameter_store.parameter_arns["epbr-sentry-dsn-data-warehouse"]
   })
   vpc_id             = module.networking.vpc_id
   private_subnet_ids = module.networking.private_subnet_ids
@@ -387,6 +392,7 @@ module "frontend" {
   parameters = merge(module.parameter_store.parameter_arns, {
     "EPB_AUTH_CLIENT_ID" : module.parameter_store.parameter_arns["FRONTEND_EPB_AUTH_CLIENT_ID"],
     "EPB_AUTH_CLIENT_SECRET" : module.parameter_store.parameter_arns["FRONTEND_EPB_AUTH_CLIENT_SECRET"]
+    "SENTRY_DSN" : module.parameter_store.parameter_arns["epbr-sentry-dsn-frontend"]
   })
   vpc_id                           = module.networking.vpc_id
   private_subnet_ids               = module.networking.private_subnet_ids
@@ -455,6 +461,12 @@ module "parameter_store" {
     "OPEN_DATA_REPORT_TYPE" : "String"
     "OS_DATA_HUB_API_KEY" : "SecureString"
     "SLACK_EPB_BOT_TOKEN" : "SecureString"
+    "epbr-sentry-dsn-auth-server" : "SecureString"
+    "epbr-sentry-dsn-data-warehouse" : "SecureString"
+    "epbr-sentry-dsn-register-api" : "SecureString"
+    "epbr-sentry-dsn-register-worker" : "SecureString"
+    "epbr-sentry-dsn-frontend" : "SecureString"
+
   }
 }
 
