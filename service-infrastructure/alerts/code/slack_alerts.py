@@ -54,19 +54,8 @@ def register_alarm(alarm):
                 "type": "header",
                 "text": {
                     "type": "plain_text",
-                    "text": f":warning: {alarm['name']} alarm was registered"
+                    "text": f":new: {alarm['name']} alarm was registered"
                 }
-            },
-            {
-                "type": "divider"
-            },
-            {
-                "type": "section",
-                "text": {
-                    "type": "mrkdwn",
-                    "text": f"_{alarm['description']}_"
-                },
-                "block_id": "text1"
             },
             {
                 "type": "divider"
