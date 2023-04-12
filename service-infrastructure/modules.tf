@@ -154,6 +154,19 @@ module "rds_auth_service" {
   instance_class        = "db.t3.micro"
 }
 
+module "rds_test" {
+  source = "./rds"
+
+  prefix                = "${local.prefix}-test"
+  db_name               = "epb"
+  vpc_id                = module.networking.vpc_id
+  subnet_group_name     = module.networking.private_subnet_group_name
+  security_group_ids    = [module.ecs_auth_service.ecs_security_group_id, module.bastion.security_group_id]
+  storage_backup_period = 1 # to prevent weird behaviour when the backup window is set to 0
+  storage_size          = 5
+  instance_class        = "db.t3.micro"
+}
+
 module "ecs_api_service" {
   source = "./service"
 
@@ -428,6 +441,7 @@ module "secrets" {
     "RDS_TOGGLES_CONNECTION_STRING" : module.rds_toggles.rds_db_connection_string
     "RDS_TOGGLES_PASSWORD" : module.rds_toggles.rds_db_password
     "RDS_TOGGLES_USERNAME" : module.rds_toggles.rds_db_username
+    "RDS_TEST_PASSWORD" : module.rds_test.rds_db_password
   }
 }
 
