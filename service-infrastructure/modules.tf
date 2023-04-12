@@ -5,13 +5,6 @@ module "networking" {
   region = var.region
 }
 
-module "logging" {
-  source = "./logging"
-
-  prefix      = local.prefix
-  environment = var.environment
-}
-
 module "access" {
   source = "./access"
 
