@@ -446,16 +446,13 @@ module "alerts" {
   }
 
   albs = {
-    auth_service             = module.auth_application.front_door_alb_arn_suffix
-    auth_service_internal    = module.auth_application.internal_alb_arn_suffix
-    api_service              = module.register_api_application.front_door_alb_arn_suffix
-    api_service_internal     = module.register_api_application.internal_alb_arn_suffix
-    toggles                  = module.toggles_application.front_door_alb_arn_suffix
-    toggles_internal         = module.toggles_application.internal_alb_arn_suffix
-    frontend                 = module.frontend_application.front_door_alb_arn_suffix
-    frontend_internal        = module.frontend_application.internal_alb_arn_suffix
-    sidekiq_service_internal = module.register_sidekiq_application.internal_alb_arn_suffix
-    warehouse_internal       = module.warehouse_application.internal_alb_arn_suffix
+    auth                  = module.auth_application.front_door_alb_arn_suffix
+    auth_internal         = module.auth_application.internal_alb_arn_suffix
+    register_api          = module.register_api_application.front_door_alb_arn_suffix
+    register_api_internal = module.register_api_application.internal_alb_arn_suffix
+    toggles               = module.toggles_application.front_door_alb_arn_suffix
+    toggles_internal      = module.toggles_application.internal_alb_arn_suffix
+    frontend              = module.frontend_application.front_door_alb_arn_suffix
   }
 
 }
