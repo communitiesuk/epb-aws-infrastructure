@@ -192,7 +192,7 @@ module "rds_test" {
   db_name               = "epb"
   vpc_id                = module.networking.vpc_id
   subnet_group_name     = module.networking.private_subnet_group_name
-  security_group_ids    = [module.ecs_auth_service.ecs_security_group_id, module.bastion.security_group_id]
+  security_group_ids    = [module.auth_application.ecs_security_group_id, module.bastion.security_group_id]
   storage_backup_period = 1 # to prevent weird behaviour when the backup window is set to 0
   storage_size          = 5
   instance_class        = "db.t3.micro"
@@ -406,10 +406,8 @@ module "logging" {
 module "alerts" {
   source = "./alerts"
 
-  prefix                    = local.prefix
-  environment               = var.environment
-  cloudwatch_log_group_id   = module.logging.cloudwatch_log_group_id
-  cloudwatch_log_group_name = module.logging.cloudwatch_log_group_name
+  prefix = local.prefix
+
   ecs_services = {
     api_service = {
       cluster_name = module.register_api_application.ecs_cluster_name
@@ -447,7 +445,7 @@ module "alerts" {
     api_service = module.register_api_database.rds_cluster_identifier
   }
 
-  albs = { for k, v in {
+  albs = {
     auth_service             = module.auth_application.front_door_alb_arn_suffix
     auth_service_internal    = module.auth_application.internal_alb_arn_suffix
     api_service              = module.register_api_application.front_door_alb_arn_suffix
@@ -456,11 +454,10 @@ module "alerts" {
     toggles_internal         = module.toggles_application.internal_alb_arn_suffix
     frontend                 = module.frontend_application.front_door_alb_arn_suffix
     frontend_internal        = module.frontend_application.internal_alb_arn_suffix
-    sidekiq_service          = module.register_sidekiq_application.front_door_alb_arn_suffix
     sidekiq_service_internal = module.register_sidekiq_application.internal_alb_arn_suffix
-    warehouse                = module.warehouse_application.front_door_alb_arn_suffix
     warehouse_internal       = module.warehouse_application.internal_alb_arn_suffix
-  } : k => v if v != "" }
+  }
+
 }
 
 # migration applications
