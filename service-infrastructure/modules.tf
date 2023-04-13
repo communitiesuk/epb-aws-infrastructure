@@ -92,6 +92,11 @@ module "parameter_store" {
     "VALID_NON_DOMESTIC_SCHEMAS" : "String"
     "WAREHOUSE_EPB_AUTH_CLIENT_ID" : "SecureString"
     "WAREHOUSE_EPB_AUTH_CLIENT_SECRET" : "SecureString"
+    "SENTRY_DSN_AUTH_SERVER" : "SecureString"
+    "SENTRY_DSN_DATA_WAREHOUSE" : "SecureString"
+    "SENTRY_DSN_REGISTER_API" : "SecureString"
+    "SENTRY_DSN_REGISTER_WORKER" : "SecureString"
+    "SENTRY_DSN_FRONTEND" : "SecureString"
   }
 }
 
@@ -154,7 +159,9 @@ module "auth_application" {
     "DATABASE_URL" : module.secrets.secret_arns["RDS_AUTH_SERVICE_CONNECTION_STRING"],
     "EPB_UNLEASH_URI" : module.secrets.secret_arns["EPB_UNLEASH_URI"]
   }
-  parameters                       = module.parameter_store.parameter_arns
+  parameters                       = merge(module.parameter_store.parameter_arns, {
+    "SENTRY_DSN" : module.parameter_store.parameter_arns["SENTRY_DSN_AUTH_SERVER"]
+  })
   vpc_id                           = module.networking.vpc_id
   private_subnet_ids               = module.networking.private_subnet_ids
   health_check_path                = "/auth/healthcheck"
@@ -214,7 +221,9 @@ module "register_api_application" {
     "EPB_UNLEASH_URI" : module.secrets.secret_arns["EPB_UNLEASH_URI"],
     "EPB_DATA_WAREHOUSE_QUEUES_URI" : module.secrets.secret_arns["EPB_DATA_WAREHOUSE_QUEUES_URI"]
   }
-  parameters         = module.parameter_store.parameter_arns
+  parameters         = merge(module.parameter_store.parameter_arns, {
+     "SENTRY_DSN" : module.parameter_store.parameter_arns["SENTRY_DSN_REGISTER_API"]
+  })
   vpc_id             = module.networking.vpc_id
   private_subnet_ids = module.networking.private_subnet_ids
   health_check_path  = "/healthcheck"
@@ -264,7 +273,9 @@ module "register_sidekiq_application" {
     "EPB_WORKER_REDIS_URI" : module.secrets.secret_arns["EPB_WORKER_REDIS_URI"],
     "ODE_BUCKET_NAME" : module.secrets.secret_arns["ODE_BUCKET_NAME"]
   }
-  parameters         = module.parameter_store.parameter_arns
+  parameters         = merge(module.parameter_store.parameter_arns, {
+    "SENTRY_DSN" : module.parameter_store.parameter_arns["SENTRY_DSN_REGISTER_WORKER"]
+  })
   vpc_id             = module.networking.vpc_id
   private_subnet_ids = module.networking.private_subnet_ids
   health_check_path  = "/healthcheck"
@@ -306,6 +317,7 @@ module "frontend_application" {
   parameters = merge(module.parameter_store.parameter_arns, {
     "EPB_AUTH_CLIENT_ID" : module.parameter_store.parameter_arns["FRONTEND_EPB_AUTH_CLIENT_ID"],
     "EPB_AUTH_CLIENT_SECRET" : module.parameter_store.parameter_arns["FRONTEND_EPB_AUTH_CLIENT_SECRET"]
+    "SENTRY_DSN" : module.parameter_store.parameter_arns["SENTRY_DSN_FRONTEND"]
   })
   vpc_id                           = module.networking.vpc_id
   private_subnet_ids               = module.networking.private_subnet_ids
@@ -349,6 +361,7 @@ module "warehouse_application" {
   parameters = merge(module.parameter_store.parameter_arns, {
     "EPB_AUTH_CLIENT_ID" : module.parameter_store.parameter_arns["WAREHOUSE_EPB_AUTH_CLIENT_ID"],
     "EPB_AUTH_CLIENT_SECRET" : module.parameter_store.parameter_arns["WAREHOUSE_EPB_AUTH_CLIENT_SECRET"]
+    "SENTRY_DSN" : module.parameter_store.parameter_arns["SENTRY_DSN_DATA_WAREHOUSE"]
   })
   vpc_id             = module.networking.vpc_id
   private_subnet_ids = module.networking.private_subnet_ids
