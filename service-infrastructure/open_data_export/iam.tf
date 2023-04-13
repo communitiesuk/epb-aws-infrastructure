@@ -29,11 +29,19 @@ resource "aws_iam_policy" "s3_read" {
       {
         Effect = "Allow"
         Action = [
-          "s3:ListObjects*",
-          "s3:GetObject*"
+          "s3:ListBucket",
         ]
         Resource = [
           aws_s3_bucket.open_data_export.arn,
+        ]
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:GetObject",
+          "s3:GetObjectVersion"
+        ]
+        Resource = [
           "${aws_s3_bucket.open_data_export.arn}/*"
         ]
       }
