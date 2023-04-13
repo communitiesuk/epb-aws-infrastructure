@@ -218,4 +218,4 @@ parameters-set name value:
     #!/usr/bin/env bash
     aws-vault exec $AWS_PROFILE -- aws ssm put-parameter --name {{name}} --value {{value}} --overwrite
     
-    echo "Paramter update. To make changes take effect, run 'just refresh-service service_name=<service_name>'"
+    echo "Parameter update. To make changes take effect, run 'just refresh-service service_name=<service_name>'"
