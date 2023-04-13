@@ -117,6 +117,7 @@ resource "aws_ecs_service" "this" {
   deployment_maximum_percent         = 200
   launch_type                        = "FARGATE"
   scheduling_strategy                = "REPLICA"
+  enable_execute_command             = var.enable_execute_command
 
   network_configuration {
     security_groups  = [aws_security_group.ecs.id]

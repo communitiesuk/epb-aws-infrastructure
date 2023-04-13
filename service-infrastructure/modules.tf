@@ -289,6 +289,7 @@ module "register_sidekiq_application" {
   logs_bucket_name              = module.logging.logs_bucket_name
   logs_bucket_url               = module.logging.logs_bucket_url
   create_internal_alb           = false
+  enable_execute_command        = true
 }
 
 module "register_sidekiq_redis" {
@@ -547,6 +548,5 @@ module "data_migration_warehouse_application" {
 
 module "open_data_export" {
   source = "./open_data_export"
-
   prefix = "${local.prefix}-open-data-export"
 }
