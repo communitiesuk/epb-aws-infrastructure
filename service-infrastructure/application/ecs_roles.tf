@@ -138,7 +138,7 @@ resource "aws_iam_role_policy" "firehose_put_record" {
 resource "aws_iam_role_policy" "enable_exec_command" {
   count = var.enable_execute_command == true ? 1 : 0
   name = "${var.prefix}-enable_exec_command"
-  role = aws_iam_role.ecs_task_role.id
+  role = aws_iam_role.ecs_task_execution_role.id
 
   policy = jsonencode(
     {
