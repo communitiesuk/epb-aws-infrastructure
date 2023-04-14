@@ -219,3 +219,7 @@ parameters-set name value:
     aws-vault exec $AWS_PROFILE -- aws ssm put-parameter --name {{name}} --value {{value}} --overwrite
     
     echo "Parameter update. To make changes take effect, run 'just refresh-service service_name=<service_name>'"
+
+exec-cmd cluster task_id container:
+    #!/usr/bin/env bash
+    aws-vault exec $AWS_PROFILE -- aws ecs execute-command --cluster {{cluster}} --task {{task_id}}  --interactive --container {{container}}  --command "/bin/sh"
