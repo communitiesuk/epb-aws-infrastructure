@@ -3,10 +3,12 @@ resource "aws_elasticache_cluster" "redis" {
   engine               = "redis"
   node_type            = "cache.t3.micro"
   num_cache_nodes      = 1
-  parameter_group_name = "default.redis6.x"
+  parameter_group_name = aws_elasticache_parameter_group.this.id
 
   apply_immediately          = true
   auto_minor_version_upgrade = true
+  # If updating the engine_version, ensure the version referenced for the family attribute in the elasticache parameter
+  # group tallies with it (see parameter_groups.tf)
   engine_version             = "6.x"
   port                       = var.redis_port
   maintenance_window         = "mon:03:00-mon:07:00"

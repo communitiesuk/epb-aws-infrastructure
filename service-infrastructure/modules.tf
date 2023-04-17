@@ -545,7 +545,6 @@ module "alerts" {
     toggles_internal      = module.toggles_application.internal_alb_arn_suffix
     frontend              = module.frontend_application.front_door_alb_arn_suffix
   }
-
 }
 
 # migration applications
