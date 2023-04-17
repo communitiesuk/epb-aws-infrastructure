@@ -160,3 +160,8 @@ module "toggles-pipeline" {
   region                  = var.region
   aws_arm_codebuild_image = var.aws_arm_codebuild_image
 }
+
+module "cc-tray" {
+  source = "./modules/cc_tray"
+  region = var.region
+}
