@@ -1,5 +1,5 @@
 resource "aws_dynamodb_table" "epbr_dynamo_terraform_state" {
-  name           = "epbr-terraform-state"
+  name           = "epbr-${var.environment}-terraform-state"
   read_capacity  = 1
   write_capacity = 1
   hash_key       = "LockID"

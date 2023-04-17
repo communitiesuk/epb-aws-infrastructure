@@ -20,6 +20,7 @@ install:
 
 _alias_this:
     #!/usr/bin/env bash
+
     ALIAS_COMMAND="alias .j='just --justfile $(pwd)/justfile --'"
 
     if [ -n "$($SHELL -c 'echo $ZSH_VERSION')" ]; then
@@ -68,6 +69,7 @@ add-profile profile:
 # Set previously added aws-vault profile. Note: this will update .env file in current directory
 set-profile profile:
     #!/usr/bin/env bash
+
     PROFILE=$(aws-vault list --profiles | grep {{profile}})
 
     if [ -z "$PROFILE" ]; then
@@ -79,6 +81,7 @@ set-profile profile:
 
 _set-profile profile:
     #!/usr/bin/env bash
+
     echo "setting current profile to {{profile}}"
 
     if [ -f .env ]; then
@@ -92,12 +95,14 @@ _set-profile profile:
 # list available rds hosts
 rds-list:
     #!/usr/bin/env bash
+
     aws-vault exec $AWS_PROFILE -- aws rds describe-db-instances --query 'DBInstances[*].Endpoint.Address' --output table
     echo "run 'just bastion-rds rds_endpoint=<endpoint>' to connect to the rds instance"
 
 # Creates connection to RDS instance. requires bastion host 'bastion-host' to be running in currenct account. Run 'just rds-list' to get available endpoint addresses
 rds-connect rds_endpoint local_port="5432":
     #!/usr/bin/env bash
+
     BASTION_RDS_INSTANCE_ID=$(aws-vault exec $AWS_PROFILE -- aws ec2 describe-instances --filters "Name=tag:Name,Values=bastion-host" --query 'Reservations[*].Instances[*].InstanceId' --output text)
     
     echo "You can connect to your Database now using your preferred interface at server address localhost:{{local_port}}"
@@ -124,18 +129,6 @@ get-secret secret_name:
     #!/usr/bin/env bash
     aws-vault exec $AWS_PROFILE -- aws secretsmanager get-secret-value --secret-id {{secret_name}} --query 'SecretString' --output text
 
-# Unimplemented. Updates local tfvars file with values from S3
-tfvars-pull:
-    #!/usr/bin/env bash
-
-    aws-vault exec $AWS_PROFILE -- aws s3 cp s3://$TFVARS_BUCKET/$TFVARS_FILE $TFVARS_FILE
-
-# Unimplemented. Updates S3 tfvars file with values from local file
-tfvars-push:
-    #!/usr/bin/env bash
-
-    aws-vault exec $AWS_PROFILE -- aws s3 cp $TFVARS_FILE s3://$TFVARS_BUCKET/$TFVARS_FILE
-
 # Runs tflint. Requires docker to be running
 tflint:
     #!/usr/bin/env bash
@@ -150,6 +143,7 @@ tfapply path=".":
 
 tfdestroy path="." force="false":
     #!/usr/bin/env bash
+
     if [ {{force}} = "false" ]; then
         echo "Make sure you consider the consequences and call me again with 'just tfdestroy path={{path}} force=true'"
     else
@@ -159,6 +153,7 @@ tfdestroy path="." force="false":
 
 tfinit path="." backend="":
     #!/usr/bin/env bash
+
     if [ "{{backend}}" != "" ]; then
         echo "initialising terraform with backend {{backend}}"
         cd {{path}} && aws-vault exec $AWS_PROFILE -- terraform init -backend-config={{backend}}
@@ -166,6 +161,19 @@ tfinit path="." backend="":
         echo "initialising terraform"
         cd {{path}} && aws-vault exec $AWS_PROFILE -- terraform init
     fi
+
+# Updates tfvars file in S3 with values from local file. environment should be one of 'integration', 'staging' or 'production'
+tfvars-put path="." environment="integration":
+    #!/usr/bin/env bash
+
+    cd {{path}} && aws-vault exec $AWS_PROFILE -- aws s3api put-object --bucket epbr-{{environment}}-terraform-state --key .tfvars --body {{environment}}.tfvars
+
+# Updates local tfvars file with values stored in S3 bucket. environment should be one of 'integration', 'staging' or 'production'
+tfvars-get path="." environment="integration":
+    #!/usr/bin/env bash
+
+    cd {{path}} && aws-vault exec $AWS_PROFILE -- aws s3api get-object --bucket epbr-{{environment}}-terraform-state --key .tfvars {{environment}}.tfvars
+    cd {{path}} && cp {{environment}}.tfvars .auto.tfvars
 
 tfsec minimum_severity="HIGH":
     #!/usr/bin/env bash
@@ -214,12 +222,15 @@ parameters-list:
 
     aws-vault exec $AWS_PROFILE -- aws ssm describe-parameters --query 'Parameters[*][Name, Type, LastModifiedDate]' --output table
 
+# Should only be used for testing. For persisting change, update .tfvars instead
 parameters-set name value:
     #!/usr/bin/env bash
+
     aws-vault exec $AWS_PROFILE -- aws ssm put-parameter --name {{name}} --value {{value}} --overwrite
     
     echo "Parameter update. To make changes take effect, run 'just refresh-service service_name=<service_name>'"
 
 exec-cmd cluster task_id container:
     #!/usr/bin/env bash
+
     aws-vault exec $AWS_PROFILE -- aws ecs execute-command --cluster {{cluster}} --task {{task_id}}  --interactive --container {{container}}  --command "/bin/sh"

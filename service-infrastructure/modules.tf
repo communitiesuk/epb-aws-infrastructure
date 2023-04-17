@@ -72,31 +72,106 @@ module "parameter_store" {
   source = "./parameter_store"
 
   parameters = {
-    "APP_ENV" : "String"
-    "EPB_TEAM_SLACK_URL" : "SecureString"
-    "EPB_UNLEASH_AUTH_TOKEN" : "SecureString"
-    "FRONTEND_EPB_AUTH_CLIENT_ID" : "SecureString"
-    "FRONTEND_EPB_AUTH_CLIENT_SECRET" : "SecureString"
-    "JWT_ISSUER" : "SecureString"
-    "JWT_SECRET" : "SecureString"
-    "LANG" : "String"
-    "LOGSTASH_HOST" : "SecureString"
-    "LOGSTASH_PORT" : "SecureString"
-    "OPEN_DATA_REPORT_TYPE" : "String"
-    "OS_DATA_HUB_API_KEY" : "SecureString"
-    "RACK_ENV" : "String"
-    "SLACK_EPB_BOT_TOKEN" : "SecureString"
-    "STAGE" : "String"
-    "TOGGLES_SECRET" : "SecureString"
-    "VALID_DOMESTIC_SCHEMAS" : "String"
-    "VALID_NON_DOMESTIC_SCHEMAS" : "String"
-    "WAREHOUSE_EPB_AUTH_CLIENT_ID" : "SecureString"
-    "WAREHOUSE_EPB_AUTH_CLIENT_SECRET" : "SecureString"
-    "SENTRY_DSN_AUTH_SERVER" : "SecureString"
-    "SENTRY_DSN_DATA_WAREHOUSE" : "SecureString"
-    "SENTRY_DSN_REGISTER_API" : "SecureString"
-    "SENTRY_DSN_REGISTER_WORKER" : "SecureString"
-    "SENTRY_DSN_FRONTEND" : "SecureString"
+    "APP_ENV" : {
+      type  = "String"
+      value = var.parameters["APP_ENV"]
+    }
+    "EPB_TEAM_SLACK_URL" : {
+      type  = "SecureString"
+      value = var.parameters["EPB_TEAM_SLACK_URL"]
+    }
+    "EPB_UNLEASH_AUTH_TOKEN" : {
+      type  = "SecureString"
+      value = var.parameters["EPB_UNLEASH_AUTH_TOKEN"]
+    }
+    "FRONTEND_EPB_AUTH_CLIENT_ID" : {
+      type  = "SecureString"
+      value = var.parameters["FRONTEND_EPB_AUTH_CLIENT_ID"]
+    }
+    "FRONTEND_EPB_AUTH_CLIENT_SECRET" : {
+      type  = "SecureString"
+      value = var.parameters["FRONTEND_EPB_AUTH_CLIENT_SECRET"]
+    }
+    "JWT_ISSUER" : {
+      type  = "SecureString"
+      value = var.parameters["JWT_ISSUER"]
+    }
+    "JWT_SECRET" : {
+      type  = "SecureString"
+      value = var.parameters["JWT_SECRET"]
+    }
+    "LANG" : {
+      type  = "String"
+      value = var.parameters["LANG"]
+    }
+    "LOGSTASH_HOST" : {
+      type  = "SecureString"
+      value = var.parameters["LOGSTASH_HOST"]
+    }
+    "LOGSTASH_PORT" : {
+      type  = "SecureString"
+      value = var.parameters["LOGSTASH_PORT"]
+    }
+    "OPEN_DATA_REPORT_TYPE" : {
+      type  = "String"
+      value = var.parameters["OPEN_DATA_REPORT_TYPE"]
+    }
+    "OS_DATA_HUB_API_KEY" : {
+      type  = "SecureString"
+      value = var.parameters["OS_DATA_HUB_API_KEY"]
+    }
+    "RACK_ENV" : {
+      type  = "String"
+      value = var.parameters["RACK_ENV"]
+    }
+    "SLACK_EPB_BOT_TOKEN" : {
+      type  = "SecureString"
+      value = var.parameters["SLACK_EPB_BOT_TOKEN"]
+    }
+    "STAGE" : {
+      type  = "String"
+      value = var.parameters["STAGE"]
+    }
+    "TOGGLES_SECRET" : {
+      type  = "SecureString"
+      value = var.parameters["TOGGLES_SECRET"]
+    }
+    "VALID_DOMESTIC_SCHEMAS" : {
+      type  = "String"
+      value = var.parameters["VALID_DOMESTIC_SCHEMAS"]
+    }
+    "VALID_NON_DOMESTIC_SCHEMAS" : {
+      type  = "String"
+      value = var.parameters["VALID_NON_DOMESTIC_SCHEMAS"]
+    }
+    "WAREHOUSE_EPB_AUTH_CLIENT_ID" : {
+      type  = "SecureString"
+      value = var.parameters["WAREHOUSE_EPB_AUTH_CLIENT_ID"]
+    }
+    "WAREHOUSE_EPB_AUTH_CLIENT_SECRET" : {
+      type  = "SecureString"
+      value = var.parameters["WAREHOUSE_EPB_AUTH_CLIENT_SECRET"]
+    }
+    "SENTRY_DSN_AUTH_SERVER" : {
+      type  = "SecureString"
+      value = var.parameters["SENTRY_DSN_AUTH_SERVER"]
+    }
+    "SENTRY_DSN_DATA_WAREHOUSE" : {
+      type  = "SecureString"
+      value = var.parameters["SENTRY_DSN_DATA_WAREHOUSE"]
+    }
+    "SENTRY_DSN_REGISTER_API" : {
+      type  = "SecureString"
+      value = var.parameters["SENTRY_DSN_REGISTER_API"]
+    }
+    "SENTRY_DSN_REGISTER_WORKER" : {
+      type  = "SecureString"
+      value = var.parameters["SENTRY_DSN_REGISTER_WORKER"]
+    }
+    "SENTRY_DSN_FRONTEND" : {
+      type  = "SecureString"
+      value = var.parameters["SENTRY_DSN_FRONTEND"]
+    }
   }
 }
 
@@ -159,7 +234,7 @@ module "auth_application" {
     "DATABASE_URL" : module.secrets.secret_arns["RDS_AUTH_SERVICE_CONNECTION_STRING"],
     "EPB_UNLEASH_URI" : module.secrets.secret_arns["EPB_UNLEASH_URI"]
   }
-  parameters                       = merge(module.parameter_store.parameter_arns, {
+  parameters = merge(module.parameter_store.parameter_arns, {
     "SENTRY_DSN" : module.parameter_store.parameter_arns["SENTRY_DSN_AUTH_SERVER"]
   })
   vpc_id                           = module.networking.vpc_id
@@ -221,8 +296,8 @@ module "register_api_application" {
     "EPB_UNLEASH_URI" : module.secrets.secret_arns["EPB_UNLEASH_URI"],
     "EPB_DATA_WAREHOUSE_QUEUES_URI" : module.secrets.secret_arns["EPB_DATA_WAREHOUSE_QUEUES_URI"]
   }
-  parameters         = merge(module.parameter_store.parameter_arns, {
-     "SENTRY_DSN" : module.parameter_store.parameter_arns["SENTRY_DSN_REGISTER_API"]
+  parameters = merge(module.parameter_store.parameter_arns, {
+    "SENTRY_DSN" : module.parameter_store.parameter_arns["SENTRY_DSN_REGISTER_API"]
   })
   vpc_id             = module.networking.vpc_id
   private_subnet_ids = module.networking.private_subnet_ids
@@ -273,7 +348,7 @@ module "register_sidekiq_application" {
     "EPB_WORKER_REDIS_URI" : module.secrets.secret_arns["EPB_WORKER_REDIS_URI"],
     "ODE_BUCKET_NAME" : module.secrets.secret_arns["ODE_BUCKET_NAME"]
   }
-  parameters         = merge(module.parameter_store.parameter_arns, {
+  parameters = merge(module.parameter_store.parameter_arns, {
     "SENTRY_DSN" : module.parameter_store.parameter_arns["SENTRY_DSN_REGISTER_WORKER"]
   })
   vpc_id             = module.networking.vpc_id

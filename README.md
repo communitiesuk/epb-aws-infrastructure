@@ -47,7 +47,7 @@ cd code-pipeline/service-pipelines/
 
 In terraform, we use modules which may require variables to be set. Even the top level (root) terraform definitions may require variables.
 
-These variables may be sensitive, so they should be stored securely and not checked into git. TODO: Add method for secure storage for easier sharing.
+These variables may be sensitive, so they should be stored securely and not checked into git.
 
 To avoid having to type each var whenever you run `terraform apply` command, it is good idea to keep a private set of variables in `tfvars` file.
 Better yet, to make things less verbose to run, store them in `.auto.tfvars` file.
@@ -66,6 +66,30 @@ some_list = [1, 5, 2]
 ```
 
 More info in [official documentation](https://developer.hashicorp.com/terraform/language/values/variables)
+
+#### Maintaining tfvars
+
+tfvars are currently stored alongside the state file in the S3 bucket `epbr-{env}-terraform-state`.
+When updating the tfvars, make sure you update the file in the S3 bucket to avoid others being unable to deploy their changes.
+
+There are handy `just` scripts which automate the process:
+
+```bash
+just tfvars-put service-infrastructure {env}  # where env is one of integration, stagining or production
+
+just tfvars-get service-infrastructure {env}  # where env is one of integration, stagining or production
+```
+
+#### Securely handling tfvars
+
+Currently the tfvars are stored in plaintext on your machine to run the terraform scripts.
+We are planning on moving sensitive values to a more secure place.
+Until then, take care when handling the tfvars
+
+* Don't check them into git!
+* When adding new vars, mark them as `sensitive = true` in Terraform
+* If you are worried about security of files, don't store them on your machine - only download them to run the script, then delete or encrypt. Always do this for production
+* Only pass them to others via the S3 bucket, as documented in previous section
 
 ## Setting up tfstate management (Initial setup only)
 
