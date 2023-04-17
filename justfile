@@ -172,8 +172,9 @@ tfvars-put path="." environment="integration":
 tfvars-get path="." environment="integration":
     #!/usr/bin/env bash
 
-    cd {{path}} && aws-vault exec $AWS_PROFILE -- aws s3api get-object --bucket epbr-{{environment}}-terraform-state --key .tfvars {{environment}}.tfvars
-    cd {{path}} && cp {{environment}}.tfvars .auto.tfvars
+    cd {{path}}
+    aws-vault exec $AWS_PROFILE -- aws s3api get-object --bucket epbr-{{environment}}-terraform-state --key .tfvars {{environment}}.tfvars
+    cp {{environment}}.tfvars .auto.tfvars
 
 tfsec minimum_severity="HIGH":
     #!/usr/bin/env bash
