@@ -107,7 +107,7 @@ rds-connect rds_endpoint local_port="5432":
     
     echo "You can connect to your Database now using your preferred interface at server address localhost:{{local_port}}"
     echo "e.g. psql -h localhost -p 5432"
-    echo "To connect, use username password stored in AWS Secrets Manager. You can see secrets by running 'just list-secrets'"
+    echo "To connect, use username password stored in AWS Secrets Manager. You can see secrets by running 'just secrets-list'"
     echo "To stop the port forwarding session, run 'just rds-disconnect' or 'Ctrl + C'"
     
     aws-vault exec $AWS_PROFILE -- aws ssm start-session --target $BASTION_RDS_INSTANCE_ID --document-name AWS-StartPortForwardingSessionToRemoteHost --parameters host="{{rds_endpoint}}",portNumber="5432",localPortNumber="{{local_port}}"
