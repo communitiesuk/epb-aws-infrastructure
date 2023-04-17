@@ -18,7 +18,7 @@ resource "aws_lambda_function" "slack_alerts" {
   # set the environment variables for the Slack webhook URL and SNS topic ARN
   environment {
     variables = {
-      SLACK_WEBHOOK_URL = data.aws_ssm_parameter.alert_slack_webhook_url.value
+      SLACK_WEBHOOK_URL = var.slack_webhook_url
     }
   }
 }

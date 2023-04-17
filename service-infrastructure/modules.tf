@@ -76,10 +76,6 @@ module "parameter_store" {
       type  = "String"
       value = var.parameters["APP_ENV"]
     }
-    "EPB_TEAM_SLACK_URL" : {
-      type  = "SecureString"
-      value = var.parameters["EPB_TEAM_SLACK_URL"]
-    }
     "EPB_UNLEASH_AUTH_TOKEN" : {
       type  = "SecureString"
       value = var.parameters["EPB_UNLEASH_AUTH_TOKEN"]
@@ -196,7 +192,7 @@ module "toggles_application" {
   prefix                = "${local.prefix}-toggles"
   region                = var.region
   container_port        = 4242
-  egress_ports          = [80, 443, 5432]
+  egress_ports          = [80, 443, 5432, var.parameters["LOGSTASH_PORT"]]
   environment_variables = []
   secrets = {
     "DATABASE_URL" : module.secrets.secret_arns["RDS_TOGGLES_CONNECTION_STRING"],
@@ -228,7 +224,7 @@ module "auth_application" {
   prefix                = "${local.prefix}-auth"
   region                = var.region
   container_port        = 80
-  egress_ports          = [80, 443, 5432]
+  egress_ports          = [80, 443, 5432, var.parameters["LOGSTASH_PORT"]]
   environment_variables = []
   secrets = {
     "DATABASE_URL" : module.secrets.secret_arns["RDS_AUTH_SERVICE_CONNECTION_STRING"],
@@ -289,7 +285,7 @@ module "register_api_application" {
   prefix                = "${local.prefix}-reg-api"
   region                = var.region
   container_port        = 80
-  egress_ports          = [80, 443, 5432, local.redis_port]
+  egress_ports          = [80, 443, 5432, local.redis_port, var.parameters["LOGSTASH_PORT"]]
   environment_variables = []
   secrets = {
     "DATABASE_URL" : module.secrets.secret_arns["RDS_API_SERVICE_CONNECTION_STRING"],
@@ -340,7 +336,7 @@ module "register_sidekiq_application" {
   prefix                = "${local.prefix}-reg-sidekiq"
   region                = var.region
   container_port        = 80
-  egress_ports          = [80, 443, 5432, local.redis_port]
+  egress_ports          = [80, 443, 5432, local.redis_port, var.parameters["LOGSTASH_PORT"]]
   environment_variables = []
   secrets = {
     "DATABASE_URL" : module.secrets.secret_arns["RDS_API_SERVICE_CONNECTION_STRING"],
@@ -383,7 +379,7 @@ module "frontend_application" {
   prefix                = "${local.prefix}-frontend"
   region                = var.region
   container_port        = 80
-  egress_ports          = [80, 443, 5432]
+  egress_ports          = [80, 443, 5432, var.parameters["LOGSTASH_PORT"]]
   environment_variables = []
   secrets = {
     "EPB_API_URL" : module.secrets.secret_arns["EPB_API_URL"],
@@ -425,7 +421,7 @@ module "warehouse_application" {
   prefix                = "${local.prefix}-warehouse"
   region                = var.region
   container_port        = 80
-  egress_ports          = [80, 443, 5432, local.redis_port]
+  egress_ports          = [80, 443, 5432, local.redis_port, var.parameters["LOGSTASH_PORT"]]
   environment_variables = []
   secrets = {
     "DATABASE_URL" : module.secrets.secret_arns["RDS_WAREHOUSE_CONNECTION_STRING"],
@@ -500,7 +496,8 @@ module "logging" {
 module "alerts" {
   source = "./alerts"
 
-  prefix = local.prefix
+  prefix            = local.prefix
+  slack_webhook_url = var.slack_webhook_url
 
   ecs_services = {
     api_service = {

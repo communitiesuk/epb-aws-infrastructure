@@ -26,6 +26,11 @@ variable "subdomain_suffix" {
   type = string
 }
 
+variable "slack_webhook_url" {
+  type      = string
+  sensitive = true
+}
+
 variable "parameters" {
   description = "A map of parameter values. Keys should be a subset of the ones passed to 'parameters' module."
   type        = map(string)

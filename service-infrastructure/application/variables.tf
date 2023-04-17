@@ -87,7 +87,6 @@ variable "front_door_config" {
 }
 
 variable "enable_execute_command" {
-  type = bool
+  type    = bool
   default = false
 }
-

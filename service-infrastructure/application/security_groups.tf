@@ -72,16 +72,4 @@ resource "aws_security_group" "ecs" {
       ipv6_cidr_blocks = ["::/0"]
     }
   }
-
-  egress {
-    protocol         = "tcp"
-    from_port        = 0
-    to_port          = data.aws_ssm_parameter.logstash_port.value
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
-
-  tags = {
-    Name = "${var.prefix}-ecs-sg"
-  }
 }

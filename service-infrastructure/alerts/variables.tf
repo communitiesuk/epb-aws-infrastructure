@@ -20,3 +20,7 @@ variable "rds_clusters" {
 variable "albs" {
   type = map(string)
 }
+
+variable "slack_webhook_url" {
+  type = string
+}
