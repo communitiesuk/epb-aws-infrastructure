@@ -83,8 +83,8 @@ module "codebuild_deploy_staging" {
     { name = "AWS_ACCOUNT_ID", value = var.account_ids["staging"] },
     { name = "DOCKER_IMAGE_URI", value = "${var.account_ids["staging"]}.dkr.ecr.${var.region}.amazonaws.com/${local.staging_prefix}-${var.app_ecr_name}" },
     { name = "DOCKER_IMAGE", value = var.docker_image_app_name },
-    { name = "CLUSTER_NAME", value = "${local.integration_prefix}-${var.ecs_cluster_name}" },
-    { name = "SERVICE_NAME", value = "${local.integration_prefix}-${var.ecs_service_name}" },
+    { name = "CLUSTER_NAME", value = "${local.staging_prefix}-${var.ecs_cluster_name}" },
+    { name = "SERVICE_NAME", value = "${local.staging_prefix}-${var.ecs_service_name}" },
   ]
   region = var.region
 }
