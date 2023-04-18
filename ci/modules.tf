@@ -82,19 +82,19 @@ module "register-api-pipeline" {
   github_organisation       = var.github_organisation
   codestar_connection_arn   = module.codestar_connection.codestar_connection_arn
   account_ids               = var.account_ids
-  ecs_cluster_name          = "epb-intg-reg-api-cluster"
-  ecs_service_name          = "epb-intg-reg-api"
-  app_ecr_name              = "epb-intg-reg-api-ecr"
+  ecs_cluster_name          = "reg-api-cluster"
+  ecs_service_name          = "reg-api"
+  app_ecr_name              = "reg-api-ecr"
   project_name              = "epbr-register-api"
-  ecs_sidekiq_cluster_name  = "epb-intg-reg-sidekiq-cluster"
-  ecs_sidekiq_service_name  = "epb-intg-reg-sidekiq"
+  ecs_sidekiq_cluster_name  = "reg-sidekiq-cluster"
+  ecs_sidekiq_service_name  = "reg-sidekiq"
   docker_image_app_name     = "ebpr-register-api-image"
   docker_image_sidekiq_name = "epb-register-api-worker"
   codebuild_image_ecr_url   = module.app_test_image_pipeline.image_repository_url
   postgres_image_ecr_url    = module.postgres_test_image_pipeline.image_repository_url
   region                    = var.region
   aws_arm_codebuild_image   = var.aws_arm_codebuild_image
-  sidekiq_ecr_name          = "epb-intg-reg-sidekiq-ecr"
+  sidekiq_ecr_name          = "reg-sidekiq-ecr"
   smoketests_repository     = var.smoketests_repository
   smoketests_branch         = var.smoketests_branch
 }

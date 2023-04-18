@@ -92,14 +92,13 @@ resource "aws_codepipeline" "codepipeline" {
         ProjectName = module.codebuild_build_sidekiq_image.codebuild_name
       }
     }
-
   }
 
   stage {
     name = "deploy-to-pre-production"
 
     action {
-      name            = "deploy-reg-api-cluster"
+      name            = "deploy-to-integration-reg-api-cluster"
       category        = "Build"
       owner           = "AWS"
       provider        = "CodeBuild"
@@ -111,7 +110,7 @@ resource "aws_codepipeline" "codepipeline" {
     }
 
     action {
-      name            = "deploy-sidekiq-cluster"
+      name            = "deploy-to-integration-sidekiq-cluster"
       category        = "Build"
       owner           = "AWS"
       provider        = "CodeBuild"
@@ -119,6 +118,30 @@ resource "aws_codepipeline" "codepipeline" {
       input_artifacts = ["sidekiq_docker_image"]
       configuration = {
         ProjectName = module.codebuild_deploy_sidekiq_integration.codebuild_name
+      }
+    }
+
+    action {
+      name            = "deploy-to-staging-reg-api-cluster"
+      category        = "Build"
+      owner           = "AWS"
+      provider        = "CodeBuild"
+      version         = "1"
+      input_artifacts = ["reg_api_docker_image"]
+      configuration = {
+        ProjectName = module.codebuild_deploy_staging.codebuild_name
+      }
+    }
+
+    action {
+      name            = "deploy-to-staging-sidekiq-cluster"
+      category        = "Build"
+      owner           = "AWS"
+      provider        = "CodeBuild"
+      version         = "1"
+      input_artifacts = ["sidekiq_docker_image"]
+      configuration = {
+        ProjectName = module.codebuild_deploy_sidekiq_staging.codebuild_name
       }
     }
   }
