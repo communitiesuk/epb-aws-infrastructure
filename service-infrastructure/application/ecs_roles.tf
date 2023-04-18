@@ -47,7 +47,7 @@ resource "aws_iam_role_policy_attachment" "ecs_task_additional_role_policy_attac
 }
 
 resource "aws_iam_role_policy_attachment" "ecs_task_execution_additional_role_policy_attachment" {
-  for_each = var.additional_task_execution_role_policy_arns
+  for_each   = var.additional_task_execution_role_policy_arns
   role       = aws_iam_role.ecs_task_execution_role.name
   policy_arn = each.value
 }
@@ -137,8 +137,8 @@ resource "aws_iam_role_policy" "firehose_put_record" {
 
 resource "aws_iam_role_policy" "enable_exec_command_data_channel" {
   count = var.enable_execute_command == true ? 1 : 0
-  name = "${var.prefix}-enable_exec_command"
-  role = aws_iam_role.ecs_task_role.id
+  name  = "${var.prefix}-enable_exec_command"
+  role  = aws_iam_role.ecs_task_role.id
 
   policy = jsonencode(
     {
@@ -155,14 +155,14 @@ resource "aws_iam_role_policy" "enable_exec_command_data_channel" {
           Resource = "*"
         }
       ]
-    })
+  })
 
 }
 
 resource "aws_iam_role_policy" "enable_exec_command" {
   count = var.enable_execute_command == true ? 1 : 0
-  name = "${var.prefix}-enable_exec_command"
-  role = aws_iam_role.ecs_task_execution_role.id
+  name  = "${var.prefix}-enable_exec_command"
+  role  = aws_iam_role.ecs_task_execution_role.id
 
   policy = jsonencode(
     {
@@ -176,6 +176,6 @@ resource "aws_iam_role_policy" "enable_exec_command" {
           Resource = "${aws_ecs_cluster.this.arn}/*"
         }
       ]
-    })
+  })
 
 }

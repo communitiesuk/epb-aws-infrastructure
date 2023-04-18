@@ -50,7 +50,7 @@ data "aws_iam_policy_document" "ccxml_assume_role_policy" {
 
 
 resource "aws_iam_role" "this" {
-  name = "cc-xml-role"
+  name               = "cc-xml-role"
   assume_role_policy = data.aws_iam_policy_document.ccxml_assume_role_policy.json
 }
 

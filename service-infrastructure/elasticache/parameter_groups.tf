@@ -5,7 +5,7 @@ resource "aws_elasticache_parameter_group" "this" {
   family = "redis6.x"
 
   parameter {
-    name = "maxmemory-policy"
+    name  = "maxmemory-policy"
     value = "noeviction"
   }
 }

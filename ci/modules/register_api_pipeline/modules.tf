@@ -2,7 +2,7 @@ data "aws_caller_identity" "current" {}
 
 locals {
   integration_prefix = "epb-intg"
-  staging_prefix = "epb-stag"
+  staging_prefix     = "epb-stag"
 }
 
 module "codebuild_run_app_test" {
