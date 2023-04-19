@@ -62,9 +62,9 @@ module "auth-server-pipeline" {
   github_organisation     = var.github_organisation
   codestar_connection_arn = module.codestar_connection.codestar_connection_arn
   account_ids             = var.account_ids
-  ecs_cluster_name        = "epb-intg-auth-cluster"
-  ecs_service_name        = "epb-intg-auth"
-  app_ecr_name            = "epb-intg-auth-ecr"
+  ecs_cluster_name        = "auth-cluster"
+  ecs_service_name        = "auth"
+  app_ecr_name            = "auth-ecr"
   project_name            = "epbr-auth-server"
   codebuild_image_ecr_url = module.app_test_image_pipeline.image_repository_url
   postgres_image_ecr_url  = module.postgres_test_image_pipeline.image_repository_url
