@@ -275,7 +275,7 @@ module "rds_test" {
   subnet_group_name     = module.networking.private_subnet_group_name
   security_group_ids    = [module.auth_application.ecs_security_group_id, module.bastion.security_group_id]
   storage_backup_period = 1 # to prevent weird behaviour when the backup window is set to 0
-  storage_size          = 5
+  storage_size          = 100
   instance_class        = "db.t3.micro"
 }
 
