@@ -221,11 +221,11 @@ fluentbit-update-image image_name dockerfile_path="": _check_aws_profile
 
 
 # Force redeploy of ECS service. Do this to make parameter changes take effect
-service-refresh service_name:
+service-refresh service_name: _check_aws_profile
     #!/usr/bin/env bash
 
     ECS_CLUSTER_NAME={{service_name}}-cluster
-    aws-vault exec integration -- aws ecs update-service --cluster $ECS_CLUSTER_NAME --service {{service_name}} --force-new-deployment
+    aws-vault exec $AWS_PROFILE -- aws ecs update-service --cluster $ECS_CLUSTER_NAME --service {{service_name}} --force-new-deployment
 
 parameters-list: _check_aws_profile
     #!/usr/bin/env bash
