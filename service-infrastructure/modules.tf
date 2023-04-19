@@ -197,15 +197,15 @@ module "toggles_application" {
   secrets = {
     "DATABASE_URL" : module.secrets.secret_arns["RDS_TOGGLES_CONNECTION_STRING"],
   }
-  parameters                       = module.parameter_store.parameter_arns
-  vpc_id                           = module.networking.vpc_id
-  private_subnet_ids               = module.networking.private_subnet_ids
-  health_check_path                = "/health"
-  additional_task_role_policy_arns = { "RDS_access" : module.toggles_database.rds_full_access_policy_arn }
-  aws_cloudwatch_log_group_id      = module.logging.cloudwatch_log_group_id
-  aws_cloudwatch_log_group_name    = module.logging.cloudwatch_log_group_name
-  logs_bucket_name                 = module.logging.logs_bucket_name
-  logs_bucket_url                  = module.logging.logs_bucket_url
+  parameters                                 = module.parameter_store.parameter_arns
+  vpc_id                                     = module.networking.vpc_id
+  private_subnet_ids                         = module.networking.private_subnet_ids
+  health_check_path                          = "/health"
+  additional_task_execution_role_policy_arns = { "RDS_access" : module.toggles_database.rds_full_access_policy_arn }
+  aws_cloudwatch_log_group_id                = module.logging.cloudwatch_log_group_id
+  aws_cloudwatch_log_group_name              = module.logging.cloudwatch_log_group_name
+  logs_bucket_name                           = module.logging.logs_bucket_name
+  logs_bucket_url                            = module.logging.logs_bucket_url
   front_door_config = {
     aws_ssl_certificate_arn        = module.ssl_certificate.certificate_arn
     aws_cdn_certificate_arn        = module.cdn_certificate.certificate_arn
@@ -233,14 +233,14 @@ module "auth_application" {
   parameters = merge(module.parameter_store.parameter_arns, {
     "SENTRY_DSN" : module.parameter_store.parameter_arns["SENTRY_DSN_AUTH_SERVER"]
   })
-  vpc_id                           = module.networking.vpc_id
-  private_subnet_ids               = module.networking.private_subnet_ids
-  health_check_path                = "/auth/healthcheck"
-  additional_task_role_policy_arns = { "RDS_access" : module.auth_database.rds_full_access_policy_arn }
-  aws_cloudwatch_log_group_id      = module.logging.cloudwatch_log_group_id
-  aws_cloudwatch_log_group_name    = module.logging.cloudwatch_log_group_name
-  logs_bucket_name                 = module.logging.logs_bucket_name
-  logs_bucket_url                  = module.logging.logs_bucket_url
+  vpc_id                                     = module.networking.vpc_id
+  private_subnet_ids                         = module.networking.private_subnet_ids
+  health_check_path                          = "/auth/healthcheck"
+  additional_task_execution_role_policy_arns = { "RDS_access" : module.auth_database.rds_full_access_policy_arn }
+  aws_cloudwatch_log_group_id                = module.logging.cloudwatch_log_group_id
+  aws_cloudwatch_log_group_name              = module.logging.cloudwatch_log_group_name
+  logs_bucket_name                           = module.logging.logs_bucket_name
+  logs_bucket_url                            = module.logging.logs_bucket_url
   front_door_config = {
     aws_ssl_certificate_arn        = module.ssl_certificate.certificate_arn
     aws_cdn_certificate_arn        = module.cdn_certificate.certificate_arn
@@ -298,7 +298,7 @@ module "register_api_application" {
   vpc_id             = module.networking.vpc_id
   private_subnet_ids = module.networking.private_subnet_ids
   health_check_path  = "/healthcheck"
-  additional_task_role_policy_arns = {
+  additional_task_execution_role_policy_arns = {
     "RDS_access" : module.register_api_database.rds_full_access_policy_arn,
     "Redis_access" : data.aws_iam_policy.elasticache_full_access.arn
   }
@@ -350,7 +350,7 @@ module "register_sidekiq_application" {
   vpc_id             = module.networking.vpc_id
   private_subnet_ids = module.networking.private_subnet_ids
   health_check_path  = "/healthcheck"
-  additional_task_role_policy_arns = {
+  additional_task_execution_role_policy_arns = {
     "RDS_access" : module.register_api_database.rds_full_access_policy_arn,
     "Redis_access" : data.aws_iam_policy.elasticache_full_access.arn,
     "OpenDataExport_S3_access" : module.open_data_export.open_data_s3_write_access_policy_arn
@@ -391,15 +391,15 @@ module "frontend_application" {
     "EPB_AUTH_CLIENT_SECRET" : module.parameter_store.parameter_arns["FRONTEND_EPB_AUTH_CLIENT_SECRET"]
     "SENTRY_DSN" : module.parameter_store.parameter_arns["SENTRY_DSN_FRONTEND"]
   })
-  vpc_id                           = module.networking.vpc_id
-  private_subnet_ids               = module.networking.private_subnet_ids
-  health_check_path                = "/healthcheck"
-  additional_task_role_policy_arns = {}
-  aws_cloudwatch_log_group_id      = module.logging.cloudwatch_log_group_id
-  aws_cloudwatch_log_group_name    = module.logging.cloudwatch_log_group_name
-  logs_bucket_name                 = module.logging.logs_bucket_name
-  logs_bucket_url                  = module.logging.logs_bucket_url
-  create_internal_alb              = false
+  vpc_id                                     = module.networking.vpc_id
+  private_subnet_ids                         = module.networking.private_subnet_ids
+  health_check_path                          = "/healthcheck"
+  additional_task_execution_role_policy_arns = {}
+  aws_cloudwatch_log_group_id                = module.logging.cloudwatch_log_group_id
+  aws_cloudwatch_log_group_name              = module.logging.cloudwatch_log_group_name
+  logs_bucket_name                           = module.logging.logs_bucket_name
+  logs_bucket_url                            = module.logging.logs_bucket_url
+  create_internal_alb                        = false
   front_door_config = {
     aws_ssl_certificate_arn = module.ssl_certificate.certificate_arn
     aws_cdn_certificate_arn = module.cdn_certificate.certificate_arn
@@ -438,7 +438,7 @@ module "warehouse_application" {
   vpc_id             = module.networking.vpc_id
   private_subnet_ids = module.networking.private_subnet_ids
   health_check_path  = null
-  additional_task_role_policy_arns = {
+  additional_task_execution_role_policy_arns = {
     "RDS_access" : module.register_api_database.rds_full_access_policy_arn
     "Redis_access" : data.aws_iam_policy.elasticache_full_access.arn
   }
