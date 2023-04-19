@@ -75,9 +75,9 @@ When updating the tfvars, make sure you update the file in the S3 bucket to avoi
 There are handy `just` scripts which automate the process:
 
 ```bash
-just tfvars-put service-infrastructure {env}  # where env is one of integration, stagining or production
+just tfvars-put service-infrastructure {env}  # where env is one of integration, staging or production
 
-just tfvars-get service-infrastructure {env}  # where env is one of integration, stagining or production
+just tfvars-get service-infrastructure {env}  # where env is one of integration, staging or production
 ```
 
 #### Securely handling tfvars
