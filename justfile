@@ -244,3 +244,19 @@ exec-cmd cluster task_id container: _check_aws_profile
     #!/usr/bin/env bash
 
     aws-vault exec $AWS_PROFILE -- aws ecs execute-command --cluster {{cluster}} --task {{task_id}}  --interactive --container {{container}}  --command "/bin/sh"
+
+ecs-shell service_name: _check_aws_profile
+    #!/usr/bin/env bash
+
+    echo "Preparing session on ECS..."
+    ECS_TASK_ARN=$(aws-vault exec $AWS_PROFILE -- aws ecs list-tasks --cluster {{service_name}}-cluster | jq -r '.taskArns[0]')
+    if [[ -z "${ECS_TASK_ARN}" ]]; then
+      echo "No tasks are currently running associated with the service {{service_name}}"
+      exit 1
+    fi
+    ECS_CONTAINER_NAME=$(aws-vault exec $AWS_PROFILE -- aws ecs describe-tasks --cluster {{service_name}}-cluster --tasks $ECS_TASK_ARN | jq -r '.tasks[0].containers|map(select(.name|contains("fluentbit")|not))[0].name')
+    if [[ -z "${ECS_CONTAINER_NAME}" ]]; then
+      echo "No containers are currently associated with the service {{service_name}}"
+      exit 1
+    fi
+    aws-vault exec $AWS_PROFILE -- aws ecs execute-command --cluster {{service_name}}-cluster --task $ECS_TASK_ARN --interactive --container $ECS_CONTAINER_NAME --command "/usr/bin/env bash"
