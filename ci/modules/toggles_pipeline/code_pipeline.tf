@@ -47,10 +47,10 @@ resource "aws_codepipeline" "codepipeline" {
   }
 
   stage {
-    name = "deploy-to-integration"
+    name = "deploy-to-pre-production"
 
     action {
-      name            = "Build"
+      name            = "deploy-toggles-to-integration-cluster"
       category        = "Build"
       owner           = "AWS"
       provider        = "CodeBuild"
@@ -58,6 +58,18 @@ resource "aws_codepipeline" "codepipeline" {
       input_artifacts = ["docker_image"]
       configuration = {
         ProjectName = module.codebuild_deploy_integration.codebuild_name
+      }
+    }
+
+    action {
+      name            = "deploy-toggles-to-staging-cluster"
+      category        = "Build"
+      owner           = "AWS"
+      provider        = "CodeBuild"
+      version         = "1"
+      input_artifacts = ["docker_image"]
+      configuration = {
+        ProjectName = module.codebuild_deploy_staging.codebuild_name
       }
     }
   }

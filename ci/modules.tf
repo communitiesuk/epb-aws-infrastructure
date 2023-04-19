@@ -153,9 +153,9 @@ module "toggles-pipeline" {
   github_organisation     = var.github_organisation
   codestar_connection_arn = module.codestar_connection.codestar_connection_arn
   account_ids             = var.account_ids
-  ecs_cluster_name        = "epb-intg-toggles-cluster"
-  ecs_service_name        = "epb-intg-toggles"
-  app_ecr_name            = "epb-intg-toggles-ecr"
+  ecs_cluster_name        = "toggles-cluster"
+  ecs_service_name        = "toggles"
+  app_ecr_name            = "toggles-ecr"
   project_name            = "epbr-toggles"
   region                  = var.region
   aws_arm_codebuild_image = var.aws_arm_codebuild_image
