@@ -132,9 +132,9 @@ module "data_warehouse-pipeline" {
   github_organisation     = var.github_organisation
   codestar_connection_arn = module.codestar_connection.codestar_connection_arn
   account_ids             = var.account_ids
-  ecs_cluster_name        = "epb-intg-warehouse-cluster"
-  ecs_service_name        = "epb-intg-warehouse"
-  app_ecr_name            = "epb-intg-warehouse-ecr"
+  ecs_cluster_name        = "warehouse-cluster"
+  ecs_service_name        = "warehouse"
+  app_ecr_name            = "warehouse-ecr"
   project_name            = "epbr-data-warehouse"
   codebuild_image_ecr_url = module.app_test_image_pipeline.image_repository_url
   postgres_image_ecr_url  = module.postgres_test_image_pipeline.image_repository_url
