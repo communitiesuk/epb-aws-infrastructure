@@ -110,9 +110,9 @@ module "frontend-pipeline" {
   github_organisation     = var.github_organisation
   codestar_connection_arn = module.codestar_connection.codestar_connection_arn
   account_ids             = var.account_ids
-  ecs_cluster_name        = "epb-intg-frontend-cluster"
-  ecs_service_name        = "epb-intg-frontend"
-  app_ecr_name            = "epb-intg-frontend-ecr"
+  ecs_cluster_name        = "frontend-cluster"
+  ecs_service_name        = "frontend"
+  app_ecr_name            = "frontend-ecr"
   project_name            = "epbr-frontend"
   codebuild_image_ecr_url = module.app_test_image_pipeline.image_repository_url
   region                  = var.region

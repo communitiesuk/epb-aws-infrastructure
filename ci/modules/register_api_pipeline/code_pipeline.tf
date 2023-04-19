@@ -98,7 +98,7 @@ resource "aws_codepipeline" "codepipeline" {
     name = "deploy-to-pre-production"
 
     action {
-      name            = "deploy-to-integration-reg-api-cluster"
+      name            = "deploy-reg-api-to-integration-cluster"
       category        = "Build"
       owner           = "AWS"
       provider        = "CodeBuild"
@@ -110,7 +110,7 @@ resource "aws_codepipeline" "codepipeline" {
     }
 
     action {
-      name            = "deploy-to-integration-sidekiq-cluster"
+      name            = "deploy-sidekiq-to-integration-cluster"
       category        = "Build"
       owner           = "AWS"
       provider        = "CodeBuild"
@@ -122,7 +122,7 @@ resource "aws_codepipeline" "codepipeline" {
     }
 
     action {
-      name            = "deploy-to-staging-reg-api-cluster"
+      name            = "deploy-reg-api-to-staging-cluster"
       category        = "Build"
       owner           = "AWS"
       provider        = "CodeBuild"
@@ -134,7 +134,7 @@ resource "aws_codepipeline" "codepipeline" {
     }
 
     action {
-      name            = "deploy-to-staging-sidekiq-cluster"
+      name            = "deploy-sidekiq-to-staging-cluster"
       category        = "Build"
       owner           = "AWS"
       provider        = "CodeBuild"
