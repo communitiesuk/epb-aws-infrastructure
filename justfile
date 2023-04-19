@@ -92,15 +92,24 @@ _set-profile profile:
 
     echo $(cat ~/.aws/config | grep -A 4 "\[profile {{profile}}\]")
 
+[no-exit-message]
+_check_aws_profile:
+    #!/usr/bin/env bash
+
+    if [[ -z "${AWS_PROFILE}" ]]; then
+      echo "Please define your AWS_PROFILE environment variable, e.g. 'export AWS_PROFILE=integration'"
+      exit 1
+    fi
+
 # list available rds hosts
-rds-list:
+rds-list: _check_aws_profile
     #!/usr/bin/env bash
 
     aws-vault exec $AWS_PROFILE -- aws rds describe-db-instances --query 'DBInstances[*].Endpoint.Address' --output table
     echo "run 'just bastion-rds rds_endpoint=<endpoint>' to connect to the rds instance"
 
 # Creates connection to RDS instance. requires bastion host 'bastion-host' to be running in currenct account. Run 'just rds-list' to get available endpoint addresses
-rds-connect rds_endpoint local_port="5432":
+rds-connect rds_endpoint local_port="5432": _check_aws_profile
     #!/usr/bin/env bash
 
     BASTION_RDS_INSTANCE_ID=$(aws-vault exec $AWS_PROFILE -- aws ec2 describe-instances --filters "Name=tag:Name,Values=bastion-host" --query 'Reservations[*].Instances[*].InstanceId' --output text)
@@ -113,19 +122,19 @@ rds-connect rds_endpoint local_port="5432":
     aws-vault exec $AWS_PROFILE -- aws ssm start-session --target $BASTION_RDS_INSTANCE_ID --document-name AWS-StartPortForwardingSessionToRemoteHost --parameters host="{{rds_endpoint}}",portNumber="5432",localPortNumber="{{local_port}}"
 
 # Disconnects from RDS instance
-rds-disconnect:
+rds-disconnect: _check_aws_profile
     #!/usr/bin/env bash
     BASTION_RDS_INSTANCE_ID=$(aws-vault exec $AWS_PROFILE -- aws ec2 describe-instances --filters "Name=tag:Name,Values=bastion-host" --query 'Reservations[*].Instances[*].InstanceId' --output text)
     aws-vault exec $AWS_PROFILE -- aws ssm stop-session --target $(BASTION_RDS_INSTANCE_ID)
 
 # list available secrets
-secrets-list:
+secrets-list: _check_aws_profile
     #!/usr/bin/env bash
     aws-vault exec $AWS_PROFILE -- aws secretsmanager list-secrets --query 'SecretList[*].Name' --output table
     echo "You can view secrets by running: just get-secret {secret_name}"
 
 # get secret value
-get-secret secret_name:
+get-secret secret_name: _check_aws_profile
     #!/usr/bin/env bash
     aws-vault exec $AWS_PROFILE -- aws secretsmanager get-secret-value --secret-id {{secret_name}} --query 'SecretString' --output text
 
@@ -136,12 +145,12 @@ tflint:
     echo "running tflint..." 
     docker run --rm -v $(pwd):/data -t ghcr.io/terraform-linters/tflint --recursive
 
-tfapply path=".":
+tfapply path=".": _check_aws_profile
     #!/usr/bin/env bash
 
     cd {{path}} && aws-vault exec $AWS_PROFILE -- terraform apply
 
-tfdestroy path="." force="false":
+tfdestroy path="." force="false": _check_aws_profile
     #!/usr/bin/env bash
 
     if [ {{force}} = "false" ]; then
@@ -151,7 +160,7 @@ tfdestroy path="." force="false":
         cd {{path}} && aws-vault exec $AWS_PROFILE -- terraform destroy
     fi
 
-tfinit path="." backend="":
+tfinit path="." backend="": _check_aws_profile
     #!/usr/bin/env bash
 
     if [ "{{backend}}" != "" ]; then
@@ -163,13 +172,13 @@ tfinit path="." backend="":
     fi
 
 # Updates tfvars file in S3 with values from local file. environment should be one of 'integration', 'staging' or 'production'
-tfvars-put path="." environment="integration":
+tfvars-put path="." environment="integration": _check_aws_profile
     #!/usr/bin/env bash
 
     cd {{path}} && aws-vault exec $AWS_PROFILE -- aws s3api put-object --bucket epbr-{{environment}}-terraform-state --key .tfvars --body {{environment}}.tfvars
 
 # Updates local tfvars file with values stored in S3 bucket. environment should be one of 'integration', 'staging' or 'production'
-tfvars-get path="." environment="integration":
+tfvars-get path="." environment="integration": _check_aws_profile
     #!/usr/bin/env bash
 
     cd {{path}}
@@ -182,7 +191,7 @@ tfsec minimum_severity="HIGH":
     tfsec --minimum-severity {{minimum_severity}}
 
 # Deploys local image to ECR. Requires docker to be running. If dockerfile_path is not specified, it attempt to use existing image. dockerfile_path should be absolute path to directory containing dockerfile
-service-update-image image_name service_name dockerfile_path="":
+service-update-image image_name service_name dockerfile_path="": _check_aws_profile
     #!/usr/bin/env bash
 
     ECR_REPO_NAME={{service_name}}-ecr
@@ -197,7 +206,7 @@ service-update-image image_name service_name dockerfile_path="":
 
     just service-refresh {{service_name}}
 
-fluentbit-update-image image_name dockerfile_path="":
+fluentbit-update-image image_name dockerfile_path="": _check_aws_profile
     #!/usr/bin/env bash
 
     ECR_REPO_NAME=fluentbit
@@ -218,20 +227,20 @@ service-refresh service_name:
     ECS_CLUSTER_NAME={{service_name}}-cluster
     aws-vault exec integration -- aws ecs update-service --cluster $ECS_CLUSTER_NAME --service {{service_name}} --force-new-deployment
 
-parameters-list:
+parameters-list: _check_aws_profile
     #!/usr/bin/env bash
 
     aws-vault exec $AWS_PROFILE -- aws ssm describe-parameters --query 'Parameters[*][Name, Type, LastModifiedDate]' --output table
 
 # Should only be used for testing. For persisting change, update .tfvars instead
-parameters-set name value:
+parameters-set name value: _check_aws_profile
     #!/usr/bin/env bash
 
     aws-vault exec $AWS_PROFILE -- aws ssm put-parameter --name {{name}} --value {{value}} --overwrite
     
     echo "Parameter update. To make changes take effect, run 'just refresh-service service_name=<service_name>'"
 
-exec-cmd cluster task_id container:
+exec-cmd cluster task_id container: _check_aws_profile
     #!/usr/bin/env bash
 
     aws-vault exec $AWS_PROFILE -- aws ecs execute-command --cluster {{cluster}} --task {{task_id}}  --interactive --container {{container}}  --command "/bin/sh"
