@@ -352,7 +352,9 @@ module "register_sidekiq_application" {
   health_check_path  = "/healthcheck"
   additional_task_execution_role_policy_arns = {
     "RDS_access" : module.register_api_database.rds_full_access_policy_arn,
-    "Redis_access" : data.aws_iam_policy.elasticache_full_access.arn,
+    "Redis_access" : data.aws_iam_policy.elasticache_full_access.arn
+  }
+  additional_task_role_policy_arns = {
     "OpenDataExport_S3_access" : module.open_data_export.open_data_s3_write_access_policy_arn
   }
   aws_cloudwatch_log_group_id   = module.logging.cloudwatch_log_group_id
