@@ -32,7 +32,6 @@ module "codebuild_build_app_image" {
   environment_variables = [
     { name = "AWS_DEFAULT_REGION", value = var.region },
     { name = "AWS_ACCOUNT_ID", value = var.account_ids["integration"] },
-    { name = "DOCKER_IMAGE_URI", value = "${var.account_ids["integration"]}.dkr.ecr.${var.region}.amazonaws.com/${local.integration_prefix}-${var.app_ecr_name}" },
   ]
   region = var.region
 }
