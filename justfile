@@ -250,6 +250,7 @@ exec-cmd cluster task_id container: _check_aws_profile
 
     aws-vault exec $AWS_PROFILE -- aws ecs execute-command --cluster {{cluster}} --task {{task_id}}  --interactive --container {{container}}  --command "/bin/sh"
 
+# Open a bash session on an ECS service
 ecs-shell service_name: _check_aws_profile
     #!/usr/bin/env bash
 
