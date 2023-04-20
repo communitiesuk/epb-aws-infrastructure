@@ -219,6 +219,11 @@ fluentbit-update-image image_name dockerfile_path="": _check_aws_profile
     docker tag {{image_name}}:latest $ACCOUNT_ID.dkr.ecr.eu-west-2.amazonaws.com/$ECR_REPO_NAME:latest
     docker push $ACCOUNT_ID.dkr.ecr.eu-west-2.amazonaws.com/$ECR_REPO_NAME:latest
 
+# List services available in this context. These values can be used as a "service_name" parameter in some other tasks.
+services-list: _check_aws_profile
+    #!/usr/bin/env bash
+
+    aws-vault exec $AWS_PROFILE -- aws ecs list-clusters | jq -r '.clusterArns|map(split("/")[1])|map(split("-")[0:-1]|join("-"))|join("\n")'
 
 # Force redeploy of ECS service. Do this to make parameter changes take effect
 service-refresh service_name: _check_aws_profile
