@@ -200,6 +200,12 @@ tfvars-put path="." environment="integration": _ensure_aws_profile
 
     cd {{path}} && aws-vault exec $AWS_PROFILE -- aws s3api put-object --bucket epbr-{{environment}}-terraform-state --key .tfvars --body {{environment}}.tfvars
 
+#Updates tfvars file in S3 with values from local file. environment is 'ci'
+tfvars-put-for-ci path="./ci": _ensure_aws_profile
+    #!/usr/bin/env bash
+
+    cd {{path}} && aws-vault exec $AWS_PROFILE -- aws s3api put-object --bucket epbr-terraform-state --key .tfvars --body .auto.tfvars
+
 # Updates local tfvars file with values stored in S3 bucket. environment should be one of 'integration', 'staging' or 'production'
 tfvars-get path="." environment="integration": _ensure_aws_profile
     #!/usr/bin/env bash
@@ -207,6 +213,14 @@ tfvars-get path="." environment="integration": _ensure_aws_profile
     cd {{path}}
     aws-vault exec $AWS_PROFILE -- aws s3api get-object --bucket epbr-{{environment}}-terraform-state --key .tfvars {{environment}}.tfvars
     cp {{environment}}.tfvars .auto.tfvars
+
+# Updates local tfvars file for the ci with values stored in S3 bucket. environment is 'ci'
+tfvars-get-for-ci path="./ci": _ensure_aws_profile
+    #!/usr/bin/env bash
+
+    cd {{path}}
+    aws-vault exec $AWS_PROFILE -- aws s3api get-object --bucket epbr-terraform-state --key .tfvars .auto.tfvars
+    cp .tfvars .auto.tfvars
 
 tfsec minimum_severity="HIGH":
     #!/usr/bin/env bash
