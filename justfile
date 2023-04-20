@@ -101,6 +101,29 @@ _ensure_aws_profile:
       exit 1
     fi
 
+[no-exit-message]
+_ensure_jq:
+    #!/usr/bin/env bash
+
+    if ! command -v jq &> /dev/null; then
+      if [ "$(uname)" == "Darwin" ]; then
+        if ! command -v brew &> /dev/null; then
+          echo "You need `jq` to run this just recipe. It can be installed using e.g. Homebrew."
+          exit 1
+        else
+          echo "As this just recipe needs jq, installing it using Homebrew..."
+          echo ""
+          brew install jq
+          echo ""
+          echo "...jq installed using Homebrew - ready to run the just recipe!"
+          echo ""
+        fi
+      else
+        echo "You need `jq` available in your shell environment in order to run this just recipe. For installation, see https://stedolan.github.io/jq/"
+        exit 1
+      fi
+    fi
+
 # list available rds hosts
 rds-list: _ensure_aws_profile
     #!/usr/bin/env bash
@@ -220,7 +243,7 @@ fluentbit-update-image image_name dockerfile_path="": _ensure_aws_profile
     docker push $ACCOUNT_ID.dkr.ecr.eu-west-2.amazonaws.com/$ECR_REPO_NAME:latest
 
 # List services available in this context. These values can be used as a "service_name" parameter in some other tasks.
-services-list: _ensure_aws_profile
+services-list: _ensure_aws_profile _ensure_jq
     #!/usr/bin/env bash
 
     aws-vault exec $AWS_PROFILE -- aws ecs list-clusters | jq -r '.clusterArns|map(split("/")[1])|map(split("-")[0:-1]|join("-"))|join("\n")'
@@ -251,7 +274,7 @@ exec-cmd cluster task_id container: _ensure_aws_profile
     aws-vault exec $AWS_PROFILE -- aws ecs execute-command --cluster {{cluster}} --task {{task_id}}  --interactive --container {{container}}  --command "/bin/sh"
 
 # Open a bash session on an ECS service
-ecs-shell service_name: _ensure_aws_profile
+ecs-shell service_name: _ensure_aws_profile _ensure_jq
     #!/usr/bin/env bash
 
     echo "Preparing session on ECS..."
