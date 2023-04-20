@@ -1,10 +1,5 @@
 data "aws_caller_identity" "current" {}
 
-locals {
-  integration_prefix = "epb-intg"
-  staging_prefix = "epb-stag"
-}
-
 module "codebuild_run_app_test" {
   source             = "../codebuild_project"
   codebuild_role_arn = var.codebuild_role_arn
@@ -46,9 +41,9 @@ module "codebuild_deploy_integration" {
   environment_variables = [
     { name = "AWS_DEFAULT_REGION", value = var.region },
     { name = "AWS_ACCOUNT_ID", value = var.account_ids["integration"] },
-    { name = "DOCKER_IMAGE_URI", value = "${var.account_ids["integration"]}.dkr.ecr.${var.region}.amazonaws.com/${local.integration_prefix}-${var.app_ecr_name}" },
-    { name = "CLUSTER_NAME", value = "${local.integration_prefix}-${var.ecs_cluster_name}" },
-    { name = "SERVICE_NAME", value = "${local.integration_prefix}-${var.ecs_service_name}" },
+    { name = "DOCKER_IMAGE_URI", value = "${var.account_ids["integration"]}.dkr.ecr.${var.region}.amazonaws.com/${var.integration_prefix}-${var.app_ecr_name}" },
+    { name = "CLUSTER_NAME", value = "${var.integration_prefix}-${var.ecs_cluster_name}" },
+    { name = "SERVICE_NAME", value = "${var.integration_prefix}-${var.ecs_service_name}" },
   ]
   region = var.region
 }
@@ -63,9 +58,9 @@ module "codebuild_deploy_staging" {
   environment_variables = [
     { name = "AWS_DEFAULT_REGION", value = var.region },
     { name = "AWS_ACCOUNT_ID", value = var.account_ids["staging"] },
-    { name = "DOCKER_IMAGE_URI", value = "${var.account_ids["staging"]}.dkr.ecr.${var.region}.amazonaws.com/${local.staging_prefix}-${var.app_ecr_name}" },
-    { name = "CLUSTER_NAME", value = "${local.staging_prefix}-${var.ecs_cluster_name}" },
-    { name = "SERVICE_NAME", value = "${local.staging_prefix}-${var.ecs_service_name}" },
+    { name = "DOCKER_IMAGE_URI", value = "${var.account_ids["staging"]}.dkr.ecr.${var.region}.amazonaws.com/${var.staging_prefix}-${var.app_ecr_name}" },
+    { name = "CLUSTER_NAME", value = "${var.staging_prefix}-${var.ecs_cluster_name}" },
+    { name = "SERVICE_NAME", value = "${var.staging_prefix}-${var.ecs_service_name}" },
   ]
   region = var.region
 }

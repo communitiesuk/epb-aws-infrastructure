@@ -60,6 +60,7 @@ module "auth-server-pipeline" {
   github_repository       = "epb-auth-server"
   github_branch           = "master"
   github_organisation     = var.github_organisation
+  integration_prefix      = var.integration_prefix
   codestar_connection_arn = module.codestar_connection.codestar_connection_arn
   account_ids             = var.account_ids
   ecs_cluster_name        = "auth-cluster"
@@ -69,6 +70,7 @@ module "auth-server-pipeline" {
   codebuild_image_ecr_url = module.app_test_image_pipeline.image_repository_url
   postgres_image_ecr_url  = module.postgres_test_image_pipeline.image_repository_url
   region                  = var.region
+  staging_prefix          = var.staging_prefix
 }
 
 module "register-api-pipeline" {
@@ -80,6 +82,7 @@ module "register-api-pipeline" {
   github_repository         = "epb-register-api"
   github_branch             = "master"
   github_organisation       = var.github_organisation
+  integration_prefix        = var.integration_prefix
   codestar_connection_arn   = module.codestar_connection.codestar_connection_arn
   account_ids               = var.account_ids
   ecs_cluster_name          = "reg-api-cluster"
@@ -97,6 +100,7 @@ module "register-api-pipeline" {
   sidekiq_ecr_name          = "reg-sidekiq-ecr"
   smoketests_repository     = var.smoketests_repository
   smoketests_branch         = var.smoketests_branch
+  staging_prefix            = var.staging_prefix
 }
 
 module "frontend-pipeline" {
@@ -108,6 +112,7 @@ module "frontend-pipeline" {
   github_repository       = "epb-frontend"
   github_branch           = "master"
   github_organisation     = var.github_organisation
+  integration_prefix      = var.integration_prefix
   codestar_connection_arn = module.codestar_connection.codestar_connection_arn
   account_ids             = var.account_ids
   ecs_cluster_name        = "frontend-cluster"
@@ -119,6 +124,7 @@ module "frontend-pipeline" {
   aws_arm_codebuild_image = var.aws_arm_codebuild_image
   smoketests_repository   = var.smoketests_repository
   smoketests_branch       = var.smoketests_branch
+  staging_prefix          = var.staging_prefix
 }
 
 module "data_warehouse-pipeline" {
@@ -130,6 +136,7 @@ module "data_warehouse-pipeline" {
   github_repository       = "epb-data-warehouse"
   github_branch           = "main"
   github_organisation     = var.github_organisation
+  integration_prefix      = var.integration_prefix
   codestar_connection_arn = module.codestar_connection.codestar_connection_arn
   account_ids             = var.account_ids
   ecs_cluster_name        = "warehouse-cluster"
@@ -140,6 +147,7 @@ module "data_warehouse-pipeline" {
   postgres_image_ecr_url  = module.postgres_test_image_pipeline.image_repository_url
   region                  = var.region
   aws_arm_codebuild_image = var.aws_arm_codebuild_image
+  staging_prefix          = var.staging_prefix
 }
 
 module "toggles-pipeline" {
@@ -151,6 +159,7 @@ module "toggles-pipeline" {
   github_repository       = "epb-toggles"
   github_branch           = "master"
   github_organisation     = var.github_organisation
+  integration_prefix      = var.integration_prefix
   codestar_connection_arn = module.codestar_connection.codestar_connection_arn
   account_ids             = var.account_ids
   ecs_cluster_name        = "toggles-cluster"
@@ -159,6 +168,7 @@ module "toggles-pipeline" {
   project_name            = "epbr-toggles"
   region                  = var.region
   aws_arm_codebuild_image = var.aws_arm_codebuild_image
+  staging_prefix          = var.staging_prefix
 }
 
 module "cc-tray" {
