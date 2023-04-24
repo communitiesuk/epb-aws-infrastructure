@@ -570,7 +570,7 @@ module "data_migration_auth_application" {
   region                              = var.region
   rds_full_access_policy_arn          = module.auth_database.rds_full_access_policy_arn
   rds_db_connection_string_secret_arn = module.secrets.secret_arns["RDS_AUTH_SERVICE_CONNECTION_STRING"]
-  backup_file                         = "epbr-auth-integration.dump"
+  backup_file                         = "epbr-auth-${var.environment}.dump"
   ecr_repository_url                  = module.data_migration_shared.ecr_repository_url
   backup_bucket_name                  = module.data_migration_shared.backup_bucket_name
   backup_bucket_arn                   = module.data_migration_shared.backup_bucket_arn
@@ -584,7 +584,7 @@ module "data_migration_api_application" {
   region                              = var.region
   rds_full_access_policy_arn          = module.register_api_database.rds_full_access_policy_arn
   rds_db_connection_string_secret_arn = module.secrets.secret_arns["RDS_API_SERVICE_CONNECTION_STRING"]
-  backup_file                         = "epbr-api-integration.dump"
+  backup_file                         = "epbr-api-${var.environment}.dump"
   ecr_repository_url                  = module.data_migration_shared.ecr_repository_url
   backup_bucket_name                  = module.data_migration_shared.backup_bucket_name
   backup_bucket_arn                   = module.data_migration_shared.backup_bucket_arn
@@ -601,7 +601,7 @@ module "data_migration_toggles_application" {
   region                              = var.region
   rds_full_access_policy_arn          = module.toggles_database.rds_full_access_policy_arn
   rds_db_connection_string_secret_arn = module.secrets.secret_arns["RDS_TOGGLES_CONNECTION_STRING"]
-  backup_file                         = "epbr-toggles-integration.dump"
+  backup_file                         = "epbr-toggles-${var.environment}.dump"
   ecr_repository_url                  = module.data_migration_shared.ecr_repository_url
   backup_bucket_name                  = module.data_migration_shared.backup_bucket_name
   backup_bucket_arn                   = module.data_migration_shared.backup_bucket_arn
@@ -615,7 +615,7 @@ module "data_migration_warehouse_application" {
   region                              = var.region
   rds_full_access_policy_arn          = module.warehouse_database.rds_full_access_policy_arn
   rds_db_connection_string_secret_arn = module.secrets.secret_arns["RDS_WAREHOUSE_CONNECTION_STRING"]
-  backup_file                         = "epbr-data-warehouse-integration.dump"
+  backup_file                         = "epbr-data-warehouse-${var.environment}ration.dump"
   ecr_repository_url                  = module.data_migration_shared.ecr_repository_url
   backup_bucket_name                  = module.data_migration_shared.backup_bucket_name
   backup_bucket_arn                   = module.data_migration_shared.backup_bucket_arn
