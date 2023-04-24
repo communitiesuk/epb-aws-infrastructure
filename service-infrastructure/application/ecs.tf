@@ -52,7 +52,7 @@ resource "aws_ecs_task_definition" "this" {
     },
     {
       name      = local.fluentbit_container_name
-      image     = "851965904888.dkr.ecr.eu-west-2.amazonaws.com/fluentbit:latest"
+      image     = "${var.account_id}.dkr.ecr.eu-west-2.amazonaws.com/fluentbit:latest"
       cpu       = 0
       essential = true
 

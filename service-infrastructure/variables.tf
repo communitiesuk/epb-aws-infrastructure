@@ -1,3 +1,7 @@
+variable "account_id" {
+  type    = string
+}
+
 variable "environment" {
   default = "intg"
   type    = string
