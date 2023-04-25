@@ -1,3 +1,8 @@
+variable "aws_arm_codebuild_image" {
+  default = "aws/codebuild/amazonlinux2-aarch64-standard:2.0"
+  type    = string
+}
+
 variable "account_ids" {
   type = map(string)
 }
@@ -8,6 +13,11 @@ variable "cross_account_role_arns" {
 
 variable "github_organisation" {
   default = "communitiesuk"
+  type    = string
+}
+
+variable "integration_prefix" {
+  default = "epb-intg"
   type    = string
 }
 
@@ -26,7 +36,7 @@ variable "smoketests_repository" {
   type    = string
 }
 
-variable "aws_arm_codebuild_image" {
-  default = "aws/codebuild/amazonlinux2-aarch64-standard:2.0"
+variable "staging_prefix" {
+  default = "epb-stag"
   type    = string
 }

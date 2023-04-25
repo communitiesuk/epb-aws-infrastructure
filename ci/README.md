@@ -43,6 +43,54 @@ existing IAM user, check in the AWS console to verify they match.
 
 Follow instructions in [official AWS Vault documentation](https://github.com/99designs/aws-vault/blob/master/USAGE.md#config)
 
+### tfvars
+
+In terraform, we use modules which may require variables to be set. Even the top level (root) terraform definitions may require variables.
+
+These variables may be sensitive, so they should be stored securely and not checked into git.
+
+To avoid having to type each var whenever you run `terraform apply` command, it is good idea to keep a private set of variables in `tfvars` file.
+Better yet, to make things less verbose to run, store them in `.auto.tfvars` file.
+
+Example `.auto.tfvars` file:
+
+```hcl
+account_ids = {
+  integration="123456789012"
+  staging="1111111111111"
+}
+cross_account_role_arns = [
+  "arn:aws:iam::123456789012:role/ci-server-role",
+  "arn:aws:iam::1111111111111:role/ci-server-role",
+]
+```
+
+More info in [official documentation](https://developer.hashicorp.com/terraform/language/values/variables)
+
+### Maintaining tfvars
+
+tfvars are currently stored alongside the state file in the S3 bucket `epbr-terraform-state`.
+When updating the tfvars, make sure you update the file in the S3 bucket to avoid others being unable to deploy their changes.
+
+There are handy `just` scripts which automate the process:
+
+```bash
+just tfvars-put-for-ci {path} # where path is the where your ci folder is relative to the present directory you're in e.g. "./ci"
+
+just tfvars-get-for-ci {path} # where path is the where your ci folder is relative to the present directory you're in e.g. "./ci"
+```
+
+#### Securely handling tfvars
+
+Currently the tfvars are stored in plaintext on your machine to run the terraform scripts.
+We are planning on moving sensitive values to a more secure place.
+Until then, take care when handling the tfvars
+
+* Don't check them into git!
+* When adding new vars, mark them as `sensitive = true` in Terraform
+* If you are worried about security of files, don't store them on your machine - only download them to run the script, then delete or encrypt. Always do this for production
+* Only pass them to others via the S3 bucket, as documented in previous section
+
 ## Adding local secret vars
 
 The code pipelines reside in the AWS CICD account, but need access to the AWS accounts of the service environments

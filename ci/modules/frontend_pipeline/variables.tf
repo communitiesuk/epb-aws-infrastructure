@@ -6,6 +6,10 @@ variable "app_ecr_name" {
   type = string
 }
 
+variable "aws_arm_codebuild_image" {
+  type = string
+}
+
 variable "codebuild_image_ecr_url" {
   type = string
 }
@@ -46,6 +50,10 @@ variable "github_repository" {
   type = string
 }
 
+variable "integration_prefix" {
+  type = string
+}
+
 variable "pipeline_name" {
   type = string
 }
@@ -66,6 +74,6 @@ variable "smoketests_branch" {
   type = string
 }
 
-variable "aws_arm_codebuild_image" {
+variable "staging_prefix" {
   type = string
 }
