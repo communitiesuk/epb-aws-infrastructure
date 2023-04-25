@@ -24,6 +24,45 @@ resource "aws_iam_role_policy_attachment" "bastion_role_policy_attachment" {
   policy_arn = each.value
 }
 
+resource "aws_iam_role_policy" "manage_session" {
+  name = "session_policy"
+  role = aws_iam_role.ec2_rds_access.name
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "ssmmessages:CreateControlChannel",
+          "ssmmessages:CreateDataChannel",
+          "ssmmessages:OpenControlChannel",
+          "ssmmessages:OpenDataChannel",
+          "ssm:UpdateInstanceInformation"
+        ]
+        Resource = "*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "logs:CreateLogStream",
+          "logs:PutLogEvents",
+          "logs:DescribeLogGroups",
+          "logs:DescribeLogStreams"
+        ]
+        Resource = "*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:GetEncryptionConfiguration"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+
+}
+
 resource "aws_iam_instance_profile" "bastion" {
   name = "bastion_profile"
   role = aws_iam_role.ec2_rds_access.name
