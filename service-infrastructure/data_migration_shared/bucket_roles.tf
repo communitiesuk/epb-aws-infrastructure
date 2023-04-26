@@ -4,7 +4,7 @@ resource "aws_iam_policy" "copy_backup_bucket_role" {
     Version = "2012-10-17"
     Statement = [
       {
-        Sid =  "DelegateS3StagAccess"
+        Sid    = "DelegateS3StagAccess"
         Effect = "Allow"
 
         Action = [
@@ -23,8 +23,8 @@ resource "aws_iam_policy" "copy_backup_bucket_role" {
         ]
       },
       {
-        "Effect": "Allow",
-        "Action": [
+        "Effect" : "Allow",
+        "Action" : [
           "s3:PutObject",
           "s3:GetObject",
           "s3:ListBucketMultipartUploads",
@@ -35,7 +35,7 @@ resource "aws_iam_policy" "copy_backup_bucket_role" {
           "s3:ListMultipartUploadParts",
           "s3:CreateMultipartUpload"
         ],
-        "Resource": [
+        "Resource" : [
           "arn:aws:s3:::epb-register-api-db-backup",
           "arn:aws:s3:::epb-register-api-db-backup/*"
         ]
