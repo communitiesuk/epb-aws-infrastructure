@@ -4,7 +4,7 @@ resource "aws_iam_policy" "copy_backup_bucket_role" {
     Version = "2012-10-17"
     Statement = [
       {
-        Sid    = "DelegateS3StagAccess"
+        Sid    = "DelegateS3Access"
         Effect = "Allow"
 
         Action = [
