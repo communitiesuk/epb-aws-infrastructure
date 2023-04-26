@@ -455,6 +455,7 @@ module "warehouse_application" {
   logs_bucket_name              = module.logging.logs_bucket_name
   logs_bucket_url               = module.logging.logs_bucket_url
   create_internal_alb           = false
+  enable_execute_command        = true
 }
 
 module "warehouse_database" {
