@@ -36,14 +36,6 @@ resource "aws_security_group" "alb_internal" {
     ipv6_cidr_blocks = ["::/0"]
   }
 
-  egress {
-    protocol         = "tcp"
-    from_port        = var.container_port
-    to_port          = var.container_port
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
-
   tags = {
     Name = "${var.prefix}-alb-internal-sg"
   }

@@ -14,6 +14,10 @@ variable "subnet_ids" {
   type = list(string)
 }
 
+variable "subnet_cidr" {
+  type = string
+}
+
 variable "vpc_id" {
   type = string
 }

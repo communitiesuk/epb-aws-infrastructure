@@ -18,14 +18,6 @@ resource "aws_security_group" "alb" {
     ipv6_cidr_blocks = ["::/0"]
   }
 
-  ingress {
-    protocol         = "tcp"
-    from_port        = 80
-    to_port          = 4242
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
-
   egress {
     protocol         = "tcp"
     from_port        = 80

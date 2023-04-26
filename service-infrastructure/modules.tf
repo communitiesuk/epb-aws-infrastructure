@@ -376,6 +376,7 @@ module "register_sidekiq_redis" {
   aws_cloudwatch_log_group_name = module.logging.cloudwatch_log_group_name
   redis_port                    = local.redis_port
   subnet_ids                    = module.networking.private_subnet_ids
+  subnet_cidr                   = module.networking.private_subnet_cidr
   vpc_id                        = module.networking.vpc_id
 }
 
@@ -477,6 +478,7 @@ module "warehouse_redis" {
   aws_cloudwatch_log_group_name = module.logging.cloudwatch_log_group_name
   redis_port                    = local.redis_port
   subnet_ids                    = module.networking.private_subnet_ids
+  subnet_cidr                   = module.networking.private_subnet_cidr
   vpc_id                        = module.networking.vpc_id
 }
 
