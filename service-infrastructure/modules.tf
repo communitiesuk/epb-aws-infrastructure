@@ -58,13 +58,15 @@ module "secrets" {
     "RDS_AUTH_SERVICE_CONNECTION_STRING" : module.auth_database.rds_db_connection_string
     "RDS_AUTH_SERVICE_PASSWORD" : module.auth_database.rds_db_password
     "RDS_AUTH_SERVICE_USERNAME" : module.auth_database.rds_db_username
-    "RDS_TEST_PASSWORD" : module.rds_test.rds_db_password
     "RDS_TOGGLES_CONNECTION_STRING" : module.toggles_database.rds_db_connection_string
     "RDS_TOGGLES_PASSWORD" : module.toggles_database.rds_db_password
     "RDS_TOGGLES_USERNAME" : module.toggles_database.rds_db_username
     "RDS_WAREHOUSE_CONNECTION_STRING" : module.warehouse_database.rds_db_connection_string
     "RDS_WAREHOUSE_PASSWORD" : module.warehouse_database.rds_db_password
     "RDS_WAREHOUSE_USERNAME" : module.warehouse_database.rds_db_username
+    "RDS_PGLOGICAL_TEST_CONNECTION_STRING" : module.pglogical_test_database.rds_db_connection_string
+    "RDS_PGLOGICAL_TEST_PASSWORD" : module.pglogical_test_database.rds_db_password
+    "RDS_PGLOGICAL_TEST_USERNAME" : module.pglogical_test_database.rds_db_username
   }
 }
 
@@ -268,17 +270,18 @@ module "auth_database" {
   instance_class        = "db.t3.micro"
 }
 
-module "rds_test" {
+# Used for testing pglogical replication
+module "pglogical_test_database" {
   source = "./rds"
 
-  prefix                = "${local.prefix}-test"
+  prefix                = "${local.prefix}-pglogical-test"
   db_name               = "epb"
   vpc_id                = module.networking.vpc_id
   subnet_group_name     = module.networking.private_subnet_group_name
-  security_group_ids    = [module.auth_application.ecs_security_group_id, module.bastion.security_group_id]
+  security_group_ids    = [module.bastion.security_group_id]
   storage_backup_period = 1 # to prevent weird behaviour when the backup window is set to 0
-  storage_size          = 100
-  instance_class        = "db.t3.micro"
+  storage_size          = 1000
+  instance_class        = "db.t3.medium"
 }
 
 module "register_api_application" {
@@ -619,6 +622,23 @@ module "data_migration_warehouse_application" {
   rds_full_access_policy_arn          = module.warehouse_database.rds_full_access_policy_arn
   rds_db_connection_string_secret_arn = module.secrets.secret_arns["RDS_WAREHOUSE_CONNECTION_STRING"]
   backup_file                         = "epbr-data-warehouse-${var.environment}.dump"
+  ecr_repository_url                  = module.data_migration_shared.ecr_repository_url
+  backup_bucket_name                  = module.data_migration_shared.backup_bucket_name
+  backup_bucket_arn                   = module.data_migration_shared.backup_bucket_arn
+  log_group                           = module.data_migration_shared.log_group
+
+  minimum_cpu       = 1024
+  minimum_memory_mb = 2048
+}
+
+module "data_migration_pglogical_test" {
+  source = "./data_migration"
+
+  prefix                              = "${local.prefix}-pglogical-test"
+  region                              = var.region
+  rds_full_access_policy_arn          = module.pglogical_test_database.rds_full_access_policy_arn
+  rds_db_connection_string_secret_arn = module.secrets.secret_arns["RDS_PGLOGICAL_TEST_CONNECTION_STRING"]
+  backup_file                         = "pglogical-test.dump"
   ecr_repository_url                  = module.data_migration_shared.ecr_repository_url
   backup_bucket_name                  = module.data_migration_shared.backup_bucket_name
   backup_bucket_arn                   = module.data_migration_shared.backup_bucket_arn
