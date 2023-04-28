@@ -9,6 +9,16 @@ resource "aws_instance" "bastion" {
   subnet_id            = var.subnet_id
   iam_instance_profile = aws_iam_instance_profile.bastion.name
 
+  metadata_options {
+    http_endpoint               = "enabled"
+    http_tokens                 = "required"
+    http_put_response_hop_limit = 2
+  }
+
+  root_block_device {
+    encrypted = true
+  }
+
   tags = {
     Name = "bastion-host"
   }

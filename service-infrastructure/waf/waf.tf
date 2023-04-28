@@ -9,8 +9,30 @@ resource "aws_wafv2_web_acl" "this" {
   }
 
   rule {
-    name     = "block-ip-rule"
+    name     = "AWS-AWSManagedRulesKnownBadInputsRuleSet"
     priority = 1
+
+    override_action {
+      none {}
+    }
+
+    statement {
+      managed_rule_group_statement {
+        name        = "AWSManagedRulesKnownBadInputsRuleSet"
+        vendor_name = "AWS"
+      }
+    }
+
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      metric_name                = "waf-block-bad-impout-metrics"
+      sampled_requests_enabled   = false
+    }
+  }
+
+  rule {
+    name     = "block-ip-rule"
+    priority = 11
 
     statement {
       ip_set_reference_statement {
@@ -31,7 +53,7 @@ resource "aws_wafv2_web_acl" "this" {
 
   rule {
     name     = "block-ipv6-rule"
-    priority = 2
+    priority = 12
 
     statement {
       ip_set_reference_statement {
@@ -52,7 +74,7 @@ resource "aws_wafv2_web_acl" "this" {
 
   rule {
     name     = "throttle-requests-rule"
-    priority = 3
+    priority = 13
 
     statement {
       rate_based_statement {

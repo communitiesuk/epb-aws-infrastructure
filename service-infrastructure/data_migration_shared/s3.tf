@@ -1,6 +1,8 @@
 resource "aws_s3_bucket" "this" {
   bucket        = "${var.prefix}-backup"
   force_destroy = false
+
+
 }
 
 resource "aws_s3_bucket_public_access_block" "bucket" {
