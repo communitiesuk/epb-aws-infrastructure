@@ -1,0 +1,7 @@
+#!/bin/bash
+if [ -x "$(command -v docker)" ]; then
+    MSYS_NO_PATHCONV=1 docker run -v $(pwd):/lint -w /lint ghcr.io/antonbabenko/pre-commit-terraform:latest run -a
+else
+    echo '`docker` not found. Make sure you have docker installed to run pre-commit hooks' 1>&2
+    exit 1
+fi

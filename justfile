@@ -11,6 +11,7 @@ install:
     @pip install checkov
 
     @just _alias_this
+    @just install-hooks
 
 # Install dependencies
 [macos]
@@ -19,6 +20,7 @@ install:
     @pip install checkov
 
     @just _alias_this
+    @just install-hooks
 
 _alias_this:
     #!/usr/bin/env bash
@@ -38,6 +40,11 @@ _alias_this:
             echo $ALIAS_COMMAND > ~/.bash_profile
         fi
     fi
+
+# installs git hooks to run pre-commit checks
+install-hooks:
+    #!/usr/bin/env bash
+    cp -r ./hooks ./.git
 
 # Add AWS config and aws-vault profile required to run many commands. Note: this will update .env file in current directory
 add-profile profile:
