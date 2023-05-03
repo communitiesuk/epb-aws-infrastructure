@@ -229,7 +229,6 @@ tfvars-get-for-ci path="./ci": _ensure_aws_profile
 
     cd {{path}}
     aws-vault exec $AWS_PROFILE -- aws s3api get-object --bucket epbr-terraform-state --key .tfvars .auto.tfvars
-    cp .tfvars .auto.tfvars
 
 tfsec minimum_severity="HIGH":
     #!/usr/bin/env bash
