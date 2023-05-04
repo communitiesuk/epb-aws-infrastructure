@@ -278,7 +278,7 @@ module "pglogical_test_database" {
   db_name               = "epb"
   vpc_id                = module.networking.vpc_id
   subnet_group_name     = module.networking.private_subnet_group_name
-  security_group_ids    = [module.bastion.security_group_id]
+  security_group_ids    = [module.data_migration_shared.postgres_access_security_group_id, module.bastion.security_group_id]
   storage_backup_period = 1 # to prevent weird behaviour when the backup window is set to 0
   storage_size          = 1000
   instance_class        = "db.t3.medium"
@@ -567,6 +567,7 @@ module "data_migration_shared" {
   source = "./data_migration_shared"
 
   prefix = "${local.prefix}-data-migration"
+  vpc_id = module.networking.vpc_id
 }
 
 module "data_migration_auth_application" {

@@ -13,3 +13,7 @@ output "backup_bucket_arn" {
 output "log_group" {
   value = aws_cloudwatch_log_group.this.id
 }
+
+output "postgres_access_security_group_id" {
+  value = aws_security_group.postgres_access.id
+}
