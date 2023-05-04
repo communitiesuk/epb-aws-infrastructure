@@ -43,3 +43,8 @@ variable "minimum_memory_mb" {
   type    = number
   default = 512
 }
+
+variable "ephemeral_storage_gib" {
+  default = 21
+  type    = number
+}

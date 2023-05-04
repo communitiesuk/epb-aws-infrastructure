@@ -42,6 +42,10 @@ resource "aws_ecs_task_definition" "this" {
       }
   }])
 
+  ephemeral_storage {
+    size_in_gib = var.ephemeral_storage_gib
+  }
+
   runtime_platform {
     operating_system_family = "LINUX"
     cpu_architecture        = "ARM64"
