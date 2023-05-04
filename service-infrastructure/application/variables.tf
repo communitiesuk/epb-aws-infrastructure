@@ -14,6 +14,10 @@ variable "container_port" {
   type = number
 }
 
+variable "cpu_architecture" {
+  type = string
+}
+
 variable "egress_ports" {
   type = list(number)
 }
