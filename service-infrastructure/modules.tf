@@ -134,6 +134,10 @@ module "parameter_store" {
       type  = "SecureString"
       value = var.parameters["TOGGLES_SECRET"]
     }
+    "URL_PREFIX" : {
+      type = "String"
+      value = var.parameters["URL_PREFIX"]
+    }
     "VALID_DOMESTIC_SCHEMAS" : {
       type  = "String"
       value = var.parameters["VALID_DOMESTIC_SCHEMAS"]
@@ -194,6 +198,7 @@ module "toggles_application" {
   prefix                = "${local.prefix}-toggles"
   region                = var.region
   account_id            = var.account_id
+  cpu_architecture      = "X86_64"
   container_port        = 4242
   egress_ports          = [80, 443, 5432, var.parameters["LOGSTASH_PORT"]]
   environment_variables = []
@@ -227,7 +232,8 @@ module "auth_application" {
   prefix                = "${local.prefix}-auth"
   region                = var.region
   account_id            = var.account_id
-  container_port        = 80
+  cpu_architecture      = "X86_64"
+  container_port        = 3001
   egress_ports          = [80, 443, 5432, var.parameters["LOGSTASH_PORT"]]
   environment_variables = []
   secrets = {
@@ -290,7 +296,8 @@ module "register_api_application" {
   prefix                = "${local.prefix}-reg-api"
   region                = var.region
   account_id            = var.account_id
-  container_port        = 80
+  container_port        = 3001
+  cpu_architecture      = "X86_64"
   egress_ports          = [80, 443, 5432, local.redis_port, var.parameters["LOGSTASH_PORT"]]
   environment_variables = []
   secrets = {
@@ -343,6 +350,7 @@ module "register_sidekiq_application" {
   region                = var.region
   account_id            = var.account_id
   container_port        = 80
+  cpu_architecture      = "ARM64"
   egress_ports          = [80, 443, 5432, local.redis_port, var.parameters["LOGSTASH_PORT"]]
   environment_variables = []
   secrets = {
@@ -390,6 +398,7 @@ module "frontend_application" {
   region                = var.region
   account_id            = var.account_id
   container_port        = 80
+  cpu_architecture      = "ARM64"
   egress_ports          = [80, 443, 5432, var.parameters["LOGSTASH_PORT"]]
   environment_variables = []
   secrets = {
@@ -433,6 +442,7 @@ module "warehouse_application" {
   region                = var.region
   account_id            = var.account_id
   container_port        = 80
+  cpu_architecture      = "X86_64"
   egress_ports          = [80, 443, 5432, local.redis_port, var.parameters["LOGSTASH_PORT"]]
   environment_variables = []
   secrets = {
