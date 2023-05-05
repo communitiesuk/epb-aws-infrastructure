@@ -397,8 +397,8 @@ module "frontend_application" {
   prefix                = "${local.prefix}-frontend"
   region                = var.region
   account_id            = var.account_id
-  container_port        = 80
-  cpu_architecture      = "ARM64"
+  container_port        = 3001
+  cpu_architecture      = "X86_64"
   egress_ports          = [80, 443, 5432, var.parameters["LOGSTASH_PORT"]]
   environment_variables = []
   secrets = {
