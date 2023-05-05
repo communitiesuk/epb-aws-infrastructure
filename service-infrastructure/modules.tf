@@ -198,7 +198,6 @@ module "toggles_application" {
   prefix                = "${local.prefix}-toggles"
   region                = var.region
   account_id            = var.account_id
-  cpu_architecture      = "X86_64"
   container_port        = 4242
   egress_ports          = [80, 443, 5432, var.parameters["LOGSTASH_PORT"]]
   environment_variables = []
@@ -232,7 +231,6 @@ module "auth_application" {
   prefix                = "${local.prefix}-auth"
   region                = var.region
   account_id            = var.account_id
-  cpu_architecture      = "X86_64"
   container_port        = 3001
   egress_ports          = [80, 443, 5432, var.parameters["LOGSTASH_PORT"]]
   environment_variables = []
@@ -297,7 +295,6 @@ module "register_api_application" {
   region                = var.region
   account_id            = var.account_id
   container_port        = 3001
-  cpu_architecture      = "X86_64"
   egress_ports          = [80, 443, 5432, local.redis_port, var.parameters["LOGSTASH_PORT"]]
   environment_variables = []
   secrets = {
@@ -350,7 +347,6 @@ module "register_sidekiq_application" {
   region                = var.region
   account_id            = var.account_id
   container_port        = 80
-  cpu_architecture      = "X86_64"
   egress_ports          = [80, 443, 5432, local.redis_port, var.parameters["LOGSTASH_PORT"]]
   environment_variables = []
   secrets = {
@@ -398,7 +394,6 @@ module "frontend_application" {
   region                = var.region
   account_id            = var.account_id
   container_port        = 3001
-  cpu_architecture      = "X86_64"
   egress_ports          = [80, 443, 5432, var.parameters["LOGSTASH_PORT"]]
   environment_variables = []
   secrets = {
@@ -442,7 +437,6 @@ module "warehouse_application" {
   region                = var.region
   account_id            = var.account_id
   container_port        = 80
-  cpu_architecture      = "X86_64"
   egress_ports          = [80, 443, 5432, local.redis_port, var.parameters["LOGSTASH_PORT"]]
   environment_variables = []
   secrets = {
