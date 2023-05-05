@@ -135,7 +135,7 @@ module "parameter_store" {
       value = var.parameters["TOGGLES_SECRET"]
     }
     "URL_PREFIX" : {
-      type = "String"
+      type  = "String"
       value = var.parameters["URL_PREFIX"]
     }
     "VALID_DOMESTIC_SCHEMAS" : {
@@ -656,8 +656,8 @@ module "data_migration_pglogical_test" {
   log_group                           = module.data_migration_shared.log_group
 
   ephemeral_storage_gib = 200
-  minimum_cpu           = 1024
-  minimum_memory_mb     = 2048
+  minimum_cpu           = 4096
+  minimum_memory_mb     = 16384
 }
 
 module "open_data_export" {
