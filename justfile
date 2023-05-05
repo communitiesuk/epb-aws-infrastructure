@@ -45,6 +45,7 @@ _alias_this:
 install-hooks:
     #!/usr/bin/env bash
     cp -r ./hooks ./.git
+    chmod +x ./.git/hooks/*
 
 # Add AWS config and aws-vault profile required to run many commands. Note: this will update .env file in current directory
 add-profile profile:
