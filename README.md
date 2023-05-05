@@ -118,30 +118,44 @@ The infrastructure used for the S3 backend is defined via terraform in the `/sta
 
 1. From root `cd service-infrastructure`
 
-1. Initialize your Terraform environment  
+2. Initialize your Terraform environment  
     `aws-vault exec {profile_name_for_AWS_environment} -- terraform init -backend-config=backend_{profile}.hcl`
 
     Example:  
     `aws-vault exec integration -- terraform init -backend-config=backend_integration.hcl`
 
-1. Run a terraform plan and check you see everything is upto date:  
+3. To run terraform you will need to download a copy of the parameters stored as tfvars in the environment. To do this run
+    `just tfvars-get service-infrastructure {profile_name_for_AWS_environment} `
+
+4. Run a terraform plan and check you see everything is upto date:  
     `aws-vault exec {profile_name_for_AWS_environment} -- terraform plan`
 
     Example:  
     `aws-vault exec integration -- terraform plan`
-
+    
 ## Making changes
 
 1. First, generate a plan to check the changes Terraform wants to make
 
     `aws-vault exec {profile_name_for_AWS_environment} -- terraform plan -out=tfplan`
 
-1. Once happy that the changes are as expected, apply them
+2. Once happy that the changes are as expected, apply them
 
     `aws-vault exec {profile_name_for_AWS_environment} -- terraform apply tfplan`
 
-1. (Optional) Once successfully applied, you should be able to see the changes in the AWS Management Console.
+3. (Optional) Once successfully applied, you should be able to see the changes in the AWS Management Console.
 Sanity check the changes have been applied as you expected
+
+
+## Making changes using just
+1 make sure you have switch profile to the correct env
+`just set-profile  {profile_name_for_AWS_environment} ``
+
+2. download a copy of the parameters stored as tfvars in the environment. To do this run
+    `just tfvars-get service-infrastructure {profile_name_for_AWS_environment} `
+
+3. run the apply
+    ` just tfapply service-infrastructure `
 
 ## Deleting infrastructure
 
