@@ -6,7 +6,7 @@ variable "app_ecr_name" {
   type = string
 }
 
-variable "aws_arm_codebuild_image" {
+variable "aws_codebuild_image" {
   type = string
 }
 

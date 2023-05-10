@@ -24,7 +24,7 @@ module "codebuild_build_app_image" {
   environment_variables = [
     { name = "AWS_DEFAULT_REGION", value = var.region },
     { name = "AWS_ACCOUNT_ID", value = var.account_ids["integration"] },
-    { name = "DOCKER_IMAGE", value = var.docker_image_app_name },
+    { name = "DOCKER_IMAGE", value = var.app_image_name },
   ]
   region = var.region
 }
@@ -38,7 +38,7 @@ module "codebuild_build_sidekiq_image" {
   environment_variables = [
     { name = "AWS_DEFAULT_REGION", value = var.region },
     { name = "AWS_ACCOUNT_ID", value = var.account_ids["integration"] },
-    { name = "DOCKER_IMAGE", value = var.docker_image_sidekiq_name },
+    { name = "DOCKER_IMAGE", value = var.sidekiq_image_name },
   ]
   region = var.region
 }
@@ -47,13 +47,13 @@ module "codebuild_deploy_integration" {
   source             = "../codebuild_project"
   codebuild_role_arn = var.codebuild_role_arn
   name               = "${var.project_name}-codebuild-deploy-integration"
-  build_image_uri    = var.aws_arm_codebuild_image
+  build_image_uri    = var.aws_codebuild_image
   buildspec_file     = "buildspec/deploy_to_cluster.yml"
   environment_variables = [
     { name = "AWS_DEFAULT_REGION", value = var.region },
     { name = "AWS_ACCOUNT_ID", value = var.account_ids["integration"] },
     { name = "DOCKER_IMAGE_URI", value = "${var.account_ids["integration"]}.dkr.ecr.${var.region}.amazonaws.com/${var.integration_prefix}-${var.app_ecr_name}" },
-    { name = "DOCKER_IMAGE", value = var.docker_image_app_name },
+    { name = "DOCKER_IMAGE", value = var.app_image_name },
     { name = "CLUSTER_NAME", value = "${var.integration_prefix}-${var.ecs_cluster_name}" },
     { name = "SERVICE_NAME", value = "${var.integration_prefix}-${var.ecs_service_name}" },
   ]
@@ -64,13 +64,13 @@ module "codebuild_deploy_staging" {
   source             = "../codebuild_project"
   codebuild_role_arn = var.codebuild_role_arn
   name               = "${var.project_name}-codebuild-deploy-staging"
-  build_image_uri    = var.aws_arm_codebuild_image
+  build_image_uri    = var.aws_codebuild_image
   buildspec_file     = "buildspec/deploy_to_cluster.yml"
   environment_variables = [
     { name = "AWS_DEFAULT_REGION", value = var.region },
     { name = "AWS_ACCOUNT_ID", value = var.account_ids["staging"] },
     { name = "DOCKER_IMAGE_URI", value = "${var.account_ids["staging"]}.dkr.ecr.${var.region}.amazonaws.com/${var.staging_prefix}-${var.app_ecr_name}" },
-    { name = "DOCKER_IMAGE", value = var.docker_image_app_name },
+    { name = "DOCKER_IMAGE", value = var.app_image_name },
     { name = "CLUSTER_NAME", value = "${var.staging_prefix}-${var.ecs_cluster_name}" },
     { name = "SERVICE_NAME", value = "${var.staging_prefix}-${var.ecs_service_name}" },
   ]
@@ -81,13 +81,13 @@ module "codebuild_deploy_sidekiq_integration" {
   source             = "../codebuild_project"
   codebuild_role_arn = var.codebuild_role_arn
   name               = "${var.project_name}-codebuild-deploy-sidekiq-integration"
-  build_image_uri    = var.aws_arm_codebuild_image
+  build_image_uri    = var.aws_codebuild_image
   buildspec_file     = "buildspec/deploy_to_cluster.yml"
   environment_variables = [
     { name = "AWS_DEFAULT_REGION", value = var.region },
     { name = "AWS_ACCOUNT_ID", value = var.account_ids["integration"] },
     { name = "DOCKER_IMAGE_URI", value = "${var.account_ids["integration"]}.dkr.ecr.${var.region}.amazonaws.com/${var.integration_prefix}-${var.sidekiq_ecr_name}" },
-    { name = "DOCKER_IMAGE", value = var.docker_image_sidekiq_name },
+    { name = "DOCKER_IMAGE", value = var.sidekiq_image_name },
     { name = "CLUSTER_NAME", value = "${var.integration_prefix}-${var.ecs_sidekiq_cluster_name}" },
     { name = "SERVICE_NAME", value = "${var.integration_prefix}-${var.ecs_sidekiq_service_name}" },
   ]
@@ -98,13 +98,13 @@ module "codebuild_deploy_sidekiq_staging" {
   source             = "../codebuild_project"
   codebuild_role_arn = var.codebuild_role_arn
   name               = "${var.project_name}-codebuild-deploy-sidekiq-staging"
-  build_image_uri    = var.aws_arm_codebuild_image
+  build_image_uri    = var.aws_codebuild_image
   buildspec_file     = "buildspec/deploy_to_cluster.yml"
   environment_variables = [
     { name = "AWS_DEFAULT_REGION", value = var.region },
     { name = "AWS_ACCOUNT_ID", value = var.account_ids["staging"] },
     { name = "DOCKER_IMAGE_URI", value = "${var.account_ids["staging"]}.dkr.ecr.${var.region}.amazonaws.com/${var.staging_prefix}-${var.sidekiq_ecr_name}" },
-    { name = "DOCKER_IMAGE", value = var.docker_image_sidekiq_name },
+    { name = "DOCKER_IMAGE", value = var.sidekiq_image_name },
     { name = "CLUSTER_NAME", value = "${var.staging_prefix}-${var.ecs_sidekiq_cluster_name}" },
     { name = "SERVICE_NAME", value = "${var.staging_prefix}-${var.ecs_sidekiq_service_name}" },
   ]

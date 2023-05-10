@@ -1,5 +1,5 @@
-variable "aws_arm_codebuild_image" {
-  default = "aws/codebuild/amazonlinux2-aarch64-standard:2.0"
+variable "aws_amd_codebuild_image" {
+  default = "aws/codebuild/standard:6.0"
   type    = string
 }
 

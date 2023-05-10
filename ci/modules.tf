@@ -52,7 +52,6 @@ module "postgres_test_image_pipeline" {
 
 module "auth-server-pipeline" {
   source                  = "./modules/auth_server_pipeline"
-  aws_arm_codebuild_image = "aws/codebuild/standard:6.0"
   codepipeline_bucket     = module.artefact.codepipeline_bucket
   codepipeline_arn        = module.codepipeline_role.aws_codepipeline_arn
   codebuild_role_arn      = module.codebuild_role.aws_codebuild_role_arn
@@ -70,6 +69,7 @@ module "auth-server-pipeline" {
   codebuild_image_ecr_url = module.app_test_image_pipeline.image_repository_url
   postgres_image_ecr_url  = module.postgres_test_image_pipeline.image_repository_url
   region                  = var.region
+  aws_codebuild_image     = var.aws_amd_codebuild_image
   staging_prefix          = var.staging_prefix
 }
 
@@ -91,12 +91,12 @@ module "register-api-pipeline" {
   project_name              = "epbr-register-api"
   ecs_sidekiq_cluster_name  = "reg-sidekiq-cluster"
   ecs_sidekiq_service_name  = "reg-sidekiq"
-  docker_image_app_name     = "ebpr-register-api-image"
-  docker_image_sidekiq_name = "ebpr-sidekiq-image"
+  app_image_name            = "ebpr-register-api-image"
+  sidekiq_image_name        = "ebpr-sidekiq-image"
   codebuild_image_ecr_url   = module.app_test_image_pipeline.image_repository_url
   postgres_image_ecr_url    = module.postgres_test_image_pipeline.image_repository_url
   region                    = var.region
-  aws_arm_codebuild_image   = "aws/codebuild/standard:6.0"
+  aws_codebuild_image       = var.aws_amd_codebuild_image
   sidekiq_ecr_name          = "reg-sidekiq-ecr"
   smoketests_repository     = var.smoketests_repository
   smoketests_branch         = var.smoketests_branch
@@ -121,7 +121,7 @@ module "frontend-pipeline" {
   project_name            = "epbr-frontend"
   codebuild_image_ecr_url = module.app_test_image_pipeline.image_repository_url
   region                  = var.region
-  aws_arm_codebuild_image = "aws/codebuild/standard:6.0"
+  aws_codebuild_image = var.aws_amd_codebuild_image
   smoketests_repository   = var.smoketests_repository
   smoketests_branch       = var.smoketests_branch
   staging_prefix          = var.staging_prefix
@@ -146,7 +146,7 @@ module "data_warehouse-pipeline" {
   codebuild_image_ecr_url = module.app_test_image_pipeline.image_repository_url
   postgres_image_ecr_url  = module.postgres_test_image_pipeline.image_repository_url
   region                  = var.region
-  aws_arm_codebuild_image = "aws/codebuild/standard:6.0"
+  aws_codebuild_image     = var.aws_amd_codebuild_image
   staging_prefix          = var.staging_prefix
 }
 
@@ -167,7 +167,7 @@ module "toggles-pipeline" {
   app_ecr_name            = "toggles-ecr"
   project_name            = "epbr-toggles"
   region                  = var.region
-  aws_arm_codebuild_image = var.aws_arm_codebuild_image
+  aws_codebuild_image     = "aws/codebuild/amazonlinux2-aarch64-standard:2.0"
   staging_prefix          = var.staging_prefix
 }
 
