@@ -5,7 +5,7 @@ module "codebuild_run_app_test" {
   codebuild_role_arn = var.codebuild_role_arn
   name               = "${var.project_name}-codebuild-run-test"
   build_image_uri    = var.codebuild_image_ecr_url
-  environment_type   = "LINUX_CONTAINER"
+  codebuild_environment_type   = "LINUX_CONTAINER"
   buildspec_file     = "buildspec/run_app_tests.yml"
   environment_variables = [
     { name = "AWS_DEFAULT_REGION", value = var.region },
@@ -21,7 +21,7 @@ module "codebuild_build_app_image" {
   codebuild_role_arn = var.codebuild_role_arn
   name               = "${var.project_name}-codebuild-app-image"
   buildspec_file     = "buildspec/build_docker_image.yml"
-  environment_type   = "ARM_CONTAINER"
+  codebuild_environment_type   = "ARM_CONTAINER"
   build_image_uri    = var.aws_arm_codebuild_image
   environment_variables = [
     { name = "AWS_DEFAULT_REGION", value = var.region },
@@ -36,7 +36,7 @@ module "codebuild_build_sidekiq_image" {
   codebuild_role_arn = var.codebuild_role_arn
   name               = "${var.project_name}-codebuild-sidekiq-image"
   buildspec_file     = "buildspec/build_sidekiq_docker_image.yml"
-  environment_type   = "ARM_CONTAINER"
+  codebuild_environment_type   = "ARM_CONTAINER"
   build_image_uri    = var.aws_arm_codebuild_image
   environment_variables = [
     { name = "AWS_DEFAULT_REGION", value = var.region },
@@ -50,7 +50,7 @@ module "codebuild_deploy_integration" {
   source             = "../codebuild_project"
   codebuild_role_arn = var.codebuild_role_arn
   name               = "${var.project_name}-codebuild-deploy-integration"
-  environment_type   = "ARM_CONTAINER"
+  codebuild_environment_type   = "ARM_CONTAINER"
   build_image_uri    = var.aws_arm_codebuild_image
   buildspec_file     = "buildspec/deploy_to_cluster.yml"
   environment_variables = [
@@ -68,7 +68,7 @@ module "codebuild_deploy_staging" {
   source             = "../codebuild_project"
   codebuild_role_arn = var.codebuild_role_arn
   name               = "${var.project_name}-codebuild-deploy-staging"
-  environment_type   = "ARM_CONTAINER"
+  codebuild_environment_type   = "ARM_CONTAINER"
   build_image_uri    = var.aws_arm_codebuild_image
   buildspec_file     = "buildspec/deploy_to_cluster.yml"
   environment_variables = [
@@ -86,7 +86,7 @@ module "codebuild_deploy_sidekiq_integration" {
   source             = "../codebuild_project"
   codebuild_role_arn = var.codebuild_role_arn
   name               = "${var.project_name}-codebuild-deploy-sidekiq-integration"
-  environment_type   = "ARM_CONTAINER"
+  codebuild_environment_type   = "ARM_CONTAINER"
   build_image_uri    = var.aws_arm_codebuild_image
   buildspec_file     = "buildspec/deploy_to_cluster.yml"
   environment_variables = [
@@ -104,7 +104,7 @@ module "codebuild_deploy_sidekiq_staging" {
   source             = "../codebuild_project"
   codebuild_role_arn = var.codebuild_role_arn
   name               = "${var.project_name}-codebuild-deploy-sidekiq-staging"
-  environment_type   = "ARM_CONTAINER"
+  codebuild_environment_type   = "ARM_CONTAINER"
   build_image_uri    = var.aws_arm_codebuild_image
   buildspec_file     = "buildspec/deploy_to_cluster.yml"
   environment_variables = [
@@ -122,7 +122,7 @@ module "codebuild_frontend_smoke_test" {
   source             = "../codebuild_project"
   codebuild_role_arn = var.codebuild_role_arn
   name               = "${var.project_name}-codebuild-frontend-smoke-test"
-  environment_type   = "LINUX_CONTAINER"
+  codebuild_environment_type   = "LINUX_CONTAINER"
   build_image_uri    = var.codebuild_image_ecr_url
   buildspec_file     = "buildspec/run_smoke_test_in_code_build.yml"
   environment_variables = [

@@ -121,7 +121,7 @@ module "frontend-pipeline" {
   project_name            = "epbr-frontend"
   codebuild_image_ecr_url = module.app_test_image_pipeline.image_repository_url
   region                  = var.region
-  aws_arm_codebuild_image = var.aws_arm_codebuild_image
+  aws_arm_codebuild_image = "aws/codebuild/standard:6.0"
   smoketests_repository   = var.smoketests_repository
   smoketests_branch       = var.smoketests_branch
   staging_prefix          = var.staging_prefix

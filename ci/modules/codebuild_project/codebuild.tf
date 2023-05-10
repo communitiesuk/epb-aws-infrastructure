@@ -10,7 +10,7 @@ resource "aws_codebuild_project" "this" {
   environment {
     compute_type    = "BUILD_GENERAL1_SMALL"
     image           = var.build_image_uri
-    type            = var.environment_type
+    type            = var.codebuild_environment_type
     privileged_mode = true
 
     dynamic "environment_variable" {
