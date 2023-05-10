@@ -47,7 +47,7 @@ resource "aws_codepipeline" "codepipeline" {
   }
 
   stage {
-    name = "build-docker-image"
+    name = "build-app-image"
 
     action {
       name             = "Build"
