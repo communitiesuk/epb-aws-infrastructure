@@ -52,7 +52,7 @@ module "postgres_test_image_pipeline" {
 
 module "auth-server-pipeline" {
   source                  = "./modules/auth_server_pipeline"
-  aws_arm_codebuild_image = var.aws_arm_codebuild_image
+  aws_arm_codebuild_image = "aws/codebuild/standard:6.0"
   codepipeline_bucket     = module.artefact.codepipeline_bucket
   codepipeline_arn        = module.codepipeline_role.aws_codepipeline_arn
   codebuild_role_arn      = module.codebuild_role.aws_codebuild_role_arn
