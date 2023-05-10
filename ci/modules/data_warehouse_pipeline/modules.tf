@@ -20,7 +20,7 @@ module "codebuild_build_app_image" {
   source             = "../codebuild_project"
   codebuild_role_arn = var.codebuild_role_arn
   name               = "${var.project_name}-codebuild-build-image"
-  buildspec_file     = "buildspec/build_docker_image.yml"
+  buildspec_file     = "buildspec/build_paketo_image.yml"
   build_image_uri    = var.codebuild_image_ecr_url
   environment_variables = [
     { name = "AWS_DEFAULT_REGION", value = var.region },
