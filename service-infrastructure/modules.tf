@@ -123,6 +123,26 @@ module "parameter_store" {
       type  = "String"
       value = var.parameters["RACK_ENV"]
     }
+    "SENTRY_DSN_AUTH_SERVER" : {
+      type  = "SecureString"
+      value = var.parameters["SENTRY_DSN_AUTH_SERVER"]
+    }
+    "SENTRY_DSN_DATA_WAREHOUSE" : {
+      type  = "SecureString"
+      value = var.parameters["SENTRY_DSN_DATA_WAREHOUSE"]
+    }
+    "SENTRY_DSN_REGISTER_API" : {
+      type  = "SecureString"
+      value = var.parameters["SENTRY_DSN_REGISTER_API"]
+    }
+    "SENTRY_DSN_REGISTER_WORKER" : {
+      type  = "SecureString"
+      value = var.parameters["SENTRY_DSN_REGISTER_WORKER"]
+    }
+    "SENTRY_DSN_FRONTEND" : {
+      type  = "SecureString"
+      value = var.parameters["SENTRY_DSN_FRONTEND"]
+    }
     "SLACK_EPB_BOT_TOKEN" : {
       type  = "SecureString"
       value = var.parameters["SLACK_EPB_BOT_TOKEN"]
@@ -130,6 +150,22 @@ module "parameter_store" {
     "STAGE" : {
       type  = "String"
       value = var.parameters["STAGE"]
+    }
+    "STATIC_START_PAGE_FINDING_EN" : {
+      type  = "String"
+      value = var.parameters["STATIC_START_PAGE_FINDING_EN"]
+    }
+    "STATIC_START_PAGE_FINDING_CY" : {
+      type  = "String"
+      value = var.parameters["STATIC_START_PAGE_FINDING_CY"]
+    }
+    "STATIC_START_PAGE_GETTING_EN" : {
+      type  = "String"
+      value = var.parameters["STATIC_START_PAGE_GETTING_EN"]
+    }
+    "STATIC_START_PAGE_GETTING_CY" : {
+      type  = "String"
+      value = var.parameters["STATIC_START_PAGE_GETTING_CY"]
     }
     "TOGGLES_SECRET" : {
       type  = "SecureString"
@@ -154,26 +190,6 @@ module "parameter_store" {
     "WAREHOUSE_EPB_AUTH_CLIENT_SECRET" : {
       type  = "SecureString"
       value = var.parameters["WAREHOUSE_EPB_AUTH_CLIENT_SECRET"]
-    }
-    "SENTRY_DSN_AUTH_SERVER" : {
-      type  = "SecureString"
-      value = var.parameters["SENTRY_DSN_AUTH_SERVER"]
-    }
-    "SENTRY_DSN_DATA_WAREHOUSE" : {
-      type  = "SecureString"
-      value = var.parameters["SENTRY_DSN_DATA_WAREHOUSE"]
-    }
-    "SENTRY_DSN_REGISTER_API" : {
-      type  = "SecureString"
-      value = var.parameters["SENTRY_DSN_REGISTER_API"]
-    }
-    "SENTRY_DSN_REGISTER_WORKER" : {
-      type  = "SecureString"
-      value = var.parameters["SENTRY_DSN_REGISTER_WORKER"]
-    }
-    "SENTRY_DSN_FRONTEND" : {
-      type  = "SecureString"
-      value = var.parameters["SENTRY_DSN_FRONTEND"]
     }
   }
 }
