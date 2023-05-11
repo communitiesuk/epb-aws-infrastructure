@@ -8,7 +8,7 @@ variable "codebuild_role_arn" {
 
 variable "codebuild_environment_type" {
   default = "LINUX_CONTAINER"
-  type = string
+  type    = string
 }
 
 variable "build_image_uri" {

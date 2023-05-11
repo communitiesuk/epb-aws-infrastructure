@@ -1,10 +1,10 @@
 module "codebuild_build_app_image" {
-  source             = "../codebuild_project"
-  codebuild_role_arn = var.codebuild_role_arn
-  name               = "${var.project_name}-codebuild-build-image"
-  buildspec_file     = "buildspec/build_docker_image.yml"
-  codebuild_environment_type   = "ARM_CONTAINER"
-  build_image_uri    = var.aws_arm_codebuild_image
+  source                     = "../codebuild_project"
+  codebuild_role_arn         = var.codebuild_role_arn
+  name                       = "${var.project_name}-codebuild-build-image"
+  buildspec_file             = "buildspec/build_docker_image.yml"
+  codebuild_environment_type = "ARM_CONTAINER"
+  build_image_uri            = var.aws_arm_codebuild_image
   environment_variables = [
     { name = "AWS_DEFAULT_REGION", value = var.region },
     { name = "AWS_ACCOUNT_ID", value = var.account_ids["integration"] },
@@ -13,12 +13,12 @@ module "codebuild_build_app_image" {
 }
 
 module "codebuild_deploy_integration" {
-  source             = "../codebuild_project"
-  codebuild_role_arn = var.codebuild_role_arn
-  name               = "${var.project_name}-codebuild-deploy-integration"
-  codebuild_environment_type   = "ARM_CONTAINER"
-  build_image_uri    = var.aws_arm_codebuild_image
-  buildspec_file     = "buildspec/deploy_to_cluster.yml"
+  source                     = "../codebuild_project"
+  codebuild_role_arn         = var.codebuild_role_arn
+  name                       = "${var.project_name}-codebuild-deploy-integration"
+  codebuild_environment_type = "ARM_CONTAINER"
+  build_image_uri            = var.aws_arm_codebuild_image
+  buildspec_file             = "buildspec/deploy_to_cluster.yml"
   environment_variables = [
     { name = "AWS_DEFAULT_REGION", value = var.region },
     { name = "AWS_ACCOUNT_ID", value = var.account_ids["integration"] },
@@ -30,12 +30,12 @@ module "codebuild_deploy_integration" {
 }
 
 module "codebuild_deploy_staging" {
-  source             = "../codebuild_project"
-  codebuild_role_arn = var.codebuild_role_arn
-  name               = "${var.project_name}-codebuild-deploy-staging"
-  codebuild_environment_type   = "ARM_CONTAINER"
-  build_image_uri    = var.aws_arm_codebuild_image
-  buildspec_file     = "buildspec/deploy_to_cluster.yml"
+  source                     = "../codebuild_project"
+  codebuild_role_arn         = var.codebuild_role_arn
+  name                       = "${var.project_name}-codebuild-deploy-staging"
+  codebuild_environment_type = "ARM_CONTAINER"
+  build_image_uri            = var.aws_arm_codebuild_image
+  buildspec_file             = "buildspec/deploy_to_cluster.yml"
   environment_variables = [
     { name = "AWS_DEFAULT_REGION", value = var.region },
     { name = "AWS_ACCOUNT_ID", value = var.account_ids["staging"] },

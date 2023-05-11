@@ -1,8 +1,9 @@
 module "networking" {
   source = "./networking"
 
-  prefix = local.prefix
-  region = var.region
+  prefix         = local.prefix
+  region         = var.region
+  vpc_cidr_block = var.vpc_cidr_block
 }
 
 module "access" {

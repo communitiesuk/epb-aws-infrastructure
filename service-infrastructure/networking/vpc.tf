@@ -1,10 +1,10 @@
 locals {
-  public_subnet_cidr  = cidrsubnet(local.vpc_cidr, 1, 0)
-  private_subnet_cidr = cidrsubnet(local.vpc_cidr, 1, 1)
+  public_subnet_cidr  = cidrsubnet(var.vpc_cidr_block, 1, 0)
+  private_subnet_cidr = cidrsubnet(var.vpc_cidr_block, 1, 1)
 }
 
 resource "aws_vpc" "this" {
-  cidr_block = local.vpc_cidr
+  cidr_block = var.vpc_cidr_block
   tags = {
     Name = "${var.prefix}-vpc"
   }
