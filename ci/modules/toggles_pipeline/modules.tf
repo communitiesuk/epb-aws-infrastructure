@@ -4,7 +4,7 @@ module "codebuild_build_app_image" {
   name                       = "${var.project_name}-codebuild-build-image"
   buildspec_file             = "buildspec/build_docker_image.yml"
   codebuild_environment_type = "ARM_CONTAINER"
-  build_image_uri            = var.aws_arm_codebuild_image
+  build_image_uri            = var.aws_codebuild_image
   environment_variables = [
     { name = "AWS_DEFAULT_REGION", value = var.region },
     { name = "AWS_ACCOUNT_ID", value = var.account_ids["integration"] },
@@ -17,7 +17,7 @@ module "codebuild_deploy_integration" {
   codebuild_role_arn         = var.codebuild_role_arn
   name                       = "${var.project_name}-codebuild-deploy-integration"
   codebuild_environment_type = "ARM_CONTAINER"
-  build_image_uri            = var.aws_arm_codebuild_image
+  build_image_uri            = var.aws_codebuild_image
   buildspec_file             = "buildspec/deploy_to_cluster.yml"
   environment_variables = [
     { name = "AWS_DEFAULT_REGION", value = var.region },
@@ -34,7 +34,7 @@ module "codebuild_deploy_staging" {
   codebuild_role_arn         = var.codebuild_role_arn
   name                       = "${var.project_name}-codebuild-deploy-staging"
   codebuild_environment_type = "ARM_CONTAINER"
-  build_image_uri            = var.aws_arm_codebuild_image
+  build_image_uri            = var.aws_codebuild_image
   buildspec_file             = "buildspec/deploy_to_cluster.yml"
   environment_variables = [
     { name = "AWS_DEFAULT_REGION", value = var.region },
