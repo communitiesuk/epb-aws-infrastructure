@@ -461,6 +461,7 @@ module "warehouse_application" {
   container_port        = 80
   egress_ports          = [80, 443, 5432, local.redis_port, var.parameters["LOGSTASH_PORT"]]
   environment_variables = []
+  has_db_migrate        = true
   secrets = {
     "DATABASE_URL" : module.secrets.secret_arns["RDS_WAREHOUSE_CONNECTION_STRING"],
     "EPB_API_URL" : module.secrets.secret_arns["EPB_API_URL"],

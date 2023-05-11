@@ -94,3 +94,8 @@ variable "enable_execute_command" {
   type    = bool
   default = false
 }
+
+variable "has_db_migrate" {
+  type    = bool
+  default = false
+}

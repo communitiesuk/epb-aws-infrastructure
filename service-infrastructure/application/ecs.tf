@@ -1,6 +1,7 @@
 locals {
   container_name           = "${var.prefix}-container"
   fluentbit_container_name = "${var.prefix}-container-fluentbit"
+  migration_container_name = "${var.prefix}-container-db-migration"
 }
 
 resource "aws_ecs_cluster" "this" {
@@ -100,13 +101,58 @@ resource "aws_ecs_task_definition" "this" {
       volumesFrom  = []
 
       memoryReservation = 512
-    }
+    },
+
   ])
   runtime_platform {
     operating_system_family = "LINUX"
     cpu_architecture        = "X86_64"
   }
 }
+
+resource "aws_ecs_task_definition" "db_migrate" {
+  count                    = var.has_db_migrate == true ? 1 : 0
+  family                   = "${var.prefix}-ecs-db-migrate-task"
+  requires_compatibilities = ["FARGATE"]
+  network_mode             = "awsvpc"
+  cpu                      = 512
+  memory                   = 2048
+  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
+  task_role_arn            = aws_iam_role.ecs_task_role.arn
+  container_definitions = jsonencode([
+    {
+      name        = local.migration_container_name
+      image       = "${aws_ecr_repository.this.repository_url}:latest"
+      essential   = true
+      environment = var.environment_variables
+
+      secrets = [for key, value in merge(var.secrets, var.parameters) : {
+        name      = key
+        valueFrom = value
+      }]
+      command     = ["rake", "db:migrate"]
+      cpu         = 0
+      mountPoints = []
+      volumesFrom = []
+
+      memoryReservation = 512
+
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          awslogs-group         = var.aws_cloudwatch_log_group_id
+          awslogs-region        = var.region
+          awslogs-stream-prefix = "ecs-db-migration"
+        }
+      }
+    },
+
+
+
+
+  ])
+}
+
 
 resource "aws_ecs_service" "this" {
   name                               = var.prefix
