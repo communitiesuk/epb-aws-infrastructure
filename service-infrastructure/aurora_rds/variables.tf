@@ -25,3 +25,11 @@ variable "storage_backup_period" {
 variable "instance_class" {
   type = string
 }
+
+variable "cluster_parameter_group_name" {
+  type = string
+}
+
+variable "instance_parameter_group_name" {
+  type = string
+}

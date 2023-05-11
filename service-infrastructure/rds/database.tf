@@ -12,4 +12,5 @@ resource "aws_db_instance" "postgres_rds" {
   username                = "postgres"
   password                = random_password.password.result
   engine_version          = "14.6"
+  parameter_group_name    = var.parameter_group_name
 }

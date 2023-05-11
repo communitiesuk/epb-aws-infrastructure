@@ -191,6 +191,7 @@ module "toggles_database" {
   storage_backup_period = 1
   storage_size          = 5
   instance_class        = "db.t3.micro"
+  parameter_group_name  = module.parameter_groups.rds_pglogical_target_pg_name
 }
 
 module "toggles_application" {
@@ -273,6 +274,7 @@ module "auth_database" {
   storage_backup_period = 1 # to prevent weird behaviour when the backup window is set to 0
   storage_size          = 5
   instance_class        = "db.t3.micro"
+  parameter_group_name  = module.parameter_groups.rds_pglogical_target_pg_name
 }
 
 # Used for testing pglogical replication
@@ -287,6 +289,7 @@ module "pglogical_test_database" {
   storage_backup_period = 1 # to prevent weird behaviour when the backup window is set to 0
   storage_size          = 1000
   instance_class        = "db.t3.medium"
+  parameter_group_name  = var.environment == "intg" ? module.parameter_groups.rds_pglogical_source_pg_name : module.parameter_groups.rds_pglogical_target_pg_name
 }
 
 module "register_api_application" {
@@ -332,13 +335,15 @@ module "register_api_application" {
 module "register_api_database" {
   source = "./aurora_rds"
 
-  prefix                = "${local.prefix}-reg-api"
-  db_name               = "epb"
-  vpc_id                = module.networking.vpc_id
-  subnet_group_name     = module.networking.private_subnet_group_name
-  security_group_ids    = [module.register_api_application.ecs_security_group_id, module.register_sidekiq_application.ecs_security_group_id, module.bastion.security_group_id]
-  storage_backup_period = var.storage_backup_period
-  instance_class        = "db.t3.medium"
+  prefix                        = "${local.prefix}-reg-api"
+  db_name                       = "epb"
+  vpc_id                        = module.networking.vpc_id
+  subnet_group_name             = module.networking.private_subnet_group_name
+  security_group_ids            = [module.register_api_application.ecs_security_group_id, module.register_sidekiq_application.ecs_security_group_id, module.bastion.security_group_id]
+  storage_backup_period         = var.storage_backup_period
+  instance_class                = "db.t3.medium"
+  cluster_parameter_group_name  = module.parameter_groups.aurora_pglogical_target_pg_name
+  instance_parameter_group_name = module.parameter_groups.rds_pglogical_target_pg_name
 }
 
 module "register_sidekiq_application" {
@@ -470,13 +475,15 @@ module "warehouse_application" {
 module "warehouse_database" {
   source = "./aurora_rds"
 
-  prefix                = "${local.prefix}-warehouse"
-  db_name               = "epb"
-  vpc_id                = module.networking.vpc_id
-  subnet_group_name     = module.networking.private_subnet_group_name
-  security_group_ids    = [module.warehouse_application.ecs_security_group_id, module.bastion.security_group_id]
-  storage_backup_period = var.storage_backup_period
-  instance_class        = "db.t3.medium"
+  prefix                        = "${local.prefix}-warehouse"
+  db_name                       = "epb"
+  vpc_id                        = module.networking.vpc_id
+  subnet_group_name             = module.networking.private_subnet_group_name
+  security_group_ids            = [module.warehouse_application.ecs_security_group_id, module.bastion.security_group_id]
+  storage_backup_period         = var.storage_backup_period
+  instance_class                = "db.t3.medium"
+  cluster_parameter_group_name  = module.parameter_groups.aurora_pglogical_target_pg_name
+  instance_parameter_group_name = module.parameter_groups.rds_pglogical_target_pg_name
 }
 
 module "warehouse_redis" {
@@ -658,4 +665,8 @@ module "data_migration_pglogical_test" {
 module "open_data_export" {
   source = "./open_data_export"
   prefix = "${local.prefix}-open-data-export"
+}
+
+module "parameter_groups" {
+  source = "./database_parameter_groups"
 }

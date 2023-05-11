@@ -29,3 +29,7 @@ variable "storage_size" {
 variable "instance_class" {
   type = string
 }
+
+variable "parameter_group_name" {
+  type = string
+}
