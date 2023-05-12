@@ -7,7 +7,7 @@ default:
 # Install dependencies
 [windows]
 install:
-    @choco install terraform aws-vault tfsec tflint docker docker-compose awscli
+    @choco install terraform aws-vault tfsec tflint docker docker-compose awscli pack
     @pip install checkov
 
     @just _alias_this
@@ -16,7 +16,7 @@ install:
 # Install dependencies
 [macos]
 install:
-    @brew install terraform aws-vault tfsec tflint docker docker-compose awscli
+    @brew install terraform aws-vault tfsec tflint docker docker-compose awscli buildpacks/tap/pack
     @pip install checkov
 
     @just _alias_this
@@ -236,8 +236,8 @@ tfsec minimum_severity="HIGH":
 
     tfsec --minimum-severity {{minimum_severity}}
 
-# Deploys local image to ECR. Requires docker to be running. If dockerfile_path is not specified, it attempt to use existing image. dockerfile_path should be absolute path to directory containing dockerfile
-service-update-image image_name service_name dockerfile_path="": _ensure_aws_profile
+# Deploys docker image to ECR. Requires docker to be running. If dockerfile_path is not specified, it attempts to use existing image. dockerfile_path should be absolute path to directory containing dockerfile. Required for the toggles application or if you don't want to use a Paketo built image.
+service-update-with-docker-image image_name service_name dockerfile_path="": _ensure_aws_profile
     #!/usr/bin/env bash
 
     ECR_REPO_NAME={{service_name}}-ecr
@@ -245,7 +245,25 @@ service-update-image image_name service_name dockerfile_path="": _ensure_aws_pro
 
     docker login -u AWS -p $(aws-vault exec $AWS_PROFILE -- aws ecr get-login-password --region eu-west-2) $ACCOUNT_ID.dkr.ecr.eu-west-2.amazonaws.com
     if [ "{{dockerfile_path}}" != "" ]; then
-        docker buildx build --platform linux/arm64 -t {{image_name}} {{dockerfile_path}}
+        docker buildx build --platform linux/amd64 -t {{image_name}} {{dockerfile_path}}
+    fi
+    docker tag {{image_name}}:latest $ACCOUNT_ID.dkr.ecr.eu-west-2.amazonaws.com/$ECR_REPO_NAME:latest
+    docker push $ACCOUNT_ID.dkr.ecr.eu-west-2.amazonaws.com/$ECR_REPO_NAME:latest
+
+    just service-refresh {{service_name}}
+
+# Deploys paketo image to ECR. Requires both docker to be running and the pack CLI to be installed. If app_path is not specified, it attempts to use existing image. app_path should be absolute path to the root of the directory containing the application. For Paketo, uses the "full" Paketo builder by default unless specified (for the frontend app you should specify "base"), and likewise "web" for the default_process (for sidekiq you can specify "sidekiq" instead)
+service-update-with-paketo-image image_name service_name app_path="" builder="full" default_process="web": _ensure_aws_profile
+    #!/usr/bin/env bash
+
+    ECR_REPO_NAME={{service_name}}-ecrd
+    ACCOUNT_ID=$(aws-vault exec $AWS_PROFILE -- aws sts get-caller-identity --query Account --output text)
+
+    docker login -u AWS -p $(aws-vault exec $AWS_PROFILE -- aws ecr get-login-password --region eu-west-2) $ACCOUNT_ID.dkr.ecr.eu-west-2.amazonaws.com
+    if [ "{{app_path}}" != "" ]; then
+        mv {{app_path}}/AWS-Procfile {{app_path}}/Procfile
+        pack build {{image_name}} --buildpack paketo-buildpacks/ruby --path {{app_path}} --builder paketobuildpacks/builder:{{builder}} --default-process {{default_process}}
+        mv {{app_path}}/Procfile {{app_path}}/AWS-Procfile
     fi
     docker tag {{image_name}}:latest $ACCOUNT_ID.dkr.ecr.eu-west-2.amazonaws.com/$ECR_REPO_NAME:latest
     docker push $ACCOUNT_ID.dkr.ecr.eu-west-2.amazonaws.com/$ECR_REPO_NAME:latest
