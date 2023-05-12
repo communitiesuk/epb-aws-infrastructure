@@ -167,7 +167,7 @@ module "toggles-pipeline" {
   app_ecr_name            = "toggles-ecr"
   project_name            = "epbr-toggles"
   region                  = var.region
-  aws_codebuild_image     = "aws/codebuild/amazonlinux2-aarch64-standard:2.0"
+  aws_codebuild_image     = var.aws_amd_codebuild_image
   staging_prefix          = var.staging_prefix
 }
 
