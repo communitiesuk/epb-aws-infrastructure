@@ -626,8 +626,9 @@ module "data_migration_api_application" {
   backup_bucket_arn                   = module.data_migration_shared.backup_bucket_arn
   log_group                           = module.data_migration_shared.log_group
 
-  minimum_cpu       = 1024
-  minimum_memory_mb = 4096
+  ephemeral_storage_gib = 200
+  minimum_cpu           = 4096
+  minimum_memory_mb     = 16384
 }
 
 module "data_migration_toggles_application" {

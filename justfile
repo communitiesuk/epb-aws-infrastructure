@@ -256,7 +256,7 @@ service-update-with-docker-image image_name service_name dockerfile_path="": _en
 service-update-with-paketo-image image_name service_name app_path="" builder="full" default_process="web": _ensure_aws_profile
     #!/usr/bin/env bash
 
-    ECR_REPO_NAME={{service_name}}-ecrd
+    ECR_REPO_NAME={{service_name}}-ecr
     ACCOUNT_ID=$(aws-vault exec $AWS_PROFILE -- aws sts get-caller-identity --query Account --output text)
 
     docker login -u AWS -p $(aws-vault exec $AWS_PROFILE -- aws ecr get-login-password --region eu-west-2) $ACCOUNT_ID.dkr.ecr.eu-west-2.amazonaws.com
