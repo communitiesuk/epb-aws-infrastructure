@@ -130,7 +130,8 @@ resource "aws_ecs_task_definition" "db_migrate" {
         name      = key
         valueFrom = value
       }]
-      command     = ["rake", "db:migrate"]
+      entryPoint  = ["launcher"]
+      command     = ["bundle", "exec", "rake", "db:migrate"]
       cpu         = 0
       mountPoints = []
       volumesFrom = []
