@@ -21,6 +21,16 @@ variable "integration_prefix" {
   type    = string
 }
 
+variable "staging_prefix" {
+  default = "epb-stag"
+  type    = string
+}
+
+variable "production_prefix" {
+  default = "epb-prod"
+  type    = string
+}
+
 variable "region" {
   default = "eu-west-2"
   type    = string
@@ -33,10 +43,5 @@ variable "smoketests_branch" {
 
 variable "smoketests_repository" {
   default = "epb-frontend-smoke-tests"
-  type    = string
-}
-
-variable "staging_prefix" {
-  default = "epb-stag"
   type    = string
 }

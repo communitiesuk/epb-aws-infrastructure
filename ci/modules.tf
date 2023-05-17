@@ -27,7 +27,7 @@ module "app_test_image_pipeline" {
   artefact_bucket_arn     = module.artefact.codepipeline_bucket_arn
   configuration           = "aws-ruby-node"
   source                  = "./modules/build_test_image_pipeline"
-  codepipeline_arn        = module.codepipeline_role.aws_codepipeline_arn
+  codepipeline_role_arn   = module.codepipeline_role.aws_codepipeline_role_arn
   github_repository       = "epb-docker-images"
   github_branch           = "master"
   github_organisation     = var.github_organisation
@@ -41,7 +41,7 @@ module "postgres_test_image_pipeline" {
   artefact_bucket_arn     = module.artefact.codepipeline_bucket_arn
   configuration           = "postgres"
   source                  = "./modules/build_test_image_pipeline"
-  codepipeline_arn        = module.codepipeline_role.aws_codepipeline_arn
+  codepipeline_role_arn   = module.codepipeline_role.aws_codepipeline_role_arn
   github_repository       = "epb-docker-images"
   github_branch           = "master"
   github_organisation     = var.github_organisation
@@ -53,7 +53,7 @@ module "postgres_test_image_pipeline" {
 module "auth-server-pipeline" {
   source                  = "./modules/auth_server_pipeline"
   codepipeline_bucket     = module.artefact.codepipeline_bucket
-  codepipeline_arn        = module.codepipeline_role.aws_codepipeline_arn
+  codepipeline_role_arn   = module.codepipeline_role.aws_codepipeline_role_arn
   codebuild_role_arn      = module.codebuild_role.aws_codebuild_role_arn
   pipeline_name           = "epbr-auth-server-pipeline"
   github_repository       = "epb-auth-server"
@@ -76,7 +76,7 @@ module "auth-server-pipeline" {
 module "register-api-pipeline" {
   source                   = "./modules/register_api_pipeline"
   codepipeline_bucket      = module.artefact.codepipeline_bucket
-  codepipeline_arn         = module.codepipeline_role.aws_codepipeline_arn
+  codepipeline_role_arn    = module.codepipeline_role.aws_codepipeline_role_arn
   codebuild_role_arn       = module.codebuild_role.aws_codebuild_role_arn
   pipeline_name            = "epbr-register-api-pipeline"
   github_repository        = "epb-register-api"
@@ -106,7 +106,7 @@ module "register-api-pipeline" {
 module "frontend-pipeline" {
   source                  = "./modules/frontend_pipeline"
   codepipeline_bucket     = module.artefact.codepipeline_bucket
-  codepipeline_arn        = module.codepipeline_role.aws_codepipeline_arn
+  codepipeline_role_arn   = module.codepipeline_role.aws_codepipeline_role_arn
   codebuild_role_arn      = module.codebuild_role.aws_codebuild_role_arn
   pipeline_name           = "epbr-frontend-pipeline"
   github_repository       = "epb-frontend"
@@ -130,7 +130,7 @@ module "frontend-pipeline" {
 module "data_warehouse-pipeline" {
   source                  = "./modules/data_warehouse_pipeline"
   codepipeline_bucket     = module.artefact.codepipeline_bucket
-  codepipeline_arn        = module.codepipeline_role.aws_codepipeline_arn
+  codepipeline_role_arn   = module.codepipeline_role.aws_codepipeline_role_arn
   codebuild_role_arn      = module.codebuild_role.aws_codebuild_role_arn
   pipeline_name           = "epbr-data-warehouse-pipeline"
   github_repository       = "epb-data-warehouse"
@@ -153,7 +153,7 @@ module "data_warehouse-pipeline" {
 module "toggles-pipeline" {
   source                  = "./modules/toggles_pipeline"
   codepipeline_bucket     = module.artefact.codepipeline_bucket
-  codepipeline_arn        = module.codepipeline_role.aws_codepipeline_arn
+  codepipeline_role_arn   = module.codepipeline_role.aws_codepipeline_role_arn
   codebuild_role_arn      = module.codebuild_role.aws_codebuild_role_arn
   pipeline_name           = "epbr-toggles-pipeline"
   github_repository       = "epb-toggles"
@@ -169,6 +169,30 @@ module "toggles-pipeline" {
   region                  = var.region
   aws_codebuild_image     = var.aws_amd_codebuild_image
   staging_prefix          = var.staging_prefix
+}
+
+module "restart_ecs_tasks_pipeline" {
+  source                = "./modules/restart_tasks_pipeline"
+  codepipeline_bucket   = module.artefact.codepipeline_bucket
+  codepipeline_role_arn = module.codepipeline_role.aws_codepipeline_role_arn
+  codebuild_role_arn    = module.codebuild_role.aws_codebuild_role_arn
+  aws_codebuild_image   = var.aws_amd_codebuild_image
+  pipeline_name         = "restart-ecs-tasks-pipeline"
+  account_ids           = var.account_ids
+  project_name          = "epbr-ecs-restart-tasks"
+  region                = var.region
+  integration_prefix    = var.integration_prefix
+  staging_prefix        = var.staging_prefix
+  production_prefix     = var.production_prefix
+
+  ecs_cluster_to_service_map = {
+    "auth-cluster"        = "auth"
+    "reg-api-cluster"     = "reg-api"
+    "reg-sidekiq-cluster" = "reg-sidekiq"
+    "frontend-cluster"    = "frontend"
+    "warehouse-cluster"   = "warehouse"
+    "toggles-cluster"     = "toggles"
+  }
 }
 
 module "cc-tray" {

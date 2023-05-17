@@ -1,0 +1,1 @@
+aws ecs update-service --cluster $1 --service $2 --force-new-deployment --profile $AWS_PROFILE --region $AWS_REGION

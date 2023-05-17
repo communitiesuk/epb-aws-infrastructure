@@ -14,7 +14,7 @@ variable "codebuild_role_arn" {
   type = string
 }
 
-variable "codepipeline_arn" {
+variable "codepipeline_role_arn" {
   type = string
 }
 
