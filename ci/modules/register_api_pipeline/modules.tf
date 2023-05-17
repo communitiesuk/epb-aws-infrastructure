@@ -56,6 +56,7 @@ module "codebuild_deploy_integration" {
     { name = "DOCKER_IMAGE", value = var.app_image_name },
     { name = "CLUSTER_NAME", value = "${var.integration_prefix}-${var.ecs_cluster_name}" },
     { name = "SERVICE_NAME", value = "${var.integration_prefix}-${var.ecs_service_name}" },
+    { name = "PREFIX", value = var.integration_prefix },
   ]
   region = var.region
 }
@@ -73,6 +74,7 @@ module "codebuild_deploy_staging" {
     { name = "DOCKER_IMAGE", value = var.app_image_name },
     { name = "CLUSTER_NAME", value = "${var.staging_prefix}-${var.ecs_cluster_name}" },
     { name = "SERVICE_NAME", value = "${var.staging_prefix}-${var.ecs_service_name}" },
+    { name = "PREFIX", value = var.staging_prefix },
   ]
   region = var.region
 }
