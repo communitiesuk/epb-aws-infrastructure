@@ -18,10 +18,6 @@ variable "codepipeline_bucket" {
   type = string
 }
 
-variable "ecs_cluster_to_service_map" {
-  type = map(string)
-}
-
 variable "pipeline_name" {
   type = string
 }

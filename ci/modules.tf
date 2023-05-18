@@ -184,15 +184,6 @@ module "restart_ecs_tasks_pipeline" {
   integration_prefix    = var.integration_prefix
   staging_prefix        = var.staging_prefix
   production_prefix     = var.production_prefix
-
-  ecs_cluster_to_service_map = {
-    "auth-cluster"        = "auth"
-    "reg-api-cluster"     = "reg-api"
-    "reg-sidekiq-cluster" = "reg-sidekiq"
-    "frontend-cluster"    = "frontend"
-    "warehouse-cluster"   = "warehouse"
-    "toggles-cluster"     = "toggles"
-  }
 }
 
 module "cc-tray" {

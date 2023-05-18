@@ -5,10 +5,11 @@ module "codebuild_restart_integration" {
   codebuild_role_arn = var.codebuild_role_arn
   name               = "${var.project_name}-codebuild-integration"
   build_image_uri    = var.aws_codebuild_image
-  buildspec_file     = "buildspec/deploy_to_cluster.yml"
+  buildspec_file     = "restart_ecs_tasks.yml"
   environment_variables = [
     { name = "AWS_DEFAULT_REGION", value = var.region },
     { name = "AWS_ACCOUNT_ID", value = var.account_ids["integration"] },
+    { name = "PREFIX", value = var.integration_prefix }
   ]
   region = var.region
 }
@@ -18,10 +19,11 @@ module "codebuild_restart_staging" {
   codebuild_role_arn = var.codebuild_role_arn
   name               = "${var.project_name}-codebuild-staging"
   build_image_uri    = var.aws_codebuild_image
-  buildspec_file     = "buildspec/deploy_to_cluster.yml"
+  buildspec_file     = "restart_ecs_tasks.yml"
   environment_variables = [
     { name = "AWS_DEFAULT_REGION", value = var.region },
     { name = "AWS_ACCOUNT_ID", value = var.account_ids["staging"] },
+    { name = "PREFIX", value = var.staging_prefix }
   ]
   region = var.region
 }

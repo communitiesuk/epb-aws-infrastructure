@@ -1,7 +1,15 @@
+data "archive_file" "code_zip" {
+  type        = "zip"
+  source_dir  = "${path.module}/code"
+  output_path = "${path.module}/code.zip"
+}
+
 resource "aws_s3_object" "code" {
   bucket = var.codepipeline_bucket
-  key    = "restart-tasks-pipeline/run.sh"
-  source = "${path.module}/code/run.sh"
+  key    = "${path.module}/code.zip"
+  source = data.archive_file.code_zip.output_path
+
+  etag = filemd5(data.archive_file.code_zip.output_path)
 }
 
 resource "aws_codepipeline" "this" {

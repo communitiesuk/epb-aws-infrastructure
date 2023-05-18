@@ -1,0 +1,11 @@
+version: 0.2
+
+env:
+  variables:
+    PROFILE_NAME: restart-tasks-ci
+
+phases:
+  build:
+    commands:
+      - bash ./assume_role.sh arn:aws:iam::$AWS_ACCOUNT_ID:role/ci-server $PROFILE_NAME
+      - bash ./run.sh $PROFILE_NAME
