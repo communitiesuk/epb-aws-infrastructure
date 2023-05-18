@@ -44,16 +44,28 @@ resource "aws_codepipeline" "this" {
     name = "Build"
 
     action {
-      name             = "BuildAction"
-      category         = "Build"
-      owner            = "AWS"
-      provider         = "CodeBuild"
-      version          = "1"
-      input_artifacts  = ["SourceOutput"]
-      output_artifacts = ["BuildOutput"]
+      name            = "RestartIntegrationAction"
+      category        = "Build"
+      owner           = "AWS"
+      provider        = "CodeBuild"
+      version         = "1"
+      input_artifacts = ["SourceOutput"]
 
       configuration = {
         ProjectName = module.codebuild_restart_integration.codebuild_name
+      }
+
+    }
+    action {
+      name            = "RestartStagingAction"
+      category        = "Build"
+      owner           = "AWS"
+      provider        = "CodeBuild"
+      version         = "1"
+      input_artifacts = ["SourceOutput"]
+
+      configuration = {
+        ProjectName = module.codebuild_restart_staging.codebuild_name
       }
     }
   }
