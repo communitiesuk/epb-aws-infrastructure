@@ -84,7 +84,7 @@ module "codebuild_deploy_sidekiq_integration" {
   codebuild_role_arn = var.codebuild_role_arn
   name               = "${var.project_name}-codebuild-deploy-sidekiq-integration"
   build_image_uri    = var.aws_codebuild_image
-  buildspec_file     = "buildspec/deploy_to_cluster.yml"
+  buildspec_file     = "buildspec/deploy_sidekiq_to_cluster.yml"
   environment_variables = [
     { name = "AWS_DEFAULT_REGION", value = var.region },
     { name = "AWS_ACCOUNT_ID", value = var.account_ids["integration"] },
@@ -101,7 +101,7 @@ module "codebuild_deploy_sidekiq_staging" {
   codebuild_role_arn = var.codebuild_role_arn
   name               = "${var.project_name}-codebuild-deploy-sidekiq-staging"
   build_image_uri    = var.aws_codebuild_image
-  buildspec_file     = "buildspec/deploy_to_cluster.yml"
+  buildspec_file     = "buildspec/deploy_sidekiq_to_cluster.yml"
   environment_variables = [
     { name = "AWS_DEFAULT_REGION", value = var.region },
     { name = "AWS_ACCOUNT_ID", value = var.account_ids["staging"] },
