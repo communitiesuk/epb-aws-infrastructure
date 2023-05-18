@@ -326,6 +326,7 @@ module "register_api_application" {
   parameters = merge(module.parameter_store.parameter_arns, {
     "SENTRY_DSN" : module.parameter_store.parameter_arns["SENTRY_DSN_REGISTER_API"]
   })
+  has_db_migrate     = true
   vpc_id             = module.networking.vpc_id
   private_subnet_ids = module.networking.private_subnet_ids
   health_check_path  = "/healthcheck"
