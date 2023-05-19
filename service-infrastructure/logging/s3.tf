@@ -8,6 +8,14 @@ resource "aws_s3_bucket_public_access_block" "logs" {
   block_public_policy = true
 }
 
+resource "aws_s3_bucket_ownership_controls" "example" {
+  bucket = aws_s3_bucket.logs.id
+
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
 resource "aws_s3_bucket_lifecycle_configuration" "logs" {
   bucket = aws_s3_bucket.logs.id
 
@@ -21,6 +29,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "logs" {
   }
 }
 
+# Used by logit.io
 resource "aws_s3_bucket_policy" "root_log_bucket_access" {
   bucket = aws_s3_bucket.logs.id
 
@@ -39,6 +48,7 @@ resource "aws_s3_bucket_policy" "root_log_bucket_access" {
   })
 }
 
+# Used by logit.io
 resource "aws_iam_policy" "s3_logs_read_access" {
   name = "${var.prefix}-s3-logs-read-access"
 
