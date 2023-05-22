@@ -68,5 +68,17 @@ resource "aws_codepipeline" "this" {
         ProjectName = module.codebuild_restart_staging.codebuild_name
       }
     }
+    action {
+      name            = "RestartProductionAction"
+      category        = "Build"
+      owner           = "AWS"
+      provider        = "CodeBuild"
+      version         = "1"
+      input_artifacts = ["SourceOutput"]
+
+      configuration = {
+        ProjectName = module.codebuild_restart_production.codebuild_name
+      }
+    }
   }
 }

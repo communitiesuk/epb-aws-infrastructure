@@ -25,3 +25,17 @@ module "codebuild_restart_staging" {
   ]
   region = var.region
 }
+
+module "codebuild_restart_production" {
+  source             = "../codebuild_project"
+  codebuild_role_arn = var.codebuild_role_arn
+  name               = "${var.project_name}-codebuild-production"
+  build_image_uri    = var.aws_codebuild_image
+  buildspec_file     = "restart_ecs_tasks.yml"
+  environment_variables = [
+    { name = "AWS_DEFAULT_REGION", value = var.region },
+    { name = "AWS_ACCOUNT_ID", value = var.account_ids["production"] },
+    { name = "PREFIX", value = var.production_prefix }
+  ]
+  region = var.region
+}

@@ -163,4 +163,32 @@ resource "aws_codepipeline" "codepipeline" {
       }
     }
   }
+
+  stage {
+    name = "deploy-to-production"
+
+    action {
+      name            = "deploy-reg-api-to-production-cluster"
+      category        = "Build"
+      owner           = "AWS"
+      provider        = "CodeBuild"
+      version         = "1"
+      input_artifacts = ["reg_api_docker_image"]
+      configuration = {
+        ProjectName = module.codebuild_deploy_production.codebuild_name
+      }
+    }
+
+    action {
+      name            = "deploy-sidekiq-to-production-cluster"
+      category        = "Build"
+      owner           = "AWS"
+      provider        = "CodeBuild"
+      version         = "1"
+      input_artifacts = ["sidekiq_docker_image"]
+      configuration = {
+        ProjectName = module.codebuild_deploy_sidekiq_production.codebuild_name
+      }
+    }
+  }
 }

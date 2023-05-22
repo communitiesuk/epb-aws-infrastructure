@@ -71,6 +71,7 @@ module "auth-server-pipeline" {
   region                  = var.region
   aws_codebuild_image     = var.aws_amd_codebuild_image
   staging_prefix          = var.staging_prefix
+  production_prefix       = var.production_prefix
 }
 
 module "register-api-pipeline" {
@@ -101,6 +102,7 @@ module "register-api-pipeline" {
   smoketests_repository    = var.smoketests_repository
   smoketests_branch        = var.smoketests_branch
   staging_prefix           = var.staging_prefix
+  production_prefix        = var.production_prefix
 }
 
 module "frontend-pipeline" {
@@ -125,6 +127,7 @@ module "frontend-pipeline" {
   smoketests_repository   = var.smoketests_repository
   smoketests_branch       = var.smoketests_branch
   staging_prefix          = var.staging_prefix
+  production_prefix       = var.production_prefix
 }
 
 module "data_warehouse-pipeline" {
@@ -148,6 +151,7 @@ module "data_warehouse-pipeline" {
   region                  = var.region
   aws_codebuild_image     = var.aws_amd_codebuild_image
   staging_prefix          = var.staging_prefix
+  production_prefix       = var.production_prefix
 }
 
 module "toggles-pipeline" {
@@ -169,6 +173,7 @@ module "toggles-pipeline" {
   region                  = var.region
   aws_codebuild_image     = var.aws_amd_codebuild_image
   staging_prefix          = var.staging_prefix
+  production_prefix       = var.production_prefix
 }
 
 module "restart_ecs_tasks_pipeline" {
@@ -183,6 +188,7 @@ module "restart_ecs_tasks_pipeline" {
   region                = var.region
   integration_prefix    = var.integration_prefix
   staging_prefix        = var.staging_prefix
+  production_prefix     = var.production_prefix
 }
 
 module "cc-tray" {

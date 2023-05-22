@@ -65,3 +65,7 @@ variable "region" {
 variable "staging_prefix" {
   type = string
 }
+
+variable "production_prefix" {
+  type = string
+}

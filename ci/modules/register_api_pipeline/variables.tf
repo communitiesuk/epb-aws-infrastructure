@@ -101,3 +101,7 @@ variable "smoketests_branch" {
 variable "staging_prefix" {
   type = string
 }
+
+variable "production_prefix" {
+  type = string
+}

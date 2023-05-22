@@ -91,4 +91,20 @@ resource "aws_codepipeline" "codepipeline" {
       }
     }
   }
+
+  stage {
+    name = "deploy-to-production"
+
+    action {
+      name            = "deploy-auth-to-production-cluster"
+      category        = "Build"
+      owner           = "AWS"
+      provider        = "CodeBuild"
+      version         = "1"
+      input_artifacts = ["docker_image"]
+      configuration = {
+        ProjectName = module.codebuild_deploy_production.codebuild_name
+      }
+    }
+  }
 }

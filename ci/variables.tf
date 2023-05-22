@@ -26,6 +26,11 @@ variable "staging_prefix" {
   type    = string
 }
 
+variable "production_prefix" {
+  default = "epb-prod"
+  type    = string
+}
+
 variable "region" {
   default = "eu-west-2"
   type    = string
