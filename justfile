@@ -240,6 +240,8 @@ tfsec minimum_severity="HIGH":
 service-update-with-docker-image image_name service_name dockerfile_path="": _ensure_aws_profile
     #!/usr/bin/env bash
 
+    set -e
+
     ECR_REPO_NAME={{service_name}}-ecr
     ACCOUNT_ID=$(aws-vault exec $AWS_PROFILE -- aws sts get-caller-identity --query Account --output text)
 
@@ -263,7 +265,11 @@ service-update-with-paketo-image image_name service_name app_path="" builder="fu
     if [ "{{app_path}}" != "" ]; then
         mv {{app_path}}/AWS-Procfile {{app_path}}/Procfile
         pack build {{image_name}} --buildpack paketo-buildpacks/ruby --path {{app_path}} --builder paketobuildpacks/builder:{{builder}} --default-process {{default_process}}
+        pack_exit_code=$?
         mv {{app_path}}/Procfile {{app_path}}/AWS-Procfile
+        if [[ pack_exit_code -ne 0 ]] ; then
+            exit 1
+        fi
     fi
     docker tag {{image_name}}:latest $ACCOUNT_ID.dkr.ecr.eu-west-2.amazonaws.com/$ECR_REPO_NAME:latest
     docker push $ACCOUNT_ID.dkr.ecr.eu-west-2.amazonaws.com/$ECR_REPO_NAME:latest
@@ -272,6 +278,8 @@ service-update-with-paketo-image image_name service_name app_path="" builder="fu
 
 fluentbit-update-image image_name dockerfile_path="": _ensure_aws_profile
     #!/usr/bin/env bash
+
+    set -e
 
     ECR_REPO_NAME=fluentbit
     ACCOUNT_ID=$(aws-vault exec $AWS_PROFILE -- aws sts get-caller-identity --query Account --output text)
