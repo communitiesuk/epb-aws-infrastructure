@@ -1,5 +1,3 @@
-#data "aws_caller_identity" "current" {}
-
 module "codebuild_restart_integration" {
   source             = "../codebuild_project"
   codebuild_role_arn = var.codebuild_role_arn

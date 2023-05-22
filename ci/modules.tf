@@ -183,7 +183,6 @@ module "restart_ecs_tasks_pipeline" {
   region                = var.region
   integration_prefix    = var.integration_prefix
   staging_prefix        = var.staging_prefix
-  production_prefix     = var.production_prefix
 }
 
 module "cc-tray" {
