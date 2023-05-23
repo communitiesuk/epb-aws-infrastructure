@@ -322,7 +322,7 @@ exec-cmd cluster task_id container: _ensure_aws_profile
 
     aws-vault exec $AWS_PROFILE -- aws ecs execute-command --cluster {{cluster}} --task {{task_id}}  --interactive --container {{container}}  --command "/bin/sh"
 
-# Open a bash session on an ECS service
+# Open a bash session on an ECS service. This seems to fail on Windows due to aws ecs bug
 ecs-shell service_name: _ensure_aws_profile _ensure_jq
     #!/usr/bin/env bash
 
@@ -338,3 +338,12 @@ ecs-shell service_name: _ensure_aws_profile _ensure_jq
       exit 1
     fi
     aws-vault exec $AWS_PROFILE -- aws ecs execute-command --cluster {{service_name}}-cluster --task $ECS_TASK_ARN --interactive --container $ECS_CONTAINER_NAME --command "/usr/bin/env bash"
+
+ecs-shell-windows service_name profile:
+    #!/usr/bin/env powershell
+    echo "Preparing session on ECS..."
+    set AWS_PROFILE {{profile}}
+    set SERVICE_NAME {{service_name}}
+    set ECS_TASK_ARN (aws-vault exec $AWS_PROFILE -- aws ecs list-tasks --cluster $SERVICE_NAME-cluster | jq -r '.taskArns[0]')
+    set ECS_CONTAINER_NAME (aws-vault exec $AWS_PROFILE -- aws ecs describe-tasks --cluster $SERVICE_NAME-cluster --tasks $ECS_TASK_ARN | jq -r '.tasks[0].containers|map(select(.name|contains(\"fluentbit\")|not))[0].name'
+    aws-vault exec $AWS_PROFILE -- aws ecs execute-command --cluster $SERVICE_NAME-cluster --task $ECS_TASK_ARN --interactive --container $ECS_CONTAINER_NAME --command "/usr/bin/env bash"

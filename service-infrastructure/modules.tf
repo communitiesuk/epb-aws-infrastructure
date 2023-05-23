@@ -123,6 +123,10 @@ module "parameter_store" {
       type  = "String"
       value = var.parameters["RACK_ENV"]
     }
+    "RAILS_ENV" : {
+      type  = "String"
+      value = var.parameters["RAILS_ENV"]
+    }
     "SENTRY_DSN_AUTH_SERVER" : {
       type  = "SecureString"
       value = var.parameters["SENTRY_DSN_AUTH_SERVER"]
