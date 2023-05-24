@@ -125,7 +125,7 @@ resource "aws_ecs_task_definition" "db_migrate" {
       image       = "${aws_ecr_repository.this.repository_url}:latest"
       essential   = true
       environment = var.environment_variables
-
+      user        = "root" #added to ensure paketo image defaults to root user
       secrets = [for key, value in merge(var.secrets, var.parameters) : {
         name      = key
         valueFrom = value
