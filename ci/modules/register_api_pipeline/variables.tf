@@ -74,6 +74,15 @@ variable "integration_prefix" {
   type = string
 }
 
+variable "performance_test_repository" {
+  type = string
+}
+
+variable "performance_test_branch" {
+  type = string
+}
+
+
 variable "pipeline_name" {
   type = string
 }

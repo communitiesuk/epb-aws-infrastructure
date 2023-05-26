@@ -75,34 +75,36 @@ module "auth-server-pipeline" {
 }
 
 module "register-api-pipeline" {
-  source                   = "./modules/register_api_pipeline"
-  codepipeline_bucket      = module.artefact.codepipeline_bucket
-  codepipeline_role_arn    = module.codepipeline_role.aws_codepipeline_role_arn
-  codebuild_role_arn       = module.codebuild_role.aws_codebuild_role_arn
-  pipeline_name            = "epbr-register-api-pipeline"
-  github_repository        = "epb-register-api"
-  github_branch            = "master"
-  github_organisation      = var.github_organisation
-  integration_prefix       = var.integration_prefix
-  codestar_connection_arn  = module.codestar_connection.codestar_connection_arn
-  account_ids              = var.account_ids
-  ecs_cluster_name         = "reg-api-cluster"
-  ecs_service_name         = "reg-api"
-  app_ecr_name             = "reg-api-ecr"
-  project_name             = "epbr-register-api"
-  ecs_sidekiq_cluster_name = "reg-sidekiq-cluster"
-  ecs_sidekiq_service_name = "reg-sidekiq"
-  app_image_name           = "ebpr-register-api-image"
-  sidekiq_image_name       = "ebpr-sidekiq-image"
-  codebuild_image_ecr_url  = module.app_test_image_pipeline.image_repository_url
-  postgres_image_ecr_url   = module.postgres_test_image_pipeline.image_repository_url
-  region                   = var.region
-  aws_codebuild_image      = var.aws_amd_codebuild_image
-  sidekiq_ecr_name         = "reg-sidekiq-ecr"
-  smoketests_repository    = var.smoketests_repository
-  smoketests_branch        = var.smoketests_branch
-  staging_prefix           = var.staging_prefix
-  production_prefix        = var.production_prefix
+  source                      = "./modules/register_api_pipeline"
+  codepipeline_bucket         = module.artefact.codepipeline_bucket
+  codepipeline_role_arn       = module.codepipeline_role.aws_codepipeline_role_arn
+  codebuild_role_arn          = module.codebuild_role.aws_codebuild_role_arn
+  pipeline_name               = "epbr-register-api-pipeline"
+  github_repository           = "epb-register-api"
+  github_branch               = "master"
+  github_organisation         = var.github_organisation
+  integration_prefix          = var.integration_prefix
+  codestar_connection_arn     = module.codestar_connection.codestar_connection_arn
+  account_ids                 = var.account_ids
+  ecs_cluster_name            = "reg-api-cluster"
+  ecs_service_name            = "reg-api"
+  app_ecr_name                = "reg-api-ecr"
+  project_name                = "epbr-register-api"
+  ecs_sidekiq_cluster_name    = "reg-sidekiq-cluster"
+  ecs_sidekiq_service_name    = "reg-sidekiq"
+  app_image_name              = "ebpr-register-api-image"
+  sidekiq_image_name          = "ebpr-sidekiq-image"
+  codebuild_image_ecr_url     = module.app_test_image_pipeline.image_repository_url
+  postgres_image_ecr_url      = module.postgres_test_image_pipeline.image_repository_url
+  region                      = var.region
+  aws_codebuild_image         = var.aws_amd_codebuild_image
+  sidekiq_ecr_name            = "reg-sidekiq-ecr"
+  performance_test_repository = var.performance_test_repository
+  performance_test_branch     = var.performance_test_branch
+  smoketests_repository       = var.smoketests_repository
+  smoketests_branch           = var.smoketests_branch
+  staging_prefix              = var.staging_prefix
+  production_prefix           = var.production_prefix
 }
 
 module "frontend-pipeline" {

@@ -45,3 +45,13 @@ variable "smoketests_repository" {
   default = "epb-frontend-smoke-tests"
   type    = string
 }
+
+variable "performance_test_repository" {
+  default = "epb-performance-tests"
+  type    = string
+}
+
+variable "performance_test_branch" {
+  default = "main"
+  type    = string
+}
