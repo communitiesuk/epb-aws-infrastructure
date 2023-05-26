@@ -1,0 +1,15 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - aws --version
+      - docker login -u AWS -p $(aws ecr get-login-password --region $AWS_DEFAULT_REGION) $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo Building the Docker image...
+      - docker load --input $CODEBUILD_SRC_DIR_docker_image/fluentbit-image.tar
+      - docker tag fluentbit-image:latest $ECR_URL:latest
+      - docker push $ECR_URL:latest

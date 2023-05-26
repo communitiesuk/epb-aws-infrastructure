@@ -42,6 +42,10 @@ variable "vpc_id" {
   type = string
 }
 
+variable "fluentbit_ecr_url" {
+  type = string
+}
+
 variable "additional_task_role_policy_arns" {
   type        = map(string)
   default     = {}

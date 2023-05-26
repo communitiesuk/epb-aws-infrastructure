@@ -176,6 +176,28 @@ module "toggles-pipeline" {
   production_prefix       = var.production_prefix
 }
 
+module "fluentbit_pipeline" {
+  source = "./modules/fluentbit_pipeline"
+
+  artefact_bucket         = module.artefact.codepipeline_bucket
+  artefact_bucket_arn     = module.artefact.codepipeline_bucket_arn
+  codepipeline_role_arn   = module.codepipeline_role.aws_codepipeline_role_arn
+  codebuild_role_arn      = module.codebuild_role.aws_codebuild_role_arn
+  pipeline_name           = "fluentbit-pipeline"
+  github_repository       = "epb-docker-images"
+  github_branch           = "master"
+  github_organisation     = var.github_organisation
+  codestar_connection_arn = module.codestar_connection.codestar_connection_arn
+  account_ids             = var.account_ids
+  fluentbit_ecr_name      = "fluentbit"
+  project_name            = "fluentbit"
+  region                  = var.region
+  aws_amd_codebuild_image = var.aws_amd_codebuild_image
+  integration_prefix      = var.integration_prefix
+  staging_prefix          = var.staging_prefix
+  production_prefix       = var.production_prefix
+}
+
 module "restart_ecs_tasks_pipeline" {
   source                = "./modules/restart_tasks_pipeline"
   codepipeline_bucket   = module.artefact.codepipeline_bucket

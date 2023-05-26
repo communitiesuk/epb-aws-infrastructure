@@ -228,6 +228,7 @@ module "toggles_application" {
   }
   parameters                                 = module.parameter_store.parameter_arns
   vpc_id                                     = module.networking.vpc_id
+  fluentbit_ecr_url                          = module.fluentbit_ecr.ecr_url
   private_subnet_ids                         = module.networking.private_subnet_ids
   health_check_path                          = "/health"
   additional_task_execution_role_policy_arns = { "RDS_access" : module.toggles_database.rds_full_access_policy_arn }
@@ -265,6 +266,7 @@ module "auth_application" {
   })
   has_db_migrate                             = true
   vpc_id                                     = module.networking.vpc_id
+  fluentbit_ecr_url                          = module.fluentbit_ecr.ecr_url
   private_subnet_ids                         = module.networking.private_subnet_ids
   health_check_path                          = "/auth/healthcheck"
   additional_task_execution_role_policy_arns = { "RDS_access" : module.auth_database.rds_full_access_policy_arn }
@@ -332,6 +334,7 @@ module "register_api_application" {
   })
   has_db_migrate     = true
   vpc_id             = module.networking.vpc_id
+  fluentbit_ecr_url  = module.fluentbit_ecr.ecr_url
   private_subnet_ids = module.networking.private_subnet_ids
   health_check_path  = "/healthcheck"
   additional_task_execution_role_policy_arns = {
@@ -387,6 +390,7 @@ module "register_sidekiq_application" {
     "SENTRY_DSN" : module.parameter_store.parameter_arns["SENTRY_DSN_REGISTER_WORKER"]
   })
   vpc_id             = module.networking.vpc_id
+  fluentbit_ecr_url  = module.fluentbit_ecr.ecr_url
   private_subnet_ids = module.networking.private_subnet_ids
   health_check_path  = "/healthcheck"
   additional_task_execution_role_policy_arns = {
@@ -435,6 +439,7 @@ module "frontend_application" {
     "SENTRY_DSN" : module.parameter_store.parameter_arns["SENTRY_DSN_FRONTEND"]
   })
   vpc_id                                     = module.networking.vpc_id
+  fluentbit_ecr_url                          = module.fluentbit_ecr.ecr_url
   private_subnet_ids                         = module.networking.private_subnet_ids
   health_check_path                          = "/healthcheck"
   additional_task_execution_role_policy_arns = {}
@@ -481,6 +486,7 @@ module "warehouse_application" {
     "SENTRY_DSN" : module.parameter_store.parameter_arns["SENTRY_DSN_DATA_WAREHOUSE"]
   })
   vpc_id             = module.networking.vpc_id
+  fluentbit_ecr_url  = module.fluentbit_ecr.ecr_url
   private_subnet_ids = module.networking.private_subnet_ids
   health_check_path  = null
   additional_task_execution_role_policy_arns = {
@@ -540,6 +546,12 @@ module "logging" {
 
   prefix      = local.prefix
   environment = var.environment
+}
+
+module "fluentbit_ecr" {
+  source = "./ecr"
+
+  ecr_repository_name = "${local.prefix}-fluentbit"
 }
 
 module "alerts" {

@@ -1,0 +1,23 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - aws --version
+
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo Building the Docker image...
+      - docker build -t fluentbit-image $CODEBUILD_SRC_DIR_code_source/fluentbit
+
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - docker save -o fluentbit-image.tar fluentbit-image:latest
+
+artifacts:
+  files:
+    - '**/*'
+
+

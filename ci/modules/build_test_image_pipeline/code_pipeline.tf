@@ -16,11 +16,11 @@ resource "aws_codepipeline" "codepipeline" {
       owner            = "AWS"
       provider         = "CodeStarSourceConnection"
       version          = "1"
-      output_artifacts = ["source_output"]
+      output_artifacts = ["code_source"]
 
       configuration = {
         ConnectionArn        = var.codestar_connection_arn
-        FullRepositoryId     = format("%s/%s", var.github_organisation, var.github_repository)
+        FullRepositoryId     = "${var.github_organisation}/${var.github_repository}"
         BranchName           = var.github_branch
         OutputArtifactFormat = "CODEBUILD_CLONE_REF"
       }
@@ -36,7 +36,7 @@ resource "aws_codepipeline" "codepipeline" {
       owner           = "AWS"
       provider        = "CodeBuild"
       version         = "1"
-      input_artifacts = ["source_output"]
+      input_artifacts = ["code_source"]
 
       configuration = {
         ProjectName = module.codebuild_build_push_image.codebuild_name

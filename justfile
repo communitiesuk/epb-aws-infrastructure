@@ -276,20 +276,19 @@ service-update-with-paketo-image image_name service_name app_path="" builder="fu
 
     just service-refresh {{service_name}}
 
-fluentbit-update-image image_name dockerfile_path="": _ensure_aws_profile
+ecr-update image_name ecr_repo_name dockerfile_path="": _ensure_aws_profile
     #!/usr/bin/env bash
 
     set -e
 
-    ECR_REPO_NAME=fluentbit
     ACCOUNT_ID=$(aws-vault exec $AWS_PROFILE -- aws sts get-caller-identity --query Account --output text)
 
     docker login -u AWS -p $(aws-vault exec $AWS_PROFILE -- aws ecr get-login-password --region eu-west-2) $ACCOUNT_ID.dkr.ecr.eu-west-2.amazonaws.com
     if [ "{{dockerfile_path}}" != "" ]; then
         docker buildx build --platform linux/amd64 -t {{image_name}} {{dockerfile_path}}
     fi
-    docker tag {{image_name}}:latest $ACCOUNT_ID.dkr.ecr.eu-west-2.amazonaws.com/$ECR_REPO_NAME:latest
-    docker push $ACCOUNT_ID.dkr.ecr.eu-west-2.amazonaws.com/$ECR_REPO_NAME:latest
+    docker tag {{image_name}}:latest $ACCOUNT_ID.dkr.ecr.eu-west-2.amazonaws.com/{{ecr_repo_name}}:latest
+    docker push $ACCOUNT_ID.dkr.ecr.eu-west-2.amazonaws.com/{{ecr_repo_name}}:latest
 
 # List services available in this context. These values can be used as a "service_name" parameter in some other tasks.
 services-list: _ensure_aws_profile _ensure_jq
