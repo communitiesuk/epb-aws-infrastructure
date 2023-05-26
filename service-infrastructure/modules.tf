@@ -219,7 +219,6 @@ module "toggles_application" {
 
   prefix                = "${local.prefix}-toggles"
   region                = var.region
-  account_id            = var.account_id
   container_port        = 4242
   egress_ports          = [80, 443, 5432, var.parameters["LOGSTASH_PORT"]]
   environment_variables = []
@@ -253,7 +252,6 @@ module "auth_application" {
 
   prefix                = "${local.prefix}-auth"
   region                = var.region
-  account_id            = var.account_id
   container_port        = 3001
   egress_ports          = [80, 443, 5432, var.parameters["LOGSTASH_PORT"]]
   environment_variables = []
@@ -320,7 +318,6 @@ module "register_api_application" {
 
   prefix                = "${local.prefix}-reg-api"
   region                = var.region
-  account_id            = var.account_id
   container_port        = 3001
   egress_ports          = [80, 443, 5432, local.redis_port, var.parameters["LOGSTASH_PORT"]]
   environment_variables = []
@@ -376,7 +373,6 @@ module "register_sidekiq_application" {
 
   prefix                = "${local.prefix}-reg-sidekiq"
   region                = var.region
-  account_id            = var.account_id
   container_port        = 80
   egress_ports          = [80, 443, 5432, local.redis_port, var.parameters["LOGSTASH_PORT"]]
   environment_variables = []
@@ -424,7 +420,6 @@ module "frontend_application" {
 
   prefix                = "${local.prefix}-frontend"
   region                = var.region
-  account_id            = var.account_id
   container_port        = 3001
   egress_ports          = [80, 443, 5432, var.parameters["LOGSTASH_PORT"]]
   environment_variables = []
@@ -468,7 +463,6 @@ module "warehouse_application" {
 
   prefix                = "${local.prefix}-warehouse"
   region                = var.region
-  account_id            = var.account_id
   container_port        = 80
   egress_ports          = [80, 443, 5432, local.redis_port, var.parameters["LOGSTASH_PORT"]]
   environment_variables = []
