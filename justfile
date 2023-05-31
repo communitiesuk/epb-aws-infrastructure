@@ -142,13 +142,13 @@ rds-list: _ensure_aws_profile
     echo "run 'just bastion-rds rds_endpoint=<endpoint>' to connect to the rds instance"
 
 # Creates connection to RDS instance. requires bastion host 'bastion-host' to be running in currenct account. Run 'just rds-list' to get available endpoint addresses
-rds-connect rds_endpoint local_port="5432": _ensure_aws_profile
+rds-connect rds_endpoint local_port="5555": _ensure_aws_profile
     #!/usr/bin/env bash
 
     BASTION_RDS_INSTANCE_ID=$(aws-vault exec $AWS_PROFILE -- aws ec2 describe-instances --filters "Name=tag:Name,Values=bastion-host" --query 'Reservations[*].Instances[*].InstanceId' --output text)
     
     echo "You can connect to your Database now using your preferred interface at server address localhost:{{local_port}}"
-    echo "e.g. psql -h localhost -p 5432"
+    echo "e.g. psql -h localhost -p 5555"
     echo "To connect, use username password stored in AWS Secrets Manager. You can see secrets by running 'just secrets-list'"
     echo "To stop the port forwarding session, run 'just rds-disconnect' or 'Ctrl + C'"
     
