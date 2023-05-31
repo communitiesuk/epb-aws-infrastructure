@@ -9,12 +9,12 @@ phases:
     commands:
       - echo Build started on `date`
       - echo Building the Docker image...
-      - docker build -t fluentbit-image $CODEBUILD_SRC_DIR_code_source/fluentbit
+      - docker build -t fluentbit $CODEBUILD_SRC_DIR_code_source/fluentbit
 
   post_build:
     commands:
       - echo Build completed on `date`
-      - docker save -o fluentbit-image.tar fluentbit-image:latest
+      - docker save -o fluentbit.tar fluentbit:latest
 
 artifacts:
   files:

@@ -59,7 +59,7 @@ resource "aws_codepipeline" "codepipeline" {
     name = "build-image"
 
     action {
-      name             = "Build"
+      name             = "build"
       category         = "Build"
       owner            = "AWS"
       provider         = "CodeBuild"
@@ -78,7 +78,7 @@ resource "aws_codepipeline" "codepipeline" {
     name = "push-image-integration"
 
     action {
-      name            = "Build"
+      name            = "push"
       category        = "Build"
       owner           = "AWS"
       provider        = "CodeBuild"
@@ -96,7 +96,7 @@ resource "aws_codepipeline" "codepipeline" {
     name = "push-image-staging"
 
     action {
-      name            = "Build"
+      name            = "push"
       category        = "Build"
       owner           = "AWS"
       provider        = "CodeBuild"
@@ -114,7 +114,7 @@ resource "aws_codepipeline" "codepipeline" {
     name = "push-image-production"
 
     action {
-      name            = "Build"
+      name            = "push"
       category        = "Build"
       owner           = "AWS"
       provider        = "CodeBuild"
@@ -128,4 +128,3 @@ resource "aws_codepipeline" "codepipeline" {
     }
   }
 }
-

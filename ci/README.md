@@ -60,8 +60,8 @@ account_ids = {
   staging="1111111111111"
 }
 cross_account_role_arns = [
-  "arn:aws:iam::123456789012:role/ci-server-role",
-  "arn:aws:iam::1111111111111:role/ci-server-role",
+  "arn:aws:iam::123456789012:role/ci-server",
+  "arn:aws:iam::1111111111111:role/ci-server",
 ]
 ```
 

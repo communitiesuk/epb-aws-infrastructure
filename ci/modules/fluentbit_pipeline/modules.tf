@@ -1,3 +1,5 @@
+data "aws_caller_identity" "current" {}
+
 module "codebuild_build_image" {
   source = "../codebuild_project"
 
@@ -8,7 +10,7 @@ module "codebuild_build_image" {
   buildspec_file     = "build_docker_image.yml"
   environment_variables = [
     { name = "AWS_DEFAULT_REGION", value = var.region },
-    { name = "AWS_ACCOUNT_ID", value = var.account_ids["integration"] },
+    { name = "AWS_ACCOUNT_ID", value = data.aws_caller_identity.current.account_id },
   ]
 }
 
