@@ -107,6 +107,21 @@ module "register-api-pipeline" {
   production_prefix           = var.production_prefix
 }
 
+module "performance_test_pipeline" {
+  source                      = "./modules/performance_test_pipeline"
+  codepipeline_bucket         = module.artefact.codepipeline_bucket
+  codepipeline_role_arn       = module.codepipeline_role.aws_codepipeline_role_arn
+  codebuild_role_arn          = module.codebuild_role.aws_codebuild_role_arn
+  project_name                = "epbr-performance-test"
+  pipeline_name               = "epbr-performance-test-pipeline"
+  github_organisation         = var.github_organisation
+  codestar_connection_arn     = module.codestar_connection.codestar_connection_arn
+  region                      = var.region
+  aws_codebuild_image         = var.aws_amd_codebuild_image
+  performance_test_repository = var.performance_test_repository
+  performance_test_branch     = var.performance_test_branch
+}
+
 module "frontend-pipeline" {
   source                  = "./modules/frontend_pipeline"
   codepipeline_bucket     = module.artefact.codepipeline_bucket
