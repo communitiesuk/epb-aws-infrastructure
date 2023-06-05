@@ -210,7 +210,7 @@ module "toggles_database" {
   security_group_ids    = [module.toggles_application.ecs_security_group_id, module.bastion.security_group_id]
   storage_backup_period = 1
   storage_size          = 5
-  instance_class        = "db.t3.micro"
+  instance_class        = var.environment == "intg" ? "db.t3.micro" : "db.m5.large"
   parameter_group_name  = module.parameter_groups.rds_pglogical_target_pg_name
 }
 
@@ -294,7 +294,7 @@ module "auth_database" {
   security_group_ids    = [module.auth_application.ecs_security_group_id, module.bastion.security_group_id]
   storage_backup_period = 1 # to prevent weird behaviour when the backup window is set to 0
   storage_size          = 5
-  instance_class        = "db.t3.micro"
+  instance_class        = var.environment == "intg" ? "db.t3.micro" : "db.m5.large"
   parameter_group_name  = module.parameter_groups.rds_pglogical_target_pg_name
 }
 
@@ -363,7 +363,7 @@ module "register_api_database" {
   subnet_group_name             = module.networking.private_subnet_group_name
   security_group_ids            = [module.register_api_application.ecs_security_group_id, module.register_sidekiq_application.ecs_security_group_id, module.bastion.security_group_id]
   storage_backup_period         = var.storage_backup_period
-  instance_class                = "db.t3.medium"
+  instance_class                = var.environment == "intg" ? "db.t3.medium" : "db.r5.large"
   cluster_parameter_group_name  = module.parameter_groups.aurora_pglogical_target_pg_name
   instance_parameter_group_name = module.parameter_groups.rds_pglogical_target_pg_name
 }
@@ -504,7 +504,7 @@ module "warehouse_database" {
   subnet_group_name             = module.networking.private_subnet_group_name
   security_group_ids            = [module.warehouse_application.ecs_security_group_id, module.bastion.security_group_id]
   storage_backup_period         = var.storage_backup_period
-  instance_class                = "db.t3.medium"
+  instance_class                = var.environment == "intg" ? "db.t3.medium" : "db.r5.large"
   cluster_parameter_group_name  = module.parameter_groups.aurora_pglogical_target_pg_name
   instance_parameter_group_name = module.parameter_groups.rds_pglogical_target_pg_name
 }
