@@ -7,6 +7,11 @@ module "artefact" {
   region = var.region
 }
 
+module "performance_reports" {
+  source = "./modules/performance_test_report_bucket"
+  region = var.region
+}
+
 module "codestar_connection" {
   source = "./modules/codestar_connection"
   region = var.region
@@ -18,11 +23,12 @@ module "codepipeline_role" {
 }
 
 module "codebuild_role" {
-  source                  = "./modules/service_codebuild_role"
-  codepipeline_bucket_arn = module.artefact.codepipeline_bucket_arn
-  cross_account_role_arns = var.cross_account_role_arns
-  codestar_connection_arn = module.codestar_connection.codestar_connection_arn
-  region                  = var.region
+  source                         = "./modules/service_codebuild_role"
+  codepipeline_bucket_arn        = module.artefact.codepipeline_bucket_arn
+  performance_reports_bucket_arn = module.performance_reports.codepipeline_bucket_arn
+  cross_account_role_arns        = var.cross_account_role_arns
+  codestar_connection_arn        = module.codestar_connection.codestar_connection_arn
+  region                         = var.region
 }
 
 

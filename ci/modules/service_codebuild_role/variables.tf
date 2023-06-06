@@ -2,6 +2,10 @@ variable "codepipeline_bucket_arn" {
   type = string
 }
 
+variable "performance_reports_bucket_arn" {
+  type = string
+}
+
 variable "codestar_connection_arn" {
   type = string
 }

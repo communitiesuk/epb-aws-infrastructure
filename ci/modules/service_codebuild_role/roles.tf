@@ -53,6 +53,8 @@ data "aws_iam_policy_document" "codebuild_role_policy" {
     resources = [
       var.codepipeline_bucket_arn,
       "${var.codepipeline_bucket_arn}/*",
+      var.performance_reports_bucket_arn,
+      "${var.performance_reports_bucket_arn}/*",
     ]
   }
 

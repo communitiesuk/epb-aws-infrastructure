@@ -52,6 +52,6 @@ variable "performance_test_repository" {
 }
 
 variable "performance_test_branch" {
-  default = "main"
+  default = "aws-version"
   type    = string
 }
