@@ -11,6 +11,7 @@ resource "aws_lb" "internal" {
   security_groups                  = [aws_security_group.alb_internal[0].id]
   subnets                          = var.private_subnet_ids
   enable_cross_zone_load_balancing = true
+  drop_invalid_header_fields       = true
 
   access_logs {
     bucket  = var.logs_bucket_name
