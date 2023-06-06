@@ -7,6 +7,7 @@ resource "aws_db_instance" "postgres_rds" {
   db_subnet_group_name    = var.subnet_group_name
   allocated_storage       = var.storage_size
   storage_type            = "gp2"
+  storage_encrypted       = true
   backup_retention_period = var.storage_backup_period
   skip_final_snapshot     = true
   username                = "postgres"
