@@ -178,12 +178,12 @@ tflint:
     echo "running tflint..." 
     docker run --rm -v $(pwd):/data -t ghcr.io/terraform-linters/tflint --recursive
 
-tfapply path=".": _ensure_aws_profile
+tf-apply path=".": _ensure_aws_profile
     #!/usr/bin/env bash
 
     cd {{path}} && aws-vault exec $AWS_PROFILE -- terraform apply
 
-tfdestroy path="." force="false": _ensure_aws_profile
+tf-destroy path="." force="false": _ensure_aws_profile
     #!/usr/bin/env bash
 
     if [ {{force}} = "false" ]; then
@@ -193,16 +193,31 @@ tfdestroy path="." force="false": _ensure_aws_profile
         cd {{path}} && aws-vault exec $AWS_PROFILE -- terraform destroy
     fi
 
-tfinit path="." backend="": _ensure_aws_profile
+tf-init path="." backend="": _ensure_aws_profile
     #!/usr/bin/env bash
 
     if [ "{{backend}}" != "" ]; then
         echo "initialising terraform with backend {{backend}}"
-        cd {{path}} && aws-vault exec $AWS_PROFILE -- terraform init -backend-config={{backend}}
+        cd {{path}} && aws-vault exec $AWS_PROFILE -- terraform init -backend-config={{backend}} -reconfigure
     else
         echo "initialising terraform"
         cd {{path}} && aws-vault exec $AWS_PROFILE -- terraform init
     fi
+
+# does few things for convenience to start working with terraform against different environment. profile = environment unless specified. Profile must be one of 'integration', 'staging' or 'production' 
+tf-env environment profile="": _ensure_aws_profile
+    #!/usr/bin/env bash
+    if [ "{{profile}}" = "" ]; then
+        PROFILE="{{environment}}"
+    else
+        PROFILE="{{profile}}"
+    fi
+    BACKEND_CONFIG="backend_{{environment}}.hcl"
+
+    echo "setting terraform workspace {{environment}} with profile $PROFILE and backend config $BACKEND_CONFIG"
+    just set-profile $PROFILE
+    just tfvars-get service-infrastructure {{environment}}
+    just tf-init service-infrastructure $BACKEND_CONFIG
 
 # Updates tfvars file in S3 with values from local file. environment should be one of 'integration', 'staging' or 'production'
 tfvars-put path="." environment="integration": _ensure_aws_profile

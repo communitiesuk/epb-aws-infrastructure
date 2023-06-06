@@ -6,7 +6,7 @@ A lot of tasks described in this readme have been made easier using `just`. It i
 
 [Official Documentation](https://github.com/casey/just)
 
-### Installation
+### Installing just
 
 Mac: `brew install just`
 
@@ -31,12 +31,12 @@ When specifying paths in `just` command, provide absolute paths. You can use `$(
 
 ```bash
 cd code-pipeline/service-pipelines/
-.j tfinit $(pwd) $(pwd)/backend_cicd.hcl
+.j tf-init $(pwd) $(pwd)/backend_cicd.hcl
 ```
 
 ## Terraform Setup
 
-### Installation
+### Terraform installation
 
 1. Install Terraform:
 <https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli>
@@ -118,21 +118,25 @@ The infrastructure used for the S3 backend is defined via terraform in the `/sta
 
 1. From root `cd service-infrastructure`
 
-2. Initialize your Terraform environment  
+2. Initialize your Terraform environment
+
     `aws-vault exec {profile_name_for_AWS_environment} -- terraform init -backend-config=backend_{profile}.hcl`
 
-    Example:  
+    Example:
+
     `aws-vault exec integration -- terraform init -backend-config=backend_integration.hcl`
 
 3. To run terraform you will need to download a copy of the parameters stored as tfvars in the environment. To do this run
-    `just tfvars-get service-infrastructure {profile_name_for_AWS_environment} `
 
-4. Run a terraform plan and check you see everything is upto date:  
+    `just tfvars-get service-infrastructure {profile_name_for_AWS_environment}`
+
+4. Run a terraform plan and check you see everything is upto date:
+
     `aws-vault exec {profile_name_for_AWS_environment} -- terraform plan`
 
     Example:  
     `aws-vault exec integration -- terraform plan`
-    
+
 ## Making changes
 
 1. First, generate a plan to check the changes Terraform wants to make
@@ -146,16 +150,19 @@ The infrastructure used for the S3 backend is defined via terraform in the `/sta
 3. (Optional) Once successfully applied, you should be able to see the changes in the AWS Management Console.
 Sanity check the changes have been applied as you expected
 
-
 ## Making changes using just
-1 make sure you have switch profile to the correct env
-`just set-profile  {profile_name_for_AWS_environment} ``
 
-2. download a copy of the parameters stored as tfvars in the environment. To do this run
-    `just tfvars-get service-infrastructure {profile_name_for_AWS_environment} `
+1. make sure you have switch profile to the correct env
 
-3. run the apply
-    ` just tfapply service-infrastructure `
+    `just set-profile  {profile_name_for_AWS_environment}`
+
+1. download a copy of the parameters stored as tfvars in the environment. To do this run
+
+    `just tfvars-get service-infrastructure {profile_name_for_AWS_environment}`
+
+1. run the apply
+
+    ` just tf-apply service-infrastructure `
 
 ## Deleting infrastructure
 
