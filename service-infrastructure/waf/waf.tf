@@ -79,7 +79,7 @@ resource "aws_wafv2_web_acl" "this" {
     statement {
       rate_based_statement {
         aggregate_key_type = "IP"
-        limit              = 1000
+        limit              = var.environment == "stag" ? 1000000 : 1000
       }
     }
 

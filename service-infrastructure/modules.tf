@@ -35,6 +35,7 @@ module "waf" {
     aws = aws.us-east
   }
 
+  environment              = var.environment
   prefix                   = local.prefix
   forbidden_ip_addresses   = []
   forbidden_ipv6_addresses = []
