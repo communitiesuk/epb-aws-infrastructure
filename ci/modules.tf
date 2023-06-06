@@ -1,5 +1,5 @@
-module "access" {
-  source = "./modules/access"
+module "account_security" {
+  source = "./modules/account_security"
 }
 
 module "artefact" {

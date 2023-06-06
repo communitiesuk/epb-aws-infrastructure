@@ -1,3 +1,7 @@
+module "account_security" {
+  source = "./account_security"
+}
+
 module "networking" {
   source = "./networking"
 
