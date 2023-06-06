@@ -1,3 +1,7 @@
+module "access" {
+  source = "./modules/access"
+}
+
 module "artefact" {
   source = "./modules/artifact_bucket"
   region = var.region
