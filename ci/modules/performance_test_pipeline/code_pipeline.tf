@@ -1,4 +1,3 @@
-
 resource "aws_codepipeline" "codepipeline" {
   name     = var.pipeline_name
   role_arn = var.codepipeline_role_arn
@@ -26,7 +25,6 @@ resource "aws_codepipeline" "codepipeline" {
         OutputArtifactFormat = "CODEBUILD_CLONE_REF"
       }
     }
-
   }
 
   stage {
