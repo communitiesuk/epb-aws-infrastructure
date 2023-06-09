@@ -43,7 +43,31 @@ resource "aws_s3_bucket_policy" "root_log_bucket_access" {
         }
         Action   = "s3:*"
         Resource = "${aws_s3_bucket.logs.arn}/*"
-      }
+      },
+      {
+        Effect = "Allow"
+        Action = "s3:GetBucketAcl"
+        Principal = {
+          Service = "cloudtrail.amazonaws.com"
+        }
+        Resource = "arn:aws:s3:::epb-intg-logs"
+      },
+      {
+        Effect = "Allow"
+        Action = "s3:PutObject"
+        Principal = {
+          Service = "cloudtrail.amazonaws.com"
+        }
+        Resource = "arn:aws:s3:::epb-intg-logs/cloudtrail/AWSLogs/*"
+      },
+      {
+        Effect = "Allow"
+        Action = "s3:GetBucketAcl"
+        Principal = {
+          Service = "cloudtrail.amazonaws.com"
+        }
+        Resource = "arn:aws:s3:::epb-intg-logs"
+      },
     ]
   })
 }
