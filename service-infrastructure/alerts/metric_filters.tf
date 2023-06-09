@@ -1,5 +1,6 @@
 resource "aws_cloudwatch_log_metric_filter" "unauthorized_api_calls_metric" {
-  name           = "UnautorizedApiCalls"
+  name = "unauthorized_api_calls_metric"
+
   log_group_name = aws_cloudwatch_log_group.this.name
   pattern        = <<EOT
     {($.errorCode = UnauthorizedOperation) ||
@@ -9,14 +10,14 @@ resource "aws_cloudwatch_log_metric_filter" "unauthorized_api_calls_metric" {
   EOT
 
   metric_transformation {
-    name      = "EventCount"
+    name      = "unauthorized_api_calls_metric"
     namespace = "CISBenchmark"
     value     = "1"
   }
 }
 
 resource "aws_cloudwatch_log_metric_filter" "root_account_login_metric" {
-  name           = "RootAccountLogin"
+  name           = "root_account_login_metric"
   log_group_name = aws_cloudwatch_log_group.this.name
   pattern        = <<EOT
     {($.userIdentity.type = Root) &&
@@ -25,14 +26,14 @@ resource "aws_cloudwatch_log_metric_filter" "root_account_login_metric" {
     EOT
 
   metric_transformation {
-    name      = "EventCount"
+    name      = "root_account_login_metric"
     namespace = "CISBenchmark"
     value     = "1"
   }
 }
 
 resource "aws_cloudwatch_log_metric_filter" "iam_policy_changes_metric" {
-  name           = "IamPolicyChanges"
+  name           = "iam_policy_changes_metric"
   log_group_name = aws_cloudwatch_log_group.this.name
   pattern        = <<EOT
     {($.eventName = DeleteGroupPolicy) ||
@@ -54,14 +55,14 @@ resource "aws_cloudwatch_log_metric_filter" "iam_policy_changes_metric" {
   EOT
 
   metric_transformation {
-    name      = "EventCount"
+    name      = "iam_policy_changes_metric"
     namespace = "CISBenchmark"
     value     = "1"
   }
 }
 
 resource "aws_cloudwatch_log_metric_filter" "cloudtrail_config_changes_metric" {
-  name           = "CloudtrailConfigChanges"
+  name           = "cloudtrail_config_changes_metric"
   log_group_name = aws_cloudwatch_log_group.this.name
   pattern        = <<EOT
     {($.eventName = CreateTrail) ||
@@ -72,14 +73,14 @@ resource "aws_cloudwatch_log_metric_filter" "cloudtrail_config_changes_metric" {
     EOT
 
   metric_transformation {
-    name      = "EventCount"
+    name      = "cloudtrail_config_changes_metric"
     namespace = "CISBenchmark"
     value     = "1"
   }
 }
 
 resource "aws_cloudwatch_log_metric_filter" "s3_bucket_policy_changes_metric" {
-  name           = "S3BucketPolicyChanges"
+  name           = "s3_bucket_policy_changes_metric"
   log_group_name = aws_cloudwatch_log_group.this.name
   pattern        = <<EOT
     {($.eventSource = s3.amazonaws.com) &&
@@ -95,14 +96,14 @@ resource "aws_cloudwatch_log_metric_filter" "s3_bucket_policy_changes_metric" {
   EOT
 
   metric_transformation {
-    name      = "EventCount"
+    name      = "s3_bucket_policy_changes_metric"
     namespace = "CISBenchmark"
     value     = "1"
   }
 }
 
 resource "aws_cloudwatch_log_metric_filter" "network_gateway_changes_metric" {
-  name           = "NetworkGatewayChanges"
+  name           = "network_gateway_changes_metric"
   log_group_name = aws_cloudwatch_log_group.this.name
   pattern        = <<EOT
     {($.eventName = CreateCustomerGateway) ||
@@ -114,14 +115,14 @@ resource "aws_cloudwatch_log_metric_filter" "network_gateway_changes_metric" {
   EOT
 
   metric_transformation {
-    name      = "EventCount"
+    name      = "network_gateway_changes_metric"
     namespace = "CISBenchmark"
     value     = "1"
   }
 }
 
 resource "aws_cloudwatch_log_metric_filter" "route_tables_changes_metric" {
-  name           = "RouteTablesChanges"
+  name           = "route_tables_changes_metric"
   log_group_name = aws_cloudwatch_log_group.this.name
   pattern        = <<EOT
     {($.eventName = CreateRoute) ||
@@ -134,14 +135,14 @@ resource "aws_cloudwatch_log_metric_filter" "route_tables_changes_metric" {
   EOT
 
   metric_transformation {
-    name      = "EventCount"
+    name      = "route_tables_changes_metric"
     namespace = "CISBenchmark"
     value     = "1"
   }
 }
 
 resource "aws_cloudwatch_log_metric_filter" "vpc_changes_metric" {
-  name           = "VpcChanges"
+  name           = "vpc_changes_metric"
   log_group_name = aws_cloudwatch_log_group.this.name
   pattern        = <<EOT
     {($.eventName = CreateVpc) ||
@@ -158,14 +159,14 @@ resource "aws_cloudwatch_log_metric_filter" "vpc_changes_metric" {
   EOT
 
   metric_transformation {
-    name      = "EventCount"
+    name      = "vpc_changes_metric"
     namespace = "CISBenchmark"
     value     = "1"
   }
 }
 
 resource "aws_cloudwatch_log_metric_filter" "organization_changes_metric" {
-  name           = "OrganizationChanges"
+  name           = "organization_changes_metric"
   log_group_name = aws_cloudwatch_log_group.this.name
   pattern        = <<EOT
   {($.eventSource = organizations.amazonaws.com) &&
@@ -190,7 +191,7 @@ resource "aws_cloudwatch_log_metric_filter" "organization_changes_metric" {
   EOT
 
   metric_transformation {
-    name      = "EventCount"
+    name      = "organization_changes_metric"
     namespace = "CISBenchmark"
     value     = "1"
   }
