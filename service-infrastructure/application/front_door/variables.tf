@@ -26,11 +26,11 @@ variable "logs_bucket_name" {
   type = string
 }
 
-variable "aws_ssl_certificate_arn" {
+variable "ssl_certificate_arn" {
   type = string
 }
 
-variable "aws_cdn_certificate_arn" {
+variable "cdn_certificate_arn" {
   type = string
 }
 

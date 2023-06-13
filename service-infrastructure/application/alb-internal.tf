@@ -1,5 +1,5 @@
 locals {
-  create_internal_alb = var.create_internal_alb
+  create_internal_alb = var.internal_alb_config != null
 }
 
 resource "aws_lb" "internal" {
@@ -42,7 +42,24 @@ resource "aws_lb_target_group" "internal" {
   }
 }
 
-resource "aws_lb_listener" "internal_http" {
+# resource "aws_lb_listener" "internal_http" {
+#   count = local.create_internal_alb ? 1 : 0
+
+#   load_balancer_arn = aws_lb.internal[0].id
+#   port              = 80
+#   protocol          = "HTTP"
+
+#   default_action {
+#     target_group_arn = aws_lb_target_group.internal[0].id
+#     type             = "forward"
+#   }
+
+#   lifecycle {
+#     replace_triggered_by = [aws_lb_target_group.internal[0].id]
+#   }
+# }
+
+resource "aws_lb_listener" "public_http" {
   count = local.create_internal_alb ? 1 : 0
 
   load_balancer_arn = aws_lb.internal[0].id
@@ -50,11 +67,34 @@ resource "aws_lb_listener" "internal_http" {
   protocol          = "HTTP"
 
   default_action {
-    target_group_arn = aws_lb_target_group.internal[0].id
-    type             = "forward"
+    type = "redirect"
+
+    redirect {
+      port        = 443
+      protocol    = "HTTPS"
+      status_code = "HTTP_301"
+    }
   }
 
   lifecycle {
     replace_triggered_by = [aws_lb_target_group.internal[0].id]
+  }
+}
+
+resource "aws_lb_listener" "public_https" {
+  count = local.create_internal_alb ? 1 : 0
+
+  load_balancer_arn = aws_lb.internal[0].id
+  port              = 443
+  protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"
+
+  # When trying to associate certificate with the listener, you may see terraform errors if the certificate hasn't been validated yet
+  # See "Setting up SSL Certificates" in README for more info
+  certificate_arn = var.internal_alb_config.ssl_certificate_arn
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.internal[0].id
   }
 }

@@ -1,5 +1,5 @@
 resource "aws_security_group" "alb_internal" {
-  count = var.create_internal_alb ? 1 : 0
+  count = local.create_internal_alb ? 1 : 0
 
   name   = "${var.prefix}-alb-internal-sg"
   vpc_id = var.vpc_id

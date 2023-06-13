@@ -11,11 +11,15 @@ output "ecs_service_name" {
 }
 
 output "internal_alb_dns" {
-  value = var.create_internal_alb ? aws_lb.internal[0].dns_name : ""
+  value = local.create_internal_alb ? aws_lb.internal[0].dns_name : ""
 }
 
 output "internal_alb_arn_suffix" {
-  value = var.create_internal_alb ? aws_lb.internal[0].arn_suffix : ""
+  value = local.create_internal_alb ? aws_lb.internal[0].arn_suffix : ""
+}
+
+output "internal_alb_name" {
+  value = local.create_internal_alb ? aws_lb.internal[0].name : ""
 }
 
 output "front_door_alb_arn_suffix" {

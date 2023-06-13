@@ -70,15 +70,18 @@ variable "logs_bucket_url" {
   type = string
 }
 
-variable "create_internal_alb" {
-  type    = bool
-  default = true
+variable "internal_alb_config" {
+  type = object({
+    ssl_certificate_arn = string
+  })
+
+  default = null
 }
 
 variable "front_door_config" {
   type = object({
-    aws_ssl_certificate_arn        = string
-    aws_cdn_certificate_arn        = string
+    ssl_certificate_arn            = string
+    cdn_certificate_arn            = string
     cdn_allowed_methods            = list(string)
     cdn_cached_methods             = list(string)
     cdn_cache_ttl                  = number

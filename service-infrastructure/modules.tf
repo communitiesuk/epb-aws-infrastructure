@@ -49,11 +49,11 @@ module "secrets" {
   source = "./secrets"
 
   secrets = {
-    "EPB_API_URL" : "http://${module.register_api_application.internal_alb_dns}"
-    "EPB_AUTH_SERVER" : "http://${module.auth_application.internal_alb_dns}/auth"
+    "EPB_API_URL" : "https://${module.register_api_application.internal_alb_name}.${var.domain_name}:443"
+    "EPB_AUTH_SERVER" : "https://${module.auth_application.internal_alb_name}.${var.domain_name}:443/auth"
     "EPB_DATA_WAREHOUSE_QUEUES_URI" : module.warehouse_redis.redis_uri
     "EPB_QUEUES_URI" : module.warehouse_redis.redis_uri
-    "EPB_UNLEASH_URI" : "http://${module.toggles_application.internal_alb_dns}/api"
+    "EPB_UNLEASH_URI" : "https://${module.toggles_application.internal_alb_name}.${var.domain_name}:443/api"
     "EPB_WORKER_REDIS_URI" : module.register_sidekiq_redis.redis_uri
     "ODE_BUCKET_NAME" : module.open_data_export.open_data_export_bucket_name
     "ODE_BUCKET_ACCESS_KEY" : module.open_data_export.open_data_team_s3_access_key
@@ -240,9 +240,12 @@ module "toggles_application" {
   aws_cloudwatch_log_group_name              = module.logging.cloudwatch_log_group_name
   logs_bucket_name                           = module.logging.logs_bucket_name
   logs_bucket_url                            = module.logging.logs_bucket_url
+  internal_alb_config = {
+    ssl_certificate_arn = module.ssl_certificate.certificate_arn
+  }
   front_door_config = {
-    aws_ssl_certificate_arn        = module.ssl_certificate.certificate_arn
-    aws_cdn_certificate_arn        = module.cdn_certificate.certificate_arn
+    ssl_certificate_arn            = module.ssl_certificate.certificate_arn
+    cdn_certificate_arn            = module.cdn_certificate.certificate_arn
     cdn_allowed_methods            = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
     cdn_cached_methods             = ["GET", "HEAD", "OPTIONS"]
     cdn_cache_ttl                  = 0
@@ -277,9 +280,12 @@ module "auth_application" {
   aws_cloudwatch_log_group_name              = module.logging.cloudwatch_log_group_name
   logs_bucket_name                           = module.logging.logs_bucket_name
   logs_bucket_url                            = module.logging.logs_bucket_url
+  internal_alb_config = {
+    ssl_certificate_arn = module.ssl_certificate.certificate_arn
+  }
   front_door_config = {
-    aws_ssl_certificate_arn        = module.ssl_certificate.certificate_arn
-    aws_cdn_certificate_arn        = module.cdn_certificate.certificate_arn
+    ssl_certificate_arn            = module.ssl_certificate.certificate_arn
+    cdn_certificate_arn            = module.cdn_certificate.certificate_arn
     cdn_allowed_methods            = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
     cdn_cached_methods             = ["GET", "HEAD", "OPTIONS"]
     cdn_cache_ttl                  = 0
@@ -347,9 +353,12 @@ module "register_api_application" {
   aws_cloudwatch_log_group_name = module.logging.cloudwatch_log_group_name
   logs_bucket_name              = module.logging.logs_bucket_name
   logs_bucket_url               = module.logging.logs_bucket_url
+  internal_alb_config = {
+    ssl_certificate_arn = module.ssl_certificate.certificate_arn
+  }
   front_door_config = {
-    aws_ssl_certificate_arn        = module.ssl_certificate.certificate_arn
-    aws_cdn_certificate_arn        = module.cdn_certificate.certificate_arn
+    ssl_certificate_arn            = module.ssl_certificate.certificate_arn
+    cdn_certificate_arn            = module.cdn_certificate.certificate_arn
     cdn_allowed_methods            = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
     cdn_cached_methods             = ["GET", "HEAD", "OPTIONS"]
     cdn_cache_ttl                  = 0
@@ -405,7 +414,6 @@ module "register_sidekiq_application" {
   aws_cloudwatch_log_group_name = module.logging.cloudwatch_log_group_name
   logs_bucket_name              = module.logging.logs_bucket_name
   logs_bucket_url               = module.logging.logs_bucket_url
-  create_internal_alb           = false
   enable_execute_command        = true
 }
 
@@ -447,13 +455,12 @@ module "frontend_application" {
   aws_cloudwatch_log_group_name              = module.logging.cloudwatch_log_group_name
   logs_bucket_name                           = module.logging.logs_bucket_name
   logs_bucket_url                            = module.logging.logs_bucket_url
-  create_internal_alb                        = false
   front_door_config = {
-    aws_ssl_certificate_arn = module.ssl_certificate.certificate_arn
-    aws_cdn_certificate_arn = module.cdn_certificate.certificate_arn
-    cdn_allowed_methods     = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
-    cdn_cached_methods      = ["GET", "HEAD", "OPTIONS"]
-    cdn_cache_ttl           = 60 # 1 minute
+    ssl_certificate_arn = module.ssl_certificate.certificate_arn
+    cdn_certificate_arn = module.cdn_certificate.certificate_arn
+    cdn_allowed_methods = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
+    cdn_cached_methods  = ["GET", "HEAD", "OPTIONS"]
+    cdn_cache_ttl       = 60 # 1 minute
     cdn_aliases = toset([
       "find-energy-certificate${var.subdomain_suffix}.${var.domain_name}",
       "getting-new-energy-certificate${var.subdomain_suffix}.${var.domain_name}"
@@ -496,7 +503,6 @@ module "warehouse_application" {
   aws_cloudwatch_log_group_name = module.logging.cloudwatch_log_group_name
   logs_bucket_name              = module.logging.logs_bucket_name
   logs_bucket_url               = module.logging.logs_bucket_url
-  create_internal_alb           = false
   enable_execute_command        = true
 }
 
