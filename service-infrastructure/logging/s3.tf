@@ -44,8 +44,25 @@ resource "aws_s3_bucket_policy" "root_log_bucket_access" {
           AWS = "arn:aws:iam::652711504416:root"
         }
         Action   = "s3:*"
-        Resource = "${aws_s3_bucket.logs.arn}/*"
+        Resource = "${aws_s3_bucket.logs.arn}/*",
       },
+      {
+        Action = "s3:GetBucketAcl"
+        Effect = "Allow"
+        Principal = {
+          Service = "cloudtrail.amazonaws.com"
+        }
+        Resource = [aws_s3_bucket.logs.arn]
+        Sid      = "AWSCloudTrailAclCheck"
+      },
+      {
+        Action = "s3:PutObject"
+        Effect = "Allow"
+        Principal = {
+          Service = "cloudtrail.amazonaws.com"
+        }
+        Resource = ["${aws_s3_bucket.logs.arn}/cloudtrail/AWSLogs/*"]
+      }
     ]
   })
 }

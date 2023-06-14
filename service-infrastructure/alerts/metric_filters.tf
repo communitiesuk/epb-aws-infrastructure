@@ -1,7 +1,7 @@
 resource "aws_cloudwatch_log_metric_filter" "unauthorized_api_calls_metric" {
   name = "unauthorized_api_calls_metric"
 
-  log_group_name = aws_cloudwatch_log_group.this.name
+  log_group_name = var.cloudtrail_log_group_name
   pattern        = <<EOT
     {($.errorCode = UnauthorizedOperation) ||
     ($.errorCode = AccessDenied) ||
@@ -18,7 +18,7 @@ resource "aws_cloudwatch_log_metric_filter" "unauthorized_api_calls_metric" {
 
 resource "aws_cloudwatch_log_metric_filter" "root_account_login_metric" {
   name           = "root_account_login_metric"
-  log_group_name = aws_cloudwatch_log_group.this.name
+  log_group_name = var.cloudtrail_log_group_name
   pattern        = <<EOT
     {($.userIdentity.type = Root) &&
     ($.userIdentity.invokedBy NOT EXISTS) &&
@@ -34,7 +34,7 @@ resource "aws_cloudwatch_log_metric_filter" "root_account_login_metric" {
 
 resource "aws_cloudwatch_log_metric_filter" "iam_policy_changes_metric" {
   name           = "iam_policy_changes_metric"
-  log_group_name = aws_cloudwatch_log_group.this.name
+  log_group_name = var.cloudtrail_log_group_name
   pattern        = <<EOT
     {($.eventName = DeleteGroupPolicy) ||
     ($.eventName = DeleteRolePolicy) || 
@@ -63,7 +63,7 @@ resource "aws_cloudwatch_log_metric_filter" "iam_policy_changes_metric" {
 
 resource "aws_cloudwatch_log_metric_filter" "cloudtrail_config_changes_metric" {
   name           = "cloudtrail_config_changes_metric"
-  log_group_name = aws_cloudwatch_log_group.this.name
+  log_group_name = var.cloudtrail_log_group_name
   pattern        = <<EOT
     {($.eventName = CreateTrail) ||
     ($.eventName = UpdateTrail) ||
@@ -81,7 +81,7 @@ resource "aws_cloudwatch_log_metric_filter" "cloudtrail_config_changes_metric" {
 
 resource "aws_cloudwatch_log_metric_filter" "s3_bucket_policy_changes_metric" {
   name           = "s3_bucket_policy_changes_metric"
-  log_group_name = aws_cloudwatch_log_group.this.name
+  log_group_name = var.cloudtrail_log_group_name
   pattern        = <<EOT
     {($.eventSource = s3.amazonaws.com) &&
     (($.eventName = PutBucketAcl) ||
@@ -104,7 +104,7 @@ resource "aws_cloudwatch_log_metric_filter" "s3_bucket_policy_changes_metric" {
 
 resource "aws_cloudwatch_log_metric_filter" "network_gateway_changes_metric" {
   name           = "network_gateway_changes_metric"
-  log_group_name = aws_cloudwatch_log_group.this.name
+  log_group_name = var.cloudtrail_log_group_name
   pattern        = <<EOT
     {($.eventName = CreateCustomerGateway) ||
     ($.eventName = DeleteCustomerGateway) ||
@@ -123,7 +123,7 @@ resource "aws_cloudwatch_log_metric_filter" "network_gateway_changes_metric" {
 
 resource "aws_cloudwatch_log_metric_filter" "route_tables_changes_metric" {
   name           = "route_tables_changes_metric"
-  log_group_name = aws_cloudwatch_log_group.this.name
+  log_group_name = var.cloudtrail_log_group_name
   pattern        = <<EOT
     {($.eventName = CreateRoute) ||
     ($.eventName = CreateRouteTable) ||
@@ -143,7 +143,7 @@ resource "aws_cloudwatch_log_metric_filter" "route_tables_changes_metric" {
 
 resource "aws_cloudwatch_log_metric_filter" "vpc_changes_metric" {
   name           = "vpc_changes_metric"
-  log_group_name = aws_cloudwatch_log_group.this.name
+  log_group_name = var.cloudtrail_log_group_name
   pattern        = <<EOT
     {($.eventName = CreateVpc) ||
     ($.eventName = DeleteVpc) ||
@@ -167,7 +167,7 @@ resource "aws_cloudwatch_log_metric_filter" "vpc_changes_metric" {
 
 resource "aws_cloudwatch_log_metric_filter" "organization_changes_metric" {
   name           = "organization_changes_metric"
-  log_group_name = aws_cloudwatch_log_group.this.name
+  log_group_name = var.cloudtrail_log_group_name
   pattern        = <<EOT
   {($.eventSource = organizations.amazonaws.com) &&
     (($.eventName = AcceptHandshake) ||

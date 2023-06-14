@@ -562,10 +562,9 @@ module "fluentbit_ecr" {
 module "alerts" {
   source = "./alerts"
 
-  prefix            = local.prefix
-  region            = var.region
-  logs_bucket_name  = module.logging.logs_bucket_name
-  slack_webhook_url = var.slack_webhook_url
+  prefix                    = local.prefix
+  slack_webhook_url         = var.slack_webhook_url
+  cloudtrail_log_group_name = module.logging.cloudtrail_log_group_name
 
   ecs_services = {
     api_service = {

@@ -1,5 +1,14 @@
-resource "aws_cloudwatch_log_group" "this" {
+resource "aws_cloudwatch_log_group" "main" {
   name = "${var.prefix}-lg"
+
+  tags = {
+    Environment = var.environment
+    Application = var.prefix
+  }
+}
+
+resource "aws_cloudwatch_log_group" "cloudtrail" {
+  name = "${var.prefix}-cloudtrail"
 
   tags = {
     Environment = var.environment
