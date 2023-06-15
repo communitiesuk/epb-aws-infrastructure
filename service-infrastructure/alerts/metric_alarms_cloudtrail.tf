@@ -13,6 +13,21 @@ resource "aws_cloudwatch_metric_alarm" "unauthorized_api_calls_alarm" {
   ]
 }
 
+resource "aws_cloudwatch_metric_alarm" "no_mfa_console_signin_alarm" {
+  alarm_name          = "${aws_cloudwatch_log_metric_filter.no_mfa_console_signin_metric.name}-alarm"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = 1
+  metric_name         = aws_cloudwatch_log_metric_filter.no_mfa_console_signin_metric.name
+  namespace           = "CISBenchmark"
+  period              = 300
+  statistic           = "Sum"
+  threshold           = 1
+
+  alarm_actions = [
+    aws_sns_topic.cloudwatch_alerts_cloudtrail.arn,
+  ]
+}
+
 resource "aws_cloudwatch_metric_alarm" "root_account_login_alarm" {
   alarm_name          = "${aws_cloudwatch_log_metric_filter.root_account_login_metric.name}-alarm"
   comparison_operator = "GreaterThanOrEqualToThreshold"

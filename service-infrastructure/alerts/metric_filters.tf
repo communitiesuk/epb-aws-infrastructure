@@ -16,6 +16,24 @@ resource "aws_cloudwatch_log_metric_filter" "unauthorized_api_calls_metric" {
   }
 }
 
+resource "aws_cloudwatch_log_metric_filter" "no_mfa_console_signin_metric" {
+  name = "no_mfa_console_signin_metric"
+
+  log_group_name = var.cloudtrail_log_group_name
+  pattern        = <<EOT
+    {($.eventName = "ConsoleLogin") &&
+    ($.additionalEventData.MFAUsed != "Yes") &&
+    ($.userIdentity.type = "IAMUser") &&
+    ($.responseElements.ConsoleLogin = "Success") }
+  EOT
+
+  metric_transformation {
+    name      = "no_mfa_console_signin_metric"
+    namespace = "CISBenchmark"
+    value     = "1"
+  }
+}
+
 resource "aws_cloudwatch_log_metric_filter" "root_account_login_metric" {
   name           = "root_account_login_metric"
   log_group_name = var.cloudtrail_log_group_name
