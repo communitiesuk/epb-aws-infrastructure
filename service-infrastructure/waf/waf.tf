@@ -25,7 +25,7 @@ resource "aws_wafv2_web_acl" "this" {
 
     visibility_config {
       cloudwatch_metrics_enabled = true
-      metric_name                = "waf-block-bad-impout-metrics"
+      metric_name                = "waf-block-bad-input-metrics"
       sampled_requests_enabled   = false
     }
   }
