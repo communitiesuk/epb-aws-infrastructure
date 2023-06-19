@@ -1,3 +1,5 @@
+data "aws_caller_identity" "current" {}
+
 module "codebuild_build_push_image" {
   source             = "../codebuild_project"
   codebuild_role_arn = aws_iam_role.codebuild_role.arn
@@ -6,6 +8,7 @@ module "codebuild_build_push_image" {
   buildspec_file     = "${var.configuration}/buildspec.yml"
   environment_variables = [
     { name = "REPOSITORY_URI", value = aws_ecr_repository.this.repository_url },
+    { name = "AWS_ACCOUNT_ID", value = data.aws_caller_identity.current.account_id },
   ]
   region = var.region
 }
