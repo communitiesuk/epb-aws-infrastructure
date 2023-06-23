@@ -102,16 +102,11 @@ resource "aws_wafv2_web_acl" "this" {
 }
 
 resource "aws_wafv2_ip_set" "forbidden_ip_addresses" {
-  name        = "${var.prefix}-waf-forbidden-ip-addresses"
-  description = "IP Set forbidden access to the website and other services"
-
+  name               = "${var.prefix}-waf-forbidden-ip-addresses"
+  description        = "IP Set forbidden access to the website and other services."
   ip_address_version = "IPV4"
   scope              = "CLOUDFRONT"
   addresses          = var.forbidden_ip_addresses
-
-  lifecycle {
-    ignore_changes = [addresses]
-  }
 }
 
 resource "aws_wafv2_ip_set" "forbidden_ipv6_addresses" {
@@ -122,7 +117,4 @@ resource "aws_wafv2_ip_set" "forbidden_ipv6_addresses" {
   scope              = "CLOUDFRONT"
   addresses          = var.forbidden_ipv6_addresses
 
-  lifecycle {
-    ignore_changes = [addresses]
-  }
 }

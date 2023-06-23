@@ -32,18 +32,21 @@ module "cdn_certificate" {
   domain_name = var.domain_name
 }
 
+
+
 # This being on us-east-1 is a requirement for CloudFront to use the WAF
 module "waf" {
   source = "./waf"
   providers = {
     aws = aws.us-east
   }
-
   environment              = var.environment
   prefix                   = local.prefix
-  forbidden_ip_addresses   = []
+  forbidden_ip_addresses   = [for ip in var.banned_ip_addresses : ip["ip_address"]]
   forbidden_ipv6_addresses = []
 }
+
+
 
 module "secrets" {
   source = "./secrets"
@@ -78,12 +81,12 @@ module "secrets" {
 
 module "parameter_store" {
   source = "./parameter_store"
-
   parameters = {
     "APP_ENV" : {
       type  = "String"
       value = var.parameters["APP_ENV"]
     }
+
     "EPB_UNLEASH_AUTH_TOKEN" : {
       type  = "SecureString"
       value = var.parameters["EPB_UNLEASH_AUTH_TOKEN"]
@@ -202,6 +205,7 @@ module "parameter_store" {
     }
   }
 }
+
 
 # applications and backing services
 
