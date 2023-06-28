@@ -282,7 +282,7 @@ module "auth_application" {
   parameters = merge(module.parameter_store.parameter_arns, {
     "SENTRY_DSN" : module.parameter_store.parameter_arns["SENTRY_DSN_AUTH_SERVER"]
   })
-  has_db_migrate                             = true
+  has_exec_cmd_task                          = true
   vpc_id                                     = module.networking.vpc_id
   fluentbit_ecr_url                          = module.fluentbit_ecr.ecr_url
   private_subnet_ids                         = module.networking.private_subnet_ids
@@ -352,7 +352,7 @@ module "register_api_application" {
   parameters = merge(module.parameter_store.parameter_arns, {
     "SENTRY_DSN" : module.parameter_store.parameter_arns["SENTRY_DSN_REGISTER_API"]
   })
-  has_db_migrate     = true
+  has_exec_cmd_task  = true
   vpc_id             = module.networking.vpc_id
   fluentbit_ecr_url  = module.fluentbit_ecr.ecr_url
   private_subnet_ids = module.networking.private_subnet_ids
@@ -395,8 +395,8 @@ module "register_api_database" {
 }
 
 module "register_sidekiq_application" {
-  source = "./application"
-
+  source                = "./application"
+  has_exec_cmd_task     = true
   prefix                = "${local.prefix}-reg-sidekiq"
   region                = var.region
   container_port        = 80
@@ -490,7 +490,7 @@ module "warehouse_application" {
   container_port        = 80
   egress_ports          = [80, 443, 5432, local.redis_port, var.parameters["LOGSTASH_PORT"]]
   environment_variables = []
-  has_db_migrate        = true
+  has_exec_cmd_task     = true
   secrets = {
     "DATABASE_URL" : module.secrets.secret_arns["RDS_WAREHOUSE_CONNECTION_STRING"],
     "EPB_API_URL" : module.secrets.secret_arns["EPB_API_URL"],

@@ -98,7 +98,7 @@ variable "enable_execute_command" {
   default = false
 }
 
-variable "has_db_migrate" {
+variable "has_exec_cmd_task" {
   type    = bool
   default = false
 }

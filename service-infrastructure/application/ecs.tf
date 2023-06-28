@@ -110,9 +110,9 @@ resource "aws_ecs_task_definition" "this" {
   }
 }
 
-resource "aws_ecs_task_definition" "db_migrate" {
-  count                    = var.has_db_migrate == true ? 1 : 0
-  family                   = "${var.prefix}-ecs-db-migrate-task"
+resource "aws_ecs_task_definition" "exec_cmd_task" {
+  count                    = var.has_exec_cmd_task == true ? 1 : 0
+  family                   = "${var.prefix}-ecs-exec-cmd-task"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   cpu                      = 512
@@ -143,13 +143,10 @@ resource "aws_ecs_task_definition" "db_migrate" {
         options = {
           awslogs-group         = var.aws_cloudwatch_log_group_id
           awslogs-region        = var.region
-          awslogs-stream-prefix = "ecs-db-migration"
+          awslogs-stream-prefix = "ecs-exec-cmd"
         }
       }
     },
-
-
-
 
   ])
 }
