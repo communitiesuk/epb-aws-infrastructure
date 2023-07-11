@@ -3,11 +3,6 @@ variable "region" {
   type    = string
 }
 
-variable "name" {
-  default = "epbr-tech-docs"
-  type    = string
-}
-
 variable "bucket_name" {
   default = "epbr-tech-docs-repo"
   type    = string
