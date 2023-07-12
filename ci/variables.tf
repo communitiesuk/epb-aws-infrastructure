@@ -55,3 +55,7 @@ variable "performance_test_branch" {
   default = "aws-version"
   type    = string
 }
+
+variable "tech_docs_bucket_repo" {
+  type = string
+}

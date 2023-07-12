@@ -17,3 +17,7 @@ variable "cross_account_role_arns" {
 variable "region" {
   type = string
 }
+
+variable "tech_docs_bucket_repo" {
+  type = string
+}

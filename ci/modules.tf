@@ -29,6 +29,7 @@ module "codebuild_role" {
   cross_account_role_arns        = var.cross_account_role_arns
   codestar_connection_arn        = module.codestar_connection.codestar_connection_arn
   region                         = var.region
+  tech_docs_bucket_repo          = var.tech_docs_bucket_repo
 }
 
 
@@ -242,4 +243,18 @@ module "restart_ecs_tasks_pipeline" {
 module "cc-tray" {
   source = "./modules/cc_tray"
   region = var.region
+}
+
+module "tech_docs_pipeline" {
+  artefact_bucket         = module.artefact.codepipeline_bucket
+  codebuild_role_arn      = module.codebuild_role.aws_codebuild_role_arn
+  codepipeline_role_arn   = module.codepipeline_role.aws_codepipeline_role_arn
+  codestar_connection_arn = module.codestar_connection.codestar_connection_arn
+  github_branch           = "master"
+  github_repository       = "epb-tech-docs"
+  github_organisation     = var.github_organisation
+  region                  = var.region
+  repo_bucket_name        = var.tech_docs_bucket_repo
+  source                  = "./modules/tech-docs-pipeline"
+  dev_account_id          = var.account_ids["developer"]
 }
