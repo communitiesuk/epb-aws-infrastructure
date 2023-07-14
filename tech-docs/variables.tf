@@ -8,11 +8,6 @@ variable "bucket_name" {
   type    = string
 }
 
-variable "index_document" {
-  default = "index.html"
-  type    = string
-}
-
 variable "ci_account_id" {
   type = string
 }

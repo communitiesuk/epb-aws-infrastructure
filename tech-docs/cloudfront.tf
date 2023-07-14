@@ -8,18 +8,18 @@ resource "aws_cloudfront_origin_access_control" "this" {
 
 resource "aws_cloudfront_distribution" "tech_docs_s3_distribution" {
   origin {
-    domain_name = aws_s3_bucket.this.bucket_domain_name
-    origin_id =  "S3-epbr-tech-docs-repo"
+    domain_name              = aws_s3_bucket.this.bucket_domain_name
+    origin_id                = "S3-epbr-tech-docs-repo"
     origin_access_control_id = aws_cloudfront_origin_access_control.this.id
   }
   # By default, show index.html file
   default_root_object = "index.html"
-  enabled = true
+  enabled             = true
 
   default_cache_behavior {
     allowed_methods  = ["GET", "HEAD"]
     cached_methods   = ["GET", "HEAD"]
-    target_origin_id ="S3-epbr-tech-docs-repo"
+    target_origin_id = "S3-epbr-tech-docs-repo"
 
     forwarded_values {
       query_string = true
@@ -37,9 +37,9 @@ resource "aws_cloudfront_distribution" "tech_docs_s3_distribution" {
   # If there is a 404, return index.html with a HTTP 200 Response
   custom_error_response {
     error_caching_min_ttl = 3000
-    error_code = 404
-    response_code = 200
-    response_page_path = "/index.html"
+    error_code            = 404
+    response_code         = 200
+    response_page_path    = "/index.html"
   }
 
 
@@ -70,7 +70,7 @@ resource "aws_cloudfront_distribution" "tech_docs_s3_distribution" {
       }
     }
     function_association {
-      event_type   =  "viewer-request"
+      event_type   = "viewer-request"
       function_arn = aws_cloudfront_function.this.arn
     }
   }
@@ -78,9 +78,9 @@ resource "aws_cloudfront_distribution" "tech_docs_s3_distribution" {
 }
 
 resource "aws_cloudfront_function" "this" {
-  name = "website-authentication"
+  name    = "website-authentication"
   comment = "basic web authentication for cnd"
   runtime = "cloudfront-js-1.0"
   publish = true
-  code = templatefile("${path.module}/function.js", { LOGIN_CREDENTIALS_HASH = var.login_credentials_hash})
+  code    = templatefile("${path.module}/function.js", { LOGIN_CREDENTIALS_HASH = var.login_credentials_hash })
 }
