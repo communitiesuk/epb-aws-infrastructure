@@ -386,7 +386,7 @@ module "register_api_database" {
   prefix                        = "${local.prefix}-reg-api"
   db_name                       = "epb"
   vpc_id                        = module.networking.vpc_id
-  subnet_group_name             = module.networking.private_subnet_group_name
+  subnet_group_name             = module.networking.private_db_subnet_group_name
   security_group_ids            = [module.register_api_application.ecs_security_group_id, module.register_sidekiq_application.ecs_security_group_id, module.bastion.security_group_id]
   storage_backup_period         = var.storage_backup_period
   instance_class                = var.environment == "intg" ? "db.t3.medium" : "db.r5.large"
@@ -524,7 +524,7 @@ module "warehouse_database" {
   prefix                        = "${local.prefix}-warehouse"
   db_name                       = "epb"
   vpc_id                        = module.networking.vpc_id
-  subnet_group_name             = module.networking.private_subnet_group_name
+  subnet_group_name             = module.networking.private_db_subnet_group_name
   security_group_ids            = [module.warehouse_application.ecs_security_group_id, module.bastion.security_group_id]
   storage_backup_period         = var.storage_backup_period
   instance_class                = var.environment == "intg" ? "db.t3.medium" : "db.r5.large"
