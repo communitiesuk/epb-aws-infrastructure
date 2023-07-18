@@ -43,3 +43,5 @@ resource "aws_iam_role_policy_attachment" "codebuild_ecr_policy" {
   role       = aws_iam_role.ci_role.id
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPowerUser"
 }
+
+

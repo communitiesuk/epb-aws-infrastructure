@@ -1,13 +1,18 @@
+locals {
+  db_subnet = var.environment == "stag" ? module.networking.private_subnet_group_name : module.networking.private_db_subnet_group_name
+}
+
+
 module "account_security" {
   source = "./account_security"
 }
 
 module "networking" {
-  source = "./networking"
-
+  source         = "./networking"
   prefix         = local.prefix
   region         = var.region
   vpc_cidr_block = var.vpc_cidr_block
+  has_db_subnet  = var.environment == "stag" ? 0 : 1
 }
 
 module "access" {
@@ -33,7 +38,6 @@ module "cdn_certificate" {
 }
 
 
-
 # This being on us-east-1 is a requirement for CloudFront to use the WAF
 module "waf" {
   source = "./waf"
@@ -45,7 +49,6 @@ module "waf" {
   forbidden_ip_addresses   = [for ip in var.banned_ip_addresses : ip["ip_address"]]
   forbidden_ipv6_addresses = []
 }
-
 
 
 module "secrets" {
@@ -223,7 +226,7 @@ module "toggles_database" {
   prefix                = "${local.prefix}-toggles"
   db_name               = "unleash"
   vpc_id                = module.networking.vpc_id
-  subnet_group_name     = module.networking.private_subnet_group_name
+  subnet_group_name     = local.db_subnet
   security_group_ids    = [module.toggles_application.ecs_security_group_id, module.bastion.security_group_id]
   storage_backup_period = 1
   storage_size          = 5
@@ -313,7 +316,7 @@ module "auth_database" {
   prefix                = "${local.prefix}-auth"
   db_name               = "epb"
   vpc_id                = module.networking.vpc_id
-  subnet_group_name     = module.networking.private_subnet_group_name
+  subnet_group_name     = local.db_subnet
   security_group_ids    = [module.auth_application.ecs_security_group_id, module.bastion.security_group_id]
   storage_backup_period = 1 # to prevent weird behaviour when the backup window is set to 0
   storage_size          = 5
@@ -386,7 +389,7 @@ module "register_api_database" {
   prefix                        = "${local.prefix}-reg-api"
   db_name                       = "epb"
   vpc_id                        = module.networking.vpc_id
-  subnet_group_name             = module.networking.private_db_subnet_group_name
+  subnet_group_name             = local.db_subnet
   security_group_ids            = [module.register_api_application.ecs_security_group_id, module.register_sidekiq_application.ecs_security_group_id, module.bastion.security_group_id]
   storage_backup_period         = var.storage_backup_period
   instance_class                = var.environment == "intg" ? "db.t3.medium" : "db.r5.large"
@@ -524,7 +527,7 @@ module "warehouse_database" {
   prefix                        = "${local.prefix}-warehouse"
   db_name                       = "epb"
   vpc_id                        = module.networking.vpc_id
-  subnet_group_name             = module.networking.private_db_subnet_group_name
+  subnet_group_name             = local.db_subnet
   security_group_ids            = [module.warehouse_application.ecs_security_group_id, module.bastion.security_group_id]
   storage_backup_period         = var.storage_backup_period
   instance_class                = var.environment == "intg" ? "db.t3.medium" : "db.r5.large"

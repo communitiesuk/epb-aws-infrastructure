@@ -19,6 +19,7 @@ resource "aws_route_table" "private" {
   vpc_id = aws_vpc.this.id
 }
 
+
 resource "aws_route" "private" {
   count                  = length(aws_subnet.private)
   route_table_id         = element(aws_route_table.private[*].id, count.index)
@@ -26,8 +27,30 @@ resource "aws_route" "private" {
   nat_gateway_id         = element(aws_nat_gateway.this[*].id, count.index)
 }
 
+
+
 resource "aws_route_table_association" "private" {
   count          = length(aws_subnet.private)
   subnet_id      = element(aws_subnet.private[*].id, count.index)
   route_table_id = element(aws_route_table.private[*].id, count.index)
+}
+
+
+resource "aws_route_table" "private_db" {
+  count  = var.has_db_subnet == 0 ? 0 : length(aws_subnet.private_db)
+  vpc_id = aws_vpc.this.id
+}
+
+
+resource "aws_route" "private_db" {
+  count                  = length(aws_subnet.private_db)
+  route_table_id         = element(aws_route_table.private_db[*].id, count.index)
+  destination_cidr_block = "0.0.0.0/0"
+  nat_gateway_id         = element(aws_nat_gateway.this[*].id, count.index)
+}
+
+resource "aws_route_table_association" "private_db" {
+  count          = var.has_db_subnet == 0 ? 0 : length(aws_subnet.private_db)
+  subnet_id      = element(aws_subnet.private_db[*].id, count.index)
+  route_table_id = element(aws_route_table.private_db[*].id, count.index)
 }

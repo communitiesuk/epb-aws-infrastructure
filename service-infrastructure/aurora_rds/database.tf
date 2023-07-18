@@ -13,9 +13,9 @@ resource "aws_rds_cluster" "this" {
 
   db_subnet_group_name   = var.subnet_group_name
   vpc_security_group_ids = [aws_security_group.rds_security_group.id]
+  storage_encrypted      = true
+  skip_final_snapshot    = true
 
-  storage_encrypted   = true
-  skip_final_snapshot = true
 }
 
 resource "aws_rds_cluster_instance" "this" {
@@ -26,5 +26,6 @@ resource "aws_rds_cluster_instance" "this" {
   instance_class     = var.instance_class
   engine             = aws_rds_cluster.this.engine
   engine_version     = aws_rds_cluster.this.engine_version
+
 
 }
