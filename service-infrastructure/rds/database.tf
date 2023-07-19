@@ -12,6 +12,6 @@ resource "aws_db_instance" "postgres_rds" {
   skip_final_snapshot     = true
   username                = "postgres"
   password                = random_password.password.result
-  engine_version          = "14.6"
+  engine_version          = "14.7"
   parameter_group_name    = var.parameter_group_name
 }

@@ -1,8 +1,8 @@
 locals {
-  subnet_ranges          = cidrsubnets(var.vpc_cidr_block, 2, 6, 2)
-  private_subnet_cidr    = var.has_db_subnet == 0 ? cidrsubnet(var.vpc_cidr_block, 1, 0) : local.subnet_ranges[0]
+  subnet_ranges          = cidrsubnets(var.vpc_cidr_block, 2, 6, 1)
+  public_subnet_cidr     = var.has_db_subnet == 0 ? cidrsubnet(var.vpc_cidr_block, 1, 1) : local.subnet_ranges[0]
   private_db_subnet_cidr = local.subnet_ranges[1]
-  public_subnet_cidr     = var.has_db_subnet == 0 ? cidrsubnet(var.vpc_cidr_block, 1, 1) : local.subnet_ranges[2]
+  private_subnet_cidr    = var.has_db_subnet == 0 ? cidrsubnet(var.vpc_cidr_block, 1, 0) : local.subnet_ranges[2]
 }
 
 resource "aws_vpc" "this" {
@@ -27,18 +27,6 @@ resource "aws_subnet" "public" {
   }
 }
 
-resource "aws_subnet" "private" {
-  count             = length(local.availability_zones)
-  vpc_id            = aws_vpc.this.id
-  cidr_block        = cidrsubnet(local.private_subnet_cidr, 2, count.index)
-  availability_zone = "${var.region}${local.availability_zones[count.index]}"
-
-  tags = {
-    Name = "${var.prefix}-private-subnet-${local.availability_zones[count.index]}"
-  }
-}
-
-#
 resource "aws_subnet" "private_db" {
   count             = var.has_db_subnet == 0 ? 0 : length(local.availability_zones)
   vpc_id            = aws_vpc.this.id
@@ -50,9 +38,25 @@ resource "aws_subnet" "private_db" {
   }
 }
 
+resource "aws_subnet" "private" {
+  count             = length(local.availability_zones)
+  vpc_id            = aws_vpc.this.id
+  cidr_block        = cidrsubnet(local.private_subnet_cidr, 2, count.index)
+  availability_zone = "${var.region}${local.availability_zones[count.index]}"
+
+  tags = {
+    Name = "${var.prefix}-private-subnet-${local.availability_zones[count.index]}"
+  }
+}
+
 resource "aws_db_subnet_group" "public_subnet_group" {
   name       = "${var.prefix}-public-subnet-group"
   subnet_ids = aws_subnet.public[*].id
+}
+
+resource "aws_db_subnet_group" "private_db_subnet_group" {
+  name       = "${var.prefix}-private-db-subnet-group"
+  subnet_ids = aws_subnet.private_db[*].id
 }
 
 resource "aws_db_subnet_group" "private_subnet_group" {
@@ -60,7 +64,3 @@ resource "aws_db_subnet_group" "private_subnet_group" {
   subnet_ids = aws_subnet.private[*].id
 }
 
-resource "aws_db_subnet_group" "private_db_subnet_group" {
-  name       = "${var.prefix}-private-db-subnet-group"
-  subnet_ids = aws_subnet.private_db[*].id
-}
