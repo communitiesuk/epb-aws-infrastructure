@@ -10,7 +10,3 @@ variable "vpc_cidr_block" {
   type = string
 }
 
-variable "has_db_subnet" {
-  type    = number
-  default = 0
-}

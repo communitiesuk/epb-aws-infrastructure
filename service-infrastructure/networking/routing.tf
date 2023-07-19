@@ -37,7 +37,7 @@ resource "aws_route_table_association" "private" {
 
 
 resource "aws_route_table" "private_db" {
-  count  = var.has_db_subnet == 0 ? 0 : length(aws_subnet.private_db)
+  count  = length(aws_subnet.private_db)
   vpc_id = aws_vpc.this.id
 }
 
@@ -50,7 +50,7 @@ resource "aws_route" "private_db" {
 }
 
 resource "aws_route_table_association" "private_db" {
-  count          = var.has_db_subnet == 0 ? 0 : length(aws_subnet.private_db)
+  count          = length(aws_subnet.private_db)
   subnet_id      = element(aws_subnet.private_db[*].id, count.index)
   route_table_id = element(aws_route_table.private_db[*].id, count.index)
 }
