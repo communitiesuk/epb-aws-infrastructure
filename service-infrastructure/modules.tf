@@ -12,7 +12,6 @@ module "networking" {
   prefix         = local.prefix
   region         = var.region
   vpc_cidr_block = var.vpc_cidr_block
-  has_db_subnet  = var.environment == "stag" ? 0 : 1
 }
 
 module "access" {
