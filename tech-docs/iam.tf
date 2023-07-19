@@ -14,7 +14,7 @@ resource "aws_iam_role" "ci_role" {
         Action = "sts:AssumeRole"
         Effect = "Allow"
         Principal = {
-          AWS = "arn:aws:iam::${var.ci_account_id}:root"
+          AWS = "arn:aws:iam::${var.ci_account_id}:role/epbr-codebuild-role"
         }
       }
     ]
@@ -36,6 +36,8 @@ data "aws_iam_policy_document" "allow_bucket_access_doc" {
       "s3:GetObject",
       "s3:ListBucket",
       "s3:PutObject",
+      "s3:PutObjectAcl",
+
     ]
 
     resources = [
@@ -48,6 +50,8 @@ data "aws_iam_policy_document" "allow_bucket_access_doc" {
       type        = "Service"
       identifiers = ["cloudfront.amazonaws.com"]
     }
+
+
     actions = [
       "s3:GetObject",
     ]
