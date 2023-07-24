@@ -23,7 +23,8 @@ module "access" {
 module "ssl_certificate" {
   source = "./ssl"
 
-  domain_name = var.domain_name
+  domain_name               = var.domain_name
+  subject_alternative_names = var.subject_alternative_names
 }
 
 # This being on us-east-1 is a requirement for CloudFront to use the SSL certificate
@@ -33,7 +34,8 @@ module "cdn_certificate" {
     aws = aws.us-east
   }
 
-  domain_name = var.domain_name
+  domain_name               = var.domain_name
+  subject_alternative_names = var.subject_alternative_names
 }
 
 
