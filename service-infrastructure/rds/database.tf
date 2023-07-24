@@ -14,4 +14,8 @@ resource "aws_db_instance" "postgres_rds" {
   password                = random_password.password.result
   engine_version          = "14.7"
   parameter_group_name    = var.parameter_group_name
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }

@@ -16,6 +16,9 @@ resource "aws_rds_cluster" "this" {
   storage_encrypted      = true
   skip_final_snapshot    = true
 
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "aws_rds_cluster_instance" "this" {
@@ -26,6 +29,5 @@ resource "aws_rds_cluster_instance" "this" {
   instance_class     = var.instance_class
   engine             = aws_rds_cluster.this.engine
   engine_version     = aws_rds_cluster.this.engine_version
-
 
 }
