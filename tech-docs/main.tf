@@ -10,8 +10,15 @@ terraform {
   backend "s3" {}
 }
 
+
+
 provider "aws" {
-  region                   = var.region
+  region                   = "eu-west-2"
   shared_config_files      = ["~/.aws/config"]
   shared_credentials_files = ["~/.aws/credentials"]
+}
+
+provider "aws" {
+  alias  = "us-east"
+  region = "us-east-1"
 }

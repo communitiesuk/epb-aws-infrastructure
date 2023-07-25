@@ -15,6 +15,8 @@ resource "aws_cloudfront_distribution" "tech_docs_s3_distribution" {
   # By default, show index.html file
   default_root_object = "index.html"
   enabled             = true
+  aliases             = [aws_acm_certificate.cert.domain_name]
+
 
   default_cache_behavior {
     allowed_methods  = ["GET", "HEAD"]
@@ -32,6 +34,7 @@ resource "aws_cloudfront_distribution" "tech_docs_s3_distribution" {
     min_ttl                = 0
     default_ttl            = 3600
     max_ttl                = 86400
+
   }
 
   # If there is a 404, return index.html with a HTTP 200 Response
@@ -53,7 +56,9 @@ resource "aws_cloudfront_distribution" "tech_docs_s3_distribution" {
 
   # SSL certificate for the service.
   viewer_certificate {
-    cloudfront_default_certificate = true
+    acm_certificate_arn      = aws_acm_certificate.cert-cdn.arn
+    ssl_support_method       = "sni-only"
+    minimum_protocol_version = "TLSv1.2_2018"
   }
 
 
