@@ -28,7 +28,6 @@ resource "aws_route" "private" {
 }
 
 
-
 resource "aws_route_table_association" "private" {
   count          = length(aws_subnet.private)
   subnet_id      = element(aws_subnet.private[*].id, count.index)
@@ -54,3 +53,16 @@ resource "aws_route_table_association" "private_db" {
   subnet_id      = element(aws_subnet.private_db[*].id, count.index)
   route_table_id = element(aws_route_table.private_db[*].id, count.index)
 }
+
+#data "aws_vpc_peering_connection" "paas_vpc" {
+#   vpc_id = aws_vpc.this.id
+#   peer_vpc_id = "vpc-d312a2bb"
+#}
+
+resource "aws_route" "private_db_paas_peering" {
+  count                  = var.vpc_peering_connection_id == "" ? 0 : length(aws_subnet.private_db)
+  route_table_id         = element(aws_route_table.private_db[*].id, count.index)
+  destination_cidr_block = var.pass_vpc_cidr
+  vpc_peering_connection_id = var.vpc_peering_connection_id
+}
+

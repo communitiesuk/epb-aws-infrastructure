@@ -12,6 +12,8 @@ module "networking" {
   prefix         = local.prefix
   region         = var.region
   vpc_cidr_block = var.vpc_cidr_block
+  pass_vpc_cidr = var.pass_vpc_cidr
+  vpc_peering_connection_id = var.vpc_peering_connection_id
 }
 
 module "access" {
@@ -382,6 +384,7 @@ module "register_api_application" {
     forbidden_ip_addresses_acl_arn = module.waf.forbidden_ip_addresses_acl_arn
     public_subnet_ids              = module.networking.public_subnet_ids
   }
+
 }
 
 module "register_api_database" {
@@ -396,6 +399,7 @@ module "register_api_database" {
   instance_class                = var.environment == "intg" ? "db.t3.medium" : "db.r5.large"
   cluster_parameter_group_name  = module.parameter_groups.aurora_pglogical_target_pg_name
   instance_parameter_group_name = module.parameter_groups.rds_pglogical_target_pg_name
+  pass_vpc_cidr = var.pass_vpc_cidr
 }
 
 module "register_sidekiq_application" {
@@ -534,6 +538,7 @@ module "warehouse_database" {
   instance_class                = var.environment == "intg" ? "db.t3.medium" : "db.r5.large"
   cluster_parameter_group_name  = module.parameter_groups.aurora_pglogical_target_pg_name
   instance_parameter_group_name = module.parameter_groups.rds_pglogical_target_pg_name
+  pass_vpc_cidr                 = var.pass_vpc_cidr
 }
 
 module "warehouse_redis" {
@@ -549,7 +554,6 @@ module "warehouse_redis" {
 
 module "bastion" {
   source = "./bastion"
-
   subnet_id = module.networking.private_subnet_ids[0]
   vpc_id    = module.networking.vpc_id
   rds_access_policy_arns = {
@@ -559,6 +563,17 @@ module "bastion" {
     "Warehouse" : module.warehouse_database.rds_full_access_policy_arn
   }
 }
+
+module "peering_bastion" {
+  source = "./bastion"
+  tag = "paas_peering_bastion_host"
+  name = "pass_peering_bastion"
+  subnet_id = module.networking.private_db_subnet_ids[0]
+  vpc_id    = module.networking.vpc_id
+  rds_access_policy_arns = {}
+  pass_vpc_cidr = var.pass_vpc_cidr
+}
+
 
 # logging and alerts
 

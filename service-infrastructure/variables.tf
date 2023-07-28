@@ -47,3 +47,13 @@ variable "parameters" {
 variable "banned_ip_addresses" {
   type = list(map(string))
 }
+
+variable "pass_vpc_cidr" {
+  type        = string
+  default = ""
+}
+
+variable "vpc_peering_connection_id" {
+  type        = string
+  default = ""
+}

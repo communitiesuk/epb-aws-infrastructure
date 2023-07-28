@@ -33,3 +33,7 @@ variable "cluster_parameter_group_name" {
 variable "instance_parameter_group_name" {
   type = string
 }
+
+variable "pass_vpc_cidr" {
+  type        = string
+}

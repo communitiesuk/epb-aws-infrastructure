@@ -20,7 +20,7 @@ resource "aws_instance" "bastion" {
   }
 
   tags = {
-    Name = "bastion-host"
+    Name = var.tag
   }
 
   lifecycle {

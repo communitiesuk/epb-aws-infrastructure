@@ -9,7 +9,12 @@ resource "aws_security_group" "rds_security_group" {
     protocol        = "tcp"
   }
 
+
   lifecycle {
     create_before_destroy = true
   }
+
+
 }
+
+
