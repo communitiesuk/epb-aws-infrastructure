@@ -35,5 +35,5 @@ variable "instance_parameter_group_name" {
 }
 
 variable "pass_vpc_cidr" {
-  type        = string
+  type = string
 }

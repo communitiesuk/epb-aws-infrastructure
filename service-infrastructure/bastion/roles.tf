@@ -1,5 +1,5 @@
 resource "aws_iam_role" "ec2_rds_access" {
-  name        =  var.name == "bastion" ? "EC2-RDS-Access" : "Peering-EC2-RDS-Access"
+  name        = var.name == "bastion" ? "EC2-RDS-Access" : "Peering-EC2-RDS-Access"
   description = "Allows EC2 access to RDS on your behalf."
 
   assume_role_policy = jsonencode({

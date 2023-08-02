@@ -49,11 +49,11 @@ variable "banned_ip_addresses" {
 }
 
 variable "pass_vpc_cidr" {
-  type        = string
+  type    = string
   default = ""
 }
 
 variable "vpc_peering_connection_id" {
-  type        = string
+  type    = string
   default = ""
 }

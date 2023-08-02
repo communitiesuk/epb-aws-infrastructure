@@ -11,21 +11,16 @@ variable "rds_access_policy_arns" {
 }
 
 variable "name" {
-  type = string
+  type    = string
   default = "bastion"
 }
 
 variable "tag" {
-  type = string
+  type    = string
   default = "bastion-host"
 }
 
-variable "vpc_cidr_block" {
-  type = string
-  default = ""
-}
-
-variable "pass_vpc_cidr" {
-  type        = string
-  default = ""
-}
+#variable "pass_vpc_cidr" {
+#  type    = string
+#  default = ""
+#}

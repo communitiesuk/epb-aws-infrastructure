@@ -60,9 +60,9 @@ resource "aws_route_table_association" "private_db" {
 #}
 
 resource "aws_route" "private_db_paas_peering" {
-  count                  = var.vpc_peering_connection_id == "" ? 0 : length(aws_subnet.private_db)
-  route_table_id         = element(aws_route_table.private_db[*].id, count.index)
-  destination_cidr_block = var.pass_vpc_cidr
+  count                     = var.vpc_peering_connection_id == "" ? 0 : length(aws_subnet.private_db)
+  route_table_id            = element(aws_route_table.private_db[*].id, count.index)
+  destination_cidr_block    = var.pass_vpc_cidr
   vpc_peering_connection_id = var.vpc_peering_connection_id
 }
 

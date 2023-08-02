@@ -10,11 +10,11 @@ resource "aws_security_group" "rds_security_group" {
   }
 
   ingress {
-    from_port       = 5432
-    to_port         = 5432
-    protocol        = "tcp"
-    description     = "inbound traffic from paas"
-    cidr_blocks     = [var.pass_vpc_cidr]
+    from_port   = 5432
+    to_port     = 5432
+    protocol    = "tcp"
+    description = "inbound traffic from paas"
+    cidr_blocks = [var.pass_vpc_cidr]
   }
 
   tags = {
@@ -26,9 +26,9 @@ resource "aws_security_group" "rds_security_group" {
   }
 
   egress {
-    from_port       = 5432
-    to_port         = 5432
-    protocol        = "tcp"
+    from_port   = 5432
+    to_port     = 5432
+    protocol    = "tcp"
     description = "outbound traffic to paas"
     cidr_blocks = [var.pass_vpc_cidr]
   }

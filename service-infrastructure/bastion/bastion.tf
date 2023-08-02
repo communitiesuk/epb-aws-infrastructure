@@ -29,6 +29,13 @@ resource "aws_instance" "bastion" {
       user_data,
     ]
   }
+
+  provisioner "local-exec" {
+    command = <<-EOH
+        sudo apt update
+        sudo apt install postgresql postgresql-contrib
+      EOH
+  }
 }
 
 data "aws_ami" "ubuntu" {
