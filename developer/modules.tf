@@ -1,0 +1,3 @@
+module "prototypes" {
+  source = "./protoypes"
+}
