@@ -9,13 +9,6 @@ resource "aws_security_group" "rds_security_group" {
     protocol        = "tcp"
   }
 
-  ingress {
-    from_port   = 5432
-    to_port     = 5432
-    protocol    = "tcp"
-    description = "inbound traffic from paas"
-    cidr_blocks = [var.pass_vpc_cidr]
-  }
 
   tags = {
     Name = "${var.prefix}-rds-sg"
@@ -25,12 +18,27 @@ resource "aws_security_group" "rds_security_group" {
     create_before_destroy = true
   }
 
-  egress {
-    from_port   = 5432
-    to_port     = 5432
-    protocol    = "tcp"
-    description = "outbound traffic to paas"
-    cidr_blocks = [var.pass_vpc_cidr]
+
+  dynamic "ingress" {
+    for_each = var.pass_vpc_cidr
+    content {
+      from_port   = 5432
+      to_port     = 5432
+      protocol    = "tcp"
+      description = "inbound traffic from paas"
+      cidr_blocks = var.pass_vpc_cidr
+    }
+  }
+
+  dynamic "egress" {
+    for_each = var.pass_vpc_cidr
+    content {
+      from_port   = 5432
+      to_port     = 5432
+      protocol    = "tcp"
+      description = "outbound traffic to paas"
+      cidr_blocks = var.pass_vpc_cidr
+    }
   }
 
 }

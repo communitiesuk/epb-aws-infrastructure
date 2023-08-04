@@ -387,8 +387,7 @@ module "register_api_application" {
 }
 
 module "register_api_database" {
-  source = "./aurora_rds"
-
+  source                        = "./aurora_rds"
   prefix                        = "${local.prefix}-reg-api"
   db_name                       = "epb"
   vpc_id                        = module.networking.vpc_id
@@ -398,7 +397,7 @@ module "register_api_database" {
   instance_class                = var.environment == "intg" ? "db.t3.medium" : "db.r5.large"
   cluster_parameter_group_name  = module.parameter_groups.aurora_pglogical_target_pg_name
   instance_parameter_group_name = module.parameter_groups.rds_pglogical_target_pg_name
-  pass_vpc_cidr                 = var.pass_vpc_cidr
+  pass_vpc_cidr                 = var.environment == "prod" ? [var.pass_vpc_cidr] : []
 }
 
 module "register_sidekiq_application" {
@@ -526,8 +525,7 @@ module "warehouse_application" {
 }
 
 module "warehouse_database" {
-  source = "./aurora_rds"
-
+  source                        = "./aurora_rds"
   prefix                        = "${local.prefix}-warehouse"
   db_name                       = "epb"
   vpc_id                        = module.networking.vpc_id
@@ -537,7 +535,7 @@ module "warehouse_database" {
   instance_class                = var.environment == "intg" ? "db.t3.medium" : "db.r5.large"
   cluster_parameter_group_name  = module.parameter_groups.aurora_pglogical_target_pg_name
   instance_parameter_group_name = module.parameter_groups.rds_pglogical_target_pg_name
-  pass_vpc_cidr                 = var.pass_vpc_cidr
+  pass_vpc_cidr                 = var.environment == "prod" ? [var.pass_vpc_cidr] : []
 }
 
 module "warehouse_redis" {
@@ -564,12 +562,14 @@ module "bastion" {
 }
 
 module "peering_bastion" {
+  count                  = var.environment == "prod" ? 1 : 0
   source                 = "./bastion"
   tag                    = "paas_peering_bastion_host"
   name                   = "pass_peering_bastion"
   subnet_id              = module.networking.private_db_subnet_ids[0]
   vpc_id                 = module.networking.vpc_id
   rds_access_policy_arns = {}
+  pass_vpc_cidr          = [var.pass_vpc_cidr]
 }
 
 
