@@ -179,6 +179,17 @@ resource "aws_ecs_service" "this" {
     }
   }
 
+  # associate any extra load balancer target groups to the ECS container
+  dynamic "load_balancer" {
+    for_each = var.front_door_config != null ? module.front_door[0].lb_extra_target_group_arns : []
+
+    content {
+      target_group_arn = load_balancer.value
+      container_name   = local.container_name
+      container_port   = var.container_port
+    }
+  }
+
   dynamic "load_balancer" {
     for_each = local.create_internal_alb ? [0] : []
 

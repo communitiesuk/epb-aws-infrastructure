@@ -68,3 +68,17 @@ variable "forbidden_ip_addresses_acl_arn" {
   type        = string
   description = "Web ACL ARN for WAF. This should be in the us-east-1 region"
 }
+
+variable "path_based_routing_overrides" {
+  type = list(object({
+    path_pattern     = list(string)
+    target_group_arn = string
+  }))
+
+  default = []
+}
+
+variable "extra_lb_target_groups" {
+  type    = number
+  default = 0
+}

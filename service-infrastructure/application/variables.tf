@@ -88,6 +88,12 @@ variable "front_door_config" {
     cdn_aliases                    = set(string)
     forbidden_ip_addresses_acl_arn = string
     public_subnet_ids              = list(string)
+    path_based_routing_overrides = list(object({
+      path_pattern     = list(string)
+      target_group_arn = string
+    }))
+    # we can generate n extra load balancer target groups if we need them for e.g. targeting path-based forwarding rules from other load balancers
+    extra_lb_target_groups = number
   })
 
   default = null

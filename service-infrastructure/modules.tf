@@ -269,6 +269,8 @@ module "toggles_application" {
     cdn_aliases                    = toset(["toggles${var.subdomain_suffix}.${var.domain_name}"])
     forbidden_ip_addresses_acl_arn = module.waf.forbidden_ip_addresses_acl_arn
     public_subnet_ids              = module.networking.public_subnet_ids
+    path_based_routing_overrides   = []
+    extra_lb_target_groups         = 0
   }
 }
 
@@ -309,6 +311,8 @@ module "auth_application" {
     cdn_aliases                    = toset(["auth${var.subdomain_suffix}.${var.domain_name}"])
     forbidden_ip_addresses_acl_arn = module.waf.forbidden_ip_addresses_acl_arn
     public_subnet_ids              = module.networking.public_subnet_ids
+    path_based_routing_overrides   = []
+    extra_lb_target_groups         = 1
   }
 }
 
@@ -382,8 +386,15 @@ module "register_api_application" {
     cdn_aliases                    = toset(["api${var.subdomain_suffix}.${var.domain_name}"])
     forbidden_ip_addresses_acl_arn = module.waf.forbidden_ip_addresses_acl_arn
     public_subnet_ids              = module.networking.public_subnet_ids
+    path_based_routing_overrides = [
+      # forward requests for auth tokens to the auth application
+      {
+        path_pattern     = ["/auth/*"]
+        target_group_arn = module.auth_application.front_door_alb_extra_target_group_arns[0]
+      }
+    ]
+    extra_lb_target_groups = 0
   }
-
 }
 
 module "register_api_database" {
@@ -485,6 +496,8 @@ module "frontend_application" {
     ])
     forbidden_ip_addresses_acl_arn = module.waf.forbidden_ip_addresses_acl_arn
     public_subnet_ids              = module.networking.public_subnet_ids
+    path_based_routing_overrides   = []
+    extra_lb_target_groups         = 0
   }
 }
 

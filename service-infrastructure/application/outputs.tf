@@ -26,6 +26,14 @@ output "front_door_alb_arn_suffix" {
   value = var.front_door_config != null ? module.front_door[0].alb_arn_suffix : ""
 }
 
+output "front_door_alb_target_group_arn" {
+  value = var.front_door_config != null ? module.front_door[0].lb_target_group_arn : ""
+}
+
+output "front_door_alb_extra_target_group_arns" {
+  value = var.front_door_config != null ? module.front_door[0].lb_extra_target_group_arns : []
+}
+
 output "ecs_security_group_id" {
   value = aws_security_group.ecs.id
 }
