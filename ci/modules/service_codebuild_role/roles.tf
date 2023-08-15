@@ -85,7 +85,7 @@ resource "aws_iam_role_policy" "codebuild_policy" {
       {
         "Action" : "codestar-connections:UseConnection",
         "Effect" : "Allow",
-        "Resource" : [var.codestar_connection_arn],
+        "Resource" : var.codestar_connection_arn,
         "Sid" : ""
       },
       {
@@ -97,7 +97,7 @@ resource "aws_iam_role_policy" "codebuild_policy" {
       {
         "Action" : "sts:AssumeRole",
         "Effect" : "Allow",
-        "Resource" : [var.cross_account_role_arns],
+        "Resource" : var.cross_account_role_arns
         "Sid" : ""
       }
     ]

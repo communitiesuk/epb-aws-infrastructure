@@ -32,7 +32,6 @@ module "codebuild_role" {
   tech_docs_bucket_repo          = var.tech_docs_bucket_repo
 }
 
-
 module "app_test_image_pipeline" {
   artefact_bucket         = module.artefact.codepipeline_bucket
   artefact_bucket_arn     = module.artefact.codepipeline_bucket_arn
