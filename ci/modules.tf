@@ -257,3 +257,23 @@ module "tech_docs_pipeline" {
   source                  = "./modules/tech-docs-pipeline"
   dev_account_id          = var.account_ids["developer"]
 }
+
+module "prototypes_pipeline" {
+  artefact_bucket         = module.artefact.codepipeline_bucket
+  codebuild_role_arn      = module.codebuild_role.aws_codebuild_role_arn
+  codepipeline_role_arn   = module.codepipeline_role.aws_codepipeline_role_arn
+  codestar_connection_arn = module.codestar_connection.codestar_connection_arn
+  github_branch           = "master"
+  github_repository       = "epb-prototypes"
+  github_organisation     = var.github_organisation
+  region                  = var.region
+  source                  = "./modules/prototypes_pipeline"
+  dev_account_id          = var.account_ids["developer"]
+  ecs_cluster_name        = "prototypes-cluster"
+  ecs_service_name        = "prototypes"
+  app_ecr_name            = "prototypes-ecr"
+  aws_codebuild_image     = var.aws_amd_codebuild_image
+  app_image_name          = "prototypes-image"
+  codebuild_image_ecr_url = module.app_test_image_pipeline.image_repository_url
+  developer_prefix        = var.developer_prefix
+}

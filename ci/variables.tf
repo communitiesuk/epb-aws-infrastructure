@@ -31,6 +31,11 @@ variable "production_prefix" {
   type    = string
 }
 
+variable "developer_prefix" {
+  default = "epb-dev"
+  type    = string
+}
+
 variable "region" {
   default = "eu-west-2"
   type    = string
