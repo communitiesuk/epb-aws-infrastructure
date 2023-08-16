@@ -247,12 +247,12 @@ tfvars-get-for-ci path="./ci": _ensure_aws_profile
     aws-vault exec $AWS_PROFILE -- aws s3api get-object --bucket epbr-terraform-state --key .tfvars .auto.tfvars
 
 
-tfvars-get-for-repo path="." bucket="epbr-tech-docs-state": _ensure_aws_profile
+tfvars-get-for-repo path="." bucket="epbr-developer-terraform-state": _ensure_aws_profile
  #!/usr/bin/env bash
      cd {{path}}
      aws-vault exec $AWS_PROFILE -- aws s3api get-object --bucket {{bucket}} --key .tfvars .auto.tfvars
 
-tfvars-put-for-repo path="." bucket="epbr-tech-docs-state": _ensure_aws_profile
+tfvars-put-for-repo path="." bucket="epbr-developer-terraform-state": _ensure_aws_profile
  #!/usr/bin/env bash
     cd {{path}} && aws-vault exec $AWS_PROFILE -- aws s3api put-object --bucket {{bucket}} --key .tfvars --body .auto.tfvars
 
