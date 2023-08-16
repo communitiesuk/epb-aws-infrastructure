@@ -35,3 +35,10 @@ module "tech_docs" {
   login_credentials_hash = var.login_credentials_hash
   domain_name            = var.domain_name
 }
+
+module "api-docs" {
+  source        = "./api-docs"
+  ci_account_id = var.ci_account_id
+  domain_name   = var.domain_name
+  ci_role_id    = module.ci_role.ci_role_id
+}

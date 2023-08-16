@@ -3,7 +3,6 @@ resource "aws_s3_bucket_policy" "allow_bucket_access" {
   policy = data.aws_iam_policy_document.allow_bucket_access_doc.json
 }
 
-
 data "aws_iam_policy_document" "allow_bucket_access_doc" {
   statement {
     principals {
@@ -20,7 +19,6 @@ data "aws_iam_policy_document" "allow_bucket_access_doc" {
       "s3:ListBucket",
       "s3:PutObject",
       "s3:PutObjectAcl",
-
     ]
 
     resources = [
@@ -34,17 +32,19 @@ data "aws_iam_policy_document" "allow_bucket_access_doc" {
       identifiers = ["cloudfront.amazonaws.com"]
     }
 
-
     actions = [
       "s3:GetObject",
     ]
+
     resources = [
       "${aws_s3_bucket.this.arn}/*"
     ]
+
     effect = "Allow"
+
     condition {
       test     = "StringEquals"
-      values   = [aws_cloudfront_distribution.tech_docs_s3_distribution.arn]
+      values   = [aws_cloudfront_distribution.api_docs_s3_distribution.arn]
       variable = "aws:SourceAccount"
     }
   }
@@ -53,6 +53,7 @@ data "aws_iam_policy_document" "allow_bucket_access_doc" {
     actions = [
       "s3:GetObject",
     ]
+
     principals {
       type        = "*"
       identifiers = ["*"]
@@ -66,7 +67,7 @@ data "aws_iam_policy_document" "allow_bucket_access_doc" {
 }
 
 resource "aws_iam_role_policy" "ci_s3_policy" {
-  name = "tech-docs-ci-s3-policy"
+  name = "api-docs-ci-s3-policy"
   role = var.ci_role_id
   policy = jsonencode({
     Version = "2012-10-17"
@@ -88,4 +89,3 @@ resource "aws_iam_role_policy" "ci_s3_policy" {
     ]
   })
 }
-
