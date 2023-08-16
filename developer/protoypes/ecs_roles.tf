@@ -40,45 +40,41 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy_attach
 }
 
 
-#resource "aws_iam_role_policy" "secret_access" {
-#  for_each = var.secrets
-#
-#  name = "${var.prefix}-secret-access-${each.key}"
-#  role = aws_iam_role.ecs_task_execution_role.id
-#
-#  policy = jsonencode({
-#    Version = "2012-10-17"
-#    Statement = [
-#      {
-#        Action = [
-#          "secretsmanager:GetSecretValue"
-#        ]
-#        Effect   = "Allow"
-#        Resource = each.value
-#      }
-#    ]
-#  })
-#}
-#
-#resource "aws_iam_role_policy" "parameter_access" {
-#  for_each = var.parameters
-#
-#  name = "${var.prefix}-parameter-access-${each.key}"
-#  role = aws_iam_role.ecs_task_execution_role.id
-#
-#  policy = jsonencode({
-#    Version = "2012-10-17"
-#    Statement = [
-#      {
-#        Action = [
-#          "ssm:GetParameters"
-#        ]
-#        Effect   = "Allow"
-#        Resource = each.value
-#      }
-#    ]
-#  })
-#}
+resource "aws_iam_role_policy" "secret_access" {
+  name = "${var.prefix}-secret-access"
+  role = aws_iam_role.ecs_task_execution_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
+          "secretsmanager:GetSecretValue"
+        ]
+        Effect   = "Allow"
+        Resource = ["*"]
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy" "parameter_access" {
+  name = "${var.prefix}-parameter-access"
+  role = aws_iam_role.ecs_task_execution_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
+          "ssm:GetParameters"
+        ]
+        Effect   = "Allow"
+        Resource = ["*"]
+      }
+    ]
+  })
+}
 
 
 
