@@ -66,7 +66,7 @@ data "aws_iam_policy_document" "allow_bucket_access_doc" {
 }
 
 resource "aws_iam_role_policy" "ci_s3_policy" {
-  name = "ci-ecs-policy"
+  name = "ci-s3-policy"
   role = var.ci_role_id
   policy = jsonencode({
     Version = "2012-10-17"
