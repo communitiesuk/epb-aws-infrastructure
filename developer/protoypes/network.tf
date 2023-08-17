@@ -24,13 +24,16 @@ resource "aws_subnet" "public_subnet" {
 
 }
 
-#resource "aws_ecs_na" "this" {
-#  subnet_id       = aws_subnet.public_subnet.id
-#  private_ips     = ["10.0.0.50"]
-#  security_groups = [aws_security_group.ecs.id]
-#
-#  attachment {
-#    instance     = aws_instance.test.id
-#    device_index = 1
-#  }
-#}
+resource "aws_route_table" "this" {
+  vpc_id = aws_vpc.this.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.this.id
+  }
+}
+
+resource "aws_route_table_association" "public_subnet_asso" {
+  subnet_id      = aws_subnet.public_subnet[0].id
+  route_table_id = aws_route_table.this.id
+}
