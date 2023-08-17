@@ -139,7 +139,7 @@ rds-list: _ensure_aws_profile
     #!/usr/bin/env bash
 
     aws-vault exec $AWS_PROFILE -- aws rds describe-db-instances --query 'DBInstances[*].Endpoint.Address' --output table
-    echo "run 'just bastion-rds rds_endpoint=<endpoint>' to connect to the rds instance"
+    echo "run 'just rds-connect <endpoint>' to connect to the rds instance"
 
 # Creates connection to RDS instance. requires bastion host 'bastion-host' to be running in currenct account. Run 'just rds-list' to get available endpoint addresses
 rds-connect rds_endpoint local_port="5555": _ensure_aws_profile
