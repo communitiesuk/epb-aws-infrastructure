@@ -28,10 +28,10 @@ resource "aws_codepipeline" "codepipeline" {
   }
 
   stage {
-    name = "build"
+    name = "build_and_push_image"
 
     action {
-      name             = "Build"
+      name             = "build_and_push_image"
       category         = "Build"
       owner            = "AWS"
       provider         = "CodeBuild"
@@ -46,10 +46,10 @@ resource "aws_codepipeline" "codepipeline" {
   }
 
   stage {
-    name = "push-to-ecr"
+    name = "restart_ecs_service"
 
     action {
-      name             = "deploy-prototypes-to-cluster"
+      name             = "restart_ecs_service"
       category         = "Build"
       owner            = "AWS"
       provider         = "CodeBuild"
