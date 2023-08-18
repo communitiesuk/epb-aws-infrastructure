@@ -3,9 +3,28 @@ module "ci_role" {
   ci_account_id = var.ci_account_id
 }
 
+module "parameters" {
+  source = "./parameter_store"
+  parameters = {
+    "PROTOTYPES_USERNAME" : {
+      type  = "String"
+      value = var.parameters["PROTOTYPES_USERNAME"]
+    }
+    "PROTOTYPES_PASSWORD" : {
+      type  = "String"
+      value = var.parameters["PROTOTYPES_PASSWORD"]
+    }
+
+  }
+}
+
 module "prototypes" {
   source     = "./protoypes"
   ci_role_id = module.ci_role.ci_role_id
+  environment_variables = {
+    "USERNAME" : module.parameters.parameter_arns["PROTOTYPES_USERNAME"],
+    "PASSWORD" : module.parameters.parameter_arns["PROTOTYPES_PASSWORD"],
+  }
 }
 
 module "tech_docs" {

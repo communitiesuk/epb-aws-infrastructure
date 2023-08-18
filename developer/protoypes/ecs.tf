@@ -34,6 +34,11 @@ resource "aws_ecs_task_definition" "this" {
       volumesFrom = []
 
       memoryReservation = 512
+
+      secrets = [for key, value in var.environment_variables : {
+        name      = key
+        valueFrom = value
+      }]
     },
 
   ])

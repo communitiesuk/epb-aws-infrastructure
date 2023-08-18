@@ -11,3 +11,7 @@ variable "cidr_block" {
 variable "ci_role_id" {
   type = string
 }
+
+variable "environment_variables" {
+  type = map(string)
+}
