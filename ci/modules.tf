@@ -115,6 +115,8 @@ module "register-api-pipeline" {
   smoketests_branch           = var.smoketests_branch
   staging_prefix              = var.staging_prefix
   production_prefix           = var.production_prefix
+  static_start_page_url       = var.static_start_page_url
+  front_end_domain            = var.front_end_domain
 }
 
 module "performance_test_pipeline" {
@@ -155,6 +157,8 @@ module "frontend-pipeline" {
   smoketests_branch       = var.smoketests_branch
   staging_prefix          = var.staging_prefix
   production_prefix       = var.production_prefix
+  static_start_page_url   = var.static_start_page_url
+  front_end_domain        = var.front_end_domain
 }
 
 module "data_warehouse-pipeline" {
