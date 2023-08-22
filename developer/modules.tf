@@ -25,6 +25,7 @@ module "prototypes" {
     "USERNAME" : module.parameters.parameter_arns["PROTOTYPES_USERNAME"],
     "PASSWORD" : module.parameters.parameter_arns["PROTOTYPES_PASSWORD"],
   }
+  domain_name = var.domain_name
 }
 
 module "tech_docs" {

@@ -15,3 +15,12 @@ variable "ci_role_id" {
 variable "environment_variables" {
   type = map(string)
 }
+
+variable "domain_name" {
+  type = string
+}
+
+variable "region" {
+  type    = string
+  default = "eu-west-2"
+}

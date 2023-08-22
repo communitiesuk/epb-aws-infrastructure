@@ -58,12 +58,20 @@ resource "aws_ecs_service" "this" {
   launch_type                        = "FARGATE"
   scheduling_strategy                = "REPLICA"
 
+
   network_configuration {
     security_groups  = [aws_security_group.ecs.id]
     subnets          = aws_subnet.public_subnet[*].id
     assign_public_ip = true
   }
 
+  load_balancer {
+    target_group_arn = aws_lb_target_group.public.arn
+    container_name   = "${var.prefix}-container"
+    container_port   = 80
+  }
+
+  depends_on = []
 
   lifecycle {
     ignore_changes = [desired_count]
