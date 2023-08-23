@@ -51,7 +51,7 @@ resource "aws_lb_listener" "public_https" {
   port              = 443
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"
-  certificate_arn = aws_acm_certificate.cert.arn
+  certificate_arn   = aws_acm_certificate.cert.arn
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.public.arn
@@ -63,16 +63,16 @@ resource "aws_lb_listener" "public_https" {
 
 resource "aws_alb_listener_rule" "this" {
   listener_arn = aws_lb_listener.public_https.arn
-  priority = 100
+  priority     = 100
   action {
-    type = "forward"
+    type             = "forward"
     target_group_arn = aws_lb_target_group.public.arn
 
   }
   condition {
-     path_pattern {
-        values = ["/*"]
-     }
+    path_pattern {
+      values = ["/*"]
+    }
 
   }
 }
