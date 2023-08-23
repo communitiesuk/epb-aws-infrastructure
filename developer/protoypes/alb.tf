@@ -6,6 +6,7 @@ resource "aws_lb" "public" {
   subnets                    = aws_subnet.public_subnet[*].id
   drop_invalid_header_fields = true
   enable_deletion_protection = false
+
 }
 
 resource "aws_lb_target_group" "public" {
@@ -20,14 +21,11 @@ resource "aws_lb_target_group" "public" {
     interval            = "300"
     protocol            = "HTTP"
     matcher             = "200"
-    timeout             = "3"
+    timeout             = "30"
     path                = "/"
-    unhealthy_threshold = "2"
+    unhealthy_threshold = "3"
   }
 }
-
-
-
 
 resource "aws_lb_listener" "public_http" {
   load_balancer_arn = aws_lb.public.id
@@ -53,22 +51,31 @@ resource "aws_lb_listener" "public_https" {
   port              = 443
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"
-
-
-  # When trying to associate certificate with the listener, you may see terraform errors if the certificate hasn't been validated yet
-  # See "Setting up SSL Certificates" in README for more info
   certificate_arn = aws_acm_certificate.cert.arn
-
   default_action {
-    type = "fixed-response"
-    fixed_response {
-      content_type = "text/plain"
-      message_body = "403: Forbidden"
-      status_code  = "403"
-    }
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.public.arn
   }
+
+  depends_on = [aws_lb_target_group.public]
+
 }
 
+resource "aws_alb_listener_rule" "this" {
+  listener_arn = aws_lb_listener.public_https.arn
+  priority = 100
+  action {
+    type = "forward"
+    target_group_arn = aws_lb_target_group.public.arn
+
+  }
+  condition {
+     path_pattern {
+        values = ["/*"]
+     }
+
+  }
+}
 
 
 

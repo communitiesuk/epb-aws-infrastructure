@@ -1,7 +1,6 @@
 resource "aws_route_table" "this" {
   count  = length(aws_subnet.public_subnet)
   vpc_id = aws_vpc.this.id
-
 }
 
 resource "aws_route_table_association" "public_subnet_asso" {

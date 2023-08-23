@@ -2,7 +2,6 @@ resource "aws_ecs_cluster" "this" {
   name = "${var.prefix}-cluster"
 }
 
-
 resource "aws_ecs_task_definition" "this" {
   family                   = "${var.prefix}-ecs-task"
   network_mode             = "awsvpc"
