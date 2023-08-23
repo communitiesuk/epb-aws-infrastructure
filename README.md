@@ -114,7 +114,15 @@ The infrastructure used for the S3 backend is defined via terraform in the `/sta
     Example:  
     `aws-vault exec integration -- terraform apply`
 
-## Setup making changes
+
+## Terraforming infrastrcuture
+The repo is sub divided into terraform for the following EPB infrastructure
+ - /service-infrastructure  terraform for all resources in  AWS EPB integration, staging and production accounts
+ - /ci terraform for all resources in AWS EPB cicd account
+ - /developer terraform for all resources in  AWS EPB  developer account
+
+
+## Setup making changes to service-infrastructure
 
 1. From root `cd service-infrastructure`
 
@@ -237,3 +245,15 @@ one useful option is setting `--minimum-severity` flag
 ## Other infrastructure related tasks
 
 You can see broader documentation of AWS Migration and related tasks in [tech docs](https://dluhc-epb-tech-docs.london.cloudapps.digital/aws-migration.html)
+
+
+## Setup making changes to ci
+1. From root `cd ci`
+
+Follow the steps from making changes to service-infrastructure only change the profile to ci (or whatever AWS profile name you have the ci account set for)
+
+## Setup making changes to developer
+1. From root `cd developer`
+   Follow the steps from making changes to service-infrastructure only change the profile to developer (or whatever AWS profile name you have the developer account set for)
+
+NB not all resources in the developer account are tracked by the current state. The state contains resources created as part of or after the switch off PaaS
