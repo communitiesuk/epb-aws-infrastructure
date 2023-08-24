@@ -136,10 +136,10 @@ module "parameter_store" {
       type  = "SecureString"
       value = var.parameters["OS_DATA_HUB_API_KEY"]
     }
-     NON_DOMESTIC_APPROVED_SOFTWARE : {
+    NON_DOMESTIC_APPROVED_SOFTWARE : {
       type  = "String"
       value = var.parameters["NON_DOMESTIC_APPROVED_SOFTWARE"]
-       tier = "Advanced"
+      tier  = "Advanced"
     }
     "RACK_ENV" : {
       type  = "String"
