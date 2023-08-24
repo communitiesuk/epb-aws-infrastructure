@@ -94,8 +94,8 @@ module "parameter_store" {
     DOMESTIC_APPROVED_SOFTWARE : {
       type  = "String"
       value = var.parameters["DOMESTIC_APPROVED_SOFTWARE"]
-    }
 
+    }
     "EPB_UNLEASH_AUTH_TOKEN" : {
       type  = "SecureString"
       value = var.parameters["EPB_UNLEASH_AUTH_TOKEN"]
@@ -136,9 +136,10 @@ module "parameter_store" {
       type  = "SecureString"
       value = var.parameters["OS_DATA_HUB_API_KEY"]
     }
-    NON_DOMESTIC_APPROVED_SOFTWARE : {
+     NON_DOMESTIC_APPROVED_SOFTWARE : {
       type  = "String"
       value = var.parameters["NON_DOMESTIC_APPROVED_SOFTWARE"]
+       tier = "Advanced"
     }
     "RACK_ENV" : {
       type  = "String"
