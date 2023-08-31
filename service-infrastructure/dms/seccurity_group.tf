@@ -1,22 +1,28 @@
-resource "aws_security_group" "rds_security_group" {
-  name   = "${var.prefix}-rds-sg"
+resource "aws_security_group" "dms" {
+  name   = "${var.name}-security-group"
   vpc_id = var.vpc_id
 
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   ingress {
-    security_groups = var.security_group_ids
-    from_port       = 5432
-    to_port         = 5432
-    protocol        = "tcp"
+    from_port   = 0
+    protocol    = "-1"
+    to_port     = 0
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   tags = {
-    Name = "${var.prefix}-rds-sg"
+    Name = "${var.tag}-sg"
   }
 
   lifecycle {
     create_before_destroy = true
   }
-
 
   dynamic "ingress" {
     for_each = var.pass_vpc_cidr
@@ -41,4 +47,3 @@ resource "aws_security_group" "rds_security_group" {
   }
 
 }
-
