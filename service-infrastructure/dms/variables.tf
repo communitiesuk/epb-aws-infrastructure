@@ -3,9 +3,14 @@ variable "subnet_group_ids" {
 }
 
 variable "name" {
-  type    = string
-  default = "epb-dms"
+  type = string
 }
+
+variable "prefix" {
+  type    = string
+  default = "epb-prod-dms"
+}
+
 
 variable "vpc_id" {
   type = string

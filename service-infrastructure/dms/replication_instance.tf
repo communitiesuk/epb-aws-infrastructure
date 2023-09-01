@@ -1,31 +1,25 @@
 resource "aws_dms_replication_instance" "this" {
-  replication_instance_class  = "dms.t3.medium"
-  replication_instance_id     = "epb-prod-warehouse-dms-instance"
+  replication_instance_class  = "dms.r4.2xlarge"
+  replication_instance_id     = "${var.prefix}-${var.name}-instance"
   replication_subnet_group_id = aws_dms_replication_subnet_group.this.id
   vpc_security_group_ids      = [aws_security_group.dms.id]
-}
-
-
-resource "aws_dms_endpoint" "target" {
-  endpoint_id                     = "${var.name}-target-endpoint"
-  endpoint_type                   = "target"
-  engine_name                     = "aurora-postgresql"
-  database_name                   = var.target_db_name
-  secrets_manager_arn             = var.secrets["TARGET_DB_SECRET"]
-  secrets_manager_access_role_arn = aws_iam_role.dms_role.arn
-}
-
-resource "aws_dms_endpoint" "source" {
-  endpoint_id                     = "${var.name}-source-endpoint"
-  endpoint_type                   = "source"
-  engine_name                     = "postgres"
-  database_name                   = var.source_db_name
-  secrets_manager_arn             = var.secrets["SOURCE_DB_SECRET"]
-  secrets_manager_access_role_arn = aws_iam_role.dms_role.arn
+  multi_az                    = true
 }
 
 resource "aws_dms_replication_subnet_group" "this" {
   replication_subnet_group_description = "subnets for the dms"
-  replication_subnet_group_id          = "epb-prod-dms-subnet-group"
+  replication_subnet_group_id          = "${var.prefix}-subnet-group"
   subnet_ids                           = var.subnet_group_ids
+}
+
+
+resource "aws_dms_replication_task" "this" {
+  migration_type           = "full-load-and-cdc"
+  replication_instance_arn = aws_dms_replication_instance.this.replication_instance_arn
+  replication_task_id      = "${var.prefix}-${var.name}-task"
+  source_endpoint_arn      = aws_dms_endpoint.source.endpoint_arn
+  table_mappings           = jsonencode(jsondecode(file("${path.module}/warehouse_mapping.json")))
+  target_endpoint_arn      = aws_dms_endpoint.target.endpoint_arn
+  start_replication_task   = true
+
 }
