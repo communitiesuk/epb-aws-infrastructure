@@ -760,6 +760,8 @@ data "aws_caller_identity" "current" {}
 module "warehouse_dms" {
   count            = var.environment == "prod" ? 1 : 0
   name             = "data-warehouse"
+  instance_class   = "dms.r4.2xlarge"
+  mapping_file     = "warehouse_mapping.json"
   source           = "./dms"
   subnet_group_ids = module.networking.private_db_subnet_ids
   vpc_id           = module.networking.vpc_id

@@ -42,3 +42,11 @@ variable "rds_access_policy_arns" {
 variable "secrets" {
   type = map(string)
 }
+
+variable "mapping_file" {
+  type = string
+}
+
+variable "instance_class" {
+  type = string
+}

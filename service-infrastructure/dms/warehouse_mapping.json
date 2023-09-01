@@ -8,7 +8,87 @@
         "schema-name": "public",
         "table-name": "schema_migrations"
       },
-      "rule-action": "explicit"
+      "rule-action": "include",
+      "load-order": "100"
+    },
+    {
+      "rule-type": "selection",
+      "rule-id": "3",
+      "rule-name": "3",
+      "object-locator": {
+        "schema-name": "public",
+        "table-name": "assessment_attributes"
+      },
+      "rule-action": "include",
+      "load-order": "80"
+    },
+    {
+      "rule-type": "selection",
+      "rule-id": "4",
+      "rule-name": "4",
+      "object-locator": {
+        "schema-name": "public",
+        "table-name": "assessment_documents"
+      },
+      "rule-action": "include",
+      "load-order": "70"
+    },
+
+    {
+      "rule-type": "selection",
+      "rule-id": "6",
+      "rule-name": "6",
+      "object-locator": {
+        "schema-name": "public",
+        "table-name": "assessment_attribute_values"
+      },
+      "rule-action": "include",
+      "load-order": "50"
+    },
+    {
+      "rule-type": "selection",
+      "rule-id": "8",
+      "rule-name": "8",
+      "object-locator": {
+        "schema-name": "public",
+        "table-name": "assessment_attribute_lookups"
+      },
+      "rule-action": "include",
+      "load-order": "30"
+    },
+    {
+      "rule-type": "selection",
+      "rule-id": "9",
+      "rule-name": "9",
+      "object-locator": {
+        "schema-name": "public",
+        "table-name": "ons_uprn_directory_versions"
+      },
+      "rule-action": "include",
+      "load-order": "20"
+    },
+
+    {
+      "rule-type": "selection",
+      "rule-id": "11",
+      "rule-name": "11",
+      "object-locator": {
+        "schema-name": "public",
+        "table-name": "ons_uprn_directory"
+      },
+      "rule-action": "include",
+      "load-order": "15"
+    },
+    {
+      "rule-type": "selection",
+      "rule-id": "10",
+      "rule-name": "10",
+      "object-locator": {
+        "schema-name": "public",
+        "table-name": "ons_uprn_directory_names"
+      },
+      "rule-action": "include",
+      "load-order": "10"
     }
   ]
 }

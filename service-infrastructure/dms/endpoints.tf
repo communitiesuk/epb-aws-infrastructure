@@ -15,4 +15,5 @@ resource "aws_dms_endpoint" "source" {
   secrets_manager_arn             = var.secrets["SOURCE_DB_SECRET"]
   secrets_manager_access_role_arn = aws_iam_role.dms_role.arn
   ssl_mode                        = "require"
+
 }
