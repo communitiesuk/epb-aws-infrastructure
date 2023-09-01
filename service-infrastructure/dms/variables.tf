@@ -26,6 +26,10 @@ variable "target_db_name" {
 
 }
 
+variable "source_db_name" {
+  type = string
+}
+
 variable "rds_access_policy_arns" {
   type = map(string)
 }

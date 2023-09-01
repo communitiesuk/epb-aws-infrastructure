@@ -763,9 +763,11 @@ module "warehouse_dms" {
   subnet_group_ids = module.networking.private_db_subnet_ids
   vpc_id           = module.networking.vpc_id
   target_db_name   = "epb"
+  source_db_name   = "rdsbroker_c662864e_a048_4c04_b82e_b4b9ff66d7f4"
   pass_vpc_cidr    = [var.pass_vpc_cidr]
   secrets = {
     "TARGET_DB_SECRET" : "arn:aws:secretsmanager:${var.region}:${data.aws_caller_identity.current.account_id}:secret:RDS_WAREHOUSE_DB_CREDS-Q64iqb"
+    "SOURCE_DB_SECRET" : "arn:aws:secretsmanager:${var.region}:${data.aws_caller_identity.current.account_id}:secret:PAAS_WAREHOUSE_DB_CREDS-wyOLe0"
   }
   rds_access_policy_arns = {
     "Warehouse" : module.warehouse_database.rds_full_access_policy_arn
