@@ -404,7 +404,7 @@ module "register_api_database" {
   db_name                       = "epb"
   vpc_id                        = module.networking.vpc_id
   subnet_group_name             = local.db_subnet
-  security_group_ids            = [module.register_api_application.ecs_security_group_id, module.register_sidekiq_application.ecs_security_group_id, module.bastion.security_group_id]
+  security_group_ids            = var.environment == "prod" ? [module.register_api_application.ecs_security_group_id, module.register_sidekiq_application.ecs_security_group_id, module.bastion.security_group_id, module.register_api_dms[0].security_group_id] : [module.register_api_application.ecs_security_group_id, module.register_sidekiq_application.ecs_security_group_id, module.bastion.security_group_id]
   storage_backup_period         = var.storage_backup_period
   instance_class                = var.environment == "intg" ? "db.t3.medium" : "db.r5.large"
   cluster_parameter_group_name  = module.parameter_groups.aurora_pglogical_target_pg_name
@@ -757,11 +757,15 @@ module "parameter_groups" {
 
 data "aws_caller_identity" "current" {}
 
+
+
+
 module "warehouse_dms" {
   count            = var.environment == "prod" ? 1 : 0
   name             = "data-warehouse"
   instance_class   = "dms.r4.2xlarge"
   mapping_file     = "warehouse_mapping.json"
+  settings_file    = "warehouse_settings.json"
   source           = "./dms"
   subnet_group_ids = module.networking.private_db_subnet_ids
   vpc_id           = module.networking.vpc_id
@@ -774,5 +778,26 @@ module "warehouse_dms" {
   }
   rds_access_policy_arns = {
     "Warehouse" : module.warehouse_database.rds_full_access_policy_arn
+  }
+}
+
+module "register_api_dms" {
+  count            = var.environment == "prod" ? 1 : 0
+  name             = "register-api"
+  instance_class   = "dms.r4.2xlarge"
+  mapping_file     = "register_api_mapping.json"
+  settings_file    = "register_api_settings.json"
+  source           = "./dms"
+  subnet_group_ids = module.networking.private_db_subnet_ids
+  vpc_id           = module.networking.vpc_id
+  target_db_name   = "epb"
+  source_db_name   = "rdsbroker_ccb1e459_868b_4f78_9757_effdf6d02ce4"
+  pass_vpc_cidr    = [var.pass_vpc_cidr]
+  secrets = {
+    "TARGET_DB_SECRET" : "arn:aws:secretsmanager:${var.region}:${data.aws_caller_identity.current.account_id}:secret:RDS_REGISTER_API_DB_CREDS-XjQmXL"
+    "SOURCE_DB_SECRET" : "arn:aws:secretsmanager:${var.region}:${data.aws_caller_identity.current.account_id}:secret:PAAS_REGISTER_API_DB_CREDS-bXaCzS"
+  }
+  rds_access_policy_arns = {
+    "Register_api" : module.register_api_database.rds_full_access_policy_arn
   }
 }

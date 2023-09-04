@@ -1,5 +1,5 @@
 resource "aws_security_group" "dms" {
-  name   = "${var.prefix}-security-group"
+  name   = "${var.prefix}-${var.name}-security-group"
   vpc_id = var.vpc_id
 
   egress {

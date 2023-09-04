@@ -47,6 +47,10 @@ variable "mapping_file" {
   type = string
 }
 
+variable "settings_file" {
+  type = string
+}
+
 variable "instance_class" {
   type = string
 }
