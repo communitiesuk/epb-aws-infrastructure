@@ -5,6 +5,7 @@ resource "aws_dms_endpoint" "target" {
   database_name                   = var.target_db_name
   secrets_manager_arn             = var.secrets["TARGET_DB_SECRET"]
   secrets_manager_access_role_arn = aws_iam_role.dms_role.arn
+  extra_connection_attributes     = "afterConnectScript=SET session_replication_role='replica'"
 }
 
 resource "aws_dms_endpoint" "source" {

@@ -122,13 +122,10 @@ resource "aws_iam_policy" "dms_policy" {
   })
 }
 
-
-
 resource "aws_iam_role_policy_attachment" "dms_policy_attachment" {
   role       = aws_iam_role.dms_role.name
   policy_arn = aws_iam_policy.dms_policy.arn
 }
-
 
 resource "aws_iam_role_policy" "secret_access" {
   for_each = var.secrets
@@ -150,10 +147,9 @@ resource "aws_iam_role_policy" "secret_access" {
 }
 
 
-
-
 resource "aws_iam_role_policy_attachment" "rds_role_policy_attachment" {
   for_each   = var.rds_access_policy_arns
   role       = aws_iam_role.dms_role.name
   policy_arn = each.value
 }
+

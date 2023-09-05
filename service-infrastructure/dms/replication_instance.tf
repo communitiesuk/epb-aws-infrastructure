@@ -26,6 +26,8 @@ resource "aws_dms_replication_task" "this" {
   start_replication_task    = true
   lifecycle {
     create_before_destroy = true
+    #    ignore_changes = [
+    #      replication_task_settings
+    #    ]
   }
-
 }

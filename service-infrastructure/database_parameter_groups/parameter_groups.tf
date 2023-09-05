@@ -30,6 +30,7 @@ resource "aws_rds_cluster_parameter_group" "target" {
     value        = "pglogical"
     apply_method = "pending-reboot"
   }
+
 }
 
 resource "aws_db_parameter_group" "source" {
