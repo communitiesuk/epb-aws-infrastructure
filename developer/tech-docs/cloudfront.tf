@@ -9,7 +9,7 @@ resource "aws_cloudfront_origin_access_control" "this" {
 resource "aws_cloudfront_distribution" "tech_docs_s3_distribution" {
   origin {
     domain_name              = aws_s3_bucket.this.bucket_domain_name
-    origin_id                = "S3-epbr-tech-docs-repo"
+    origin_id                = "S3-${var.bucket_name}"
     origin_access_control_id = aws_cloudfront_origin_access_control.this.id
   }
   # By default, show index.html file
@@ -21,7 +21,7 @@ resource "aws_cloudfront_distribution" "tech_docs_s3_distribution" {
   default_cache_behavior {
     allowed_methods  = ["GET", "HEAD"]
     cached_methods   = ["GET", "HEAD"]
-    target_origin_id = "S3-epbr-tech-docs-repo"
+    target_origin_id = "S3-${var.bucket_name}"
 
     forwarded_values {
       query_string = true
@@ -66,7 +66,7 @@ resource "aws_cloudfront_distribution" "tech_docs_s3_distribution" {
     allowed_methods        = ["HEAD", "DELETE", "POST", "GET", "OPTIONS", "PUT", "PATCH"]
     cached_methods         = ["GET", "HEAD"]
     path_pattern           = "*"
-    target_origin_id       = "S3-epbr-tech-docs-repo"
+    target_origin_id       = "S3-${var.bucket_name}"
     viewer_protocol_policy = "allow-all"
     forwarded_values {
       query_string = true
