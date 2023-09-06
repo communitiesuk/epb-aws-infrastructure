@@ -19,7 +19,7 @@ module "parameters" {
 }
 
 module "prototypes" {
-  source     = "./protoypes"
+  source     = "./prototypes"
   ci_role_id = module.ci_role.ci_role_id
   environment_variables = {
     "USERNAME" : module.parameters.parameter_arns["PROTOTYPES_USERNAME"],
