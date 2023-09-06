@@ -49,13 +49,12 @@ resource "aws_codepipeline" "codepipeline" {
     name = "restart_ecs_service"
 
     action {
-      name             = "restart_ecs_service"
-      category         = "Build"
-      owner            = "AWS"
-      provider         = "CodeBuild"
-      version          = "1"
-      input_artifacts  = ["code_source"]
-      output_artifacts = [""]
+      name            = "restart_ecs_service"
+      category        = "Build"
+      owner           = "AWS"
+      provider        = "CodeBuild"
+      version         = "1"
+      input_artifacts = ["code_source"]
 
       configuration = {
         ProjectName = module.codebuild_deploy.codebuild_name
