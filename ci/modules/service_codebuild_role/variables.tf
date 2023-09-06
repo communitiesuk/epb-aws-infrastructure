@@ -18,6 +18,6 @@ variable "region" {
   type = string
 }
 
-variable "tech_docs_bucket_repo" {
-  type = string
+variable "s3_buckets_to_access" {
+  type = list(string)
 }

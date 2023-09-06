@@ -29,7 +29,7 @@ module "codebuild_role" {
   cross_account_role_arns        = var.cross_account_role_arns
   codestar_connection_arn        = module.codestar_connection.codestar_connection_arn
   region                         = var.region
-  tech_docs_bucket_repo          = var.tech_docs_bucket_repo
+  s3_buckets_to_access           = [var.tech_docs_bucket_repo]
 }
 
 module "app_test_image_pipeline" {
