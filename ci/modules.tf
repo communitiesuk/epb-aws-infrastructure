@@ -29,7 +29,7 @@ module "codebuild_role" {
   cross_account_role_arns        = var.cross_account_role_arns
   codestar_connection_arn        = module.codestar_connection.codestar_connection_arn
   region                         = var.region
-  s3_buckets_to_access           = [var.tech_docs_bucket_repo]
+  s3_buckets_to_access           = [var.tech_docs_bucket_repo, var.api_docs_bucket]
 }
 
 module "app_test_image_pipeline" {
@@ -259,6 +259,20 @@ module "tech_docs_pipeline" {
   region                  = var.region
   repo_bucket_name        = var.tech_docs_bucket_repo
   source                  = "./modules/tech-docs-pipeline"
+  dev_account_id          = var.account_ids["developer"]
+}
+
+module "api_docs_pipeline" {
+  source                  = "./modules/api-docs-pipeline"
+  artefact_bucket         = module.artefact.codepipeline_bucket
+  codebuild_role_arn      = module.codebuild_role.aws_codebuild_role_arn
+  codepipeline_role_arn   = module.codepipeline_role.aws_codepipeline_role_arn
+  codestar_connection_arn = module.codestar_connection.codestar_connection_arn
+  github_branch           = "master"
+  github_repository       = "epb-register-api"
+  github_organisation     = var.github_organisation
+  region                  = var.region
+  repo_bucket_name        = var.api_docs_bucket
   dev_account_id          = var.account_ids["developer"]
 }
 

@@ -65,6 +65,10 @@ variable "tech_docs_bucket_repo" {
   type = string
 }
 
+variable "api_docs_bucket" {
+  type = string
+}
+
 variable "static_start_page_url" {
   type    = string
   default = "http://epb-static-start-pages-integration.s3-website.eu-west-2.amazonaws.com"
