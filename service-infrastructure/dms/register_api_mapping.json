@@ -182,17 +182,6 @@
     },
     {
       "rule-type": "selection",
-      "rule-id": "16",
-      "rule-name": "16",
-      "object-locator": {
-        "schema-name": "public",
-        "table-name": "assessments_xml"
-      },
-      "rule-action": "include",
-      "load-order": "150"
-    },
-    {
-      "rule-type": "selection",
       "rule-id": "17",
       "rule-name": "17",
       "object-locator": {

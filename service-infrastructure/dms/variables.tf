@@ -11,21 +11,6 @@ variable "prefix" {
   default = "epb-prod-dms"
 }
 
-
-variable "vpc_id" {
-  type = string
-}
-
-variable "tag" {
-  type    = string
-  default = "epb-dms-security-group"
-}
-
-variable "pass_vpc_cidr" {
-  type    = list(string)
-  default = []
-}
-
 variable "target_db_name" {
   type = string
 
@@ -52,5 +37,9 @@ variable "settings_file" {
 }
 
 variable "instance_class" {
+  type = string
+}
+
+variable "security_group_id" {
   type = string
 }
