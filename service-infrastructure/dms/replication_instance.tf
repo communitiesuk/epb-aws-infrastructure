@@ -32,3 +32,19 @@ resource "aws_dms_replication_task" "this" {
     #    ]
   }
 }
+
+resource "aws_dms_replication_task" "this_unlimited_lob" {
+  count                     = var.name == "register-api-xml" ? 1 : 0
+  migration_type            = "full-load-and-cdc"
+  replication_instance_arn  = aws_dms_replication_instance.this.replication_instance_arn
+  replication_task_id       = "${var.prefix}-${var.name}-task-unlimited-lob"
+  source_endpoint_arn       = aws_dms_endpoint.source.endpoint_arn
+  table_mappings            = jsonencode(jsondecode(file("${path.module}/register_api_xml_mapping_unlimited_lob.json")))
+  replication_task_settings = jsonencode(jsondecode(file("${path.module}/register_api_xml_settings_unlimited_lob.json")))
+  target_endpoint_arn       = aws_dms_endpoint.target.endpoint_arn
+  start_replication_task    = true
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}

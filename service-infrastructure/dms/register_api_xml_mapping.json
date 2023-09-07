@@ -8,6 +8,46 @@
     "schema-name": "public",
     "table-name": "assessments_xml"
   },
-  "rule-action": "explicit"
+  "rule-action": "explicit",
+  "filters": [{
+    "filter-type": "source",
+    "column-name": "schema_type",
+    "filter-conditions": [{
+      "filter-operator": "eq",
+      "value": "RdSAP%"
+    },
+    {
+      "filter-operator": "eq",
+      "value": "SAP%"
+    },
+    {
+      "filter-operator": "eq",
+      "value": "CEPC-4.0"
+    },
+    {
+      "filter-operator": "eq",
+      "value": "CEPC-7.1"
+    },
+    {
+      "filter-operator": "eq",
+      "value": "CEPC-6.0"
+    },
+    {
+      "filter-operator": "eq",
+      "value": "CEPC-5.1"
+    },
+    {
+      "filter-operator": "eq",
+      "value": "CEPC-5.0"
+    },
+    {
+      "filter-operator": "eq",
+      "value": "CEPC-3.1"
+    },
+    {
+      "filter-operator": "eq",
+      "value": "CEPC-7.0"
+    }]
+  }]
 }]
 }

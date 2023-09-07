@@ -8,7 +8,7 @@
         "Id": "TRANSFORMATION"
       },
       {
-        "Severity": "LOGGER_SEVERITY_DEFAULT",
+        "Severity": "LOGGER_SEVERITY_DETAILED_DEBUG",
         "Id": "SOURCE_UNLOAD"
       },
       {
@@ -132,13 +132,14 @@
     "InlineLobMaxSize": 0,
     "ParallelLoadQueuesPerThread": 0,
     "SupportLobs": true,
-    "LobChunkSize": 0,
+    "LobChunkSize": 64,
     "TaskRecoveryTableEnabled": false,
     "ParallelLoadThreads": 0,
-    "LobMaxSize": 30000,
+    "LobMaxSize": 0,
     "BatchApplyEnabled": false,
-    "FullLobMode": false,
-    "LimitedSizeLobMode": true,
+    "FullLobMode": true,
+    "LimitedSizeLobMode": false,
+    "LimitedSizeLobMode": false,
     "LoadMaxFileSize": 0,
     "ParallelLoadBufferSize": 0
   },
