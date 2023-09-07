@@ -94,7 +94,10 @@ module "parameter_store" {
     DOMESTIC_APPROVED_SOFTWARE : {
       type  = "String"
       value = var.parameters["DOMESTIC_APPROVED_SOFTWARE"]
-
+    }
+    EPB_API_DOCS_URL : {
+      type  = "String"
+      value = lookup(var.parameters, "EPB_API_DOCS_URL", "https://api-docs.epcregisters.net")
     }
     "EPB_UNLEASH_AUTH_TOKEN" : {
       type  = "SecureString"
