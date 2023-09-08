@@ -57,3 +57,12 @@ variable "vpc_peering_connection_id" {
   type    = string
   default = ""
 }
+
+variable "find_service_url" {
+  type    = string
+}
+
+variable "get_service_url" {
+  type    = string
+
+}

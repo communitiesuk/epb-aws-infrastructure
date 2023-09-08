@@ -269,7 +269,7 @@ module "toggles_application" {
     cdn_allowed_methods            = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
     cdn_cached_methods             = ["GET", "HEAD", "OPTIONS"]
     cdn_cache_ttl                  = 0
-    cdn_aliases                    = toset(["toggles${var.subdomain_suffix}.${var.domain_name}"])
+    cdn_aliases                    = toset(["toggles.${var.domain_name}"])
     forbidden_ip_addresses_acl_arn = module.waf.forbidden_ip_addresses_acl_arn
     public_subnet_ids              = module.networking.public_subnet_ids
     path_based_routing_overrides   = []
@@ -311,7 +311,7 @@ module "auth_application" {
     cdn_allowed_methods            = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
     cdn_cached_methods             = ["GET", "HEAD", "OPTIONS"]
     cdn_cache_ttl                  = 0
-    cdn_aliases                    = toset(["auth${var.subdomain_suffix}.${var.domain_name}"])
+    cdn_aliases                    = toset(["auth.${var.domain_name}"])
     forbidden_ip_addresses_acl_arn = module.waf.forbidden_ip_addresses_acl_arn
     public_subnet_ids              = module.networking.public_subnet_ids
     path_based_routing_overrides   = []
@@ -386,7 +386,7 @@ module "register_api_application" {
     cdn_allowed_methods            = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
     cdn_cached_methods             = ["GET", "HEAD", "OPTIONS"]
     cdn_cache_ttl                  = 0
-    cdn_aliases                    = toset(["api${var.subdomain_suffix}.${var.domain_name}"])
+    cdn_aliases                    = toset(["api.${var.domain_name}"])
     forbidden_ip_addresses_acl_arn = module.waf.forbidden_ip_addresses_acl_arn
     public_subnet_ids              = module.networking.public_subnet_ids
     path_based_routing_overrides = [
@@ -494,8 +494,8 @@ module "frontend_application" {
     cdn_cached_methods  = ["GET", "HEAD", "OPTIONS"]
     cdn_cache_ttl       = 60 # 1 minute
     cdn_aliases = toset([
-      "find-energy-certificate${var.subdomain_suffix}.${var.domain_name}",
-      "getting-new-energy-certificate${var.subdomain_suffix}.${var.domain_name}"
+      var.find_service_url,
+      var.get_service_url
     ])
     forbidden_ip_addresses_acl_arn = module.waf.forbidden_ip_addresses_acl_arn
     public_subnet_ids              = module.networking.public_subnet_ids
