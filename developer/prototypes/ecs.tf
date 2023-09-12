@@ -38,6 +38,11 @@ resource "aws_ecs_task_definition" "this" {
         name      = key
         valueFrom = value
       }]
+
+      environment = [
+        { Name = "NODE_ENV", Value = "production" },
+      ]
+
     },
 
   ])
