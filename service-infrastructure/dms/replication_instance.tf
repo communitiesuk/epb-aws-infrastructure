@@ -48,3 +48,19 @@ resource "aws_dms_replication_task" "this_unlimited_lob" {
     create_before_destroy = true
   }
 }
+
+resource "aws_dms_replication_task" "this_non_cepc_xml" {
+  count                     = var.name == "register-api-xml" ? 1 : 0
+  migration_type            = "full-load-and-cdc"
+  replication_instance_arn  = aws_dms_replication_instance.this.replication_instance_arn
+  replication_task_id       = "${var.prefix}-${var.name}-task-non-cepc"
+  source_endpoint_arn       = aws_dms_endpoint.source.endpoint_arn
+  table_mappings            = jsonencode(jsondecode(file("${path.module}/register_api_xml_mapping_non_cepc.json")))
+  replication_task_settings = jsonencode(jsondecode(file("${path.module}/${var.settings_file}")))
+  target_endpoint_arn       = aws_dms_endpoint.target.endpoint_arn
+  start_replication_task    = true
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
