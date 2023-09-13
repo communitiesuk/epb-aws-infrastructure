@@ -43,3 +43,8 @@ variable "instance_class" {
 variable "security_group_id" {
   type = string
 }
+
+variable "multi_az" {
+  type = bool
+  default = true
+}

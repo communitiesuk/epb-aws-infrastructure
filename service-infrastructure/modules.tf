@@ -326,7 +326,7 @@ module "auth_database" {
   db_name               = "epb"
   vpc_id                = module.networking.vpc_id
   subnet_group_name     = local.db_subnet
-  security_group_ids    = [module.auth_application.ecs_security_group_id, module.bastion.security_group_id]
+  security_group_ids    = var.environment == "prod" ? [module.auth_application.ecs_security_group_id, module.bastion.security_group_id, module.auth_dms_security_group[0].security_group_id] : [module.auth_application.ecs_security_group_id, module.bastion.security_group_id]
   storage_backup_period = 1 # to prevent weird behaviour when the backup window is set to 0
   storage_size          = 5
   instance_class        = var.environment == "intg" ? "db.t3.micro" : "db.m5.large"
@@ -796,6 +796,15 @@ module "reg_api_dms_security_group" {
   vpc_id        = module.networking.vpc_id
 }
 
+module "auth_dms_security_group" {
+  count         = var.environment == "prod" ? 1 : 0
+  source        = "./dms_security_group"
+  name          = "auth"
+  pass_vpc_cidr = [var.pass_vpc_cidr]
+  vpc_id        = module.networking.vpc_id
+
+}
+
 module "register_api_dms" {
   count            = var.environment == "prod" ? 1 : 0
   name             = "register-api"
@@ -834,4 +843,25 @@ module "register_api_xml_dms" {
     "Register_api" : module.register_api_database.rds_full_access_policy_arn
   }
   security_group_id = module.reg_api_dms_security_group[0].security_group_id
+}
+
+module "auth_dms" {
+  count            = var.environment == "prod" ? 1 : 0
+  source           = "./dms"
+  instance_class   = "dms.t2.medium"
+  multi_az         = false
+  subnet_group_ids = module.networking.private_db_subnet_ids
+  target_db_name   = "epb"
+  source_db_name   = "rdsbroker_d2c440cc_eb3b_4a76_98f3_71b9906644b6"
+  mapping_file     = "auth_mapping.json"
+  settings_file    = "auth_settings.json"
+  secrets = {
+    "TARGET_DB_SECRET" : "arn:aws:secretsmanager:${var.region}:${data.aws_caller_identity.current.account_id}:secret:RDS_AUTH_DB_CREDS-hgGm9a"
+    "SOURCE_DB_SECRET" : "arn:aws:secretsmanager:${var.region}:${data.aws_caller_identity.current.account_id}:secret:PAAS_AUTH_DB_CREDS-bTYh4w"
+  }
+  rds_access_policy_arns = {
+    "Register_api" : module.auth_database.rds_full_access_policy_arn
+  }
+  security_group_id = module.auth_dms_security_group[0].security_group_id
+  name = "auth"
 }

@@ -3,7 +3,7 @@ resource "aws_dms_replication_instance" "this" {
   replication_instance_id     = "${var.prefix}-${var.name}-instance"
   replication_subnet_group_id = aws_dms_replication_subnet_group.this.id
   vpc_security_group_ids      = [var.security_group_id]
-  multi_az                    = true
+  multi_az                    = var.multi_az
 }
 
 resource "aws_dms_replication_subnet_group" "this" {
