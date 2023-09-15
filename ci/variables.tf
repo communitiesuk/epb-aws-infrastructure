@@ -76,6 +76,6 @@ variable "static_start_page_url" {
 
 variable "front_end_domain" {
   type    = string
-  default = "centraldatastore.net"
+  default = "digital.communities.gov.uk"
 }
 

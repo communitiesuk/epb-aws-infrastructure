@@ -69,7 +69,7 @@ module "codebuild_frontend_smoke_test" {
     { name = "cypress_get_service_en_integration", value = "${var.static_start_page_url}/getting-a-new-energy-certificate.html" },
     { name = "cypress_get_domain_integration", value = "https://getting-new-energy-certificate-integration.${var.front_end_domain}" },
     { name = "cypress_get_service_cy_integration", value = "${var.static_start_page_url}/sicrhau-tystysgrif-ynni-newydd.html" },
-    { name = "cypress_find_service_en_integration", value = "${var.static_start_page_url}/yefind-an-energy-certificate.html" },
+    { name = "cypress_find_service_en_integration", value = "${var.static_start_page_url}/find-an-energy-certificate.html" },
     { name = "cypress_find_domain_integration", value = "https://find-energy-certificate-integration.${var.front_end_domain}" },
     { name = "cypress_find_service_cy_integration", value = "${var.static_start_page_url}/chwiliwch-am-dystysgrif-ynni.html" }
   ]
