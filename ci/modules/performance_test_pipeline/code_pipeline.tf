@@ -28,10 +28,10 @@ resource "aws_codepipeline" "codepipeline" {
   }
 
   stage {
-    name = "run-performance-test-on-staging"
+    name = "run-performance-test"
 
     action {
-      name             = "performance-tests"
+      name             = "performance-tests-staging"
       category         = "Build"
       owner            = "AWS"
       provider         = "CodeBuild"
@@ -43,6 +43,21 @@ resource "aws_codepipeline" "codepipeline" {
         ProjectName = module.codebuild_performance_test.codebuild_name
       }
     }
+
+    action {
+      name             = "performance-tests-production"
+      category         = "Build"
+      owner            = "AWS"
+      provider         = "CodeBuild"
+      version          = "1"
+      input_artifacts  = ["performance_tests_source_output"]
+      output_artifacts = ["performance_tests_prod_output"]
+
+      configuration = {
+        ProjectName = module.codebuild_performance_test_production.codebuild_name
+      }
+    }
+
   }
 }
 
