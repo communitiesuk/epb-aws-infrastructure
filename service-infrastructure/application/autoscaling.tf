@@ -52,7 +52,7 @@ resource "aws_appautoscaling_policy" "scale_up" {
     metric_aggregation_type = "Maximum"
 
     step_adjustment {
-      scaling_adjustment          = 1
+      scaling_adjustment = 1
     }
   }
 }
@@ -66,11 +66,11 @@ resource "aws_appautoscaling_policy" "scale_down" {
 
   step_scaling_policy_configuration {
     adjustment_type         = "ChangeInCapacity"
-    cooldown                =  300
+    cooldown                = 300
     metric_aggregation_type = "Maximum"
 
     step_adjustment {
-      scaling_adjustment          = -1
+      scaling_adjustment = -1
     }
   }
 }

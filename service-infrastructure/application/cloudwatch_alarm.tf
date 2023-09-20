@@ -33,7 +33,7 @@ resource "aws_cloudwatch_metric_alarm" "scale_down_alarm" {
   threshold           = 1
 
   dimensions = {
-    name = "LoadBalancer"
+    name        = "LoadBalancer"
     ServiceName = module.front_door.lb_target_group_arn
   }
   actions_enabled = true
