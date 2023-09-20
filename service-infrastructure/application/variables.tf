@@ -108,3 +108,8 @@ variable "has_exec_cmd_task" {
   type    = bool
   default = false
 }
+
+variable "task_desired_capacity" {
+  type    = number
+  default = 2
+}

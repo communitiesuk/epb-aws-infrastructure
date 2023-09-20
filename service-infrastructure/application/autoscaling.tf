@@ -1,6 +1,6 @@
 resource "aws_appautoscaling_target" "ecs_target" {
-  max_capacity       = 4
-  min_capacity       = 2
+  min_capacity       = var.task_desired_capacity
+  max_capacity       = var.task_desired_capacity * 4
   resource_id        = "service/${aws_ecs_cluster.this.name}/${aws_ecs_service.this.name}"
   scalable_dimension = "ecs:service:DesiredCount"
   service_namespace  = "ecs"
@@ -37,3 +37,55 @@ resource "aws_appautoscaling_policy" "ecs_policy_cpu" {
     target_value = 60
   }
 }
+
+
+
+#resource "aws_autoscaling_group" "auto_scaling_group" {
+#  name = "${var.prefix}-asg"
+#  max_size = 8
+#  min_size = 2
+#  desired_capacity = 2
+#  health_check_type = "ELB"
+#  health_check_grace_period = 60
+#  vpc_zone_identifier =var.front_door_config.public_subnet_ids
+#  target_group_arns = [module.front_door[0].lb_target_group_arn]
+#
+#
+#  enabled_metrics = [
+#    "GroupMinSize",
+#     "GroupMaxSize",
+#     "GroupDesiredCapacity",
+#    "GroupInServiceInstances",
+#    "GroupTotalInstances"
+#  ]
+#  metrics_granularity = "1Minute"
+#}
+
+resource "aws_appautoscaling_policy" "scale_up" {
+  name               = "${var.prefix}-ags-scale-up"
+  policy_type        = "StepScaling"
+  resource_id        = aws_appautoscaling_target.ecs_target.resource_id
+  scalable_dimension = aws_appautoscaling_target.ecs_target.scalable_dimension
+  service_namespace  = aws_appautoscaling_target.ecs_target.service_namespace
+
+  step_scaling_policy_configuration {
+    adjustment_type         = "ChangeInCapacity"
+    cooldown                = 60
+    metric_aggregation_type = "Maximum"
+
+    step_adjustment {
+      metric_interval_upper_bound = 0
+      scaling_adjustment          = 1
+    }
+  }
+}
+
+#resource "aws_autoscaling_policy" "scale_down" {
+#  name = "${var.prefix}-ags-scale-down"
+#  autoscaling_group_name = aws_autoscaling_group.auto_scaling_group.name
+#  adjustment_type = "ChangeInCapacity"
+#  scaling_adjustment = -1
+#  cooldown = 300
+#  policy_type = "StepScaling"
+#
+#}

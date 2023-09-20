@@ -59,10 +59,10 @@ variable "vpc_peering_connection_id" {
 }
 
 variable "find_service_url" {
-  type    = string
+  type = string
 }
 
 variable "get_service_url" {
-  type    = string
+  type = string
 
 }
