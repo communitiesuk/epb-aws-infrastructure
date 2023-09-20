@@ -113,3 +113,8 @@ variable "task_desired_capacity" {
   type    = number
   default = 2
 }
+
+variable "has_responsiveness_scale" {
+  default = false
+  type    = bool
+}

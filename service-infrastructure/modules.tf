@@ -398,6 +398,7 @@ module "register_api_application" {
     ]
     extra_lb_target_groups = 0
   }
+  has_responsiveness_scale = true
 }
 
 module "register_api_database" {
@@ -502,6 +503,7 @@ module "frontend_application" {
     path_based_routing_overrides   = []
     extra_lb_target_groups         = 0
   }
+  has_responsiveness_scale = true
 }
 
 module "warehouse_application" {
@@ -756,7 +758,6 @@ module "open_data_export" {
 module "parameter_groups" {
   source = "./database_parameter_groups"
 }
-
 data "aws_caller_identity" "current" {}
 
 

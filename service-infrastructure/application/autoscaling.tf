@@ -40,6 +40,7 @@ resource "aws_appautoscaling_policy" "ecs_policy_cpu" {
 
 
 resource "aws_appautoscaling_policy" "scale_up" {
+  count              = var.has_responsiveness_scale == true ? 1 : 0
   name               = "${var.prefix}-policy-scale-up"
   policy_type        = "StepScaling"
   resource_id        = aws_appautoscaling_target.ecs_target.resource_id
@@ -52,12 +53,14 @@ resource "aws_appautoscaling_policy" "scale_up" {
     metric_aggregation_type = "Maximum"
 
     step_adjustment {
-      scaling_adjustment = 1
+      scaling_adjustment          = 1
+      metric_interval_lower_bound = "0"
     }
   }
 }
 
 resource "aws_appautoscaling_policy" "scale_down" {
+  count              = var.has_responsiveness_scale == true ? 1 : 0
   name               = "${var.prefix}-policy-scale-down"
   policy_type        = "StepScaling"
   resource_id        = aws_appautoscaling_target.ecs_target.resource_id
@@ -70,7 +73,8 @@ resource "aws_appautoscaling_policy" "scale_down" {
     metric_aggregation_type = "Maximum"
 
     step_adjustment {
-      scaling_adjustment = -1
+      scaling_adjustment          = -1
+      metric_interval_upper_bound = "0"
     }
   }
 }
