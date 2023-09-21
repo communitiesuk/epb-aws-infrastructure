@@ -398,7 +398,7 @@ module "register_api_application" {
     ]
     extra_lb_target_groups = 0
   }
-  has_responsiveness_scale = true
+  has_responsiveness_scale = var.environment == "intg" ? false : true
 }
 
 module "register_api_database" {
@@ -503,7 +503,7 @@ module "frontend_application" {
     path_based_routing_overrides   = []
     extra_lb_target_groups         = 0
   }
-  has_responsiveness_scale = true
+  has_responsiveness_scale = var.environment == "intg" ? false : true
 }
 
 module "warehouse_application" {
@@ -759,7 +759,6 @@ module "parameter_groups" {
   source = "./database_parameter_groups"
 }
 data "aws_caller_identity" "current" {}
-
 
 module "warehouse_dms_security_group" {
   count         = var.environment == "prod" ? 1 : 0
