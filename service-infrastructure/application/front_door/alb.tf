@@ -23,13 +23,13 @@ resource "aws_lb_target_group" "public" {
   target_type = "ip"
 
   health_check {
-    healthy_threshold   = "3"
-    interval            = "30"
+    interval            = "31"
     protocol            = "HTTP"
     matcher             = "200"
-    timeout             = "3"
+    timeout             = "30"
     path                = var.health_check_path
-    unhealthy_threshold = "2"
+    unhealthy_threshold = "3"
+    healthy_threshold   = "3"
   }
 }
 
@@ -43,13 +43,13 @@ resource "aws_lb_target_group" "extra" {
   target_type = "ip"
 
   health_check {
-    healthy_threshold   = "3"
-    interval            = "30"
+    interval            = "31"
     protocol            = "HTTP"
     matcher             = "200"
-    timeout             = "3"
+    timeout             = "30"
     path                = var.health_check_path
-    unhealthy_threshold = "2"
+    unhealthy_threshold = "3"
+    healthy_threshold   = "3"
   }
 }
 

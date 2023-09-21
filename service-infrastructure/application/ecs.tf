@@ -163,6 +163,7 @@ resource "aws_ecs_service" "this" {
   launch_type                        = "FARGATE"
   scheduling_strategy                = "REPLICA"
   enable_execute_command             = var.enable_execute_command
+  health_check_grace_period_seconds  = var.front_door_config != null ? 60 : null
 
   network_configuration {
     security_groups  = [aws_security_group.ecs.id]

@@ -32,32 +32,15 @@ resource "aws_lb_target_group" "internal" {
   target_type = "ip"
 
   health_check {
-    healthy_threshold   = "3"
-    interval            = "30"
+    interval            = "31"
     protocol            = "HTTP"
     matcher             = "200"
-    timeout             = "3"
+    timeout             = "30"
     path                = var.health_check_path
-    unhealthy_threshold = "2"
+    unhealthy_threshold = "3"
+    healthy_threshold   = "3"
   }
 }
-
-# resource "aws_lb_listener" "internal_http" {
-#   count = local.create_internal_alb ? 1 : 0
-
-#   load_balancer_arn = aws_lb.internal[0].id
-#   port              = 80
-#   protocol          = "HTTP"
-
-#   default_action {
-#     target_group_arn = aws_lb_target_group.internal[0].id
-#     type             = "forward"
-#   }
-
-#   lifecycle {
-#     replace_triggered_by = [aws_lb_target_group.internal[0].id]
-#   }
-# }
 
 resource "aws_lb_listener" "public_http" {
   count = local.create_internal_alb ? 1 : 0

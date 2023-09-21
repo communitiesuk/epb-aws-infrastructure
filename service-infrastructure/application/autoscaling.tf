@@ -18,7 +18,8 @@ resource "aws_appautoscaling_policy" "ecs_policy_memory" {
       predefined_metric_type = "ECSServiceAverageMemoryUtilization"
     }
 
-    target_value = 80
+    target_value     = 80
+    disable_scale_in = var.has_responsiveness_scale == true ? true : false
   }
 }
 
@@ -34,7 +35,8 @@ resource "aws_appautoscaling_policy" "ecs_policy_cpu" {
       predefined_metric_type = "ECSServiceAverageCPUUtilization"
     }
 
-    target_value = 60
+    target_value     = 60
+    disable_scale_in = var.has_responsiveness_scale == true ? true : false
   }
 }
 
@@ -49,7 +51,7 @@ resource "aws_appautoscaling_policy" "scale_up" {
 
   step_scaling_policy_configuration {
     adjustment_type         = "ChangeInCapacity"
-    cooldown                = 60
+    cooldown                = 10
     metric_aggregation_type = "Maximum"
 
     step_adjustment {
