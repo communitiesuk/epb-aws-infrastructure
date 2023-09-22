@@ -399,6 +399,9 @@ module "register_api_application" {
     extra_lb_target_groups = 0
   }
   has_responsiveness_scale = var.environment == "intg" ? false : true
+  task_max_capacity        = var.task_max_capacity
+  task_desired_capacity    = var.task_desired_capacity
+  task_min_capacity        = var.task_min_capacity
 }
 
 module "register_api_database" {
@@ -451,8 +454,7 @@ module "register_sidekiq_application" {
 }
 
 module "register_sidekiq_redis" {
-  source = "./elasticache"
-
+  source                        = "./elasticache"
   prefix                        = "${local.prefix}-reg-sidekiq"
   aws_cloudwatch_log_group_name = module.logging.cloudwatch_log_group_name
   redis_port                    = local.redis_port
@@ -504,6 +506,9 @@ module "frontend_application" {
     extra_lb_target_groups         = 0
   }
   has_responsiveness_scale = var.environment == "intg" ? false : true
+  task_max_capacity        = var.task_max_capacity
+  task_desired_capacity    = var.task_desired_capacity
+  task_min_capacity        = var.task_min_capacity
 }
 
 module "warehouse_application" {
@@ -589,7 +594,6 @@ module "peering_bastion" {
   rds_access_policy_arns = {}
   pass_vpc_cidr          = [var.pass_vpc_cidr]
 }
-
 
 # logging and alerts
 
