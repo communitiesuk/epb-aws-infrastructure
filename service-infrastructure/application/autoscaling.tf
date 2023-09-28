@@ -57,13 +57,9 @@ resource "aws_appautoscaling_policy" "scale_up" {
     step_adjustment {
       scaling_adjustment          = 1
       metric_interval_lower_bound = "0"
-      metric_interval_upper_bound = "1"
     }
 
-    step_adjustment {
-      scaling_adjustment          = 5
-      metric_interval_lower_bound = "1"
-    }
+
   }
 }
 
