@@ -402,6 +402,9 @@ module "register_api_application" {
   task_max_capacity        = var.task_max_capacity
   task_desired_capacity    = var.task_desired_capacity
   task_min_capacity        = var.task_min_capacity
+  #prod has 2 vCPU
+  task_cpu    = var.environment == "prod" ? 2048 : 512
+  task_memory = var.environment == "prod" ? 8192 : 2048
 }
 
 module "register_api_database" {
@@ -509,6 +512,9 @@ module "frontend_application" {
   task_max_capacity        = var.task_max_capacity
   task_desired_capacity    = var.task_desired_capacity
   task_min_capacity        = var.task_min_capacity
+  #prod has 2 vCPU
+  task_cpu    = var.environment == "prod" ? 2048 : 512
+  task_memory = var.environment == "prod" ? 8192 : 2048
 }
 
 module "warehouse_application" {
