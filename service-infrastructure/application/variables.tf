@@ -124,7 +124,6 @@ variable "task_max_capacity" {
   default = 4
 }
 
-
 variable "has_responsiveness_scale" {
   default = false
   type    = bool
