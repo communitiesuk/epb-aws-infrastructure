@@ -99,6 +99,10 @@ module "parameter_store" {
       type  = "String"
       value = lookup(var.parameters, "EPB_API_DOCS_URL", "https://api-docs.epcregisters.net")
     }
+    EPB_TEAM_SLACK_URL : {
+      type  = "SecureString"
+      value = var.parameters["EPB_TEAM_SLACK_URL"]
+    }
     "EPB_UNLEASH_AUTH_TOKEN" : {
       type  = "SecureString"
       value = var.parameters["EPB_UNLEASH_AUTH_TOKEN"]
@@ -613,7 +617,7 @@ module "alerts" {
   source = "./alerts"
 
   prefix                    = local.prefix
-  slack_webhook_url         = var.slack_webhook_url
+  slack_webhook_url         = var.parameters["EPB_TEAM_SLACK_URL"]
   cloudtrail_log_group_name = module.logging.cloudtrail_log_group_name
 
   ecs_services = {
