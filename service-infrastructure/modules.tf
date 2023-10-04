@@ -766,3 +766,9 @@ module "open_data_export" {
 module "parameter_groups" {
   source = "./database_parameter_groups"
 }
+
+module "legacy_domain_redirect" {
+  source              = "./legacy_domain_redirect"
+  count               = var.environment == "prod" ? 1 : 0
+  cdn_certificate_arn = module.cdn_certificate.certificate_arn
+}
