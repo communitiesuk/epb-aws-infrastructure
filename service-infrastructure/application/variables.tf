@@ -128,3 +128,13 @@ variable "has_responsiveness_scale" {
   default = false
   type    = bool
 }
+
+variable "task_cpu" {
+  default = 512
+  type    = number
+}
+
+variable "task_memory" {
+  default = 2048
+  type    = number
+}

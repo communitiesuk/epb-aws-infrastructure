@@ -408,6 +408,8 @@ module "register_api_application" {
   task_max_capacity        = var.task_max_capacity
   task_desired_capacity    = var.task_desired_capacity
   task_min_capacity        = var.task_min_capacity
+  task_cpu    = var.environment == "stag" ? 8192 : 512
+  task_memory = var.environment == "stag" ? 32768 : 2048
 }
 
 module "register_api_database" {
@@ -515,6 +517,8 @@ module "frontend_application" {
   task_max_capacity        = var.task_max_capacity
   task_desired_capacity    = var.task_desired_capacity
   task_min_capacity        = var.task_min_capacity
+  task_cpu    = var.environment == "stag" ? 8192 : 512
+  task_memory = var.environment == "stag" ? 32768 : 2048
 }
 
 module "warehouse_application" {
