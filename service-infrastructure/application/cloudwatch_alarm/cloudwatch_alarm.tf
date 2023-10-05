@@ -6,7 +6,7 @@ resource "aws_cloudwatch_metric_alarm" "scale_alarm" {
   namespace           = "AWS/ApplicationELB"
   period              = var.direction == "up" ? 10 : 300
   statistic           = "Maximum"
-  threshold           = var.direction == "up" ? 1 : 0.2
+  threshold           = var.direction == "up" ? 1 : 1
 
   dimensions = {
     LoadBalancer = var.load_balancer_suffix
@@ -15,4 +15,5 @@ resource "aws_cloudwatch_metric_alarm" "scale_alarm" {
   alarm_actions = [
     var.scaling_policy
   ]
+  treat_missing_data = var.direction == "up" ? "missing" : "breaching"
 }
