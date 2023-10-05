@@ -43,6 +43,18 @@ variable "banned_ip_addresses" {
   type = list(map(string))
 }
 
+variable "banned_ipv6_addresses" {
+  type = list(map(string))
+}
+
+variable "permitted_ip_addresses" {
+  type = list(map(string))
+}
+
+variable "permitted_ipv6_addresses" {
+  type = list(map(string))
+}
+
 variable "pass_vpc_cidr" {
   type    = string
   default = ""

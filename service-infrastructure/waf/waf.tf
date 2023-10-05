@@ -31,6 +31,48 @@ resource "aws_wafv2_web_acl" "this" {
   }
 
   rule {
+    name     = "allow-ip-rule"
+    priority = 9
+
+    action {
+      allow {}
+    }
+
+    statement {
+      ip_set_reference_statement {
+        arn = aws_wafv2_ip_set.allowed_ip_addresses.arn
+      }
+    }
+
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      metric_name                = "waf-allow-ip-rule-metrics"
+      sampled_requests_enabled   = false
+    }
+  }
+
+  rule {
+    name     = "allow-ipv6-rule"
+    priority = 10
+
+    action {
+      allow {}
+    }
+
+    statement {
+      ip_set_reference_statement {
+        arn = aws_wafv2_ip_set.allowed_ipv6_addresses.arn
+      }
+    }
+
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      metric_name                = "waf-allow-ipv6-rule-metrics"
+      sampled_requests_enabled   = false
+    }
+  }
+
+  rule {
     name     = "block-ip-rule"
     priority = 11
 
@@ -67,7 +109,7 @@ resource "aws_wafv2_web_acl" "this" {
 
     visibility_config {
       cloudwatch_metrics_enabled = true
-      metric_name                = "waf-block-ip-rule-metrics"
+      metric_name                = "waf-block-ipv6-rule-metrics"
       sampled_requests_enabled   = false
     }
   }
@@ -101,6 +143,23 @@ resource "aws_wafv2_web_acl" "this" {
   }
 }
 
+resource "aws_wafv2_ip_set" "allowed_ip_addresses" {
+  name               = "${var.prefix}-waf-allowed-ip-addresses"
+  description        = "IP Set allowed unthrottled access to the website and other services."
+  ip_address_version = "IPV4"
+  scope              = "CLOUDFRONT"
+  addresses          = var.allowed_ip_addresses
+}
+
+resource "aws_wafv2_ip_set" "allowed_ipv6_addresses" {
+  name        = "${var.prefix}-waf-allowed-ipv6-addresses"
+  description = "IPV6 Set allowed unthrottled access to the website and other services"
+
+  ip_address_version = "IPV6"
+  scope              = "CLOUDFRONT"
+  addresses          = var.allowed_ipv6_addresses
+}
+
 resource "aws_wafv2_ip_set" "forbidden_ip_addresses" {
   name               = "${var.prefix}-waf-forbidden-ip-addresses"
   description        = "IP Set forbidden access to the website and other services."
@@ -116,5 +175,4 @@ resource "aws_wafv2_ip_set" "forbidden_ipv6_addresses" {
   ip_address_version = "IPV6"
   scope              = "CLOUDFRONT"
   addresses          = var.forbidden_ipv6_addresses
-
 }

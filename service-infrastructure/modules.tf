@@ -49,7 +49,9 @@ module "waf" {
   environment              = var.environment
   prefix                   = local.prefix
   forbidden_ip_addresses   = [for ip in var.banned_ip_addresses : ip["ip_address"]]
-  forbidden_ipv6_addresses = []
+  forbidden_ipv6_addresses = [for ip in var.banned_ipv6_addresses : ip["ip_address"]]
+  allowed_ip_addresses     = [for ip in var.permitted_ip_addresses : ip["ip_address"]]
+  allowed_ipv6_addresses   = [for ip in var.permitted_ipv6_addresses : ip["ip_address"]]
 }
 
 

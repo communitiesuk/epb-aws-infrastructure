@@ -13,3 +13,11 @@ variable "forbidden_ip_addresses" {
 variable "forbidden_ipv6_addresses" {
   type = list(string)
 }
+
+variable "allowed_ip_addresses" {
+  type = list(string)
+}
+
+variable "allowed_ipv6_addresses" {
+  type = list(string)
+}
