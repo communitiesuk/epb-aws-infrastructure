@@ -310,3 +310,18 @@ module "prototypes_pipeline" {
   codebuild_image_ecr_url = module.app_test_image_pipeline.image_repository_url
   developer_prefix        = var.developer_prefix
 }
+
+module "view-models-pipeline" {
+  source                  = "./modules/view_models_pipeline"
+  codepipeline_bucket     = module.artefact.codepipeline_bucket
+  codepipeline_role_arn   = module.codepipeline_role.aws_codepipeline_role_arn
+  codebuild_role_arn      = module.codebuild_role.aws_codebuild_role_arn
+  pipeline_name           = "epbr-view-models-pipeline"
+  github_repository       = "epb-view-models"
+  github_branch           = "master"
+  github_organisation     = var.github_organisation
+  codestar_connection_arn = module.codestar_connection.codestar_connection_arn
+  project_name            = "epbr-view-models"
+  codebuild_image_ecr_url = module.app_test_image_pipeline.image_repository_url
+  region                  = var.region
+}
