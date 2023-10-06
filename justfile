@@ -183,6 +183,7 @@ tf-apply path=".": _ensure_aws_profile
 
     cd {{path}} && aws-vault exec $AWS_PROFILE -- terraform apply
 
+
 tf-destroy path="." force="false": _ensure_aws_profile
     #!/usr/bin/env bash
 
@@ -190,7 +191,7 @@ tf-destroy path="." force="false": _ensure_aws_profile
         echo "Make sure you consider the consequences and call me again with 'just tfdestroy path={{path}} force=true'"
     else
         echo "destroying infrastructure in {{path}}"
-        cd {{path}} && aws-vault exec $AWS_PROFILE -- terraform destroy
+       - && aws-vault exec $AWS_PROFILE -- terraform destroy
     fi
 
 tf-init path="." backend="": _ensure_aws_profile
@@ -372,3 +373,17 @@ ecs-shell-windows service_name profile:
     set ECS_TASK_ARN (aws-vault exec $AWS_PROFILE -- aws ecs list-tasks --cluster $SERVICE_NAME-cluster | jq -r '.taskArns[0]')
     set ECS_CONTAINER_NAME (aws-vault exec $AWS_PROFILE -- aws ecs describe-tasks --cluster $SERVICE_NAME-cluster --tasks $ECS_TASK_ARN | jq -r '.tasks[0].containers|map(select(.name|contains(\"fluentbit\")|not))[0].name'
     aws-vault exec $AWS_PROFILE -- aws ecs execute-command --cluster $SERVICE_NAME-cluster --task $ECS_TASK_ARN --interactive --container $ECS_CONTAINER_NAME --command "/usr/bin/env bash"
+
+tf-switch profile:
+     #!/usr/bin/env bash
+     echo "cd into service-infrastructure"
+     cd service-infrastructure/
+     echo "performing tf init for {{profile}}"
+     aws-vault exec {{profile}} -- terraform init -backend-config=backend_{{profile}}.hcl -reconfigure
+
+tf-switch-to profile repo:
+     #!/usr/bin/env bash
+     echo "cd into {{repo}}"
+     cd {{repo}}
+     echo "performing tf init for {{profile}}"
+     aws-vault exec {{profile}} -- terraform init -backend-config=backend_{{profile}}.hcl -reconfigure
