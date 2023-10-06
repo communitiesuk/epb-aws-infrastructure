@@ -84,6 +84,21 @@ module "auth-server-pipeline" {
   production_prefix       = var.production_prefix
 }
 
+module "auth-tools-pipeline" {
+  source                  = "./modules/auth_tools_pipeline"
+  codepipeline_bucket     = module.artefact.codepipeline_bucket
+  codepipeline_role_arn   = module.codepipeline_role.aws_codepipeline_role_arn
+  codebuild_role_arn      = module.codebuild_role.aws_codebuild_role_arn
+  pipeline_name           = "epbr-auth-tools-pipeline"
+  github_repository       = "epb-auth-tools"
+  github_branch           = "master"
+  github_organisation     = var.github_organisation
+  codestar_connection_arn = module.codestar_connection.codestar_connection_arn
+  project_name            = "epbr-auth-tools"
+  codebuild_image_ecr_url = module.app_test_image_pipeline.image_repository_url
+  region                  = var.region
+}
+
 module "register-api-pipeline" {
   source                      = "./modules/register_api_pipeline"
   codepipeline_bucket         = module.artefact.codepipeline_bucket
