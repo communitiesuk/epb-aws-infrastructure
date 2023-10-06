@@ -1,5 +1,6 @@
 locals {
   db_subnet = var.environment == "stag" ? module.networking.private_subnet_group_name : module.networking.private_db_subnet_group_name
+
 }
 
 
@@ -408,8 +409,8 @@ module "register_api_application" {
   task_max_capacity        = var.task_max_capacity
   task_desired_capacity    = var.task_desired_capacity
   task_min_capacity        = var.task_min_capacity
-  task_cpu                 = var.environment == "stag" ? 8192 : 512
-  task_memory              = var.environment == "stag" ? 32768 : 2048
+  task_cpu                 = var.task_cpu
+  task_memory              = var.task_memory
 }
 
 module "register_api_database" {
@@ -517,8 +518,8 @@ module "frontend_application" {
   task_max_capacity        = var.task_max_capacity
   task_desired_capacity    = var.task_desired_capacity
   task_min_capacity        = var.task_min_capacity
-  task_cpu                 = var.environment == "stag" ? 8192 : 512
-  task_memory              = var.environment == "stag" ? 32768 : 2048
+  task_cpu                 = var.task_cpu
+  task_memory              = var.task_memory
 }
 
 module "warehouse_application" {
@@ -609,13 +610,11 @@ module "peering_bastion" {
 
 module "logging" {
   source = "./logging"
-
   prefix = local.prefix
 }
 
 module "fluentbit_ecr" {
-  source = "./ecr"
-
+  source              = "./ecr"
   ecr_repository_name = "${local.prefix}-fluentbit"
 }
 

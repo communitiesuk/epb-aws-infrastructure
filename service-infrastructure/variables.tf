@@ -88,3 +88,13 @@ variable "task_max_capacity" {
   default = 4
 }
 
+variable "task_cpu" {
+  type    = number
+  default = 512
+}
+
+variable "task_memory" {
+  type    = number
+  default = 2048
+}
+
