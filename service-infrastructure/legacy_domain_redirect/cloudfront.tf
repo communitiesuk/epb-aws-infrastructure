@@ -12,6 +12,8 @@ resource "aws_cloudfront_distribution" "legacy_domain_redirect" {
 
   comment = "legacy domain redirect entrypoint"
 
+  aliases = ["find-energy-certificate.digital.communities.gov.uk", "getting-new-energy-certificate.digital.communities.gov.uk"]
+
   default_cache_behavior {
     allowed_methods        = ["GET", "HEAD", "OPTIONS"]
     cached_methods         = ["GET", "HEAD"]
