@@ -520,6 +520,7 @@ module "frontend_application" {
   task_min_capacity        = var.task_min_capacity
   task_cpu                 = var.task_cpu
   task_memory              = var.task_memory
+  enable_execute_command   = var.environment != "prod"
 }
 
 module "warehouse_application" {
