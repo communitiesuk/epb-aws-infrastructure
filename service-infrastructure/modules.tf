@@ -566,7 +566,7 @@ module "warehouse_database" {
   subnet_group_name             = local.db_subnet
   security_group_ids            = [module.warehouse_application.ecs_security_group_id, module.bastion.security_group_id]
   storage_backup_period         = var.storage_backup_period
-  instance_class                = var.environment == "intg" ? "db.t3.medium" : var.environment == "intg" ? "db.r5.large" : "db.r5.xlarge"
+  instance_class                = var.environment == "intg" ? "db.t3.medium" : var.environment == "stag" ? "db.r5.large" : "db.r5.xlarge"
   cluster_parameter_group_name  = module.parameter_groups.aurora_pglogical_target_pg_name
   instance_parameter_group_name = module.parameter_groups.rds_pglogical_target_pg_name
   pass_vpc_cidr                 = var.environment == "prod" ? [var.pass_vpc_cidr] : []
