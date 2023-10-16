@@ -40,46 +40,20 @@ resource "aws_appautoscaling_policy" "ecs_policy_cpu" {
   }
 }
 
-
-resource "aws_appautoscaling_policy" "scale_up" {
+resource "aws_appautoscaling_policy" "ecs_policy_requests" {
   count              = var.has_responsiveness_scale == true ? 1 : 0
-  name               = "${var.prefix}-policy-scale-up"
-  policy_type        = "StepScaling"
+  name               = "requests-autoscaling"
+  policy_type        = "TargetTrackingScaling"
   resource_id        = aws_appautoscaling_target.ecs_target.resource_id
   scalable_dimension = aws_appautoscaling_target.ecs_target.scalable_dimension
   service_namespace  = aws_appautoscaling_target.ecs_target.service_namespace
 
-  step_scaling_policy_configuration {
-    adjustment_type         = "ChangeInCapacity"
-    cooldown                = 10
-    metric_aggregation_type = "Maximum"
-
-    step_adjustment {
-      scaling_adjustment          = 1
-      metric_interval_lower_bound = "0"
+  target_tracking_scaling_policy_configuration {
+    predefined_metric_specification {
+      predefined_metric_type = "ALBRequestCountPerTarget"
+      resource_label         = local.create_internal_alb ? "${aws_lb.internal[0].arn_suffix}/${aws_lb_target_group.internal[0].arn_suffix}" : "${module.front_door[0].alb_arn_suffix}/${module.front_door[0].tg_arn_suffix}"
     }
 
-
+    target_value = 1000
   }
 }
-
-resource "aws_appautoscaling_policy" "scale_down" {
-  count              = var.has_responsiveness_scale == true ? 1 : 0
-  name               = "${var.prefix}-policy-scale-down"
-  policy_type        = "StepScaling"
-  resource_id        = aws_appautoscaling_target.ecs_target.resource_id
-  scalable_dimension = aws_appautoscaling_target.ecs_target.scalable_dimension
-  service_namespace  = aws_appautoscaling_target.ecs_target.service_namespace
-
-  step_scaling_policy_configuration {
-    adjustment_type         = "ChangeInCapacity"
-    cooldown                = 300
-    metric_aggregation_type = "Maximum"
-
-    step_adjustment {
-      scaling_adjustment          = -1
-      metric_interval_upper_bound = "0"
-    }
-  }
-}
-

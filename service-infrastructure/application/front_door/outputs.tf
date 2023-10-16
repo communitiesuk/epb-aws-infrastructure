@@ -10,3 +10,7 @@ output "lb_extra_target_group_arns" {
 output "alb_arn_suffix" {
   value = aws_lb.public.arn_suffix
 }
+
+output "tg_arn_suffix" {
+  value = aws_lb_target_group.public.arn_suffix
+}

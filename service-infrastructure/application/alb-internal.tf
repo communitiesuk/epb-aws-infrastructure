@@ -25,11 +25,12 @@ resource "aws_lb" "internal" {
 resource "aws_lb_target_group" "internal" {
   count = local.create_internal_alb ? 1 : 0
 
-  name        = "${var.prefix}-in-alb-tg"
-  port        = var.container_port
-  protocol    = "HTTP"
-  vpc_id      = var.vpc_id
-  target_type = "ip"
+  name                 = "${var.prefix}-in-alb-tg"
+  port                 = var.container_port
+  protocol             = "HTTP"
+  vpc_id               = var.vpc_id
+  target_type          = "ip"
+  deregistration_delay = 30
 
   health_check {
     interval            = "31"
@@ -37,8 +38,8 @@ resource "aws_lb_target_group" "internal" {
     matcher             = "200"
     timeout             = "30"
     path                = var.health_check_path
-    unhealthy_threshold = "3"
-    healthy_threshold   = "3"
+    unhealthy_threshold = "10"
+    healthy_threshold   = "2"
   }
 }
 
