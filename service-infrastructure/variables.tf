@@ -98,3 +98,27 @@ variable "task_memory" {
   default = 2048
 }
 
+variable "suspected_bot_user_agents" {
+  type    = string
+  default = "[]"
+}
+
+variable "gtm_property_finding" {
+  type    = string
+  default = ""
+}
+
+variable "gtm_property_getting" {
+  type    = string
+  default = ""
+}
+
+variable "recaptcha_site_key" {
+  type    = string
+  default = ""
+}
+
+variable "recaptcha_secret_key" {
+  type    = string
+  default = ""
+}

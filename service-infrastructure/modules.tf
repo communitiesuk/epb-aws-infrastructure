@@ -250,7 +250,7 @@ module "toggles_application" {
   region                = var.region
   container_port        = 4242
   egress_ports          = [80, 443, 5432, var.parameters["LOGSTASH_PORT"]]
-  environment_variables = []
+  environment_variables = {}
   secrets = {
     "DATABASE_URL" : module.secrets.secret_arns["RDS_TOGGLES_CONNECTION_STRING"],
   }
@@ -288,7 +288,7 @@ module "auth_application" {
   region                = var.region
   container_port        = 3001
   egress_ports          = [80, 443, 5432, var.parameters["LOGSTASH_PORT"]]
-  environment_variables = []
+  environment_variables = {}
   secrets = {
     "DATABASE_URL" : module.secrets.secret_arns["RDS_AUTH_SERVICE_CONNECTION_STRING"],
     "EPB_UNLEASH_URI" : module.secrets.secret_arns["EPB_UNLEASH_URI"]
@@ -344,7 +344,7 @@ module "register_api_application" {
   region                = var.region
   container_port        = 3001
   egress_ports          = [80, 443, 5432, local.redis_port, var.parameters["LOGSTASH_PORT"]]
-  environment_variables = []
+  environment_variables = {}
   secrets = {
     "DATABASE_URL" : module.secrets.secret_arns["RDS_API_SERVICE_CONNECTION_STRING"],
     "EPB_UNLEASH_URI" : module.secrets.secret_arns["EPB_UNLEASH_URI"],
@@ -416,7 +416,7 @@ module "register_sidekiq_application" {
   region                = var.region
   container_port        = 80
   egress_ports          = [80, 443, 5432, local.redis_port, var.parameters["LOGSTASH_PORT"]]
-  environment_variables = []
+  environment_variables = {}
   secrets = {
     "DATABASE_URL" : module.secrets.secret_arns["RDS_API_SERVICE_CONNECTION_STRING"],
     "EPB_UNLEASH_URI" : module.secrets.secret_arns["EPB_UNLEASH_URI"],
@@ -457,11 +457,17 @@ module "register_sidekiq_redis" {
 module "frontend_application" {
   source = "./application"
 
-  prefix                = "${local.prefix}-frontend"
-  region                = var.region
-  container_port        = 3001
-  egress_ports          = [80, 443, 5432, var.parameters["LOGSTASH_PORT"]]
-  environment_variables = []
+  prefix         = "${local.prefix}-frontend"
+  region         = var.region
+  container_port = 3001
+  egress_ports   = [80, 443, 5432, var.parameters["LOGSTASH_PORT"]]
+  environment_variables = {
+    "EPB_SUSPECTED_BOT_USER_AGENTS" : var.suspected_bot_user_agents,
+    "GTM_PROPERTY_FINDING" : var.gtm_property_finding,
+    "GTM_PROPERTY_GETTING" : var.gtm_property_getting,
+    "EPB_RECAPTCHA_SITE_KEY" : var.recaptcha_site_key,
+    "EPB_RECAPTCHA_SITE_SECRET" : var.recaptcha_secret_key
+  }
   secrets = {
     "EPB_API_URL" : module.secrets.secret_arns["EPB_API_URL"],
     "EPB_AUTH_SERVER" : module.secrets.secret_arns["EPB_AUTH_SERVER"],
@@ -512,7 +518,7 @@ module "warehouse_application" {
   region                = var.region
   container_port        = 80
   egress_ports          = [80, 443, 5432, local.redis_port, var.parameters["LOGSTASH_PORT"]]
-  environment_variables = []
+  environment_variables = {}
   has_exec_cmd_task     = true
   secrets = {
     "DATABASE_URL" : module.secrets.secret_arns["RDS_WAREHOUSE_CONNECTION_STRING"],

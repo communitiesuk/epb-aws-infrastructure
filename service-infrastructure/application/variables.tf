@@ -15,7 +15,7 @@ variable "egress_ports" {
 }
 
 variable "environment_variables" {
-  type = list(map(string))
+  type = map(string)
 }
 
 variable "secrets" {

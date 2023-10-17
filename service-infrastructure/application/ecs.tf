@@ -19,10 +19,14 @@ resource "aws_ecs_task_definition" "this" {
   task_role_arn      = aws_iam_role.ecs_task_role.arn
   container_definitions = jsonencode([
     {
-      name        = local.container_name
-      image       = "${aws_ecr_repository.this.repository_url}:latest"
-      essential   = true
-      environment = var.environment_variables
+      name      = local.container_name
+      image     = "${aws_ecr_repository.this.repository_url}:latest"
+      essential = true
+
+      environment = [for key, value in var.environment_variables : {
+        name  = key
+        value = value
+      } if value != ""]
 
       secrets = [for key, value in merge(var.secrets, var.parameters) : {
         name      = key
@@ -122,11 +126,14 @@ resource "aws_ecs_task_definition" "exec_cmd_task" {
   task_role_arn            = aws_iam_role.ecs_task_role.arn
   container_definitions = jsonencode([
     {
-      name        = local.migration_container_name
-      image       = "${aws_ecr_repository.this.repository_url}:latest"
-      essential   = true
-      environment = var.environment_variables
-      user        = "root" #added to ensure paketo image defaults to root user
+      name      = local.migration_container_name
+      image     = "${aws_ecr_repository.this.repository_url}:latest"
+      essential = true
+      environment = [for key, value in var.environment_variables : {
+        name  = key
+        value = value
+      }]
+      user = "root" #added to ensure paketo image defaults to root user
       secrets = [for key, value in merge(var.secrets, var.parameters) : {
         name      = key
         valueFrom = value
