@@ -81,9 +81,6 @@ module "secrets" {
     "RDS_WAREHOUSE_CONNECTION_STRING" : module.warehouse_database.rds_db_connection_string
     "RDS_WAREHOUSE_PASSWORD" : module.warehouse_database.rds_db_password
     "RDS_WAREHOUSE_USERNAME" : module.warehouse_database.rds_db_username
-    "RDS_PGLOGICAL_TEST_CONNECTION_STRING" : module.pglogical_test_database.rds_db_connection_string
-    "RDS_PGLOGICAL_TEST_PASSWORD" : module.pglogical_test_database.rds_db_password
-    "RDS_PGLOGICAL_TEST_USERNAME" : module.pglogical_test_database.rds_db_username
   }
 }
 
@@ -338,21 +335,6 @@ module "auth_database" {
   storage_size          = 5
   instance_class        = var.environment == "intg" ? "db.t3.micro" : "db.m5.large"
   parameter_group_name  = module.parameter_groups.rds_pglogical_target_pg_name
-}
-
-# Used for testing pglogical replication
-module "pglogical_test_database" {
-  source = "./rds"
-
-  prefix                = "${local.prefix}-pglogical-test"
-  db_name               = "epb"
-  vpc_id                = module.networking.vpc_id
-  subnet_group_name     = module.networking.private_subnet_group_name
-  security_group_ids    = [module.data_migration_shared.postgres_access_security_group_id, module.bastion.security_group_id]
-  storage_backup_period = 1 # to prevent weird behaviour when the backup window is set to 0
-  storage_size          = 1000
-  instance_class        = "db.t3.medium"
-  parameter_group_name  = var.environment == "intg" ? module.parameter_groups.rds_pglogical_source_pg_name : module.parameter_groups.rds_pglogical_target_pg_name
 }
 
 module "register_api_application" {
@@ -744,24 +726,6 @@ module "data_migration_warehouse_application" {
 
   minimum_cpu       = 1024
   minimum_memory_mb = 2048
-}
-
-module "data_migration_pglogical_test" {
-  source = "./data_migration"
-
-  prefix                              = "${local.prefix}-pglogical-test"
-  region                              = var.region
-  rds_full_access_policy_arn          = module.pglogical_test_database.rds_full_access_policy_arn
-  rds_db_connection_string_secret_arn = module.secrets.secret_arns["RDS_PGLOGICAL_TEST_CONNECTION_STRING"]
-  backup_file                         = "pglogical-test.dump"
-  ecr_repository_url                  = module.data_migration_shared.ecr_repository_url
-  backup_bucket_name                  = module.data_migration_shared.backup_bucket_name
-  backup_bucket_arn                   = module.data_migration_shared.backup_bucket_arn
-  log_group                           = module.data_migration_shared.log_group
-
-  ephemeral_storage_gib = 200
-  minimum_cpu           = 4096
-  minimum_memory_mb     = 16384
 }
 
 module "open_data_export" {
