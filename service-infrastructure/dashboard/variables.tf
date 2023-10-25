@@ -2,6 +2,10 @@ variable "environment" {
   type = string
 }
 
+variable "region" {
+  type = string
+}
+
 variable "albs" {
   type = map(string)
 }

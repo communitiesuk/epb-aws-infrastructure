@@ -13,28 +13,28 @@ resource "aws_cloudwatch_dashboard" "main" {
           metrics : [
             [
               "AWS/ECS", "CPUUtilization", "ClusterName", "epb-${var.environment}-frontend-cluster", "ServiceName",
-              "epb-${var.environment}-frontend", { stat : "Average", region : "eu-west-2" }
+              "epb-${var.environment}-frontend", { stat : "Average", region : var.region }
             ],
             [
-              "...", "epb-${var.environment}-toggles-cluster", ".", "epb-${var.environment}-toggles", { stat : "Average", region : "eu-west-2" }
+              "...", "epb-${var.environment}-toggles-cluster", ".", "epb-${var.environment}-toggles", { stat : "Average", region : var.region }
             ],
             [
               "...", "epb-${var.environment}-reg-sidekiq-cluster", ".", "epb-${var.environment}-reg-sidekiq",
-              { stat : "Average", region : "eu-west-2" }
+              { stat : "Average", region : var.region }
             ],
             [
-              "...", "epb-${var.environment}-reg-api-cluster", ".", "epb-${var.environment}-reg-api", { stat : "Average", region : "eu-west-2" }
+              "...", "epb-${var.environment}-reg-api-cluster", ".", "epb-${var.environment}-reg-api", { stat : "Average", region : var.region }
             ],
             [
               "...", "epb-${var.environment}-warehouse-cluster", ".", "epb-${var.environment}-warehouse",
-              { stat : "Average", region : "eu-west-2" }
+              { stat : "Average", region : var.region }
             ],
-            ["...", "epb-${var.environment}-auth-cluster", ".", "epb-${var.environment}-auth", { stat : "Average", region : "eu-west-2" }]
+            ["...", "epb-${var.environment}-auth-cluster", ".", "epb-${var.environment}-auth", { stat : "Average", region : var.region }]
           ],
           legend : {
             position : "right"
           },
-          region : "eu-west-2",
+          region : var.region,
           liveData : false,
           timezone : "UTC",
           title : "ECS - CPU Utilization: Average",
@@ -53,26 +53,26 @@ resource "aws_cloudwatch_dashboard" "main" {
           metrics : [
             [
               "AWS/ECS", "MemoryUtilization", "ClusterName", "epb-${var.environment}-frontend-cluster", "ServiceName",
-              "epb-${var.environment}-frontend", { stat : "Average", region : "eu-west-2" }
+              "epb-${var.environment}-frontend", { stat : "Average", region : var.region }
             ],
             [
               "...", "epb-${var.environment}-warehouse-cluster", ".", "epb-${var.environment}-warehouse",
-              { stat : "Average", region : "eu-west-2" }
+              { stat : "Average", region : var.region }
             ],
             [
-              "...", "epb-${var.environment}-toggles-cluster", ".", "epb-${var.environment}-toggles", { stat : "Average", region : "eu-west-2" }
+              "...", "epb-${var.environment}-toggles-cluster", ".", "epb-${var.environment}-toggles", { stat : "Average", region : var.region }
             ],
-            ["...", "epb-${var.environment}-auth-cluster", ".", "epb-${var.environment}-auth", { stat : "Average", region : "eu-west-2" }],
+            ["...", "epb-${var.environment}-auth-cluster", ".", "epb-${var.environment}-auth", { stat : "Average", region : var.region }],
             [
               "...", "epb-${var.environment}-reg-sidekiq-cluster", ".", "epb-${var.environment}-reg-sidekiq",
               { stat : "Average", region : "eu-west-2" }
             ],
-            ["...", "epb-${var.environment}-reg-api-cluster", ".", "epb-${var.environment}-reg-api", { stat : "Average", region : "eu-west-2" }]
+            ["...", "epb-${var.environment}-reg-api-cluster", ".", "epb-${var.environment}-reg-api", { stat : "Average", region : var.region }]
           ],
           legend : {
             position : "right"
           },
-          region : "eu-west-2",
+          region : var.region,
           liveData : false,
           timezone : "UTC",
           title : "ECS - Memory Utilization: Average",
@@ -92,7 +92,7 @@ resource "aws_cloudwatch_dashboard" "main" {
             [
               {
                 expression : "SEARCH('{AWS/ApplicationELB,LoadBalancer} MetricName=\"RequestCount\" ', 'Sum', 60)",
-                region : "eu-west-2"
+                region : var.region
               }
             ]
           ],
@@ -100,7 +100,7 @@ resource "aws_cloudwatch_dashboard" "main" {
             position : "bottom"
           },
           title : "ELB - Request Count: Sum",
-          region : "eu-west-2",
+          region : var.region,
           liveData : false,
           timezone : "UTC",
           view : "timeSeries",
@@ -119,18 +119,18 @@ resource "aws_cloudwatch_dashboard" "main" {
           metrics : [
             [
               "AWS/RDS", "CPUUtilization", "DBInstanceIdentifier", "epb-${var.environment}-toggles-postgres-db",
-              { stat : "Average", region : "eu-west-2" }
+              { stat : "Average", region : var.region }
             ],
-            ["...", "epb-${var.environment}-auth-postgres-db", { stat : "Average", region : "eu-west-2" }],
-            ["...", "epb-${var.environment}-warehouse-aurora-db-1", { stat : "Average", region : "eu-west-2" }],
-            ["...", "epb-${var.environment}-reg-api-aurora-db-1", { stat : "Average", region : "eu-west-2" }],
-            ["...", "epb-${var.environment}-reg-api-aurora-db-0", { stat : "Average", region : "eu-west-2" }],
-            ["...", "epb-${var.environment}-warehouse-aurora-db-0", { stat : "Average", region : "eu-west-2" }]
+            ["...", "epb-${var.environment}-auth-postgres-db", { stat : "Average", region : var.region }],
+            ["...", "epb-${var.environment}-warehouse-aurora-db-1", { stat : "Average", region : var.region }],
+            ["...", "epb-${var.environment}-reg-api-aurora-db-1", { stat : "Average", region : var.region }],
+            ["...", "epb-${var.environment}-reg-api-aurora-db-0", { stat : "Average", region : var.region }],
+            ["...", "epb-${var.environment}-warehouse-aurora-db-0", { stat : "Average", region : var.region }]
           ],
           legend : {
             position : "right"
           },
-          region : "eu-west-2",
+          region : var.region,
           liveData : false,
           timezone : "UTC",
           title : "RDS - CPU Utilization: Average",
@@ -149,18 +149,18 @@ resource "aws_cloudwatch_dashboard" "main" {
           metrics : [
             [
               "AWS/RDS", "DatabaseConnections", "DBInstanceIdentifier", "epb-${var.environment}-reg-api-aurora-db-1",
-              { region : "eu-west-2" }
+              { region : var.region }
             ],
-            ["...", "epb-${var.environment}-warehouse-aurora-db-1", { region : "eu-west-2" }],
-            ["...", "epb-${var.environment}-auth-postgres-db", { region : "eu-west-2" }],
-            ["...", "epb-${var.environment}-toggles-postgres-db", { region : "eu-west-2" }],
-            ["...", "epb-${var.environment}-warehouse-aurora-db-0", { region : "eu-west-2" }],
-            ["...", "epb-${var.environment}-reg-api-aurora-db-0", { region : "eu-west-2" }]
+            ["...", "epb-${var.environment}-warehouse-aurora-db-1", { region : var.region }],
+            ["...", "epb-${var.environment}-auth-postgres-db", { region : var.region }],
+            ["...", "epb-${var.environment}-toggles-postgres-db", { region : var.region }],
+            ["...", "epb-${var.environment}-warehouse-aurora-db-0", { region : var.region }],
+            ["...", "epb-${var.environment}-reg-api-aurora-db-0", { region : var.region }]
           ],
           legend : {
             position : "right"
           },
-          region : "eu-west-2",
+          region : var.region,
           liveData : false,
           timezone : "UTC",
           title : "RDS - Database Connections: Average",
@@ -180,36 +180,36 @@ resource "aws_cloudwatch_dashboard" "main" {
           metrics : [
             [
               "AWS/ApplicationELB", "TargetResponseTime", "LoadBalancer", var.albs.auth,
-              { region : "eu-west-2" }
+              { region : var.region }
             ],
             [
               "AWS/ApplicationELB", "TargetResponseTime", "LoadBalancer", var.albs.auth_internal,
-              { region : "eu-west-2" }
+              { region : var.region }
             ],
             [
               "AWS/ApplicationELB", "TargetResponseTime", "LoadBalancer", var.albs.frontend,
-              { region : "eu-west-2" }
+              { region : var.region }
             ],
             [
               "AWS/ApplicationELB", "TargetResponseTime", "LoadBalancer", var.albs.reg_api,
-              { region : "eu-west-2" }
+              { region : var.region }
             ],
             [
               "AWS/ApplicationELB", "TargetResponseTime", "LoadBalancer", var.albs.reg_api_internal,
-              { region : "eu-west-2" }
+              { region : var.region }
             ],
             [
               "AWS/ApplicationELB", "TargetResponseTime", "LoadBalancer", var.albs.toggles,
-              { region : "eu-west-2" }
+              { region : var.region }
             ],
             [
               "AWS/ApplicationELB", "TargetResponseTime", "LoadBalancer", var.albs.toggles_internal,
-              { region : "eu-west-2" }
+              { region : var.region }
             ]
           ],
           view : "timeSeries",
           stacked : false,
-          region : "eu-west-2",
+          region : var.region,
           title : "ELB - Target Response Time",
           period : 60,
           stat : "Average"
@@ -226,7 +226,7 @@ resource "aws_cloudwatch_dashboard" "main" {
             [
               {
                 expression : "SEARCH('{AWS/ApplicationELB,LoadBalancer} MetricName=\"HTTPCode_ELB_3XX_Count\" ', 'Sum', 60)",
-                region : "eu-west-2"
+                region : var.region
               }
             ]
           ],
@@ -234,7 +234,7 @@ resource "aws_cloudwatch_dashboard" "main" {
             position : "bottom"
           },
           title : "HTTPCode_ELB_3XX_Count: Sum",
-          region : "eu-west-2",
+          region : var.region,
           liveData : false,
           timezone : "UTC",
           view : "timeSeries",
@@ -254,7 +254,7 @@ resource "aws_cloudwatch_dashboard" "main" {
             [
               {
                 expression : "SEARCH('{AWS/ApplicationELB,LoadBalancer} MetricName=\"HTTPCode_ELB_4XX_Count\" ', 'Sum', 60)",
-                region : "eu-west-2"
+                region : var.region
               }
             ]
           ],
@@ -262,7 +262,7 @@ resource "aws_cloudwatch_dashboard" "main" {
             position : "bottom"
           },
           title : "HTTPCode_ELB_4XX_Count: Sum",
-          region : "eu-west-2",
+          region : var.region,
           liveData : false,
           timezone : "UTC",
           view : "timeSeries",
@@ -281,18 +281,18 @@ resource "aws_cloudwatch_dashboard" "main" {
           metrics : [
             [
               "AWS/ECS", "CPUUtilization", "ClusterName", "epb-${var.environment}-frontend-cluster", "ServiceName",
-              "epb-${var.environment}-frontend", { region : "eu-west-2" }
+              "epb-${var.environment}-frontend", { region : var.region }
             ],
-            ["...", "epb-${var.environment}-toggles-cluster", ".", "epb-${var.environment}-toggles", { region : "eu-west-2" }],
-            ["...", "epb-${var.environment}-reg-sidekiq-cluster", ".", "epb-${var.environment}-reg-sidekiq", { region : "eu-west-2" }],
-            ["...", "epb-${var.environment}-reg-api-cluster", ".", "epb-${var.environment}-reg-api", { region : "eu-west-2" }],
-            ["...", "epb-${var.environment}-warehouse-cluster", ".", "epb-${var.environment}-warehouse", { region : "eu-west-2" }],
-            ["...", "epb-${var.environment}-auth-cluster", ".", "epb-${var.environment}-auth", { region : "eu-west-2" }]
+            ["...", "epb-${var.environment}-toggles-cluster", ".", "epb-${var.environment}-toggles", { region : var.region }],
+            ["...", "epb-${var.environment}-reg-sidekiq-cluster", ".", "epb-${var.environment}-reg-sidekiq", { region : var.region }],
+            ["...", "epb-${var.environment}-reg-api-cluster", ".", "epb-${var.environment}-reg-api", { region : var.region }],
+            ["...", "epb-${var.environment}-warehouse-cluster", ".", "epb-${var.environment}-warehouse", { region : var.region }],
+            ["...", "epb-${var.environment}-auth-cluster", ".", "epb-${var.environment}-auth", { region : var.region }]
           ],
           legend : {
             position : "right"
           },
-          region : "eu-west-2",
+          region : var.region,
           liveData : false,
           timezone : "UTC",
           title : "ECS-Tasks",
@@ -314,18 +314,18 @@ resource "aws_cloudwatch_dashboard" "main" {
           metrics : [
             [
               "AWS/ECS", "CPUUtilization", "ClusterName", "epb-${var.environment}-frontend-cluster", "ServiceName",
-              "epb-${var.environment}-frontend", { region : "eu-west-2" }
+              "epb-${var.environment}-frontend", { region : var.region }
             ],
-            ["...", "epb-${var.environment}-toggles-cluster", ".", "epb-${var.environment}-toggles", { region : "eu-west-2" }],
-            ["...", "epb-${var.environment}-reg-sidekiq-cluster", ".", "epb-${var.environment}-reg-sidekiq", { region : "eu-west-2" }],
-            ["...", "epb-${var.environment}-reg-api-cluster", ".", "epb-${var.environment}-reg-api", { region : "eu-west-2" }],
-            ["...", "epb-${var.environment}-warehouse-cluster", ".", "epb-${var.environment}-warehouse", { region : "eu-west-2" }],
-            ["...", "epb-${var.environment}-auth-cluster", ".", "epb-${var.environment}-auth", { region : "eu-west-2" }]
+            ["...", "epb-${var.environment}-toggles-cluster", ".", "epb-${var.environment}-toggles", { region : var.region }],
+            ["...", "epb-${var.environment}-reg-sidekiq-cluster", ".", "epb-${var.environment}-reg-sidekiq", { region : var.region }],
+            ["...", "epb-${var.environment}-reg-api-cluster", ".", "epb-${var.environment}-reg-api", { region : var.region }],
+            ["...", "epb-${var.environment}-warehouse-cluster", ".", "epb-${var.environment}-warehouse", { region : var.region }],
+            ["...", "epb-${var.environment}-auth-cluster", ".", "epb-${var.environment}-auth", { region : var.region }]
           ],
           legend : {
             position : "right"
           },
-          region : "eu-west-2",
+          region : var.region,
           liveData : false,
           timezone : "UTC",
           title : "ECS-Tasks",
@@ -352,10 +352,10 @@ resource "aws_cloudwatch_dashboard" "main" {
           },
           "liveData" : false,
           "metrics" : [
-            [{ expression : "SEARCH('{AWS/ApplicationELB,LoadBalancer} MetricName=\"HTTPCode_Target_5XX_Count\" ', 'Sum', 60)", region : "eu-west-2" }]
+            [{ expression : "SEARCH('{AWS/ApplicationELB,LoadBalancer} MetricName=\"HTTPCode_Target_5XX_Count\" ', 'Sum', 60)", region : var.region }]
           ],
           "period" : 60,
-          "region" : "eu-west-2",
+          "region" : var.region,
           "stacked" : false,
           "stat" : "Average",
           "timezone" : "UTC",
@@ -373,14 +373,14 @@ resource "aws_cloudwatch_dashboard" "main" {
           metrics : [
             [
               "AWS/ApplicationELB", "RequestCountPerTarget", "TargetGroup",
-              var.target_groups.reg_api, { region : "eu-west-2", yAxis : "left" }
+              var.target_groups.reg_api, { region : var.region, yAxis : "left" }
             ],
-            ["...", var.target_groups.reg_api_internal, { region : "eu-west-2" }],
-            ["...", var.target_groups.frontend, { region : "eu-west-2" }]
+            ["...", var.target_groups.reg_api_internal, { region : var.region }],
+            ["...", var.target_groups.frontend, { region : var.region }]
           ],
           view : "timeSeries",
           stacked : false,
-          region : "eu-west-2",
+          region : var.region,
           period : 60,
           stat : "Sum"
         }

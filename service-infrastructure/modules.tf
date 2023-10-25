@@ -752,6 +752,7 @@ module "legacy_domain_redirect" {
 module "dashboard" {
   source      = "./dashboard"
   environment = var.environment
+  region      = var.region
   albs = {
     auth             = module.auth_application.front_door_alb_arn_suffix
     auth_internal    = module.auth_application.internal_alb_arn_suffix
