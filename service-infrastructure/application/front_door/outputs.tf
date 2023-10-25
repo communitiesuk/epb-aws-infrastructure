@@ -14,3 +14,7 @@ output "alb_arn_suffix" {
 output "tg_arn_suffix" {
   value = aws_lb_target_group.public.arn_suffix
 }
+
+output "cloudfront_distribution_ids" {
+  value = [for cdn in aws_cloudfront_distribution.cdn : { id = cdn.id, name = flatten(cdn.aliases)[0] }]
+}
