@@ -134,11 +134,18 @@ _ensure_jq:
       fi
     fi
 
-# list available rds hosts
+# list available rds hosts (instances)
 rds-list: _ensure_aws_profile
     #!/usr/bin/env bash
 
     aws-vault exec $AWS_PROFILE -- aws rds describe-db-instances --query 'DBInstances[*].Endpoint.Address' --output table
+    echo "run 'just rds-connect <endpoint>' to connect to the rds instance"
+
+# list available rds aurora endpoints (shown with WRITER/READER type)
+aurora-list: _ensure_aws_profile
+    #!/usr/bin/env bash
+
+    aws-vault exec $AWS_PROFILE -- aws rds describe-db-cluster-endpoints --query 'DBClusterEndpoints[*].[EndpointType,Endpoint]' --output table
     echo "run 'just rds-connect <endpoint>' to connect to the rds instance"
 
 # Creates connection to RDS instance. requires bastion host 'bastion-host' to be running in currenct account. Run 'just rds-list' to get available endpoint addresses
