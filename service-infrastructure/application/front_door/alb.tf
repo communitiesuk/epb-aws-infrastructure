@@ -22,6 +22,7 @@ resource "aws_lb_target_group" "public" {
   vpc_id               = var.vpc_id
   target_type          = "ip"
   deregistration_delay = 300
+  slow_start           = 60
 
   health_check {
     interval            = "31"
@@ -43,6 +44,7 @@ resource "aws_lb_target_group" "extra" {
   vpc_id               = var.vpc_id
   target_type          = "ip"
   deregistration_delay = 300
+  slow_start           = 60
 
   health_check {
     interval            = "31"
