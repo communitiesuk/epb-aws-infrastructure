@@ -30,4 +30,8 @@ resource "aws_rds_cluster_instance" "this" {
   engine                       = aws_rds_cluster.this.engine
   engine_version               = aws_rds_cluster.this.engine_version
   preferred_maintenance_window = count.index == 0 ? "Sun:01:01-Sun:02:01" : "Sun:02:02-Sun:03:02"
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }

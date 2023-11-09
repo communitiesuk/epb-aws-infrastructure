@@ -6,6 +6,10 @@ locals {
 
 resource "aws_ecs_cluster" "this" {
   name = "${var.prefix}-cluster"
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "aws_ecs_task_definition" "this" {
@@ -113,6 +117,10 @@ resource "aws_ecs_task_definition" "this" {
     operating_system_family = "LINUX"
     cpu_architecture        = "X86_64"
   }
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "aws_ecs_task_definition" "exec_cmd_task" {
@@ -210,7 +218,9 @@ resource "aws_ecs_service" "this" {
   }
 
   lifecycle {
-    ignore_changes = [desired_count]
+    ignore_changes  = [desired_count]
+    prevent_destroy = true
+
   }
 
   force_new_deployment = true

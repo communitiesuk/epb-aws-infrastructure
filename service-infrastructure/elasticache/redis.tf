@@ -22,6 +22,10 @@ resource "aws_elasticache_cluster" "redis" {
     log_format       = "json"
     log_type         = "slow-log"
   }
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "aws_elasticache_subnet_group" "this" {

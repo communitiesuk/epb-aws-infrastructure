@@ -13,6 +13,10 @@ resource "aws_lb" "public" {
   }
 
   enable_deletion_protection = false
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "aws_lb_target_group" "public" {
@@ -99,11 +103,6 @@ resource "aws_lb_listener" "public_https" {
   }
 }
 
-#To enable traffic to bypass the CDN update the condition to allow all
-#e.g.no
-#  path_pattern {
-#    values = ["/*"]
-#  }
 
 resource "aws_lb_listener_rule" "forward_cdn" {
   listener_arn = aws_lb_listener.public_https.arn

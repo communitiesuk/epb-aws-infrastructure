@@ -141,6 +141,10 @@ resource "aws_wafv2_web_acl" "this" {
     metric_name                = "waf-metrics"
     sampled_requests_enabled   = false
   }
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "aws_wafv2_ip_set" "allowed_ip_addresses" {

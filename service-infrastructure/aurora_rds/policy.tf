@@ -12,4 +12,8 @@ resource "aws_iam_policy" "rds" {
       }
     ]
   })
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }

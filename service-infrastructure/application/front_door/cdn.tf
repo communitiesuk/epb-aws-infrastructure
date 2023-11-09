@@ -74,10 +74,14 @@ resource "aws_cloudfront_distribution" "cdn" {
     Name    = "CDN Distribution"
     Address = each.value
   }
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "aws_cloudfront_origin_request_policy" "cdn" {
-  name    = "${var.prefix}-cdn-origin-request-policy" # TODO use the var.prefix - check top level vars
+  name    = "${var.prefix}-cdn-origin-request-policy"
   comment = "Origin request policy for the CDN distribution"
 
   cookies_config {

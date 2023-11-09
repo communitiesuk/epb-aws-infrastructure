@@ -20,6 +20,11 @@ resource "aws_lb" "internal" {
   }
 
   enable_deletion_protection = false
+
+  lifecycle {
+    prevent_destroy = true
+  }
+
 }
 
 resource "aws_lb_target_group" "internal" {
