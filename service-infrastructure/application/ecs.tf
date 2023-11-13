@@ -117,10 +117,6 @@ resource "aws_ecs_task_definition" "this" {
     operating_system_family = "LINUX"
     cpu_architecture        = "X86_64"
   }
-
-  lifecycle {
-    prevent_destroy = true
-  }
 }
 
 resource "aws_ecs_task_definition" "exec_cmd_task" {
@@ -218,9 +214,7 @@ resource "aws_ecs_service" "this" {
   }
 
   lifecycle {
-    ignore_changes  = [desired_count]
-    prevent_destroy = true
-
+    ignore_changes = [desired_count]
   }
 
   force_new_deployment = true
