@@ -159,7 +159,6 @@ resource "aws_ecs_task_definition" "exec_cmd_task" {
         }
       }
     },
-
   ])
 }
 
@@ -214,7 +213,8 @@ resource "aws_ecs_service" "this" {
   }
 
   lifecycle {
-    ignore_changes = [desired_count]
+    ignore_changes  = [desired_count]
+    prevent_destroy = true
   }
 
   force_new_deployment = true
