@@ -134,6 +134,11 @@ _ensure_jq:
       fi
     fi
 
+# list available elasticache redis hosts (instances)
+redis-list: _ensure_aws_profile
+      #!/usr/bin/env bash
+      aws-vault exec $AWS_PROFILE -- aws elasticache describe-cache-clusters --query ' CacheClusters[*].CacheNodes[*].Endpoint' --show-cache-node-info --output table
+
 # list available rds hosts (instances)
 rds-list: _ensure_aws_profile
     #!/usr/bin/env bash
@@ -159,7 +164,17 @@ rds-connect rds_endpoint local_port="5555": _ensure_aws_profile
     echo "To connect, use username password stored in AWS Secrets Manager. You can see secrets by running 'just secrets-list'"
     echo "To stop the port forwarding session, run 'just rds-disconnect' or 'Ctrl + C'"
     
-    aws-vault exec $AWS_PROFILE -- aws ssm start-session --target "$BASTION_RDS_INSTANCE_ID" --document-name AWS-StartPortForwardingSessionToRemoteHost --parameters host="{{rds_endpoint}}",portNumber="5432",localPortNumber="{{local_port}}"
+    aws-vault exec $AWS_PROFILE -- aws ssm sKEYart-session --target "$BASTION_RDS_INSTANCE_ID" --document-name AWS-StartPortForwardingSessionToRemoteHost --parameters host="{{rds_endpoint}}",portNumber="5432",localPortNumber="{{local_port}}"
+
+redis-connect redis_endpoint local_port="6380": _ensure_aws_profile
+     #!/usr/bin/env bash
+
+     BASTION_INSTANCE_ID=$(aws-vault exec $AWS_PROFILE -- aws ec2 describe-instances --filters "Name=tag:Name,Values=bastion-host" --query 'Reservations[*].Instances[*].InstanceId' --output text)
+     echo "You can connect to Redis now using localhost:{{local_port}}"
+     echo "e.g. redis-cli -h localhost -p 6380"
+
+     aws-vault exec $AWS_PROFILE -- aws ssm start-session --target "$BASTION_INSTANCE_ID" --document-name AWS-StartPortForwardingSessionToRemoteHost --parameters host="{{redis_endpoint}}",portNumber="6379",localPortNumber="{{local_port}}"
+
 
 # Disconnects from RDS instance
 rds-disconnect: _ensure_aws_profile
@@ -394,3 +409,4 @@ tf-switch-to profile repo:
      cd {{repo}}
      echo "performing tf init for {{profile}}"
      aws-vault exec {{profile}} -- terraform init -backend-config=backend_{{profile}}.hcl -reconfigure
+
