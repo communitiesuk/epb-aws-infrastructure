@@ -29,13 +29,14 @@ resource "aws_instance" "bastion" {
       user_data,
     ]
   }
-  #
-  #  provisioner "local-exec" {
-  #    command = <<-EOH
-  #        sudo apt update
-  #        sudo apt install postgresql postgresql-contrib
-  #      EOH
-  #  }
+
+  provisioner "local-exec" {
+    command = <<-EOH
+          sudo apt update
+          sudo apt install postgresql postgresql-contrib
+          sudo apt-get install redis-tools
+        EOH
+  }
 }
 
 data "aws_ami" "ubuntu" {
