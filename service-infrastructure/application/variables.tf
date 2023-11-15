@@ -138,3 +138,7 @@ variable "task_memory" {
   default = 2048
   type    = number
 }
+
+variable "environment" {
+  type = string
+}

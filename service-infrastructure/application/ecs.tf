@@ -10,6 +10,12 @@ resource "aws_ecs_cluster" "this" {
   lifecycle {
     prevent_destroy = true
   }
+
+  setting {
+    name  = "containerInsights"
+    value = var.environment == "stag" ? "enabled" : "disabled"
+  }
+
 }
 
 resource "aws_ecs_task_definition" "this" {
