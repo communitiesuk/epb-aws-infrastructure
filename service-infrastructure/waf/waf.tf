@@ -138,15 +138,56 @@ resource "aws_wafv2_web_acl" "this" {
 
   rule {
     name     = "AWS-AWSManagedRulesBotControlRuleSet"
-    priority = 14
+    priority = 100
 
     statement {
       managed_rule_group_statement {
         name        = "AWSManagedRulesBotControlRuleSet"
         vendor_name = "AWS"
+        scope_down_statement {
+          not_statement {
+            statement {
+              or_statement {
+                statement {
+                  byte_match_statement {
+                    positional_constraint = "CONTAINS"
+                    search_string         = "/api"
+                    field_to_match {
+                      uri_path {}
+                    }
+                    text_transformation {
+                      priority = 0
+                      type     = "NONE"
+                    }
+                  }
+                }
+                statement {
+                  byte_match_statement {
+                    positional_constraint = "CONTAINS"
+                    search_string         = "/auth"
+                    field_to_match {
+                      uri_path {}
+                    }
+                    text_transformation {
+                      priority = 0
+                      type     = "NONE"
+                    }
+                  }
+                }
+              }
+
+            }
+          }
+        }
+        rule_action_override {
+          name = "SignalAutomatedBrowser" // eg selenium
+          action_to_use {
+            count {}
+          }
+        }
         managed_rule_group_configs {
           aws_managed_rules_bot_control_rule_set {
-            inspection_level = "COMMON"
+            inspection_level = "TARGETED"
           }
         }
       }
