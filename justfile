@@ -269,15 +269,17 @@ tfvars-get-for-ci path="./ci": _ensure_aws_profile
     cd {{path}}
     aws-vault exec $AWS_PROFILE -- aws s3api get-object --bucket epbr-terraform-state --key .tfvars .auto.tfvars
 
-
-tfvars-get-for-repo path="." bucket="epbr-developer-terraform-state": _ensure_aws_profile
+# Updates local tfvars file for the dev with values stored in S3 bucket.
+tfvars-get-dev: _ensure_aws_profile
  #!/usr/bin/env bash
-     cd {{path}}
-     aws-vault exec $AWS_PROFILE -- aws s3api get-object --bucket {{bucket}} --key .tfvars .auto.tfvars
+     if [[ $PWD != *developer* ]]; then  cd developer; fi
+     aws-vault exec $AWS_PROFILE -- aws s3api get-object --bucket epbr-developer-terraform-state --key .tfvars .auto.tfvars
 
-tfvars-put-for-repo path="." bucket="epbr-developer-terraform-state": _ensure_aws_profile
- #!/usr/bin/env bash
-    cd {{path}} && aws-vault exec $AWS_PROFILE -- aws s3api put-object --bucket {{bucket}} --key .tfvars --body .auto.tfvars
+# Updates tfvars file stored in the S3 bucket state folder for the developer account.
+tfvars-put-dev:  _ensure_aws_profile
+    #!/usr/bin/env bash
+    if [[ $PWD != *developer* ]]; then  cd developer; fi
+    aws-vault exec $AWS_PROFILE -- aws s3api put-object --bucket epbr-developer-terraform-state --key .tfvars --body .auto.tfvars
 
 
 tfsec minimum_severity="HIGH":
