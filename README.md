@@ -256,8 +256,8 @@ You can see broader documentation of AWS Migration and related tasks in [tech do
 ## Setup making changes to developer
 1. From root `cd developer`
 2. Follow the steps from making changes to service-infrastructure only change the profile to developer (or whatever AWS profile name you have the developer account set for)
-3. Download the latest version of the .auto.tfVars using the just cmd  tfvars-get-for-repo
-4. If you make changes to .auto.tfVars remember to upload it back to AWS `tfvars-put-for-repo`
+3. Download the latest version of the .auto.tfVars using the just cmd  `tfvars-get-dev`
+4. If you make changes to .auto.tfVars remember to upload it back to AWS `tfvars-put-dev`
 
 
 NB not all resources in the developer account are tracked by the current state. The state contains resources created as part of or after the switch off PaaS
