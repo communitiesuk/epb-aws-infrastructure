@@ -164,7 +164,7 @@ rds-connect rds_endpoint local_port="5555": _ensure_aws_profile
     echo "To connect, use username password stored in AWS Secrets Manager. You can see secrets by running 'just secrets-list'"
     echo "To stop the port forwarding session, run 'just rds-disconnect' or 'Ctrl + C'"
     
-    aws-vault exec $AWS_PROFILE -- aws ssm sKEYart-session --target "$BASTION_RDS_INSTANCE_ID" --document-name AWS-StartPortForwardingSessionToRemoteHost --parameters host="{{rds_endpoint}}",portNumber="5432",localPortNumber="{{local_port}}"
+    aws-vault exec $AWS_PROFILE -- aws ssm start-session --target "$BASTION_RDS_INSTANCE_ID" --document-name AWS-StartPortForwardingSessionToRemoteHost --parameters host="{{rds_endpoint}}",portNumber="5432",localPortNumber="{{local_port}}"
 
 redis-connect redis_endpoint local_port="6380": _ensure_aws_profile
      #!/usr/bin/env bash
