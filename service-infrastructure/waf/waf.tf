@@ -137,13 +137,13 @@ resource "aws_wafv2_web_acl" "this" {
   }
 
   rule {
-    name     = "AWS-AWSManagedRulesBotControlRuleSet"
-    priority = 100
+    name     = "throttle-requests-frontend-rule"
+    priority = 14
 
     statement {
-      managed_rule_group_statement {
-        name        = "AWSManagedRulesBotControlRuleSet"
-        vendor_name = "AWS"
+      rate_based_statement {
+        aggregate_key_type = "IP"
+        limit              = var.environment == "stag" ? 1000000 : 500
         scope_down_statement {
           not_statement {
             statement {
@@ -175,31 +175,19 @@ resource "aws_wafv2_web_acl" "this" {
                   }
                 }
               }
-
             }
-          }
-        }
-        rule_action_override {
-          name = "SignalAutomatedBrowser" // eg selenium
-          action_to_use {
-            count {}
-          }
-        }
-        managed_rule_group_configs {
-          aws_managed_rules_bot_control_rule_set {
-            inspection_level = "TARGETED"
           }
         }
       }
     }
 
-    override_action {
-      count {}
+    action {
+      block {}
     }
 
     visibility_config {
       cloudwatch_metrics_enabled = true
-      metric_name                = "waf-block-bots"
+      metric_name                = "throttle-requests-further-rule"
       sampled_requests_enabled   = true
     }
   }
