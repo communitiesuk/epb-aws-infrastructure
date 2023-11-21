@@ -67,6 +67,7 @@ module "secrets" {
     "ODE_BUCKET_ACCESS_KEY" : module.open_data_export.open_data_team_s3_access_key
     "ODE_BUCKET_SECRET" : module.open_data_export.open_data_team_s3_secret
     "RDS_API_SERVICE_CONNECTION_STRING" : module.register_api_database.rds_db_connection_string
+    "RDS_API_SERVICE_READER_CONNECTION_STRING" : module.register_api_database.rds_db_reader_connection_string
     "RDS_API_SERVICE_PASSWORD" : module.register_api_database.rds_db_password
     "RDS_API_SERVICE_USERNAME" : module.register_api_database.rds_db_username
     "RDS_AUTH_SERVICE_CONNECTION_STRING" : module.auth_database.rds_db_connection_string
@@ -344,6 +345,7 @@ module "register_api_application" {
   environment_variables = {}
   secrets = {
     "DATABASE_URL" : module.secrets.secret_arns["RDS_API_SERVICE_CONNECTION_STRING"],
+    "DATABASE_READER_URL" : module.secrets.secret_arns["RDS_API_SERVICE_READER_CONNECTION_STRING"],
     "EPB_UNLEASH_URI" : module.secrets.secret_arns["EPB_UNLEASH_URI"],
     "EPB_DATA_WAREHOUSE_QUEUES_URI" : module.secrets.secret_arns["EPB_DATA_WAREHOUSE_QUEUES_URI"]
   }
@@ -417,6 +419,7 @@ module "register_sidekiq_application" {
   environment_variables = {}
   secrets = {
     "DATABASE_URL" : module.secrets.secret_arns["RDS_API_SERVICE_CONNECTION_STRING"],
+    "DATABASE_READER_URL" : module.secrets.secret_arns["RDS_API_SERVICE_READER_CONNECTION_STRING"],
     "EPB_UNLEASH_URI" : module.secrets.secret_arns["EPB_UNLEASH_URI"],
     "EPB_WORKER_REDIS_URI" : module.secrets.secret_arns["EPB_WORKER_REDIS_URI"],
     "ODE_BUCKET_NAME" : module.secrets.secret_arns["ODE_BUCKET_NAME"]
