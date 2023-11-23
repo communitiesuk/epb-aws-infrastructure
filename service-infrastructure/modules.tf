@@ -1,6 +1,8 @@
 locals {
   db_subnet = var.environment == "stag" ? module.networking.private_subnet_group_name : module.networking.private_db_subnet_group_name
+
 }
+
 
 module "account_security" {
   source = "./account_security"
@@ -21,7 +23,8 @@ module "access" {
 }
 
 module "ssl_certificate" {
-  source                    = "./ssl"
+  source = "./ssl"
+
   domain_name               = var.domain_name
   subject_alternative_names = var.subject_alternative_names
 }
@@ -242,8 +245,8 @@ module "toggles_database" {
 }
 
 module "toggles_application" {
-  source                = "./application"
-  environment           = var.environment
+  source = "./application"
+
   prefix                = "${local.prefix}-toggles"
   region                = var.region
   container_port        = 4242
@@ -280,8 +283,8 @@ module "toggles_application" {
 }
 
 module "auth_application" {
-  source                = "./application"
-  environment           = var.environment
+  source = "./application"
+
   prefix                = "${local.prefix}-auth"
   region                = var.region
   container_port        = 3001
@@ -336,8 +339,8 @@ module "auth_database" {
 }
 
 module "register_api_application" {
-  source                = "./application"
-  environment           = var.environment
+  source = "./application"
+
   prefix                = "${local.prefix}-reg-api"
   region                = var.region
   container_port        = 3001
@@ -410,7 +413,6 @@ module "register_api_database" {
 
 module "register_sidekiq_application" {
   source                = "./application"
-  environment           = var.environment
   has_exec_cmd_task     = true
   prefix                = "${local.prefix}-reg-sidekiq"
   region                = var.region
@@ -456,8 +458,8 @@ module "register_sidekiq_redis" {
 }
 
 module "frontend_application" {
-  source         = "./application"
-  environment    = var.environment
+  source = "./application"
+
   prefix         = "${local.prefix}-frontend"
   region         = var.region
   container_port = 3001
@@ -513,8 +515,8 @@ module "frontend_application" {
 }
 
 module "warehouse_application" {
-  source                = "./application"
-  environment           = var.environment
+  source = "./application"
+
   prefix                = "${local.prefix}-warehouse"
   region                = var.region
   container_port        = 80

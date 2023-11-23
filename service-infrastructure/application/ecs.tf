@@ -13,9 +13,8 @@ resource "aws_ecs_cluster" "this" {
 
   setting {
     name  = "containerInsights"
-    value = var.environment == "stag" ? "enabled" : "disabled"
+    value = "disabled"
   }
-
 }
 
 resource "aws_ecs_task_definition" "this" {
