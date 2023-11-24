@@ -187,7 +187,38 @@ resource "aws_wafv2_web_acl" "this" {
 
     visibility_config {
       cloudwatch_metrics_enabled = true
-      metric_name                = "throttle-requests-further-rule"
+      metric_name                = "throttle-requests-frontend-rule"
+      sampled_requests_enabled   = true
+    }
+  }
+
+  rule {
+    name     = "throttle-requests-non-GB-IP-rule"
+    priority = 17
+
+    statement {
+      rate_based_statement {
+        aggregate_key_type = "IP"
+        limit              = var.environment == "stag" ? 1000000 : 150
+        scope_down_statement {
+          not_statement {
+            statement {
+              geo_match_statement {
+                country_codes = ["GB"]
+              }
+            }
+          }
+        }
+      }
+    }
+
+    action {
+      block {}
+    }
+
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      metric_name                = "throttle-requests-non-GB-IP-rule"
       sampled_requests_enabled   = true
     }
   }
