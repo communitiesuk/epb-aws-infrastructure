@@ -706,3 +706,9 @@ module "dashboard" {
     frontend_1 = module.frontend_application.cloudfront_distribution_ids[1]
   }
 }
+
+module "aurora_s3_backups" {
+  source      = "./aurora_back_up"
+  bucket_name = "${local.prefix}-aurora-back-up"
+  env         = var.environment
+}
