@@ -1,0 +1,1 @@
+{"filename": "builds/f7e386c3b1b4921c4a1dc08693aa1a943a57ef6b936e8c0562da9646088f555d.zip", "runtime": "python3.8", "artifacts_dir": "builds", "build_plan": [["zip", "rds-export-to-s3/functions/export-to-s3", null]]}

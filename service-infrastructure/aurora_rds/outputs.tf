@@ -6,6 +6,7 @@ output "rds_cluster_identifier" {
   value = aws_rds_cluster.this.cluster_identifier
 }
 
+
 output "rds_db_password" {
   value = aws_rds_cluster.this.master_password
 }
