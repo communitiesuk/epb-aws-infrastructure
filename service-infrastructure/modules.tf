@@ -1,6 +1,6 @@
 locals {
   db_subnet     = var.environment == "stag" ? module.networking.private_subnet_group_name : module.networking.private_db_subnet_group_name
-  backup_bucket = "rds-snapshot-back-up"
+  backup_bucket = "${local.prefix}-rds-snapshot-back-up"
   backup_tags = {
     Name      = "${local.prefix}-${local.backup_bucket}"
     Terraform = "true"
