@@ -711,8 +711,8 @@ module "dashboard" {
   }
 }
 
-
-
+#module based on this repo
+#https://github.com/binbashar/terraform-aws-rds-export-to-s3/tree/master
 module "rds_export_to_s3" {
   source = "./rds-export-to-s3"
   # Set a prefix for naming resources
