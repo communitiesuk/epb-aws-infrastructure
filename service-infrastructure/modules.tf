@@ -722,16 +722,10 @@ module "rds_export_to_s3" {
   # Which bucket will store the exported snapshots?
   snapshots_bucket_name = local.backup_bucket
   #snapshots_bucket_name = "export-bucket-name"
-
   # To group objects in a bucket, S3 uses a prefix before object names. The forward slash (/) in the prefix represents a folder.
   snapshots_bucket_prefix = "rds_snapshots/"
-
-  # Which RDS snapshots events should be included (RDS Aurora or/and RDS non-Aurora)?
-  #rds_event_ids = "RDS-EVENT-0091, RDS-EVENT-0169"
-
   # Create customer managed key or use default AWS S3 managed key. If set to 'false', then 'customer_kms_key_arn' is used.
   create_customer_kms_key = true
-
   # SNS topic for export monitor notifications
   create_notifications_topic = true
 
@@ -741,6 +735,8 @@ module "rds_export_to_s3" {
   # Set the logging level
   # log_level = "DEBUG"
   tags = local.backup_tags
+  # Set this to 21 for testing only (can be varied depending on ENV)
+  num_days_bucket_retention = 21
 
 }
 

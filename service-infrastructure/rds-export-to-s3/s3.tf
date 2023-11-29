@@ -20,7 +20,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "backup_bucket_config" {
     #    filter {
     #      prefix  = "production/"
     #    }
-    expiration { days = 5 }
+    expiration { days = var.num_days_bucket_retention }
   }
 
 

@@ -12,7 +12,6 @@ variable "prefix" {
 }
 
 
-
 variable "database_names" {
   description = "The names of the databases whose snapshots we want to export to S3. Comma-separated values), ex: 'db-cluster1, db-cluster2'"
   type        = string
@@ -80,4 +79,9 @@ variable "tags" {
   description = "(Optional) A mapping of tags to assign to the bucket."
   type        = map(string)
   default     = {}
+}
+
+variable "num_days_bucket_retention" {
+  type = number
+
 }
