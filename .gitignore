@@ -49,3 +49,4 @@ terraform.rc
 
 # ignore generated zip files
 *.zip
+lambda-builds/

@@ -1,6 +1,11 @@
 locals {
   db_subnet = var.environment == "stag" ? module.networking.private_subnet_group_name : module.networking.private_db_subnet_group_name
 
+  rds_snapshot_backup_bucket = "${local.prefix}-rds-snapshot-back-up"
+  rds_snapshot_backup_tags = {
+    Name      = "${local.prefix}-${local.rds_snapshot_backup_bucket}"
+    Terraform = "true"
+  }
 }
 
 
@@ -705,4 +710,18 @@ module "dashboard" {
     frontend_0 = module.frontend_application.cloudfront_distribution_ids[0]
     frontend_1 = module.frontend_application.cloudfront_distribution_ids[1]
   }
+}
+
+# The "rds_export_to_s3" module code is based on:
+# https://github.com/binbashar/terraform-aws-rds-export-to-s3/tree/master
+module "rds_export_to_s3" {
+  source                     = "./rds_export_to_s3"
+  prefix                     = local.prefix
+  database_names             = "${module.register_api_database.rds_cluster_identifier},${module.warehouse_database.rds_cluster_identifier}"
+  snapshots_bucket_name      = local.rds_snapshot_backup_bucket
+  snapshots_bucket_prefix    = "rds_snapshots/"
+  create_customer_kms_key    = true
+  create_notifications_topic = true
+  tags                       = local.rds_snapshot_backup_tags
+  num_days_bucket_retention  = var.environment == "prod" ? 21 : 7
 }
