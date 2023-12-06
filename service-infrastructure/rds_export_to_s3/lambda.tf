@@ -13,8 +13,9 @@ module "start_export_task_lambda" {
 
   cloudwatch_logs_retention_in_days = 90
 
-  source_path   = "${path.module}/functions/export-to-s3"
-  artifacts_dir = "${path.module}/lambda-builds/export-to-s3"
+  recreate_missing_package = false
+  source_path              = "${path.module}/functions/export-to-s3"
+  artifacts_dir            = "${path.module}/lambda-builds/export-to-s3"
 
   environment_variables = {
     RDS_EVENT_ID : var.rds_event_ids,
@@ -46,8 +47,9 @@ module "monitor_export_task_lambda" {
 
   cloudwatch_logs_retention_in_days = 90
 
-  source_path   = "${path.module}/functions/monitor-export-to-s3"
-  artifacts_dir = "${path.module}/lambda-builds/monitor-export-to-s3"
+  recreate_missing_package = false
+  source_path              = "${path.module}/functions/monitor-export-to-s3"
+  artifacts_dir            = "${path.module}/lambda-builds/monitor-export-to-s3"
 
   environment_variables = {
     DB_NAME : var.database_names,

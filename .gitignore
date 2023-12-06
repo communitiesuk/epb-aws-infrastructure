@@ -47,6 +47,4 @@ terraform.rc
 .env
 .env-e
 
-# ignore generated zip files
-*.zip
-lambda-builds/
+*.plan.json
