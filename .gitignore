@@ -49,4 +49,8 @@ terraform.rc
 
 # ignore generated zip files
 *.zip
-lambda-builds/
+# but keep the zip files for lambdas within rds_export_to_s3
+!**/lambda-builds/**/*.zip
+
+# ignore generated plan files - these are created by the rds_export_to_s3 module
+*.plan.json
