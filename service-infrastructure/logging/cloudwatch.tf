@@ -1,5 +1,6 @@
 resource "aws_cloudwatch_log_group" "main" {
-  name = "${var.prefix}-lg"
+  name              = "${var.prefix}-lg"
+  retention_in_days = 30
 
   tags = {
     Application = var.prefix
@@ -7,7 +8,8 @@ resource "aws_cloudwatch_log_group" "main" {
 }
 
 resource "aws_cloudwatch_log_group" "cloudtrail" {
-  name = "${var.prefix}-cloudtrail"
+  name              = "${var.prefix}-cloudtrail"
+  retention_in_days = 1096
 
   tags = {
     Application = var.prefix
