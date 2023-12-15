@@ -17,6 +17,11 @@ resource "aws_ecs_cluster" "this" {
   }
 }
 
+resource "aws_ecs_cluster_capacity_providers" "this" {
+  cluster_name       = aws_ecs_cluster.this.name
+  capacity_providers = ["FARGATE_SPOT", "FARGATE"]
+}
+
 resource "aws_ecs_task_definition" "this" {
   family                   = "${var.prefix}-ecs-task"
   network_mode             = "awsvpc"
@@ -64,6 +69,8 @@ resource "aws_ecs_task_definition" "this" {
       volumesFrom = []
 
       memoryReservation = 512
+
+      stopTimeout = 90
     },
     {
       name      = local.fluentbit_container_name
@@ -115,6 +122,8 @@ resource "aws_ecs_task_definition" "this" {
       volumesFrom  = []
 
       memoryReservation = 512
+
+      stopTimeout = 90
     },
 
   ])
@@ -155,6 +164,8 @@ resource "aws_ecs_task_definition" "exec_cmd_task" {
 
       memoryReservation = 512
 
+      stopTimeout = 90
+
       logConfiguration = {
         logDriver = "awslogs"
         options = {
@@ -175,10 +186,18 @@ resource "aws_ecs_service" "this" {
   desired_count                      = var.task_desired_capacity
   deployment_minimum_healthy_percent = 100
   deployment_maximum_percent         = 200
-  launch_type                        = "FARGATE"
   scheduling_strategy                = "REPLICA"
   enable_execute_command             = var.enable_execute_command
   health_check_grace_period_seconds  = var.front_door_config != null ? 60 : null
+
+  capacity_provider_strategy {
+    capacity_provider = "FARGATE"
+    weight            = var.fargate_weighting.standard
+  }
+  capacity_provider_strategy {
+    capacity_provider = "FARGATE_SPOT"
+    weight            = var.fargate_weighting.spot
+  }
 
   network_configuration {
     security_groups  = [aws_security_group.ecs.id]
@@ -218,8 +237,9 @@ resource "aws_ecs_service" "this" {
   }
 
   lifecycle {
-    ignore_changes  = [desired_count]
-    prevent_destroy = true
+    ignore_changes        = [desired_count]
+    create_before_destroy = true
+    prevent_destroy       = true
   }
 
   force_new_deployment = true

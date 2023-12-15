@@ -138,3 +138,8 @@ variable "task_memory" {
   default = 2048
   type    = number
 }
+
+variable "fargate_weighting" {
+  type    = object({ standard : number, spot : number })
+  default = { standard : 10, spot : 0 }
+}

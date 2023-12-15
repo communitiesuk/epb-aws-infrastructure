@@ -214,3 +214,18 @@ resource "aws_cloudwatch_log_metric_filter" "organization_changes_metric" {
     value     = "1"
   }
 }
+
+resource "aws_cloudwatch_log_metric_filter" "fargate_spot_instance_terminated_by_AWS_metric" {
+  name = "fargate_spot_instance_terminated_by_AWS_metric"
+
+  log_group_name = var.cloudtrail_log_group_name
+  pattern        = <<EOT
+    {($.eventName = BidEvictedEvent)}
+  EOT
+
+  metric_transformation {
+    name      = "fargate_spot_instance_terminated_by_AWS_metric"
+    namespace = "CISBenchmark"
+    value     = "1"
+  }
+}

@@ -285,6 +285,7 @@ module "toggles_application" {
     path_based_routing_overrides   = []
     extra_lb_target_groups         = 0
   }
+  fargate_weighting = var.environment == "prod" ? { standard : 10, spot : 0 } : { standard : 0, spot : 10 }
 }
 
 module "auth_application" {
@@ -327,6 +328,7 @@ module "auth_application" {
     path_based_routing_overrides   = []
     extra_lb_target_groups         = 1
   }
+  fargate_weighting = var.environment == "prod" ? { standard : 10, spot : 0 } : { standard : 0, spot : 10 }
 }
 
 module "auth_database" {
@@ -400,6 +402,7 @@ module "register_api_application" {
   task_min_capacity        = var.task_min_capacity
   task_cpu                 = var.task_cpu
   task_memory              = var.task_memory
+  fargate_weighting        = var.environment == "prod" ? { standard : 10, spot : 0 } : { standard : 0, spot : 10 }
 }
 
 module "register_api_database" {
@@ -450,6 +453,7 @@ module "register_sidekiq_application" {
   logs_bucket_name              = module.logging.logs_bucket_name
   logs_bucket_url               = module.logging.logs_bucket_url
   enable_execute_command        = true
+  fargate_weighting             = var.environment == "prod" ? { standard : 10, spot : 0 } : { standard : 0, spot : 10 }
 }
 
 module "register_sidekiq_redis" {
@@ -517,6 +521,7 @@ module "frontend_application" {
   task_cpu                 = var.task_cpu
   task_memory              = var.task_memory
   enable_execute_command   = var.environment != "prod"
+  fargate_weighting        = var.environment == "prod" ? { standard : 10, spot : 0 } : { standard : 0, spot : 10 }
 }
 
 module "warehouse_application" {
@@ -553,6 +558,7 @@ module "warehouse_application" {
   logs_bucket_name              = module.logging.logs_bucket_name
   logs_bucket_url               = module.logging.logs_bucket_url
   enable_execute_command        = true
+  fargate_weighting             = { standard : 0, spot : 10 }
 }
 
 module "warehouse_database" {

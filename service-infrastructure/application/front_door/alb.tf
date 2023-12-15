@@ -25,7 +25,7 @@ resource "aws_lb_target_group" "public" {
   protocol             = "HTTP"
   vpc_id               = var.vpc_id
   target_type          = "ip"
-  deregistration_delay = 300
+  deregistration_delay = 80
   slow_start           = 60
 
   health_check {
@@ -47,7 +47,7 @@ resource "aws_lb_target_group" "extra" {
   protocol             = "HTTP"
   vpc_id               = var.vpc_id
   target_type          = "ip"
-  deregistration_delay = 300
+  deregistration_delay = 80
   slow_start           = 60
 
   health_check {
