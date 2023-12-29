@@ -731,3 +731,13 @@ module "rds_export_to_s3" {
   tags                       = local.rds_snapshot_backup_tags
   num_days_bucket_retention  = var.environment == "prod" ? 21 : 7
 }
+
+module "schedule_tasks_on_sidekiq_cluster" {
+  source = "./scheduled_tasks"
+  prefix = local.prefix
+  cluster_arn = module.register_sidekiq_application.ecs_cluster_arn
+  security_group_id = module.register_sidekiq_application.ecs_security_group_id
+  vpc_subnet_ids = module.networking.private_db_subnet_ids
+  task_arn = module.register_sidekiq_application.ecs_task_exec_arn
+  container_name = module.register_sidekiq_application.migration_container_name
+}

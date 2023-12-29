@@ -2,6 +2,11 @@ output "ecs_cluster_id" {
   value = aws_ecs_cluster.this.id
 }
 
+output "ecs_cluster_arn" {
+  value = aws_ecs_cluster.this.arn
+}
+
+
 output "ecs_cluster_name" {
   value = aws_ecs_cluster.this.name
 }
@@ -48,4 +53,12 @@ output "ecs_security_group_id" {
 
 output "cloudfront_distribution_ids" {
   value = var.front_door_config != null ? module.front_door[0].cloudfront_distribution_ids : []
+}
+
+output "ecs_task_exec_arn" {
+  value = try(aws_ecs_task_definition.exec_cmd_task[0].arn, "")
+}
+
+output "migration_container_name" {
+  value = local.migration_container_name
 }
