@@ -37,7 +37,7 @@ resource "aws_codepipeline" "codepipeline" {
       provider         = "CodeBuild"
       version          = "1"
       input_artifacts  = ["code_source"]
-      output_artifacts = ["build_and_push_to_paas_output"]
+      output_artifacts = ["build_and_push_to_output"]
       configuration = {
         ProjectName = module.codebuild_build_push_repo.codebuild_name
       }
