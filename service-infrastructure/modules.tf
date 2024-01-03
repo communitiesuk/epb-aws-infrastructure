@@ -14,12 +14,10 @@ module "account_security" {
 }
 
 module "networking" {
-  source                    = "./networking"
-  prefix                    = local.prefix
-  region                    = var.region
-  vpc_cidr_block            = var.vpc_cidr_block
-  pass_vpc_cidr             = var.pass_vpc_cidr
-  vpc_peering_connection_id = var.vpc_peering_connection_id
+  source         = "./networking"
+  prefix         = local.prefix
+  region         = var.region
+  vpc_cidr_block = var.vpc_cidr_block
 }
 
 module "access" {
@@ -416,7 +414,6 @@ module "register_api_database" {
   instance_class                = var.environment == "intg" ? "db.t3.medium" : var.environment == "stag" ? "db.r5.large" : "db.r5.2xlarge"
   cluster_parameter_group_name  = module.parameter_groups.aurora_pglogical_target_pg_name
   instance_parameter_group_name = module.parameter_groups.rds_pglogical_target_pg_name
-  pass_vpc_cidr                 = var.environment == "prod" ? [var.pass_vpc_cidr] : []
 }
 
 module "register_sidekiq_application" {
@@ -572,7 +569,6 @@ module "warehouse_database" {
   instance_class                = var.environment == "intg" ? "db.t3.medium" : var.environment == "stag" ? "db.r5.large" : "db.r5.xlarge"
   cluster_parameter_group_name  = module.parameter_groups.aurora_pglogical_target_pg_name
   instance_parameter_group_name = module.parameter_groups.rds_pglogical_target_pg_name
-  pass_vpc_cidr                 = var.environment == "prod" ? [var.pass_vpc_cidr] : []
 }
 
 module "warehouse_redis" {
@@ -598,16 +594,6 @@ module "bastion" {
   }
 }
 
-module "peering_bastion" {
-  count                  = var.environment == "prod" ? 1 : 0
-  source                 = "./bastion"
-  tag                    = "paas_peering_bastion_host"
-  name                   = "pass_peering_bastion"
-  subnet_id              = module.networking.private_db_subnet_ids[0]
-  vpc_id                 = module.networking.vpc_id
-  rds_access_policy_arns = {}
-  pass_vpc_cidr          = [var.pass_vpc_cidr]
-}
 
 # logging and alerts
 

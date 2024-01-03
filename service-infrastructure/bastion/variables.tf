@@ -20,7 +20,3 @@ variable "tag" {
   default = "bastion-host"
 }
 
-variable "pass_vpc_cidr" {
-  type    = list(string)
-  default = []
-}

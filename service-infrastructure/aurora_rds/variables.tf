@@ -34,9 +34,5 @@ variable "instance_parameter_group_name" {
   type = string
 }
 
-variable "pass_vpc_cidr" {
-  type    = list(string)
-  default = []
-}
 
 
