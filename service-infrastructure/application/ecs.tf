@@ -64,7 +64,7 @@ resource "aws_ecs_task_definition" "this" {
         logDriver = "awsfirelens"
       }
 
-      cpu         = 0
+      cpu         = 14
       mountPoints = []
       volumesFrom = []
 
@@ -121,7 +121,9 @@ resource "aws_ecs_task_definition" "this" {
       user         = "0"
       volumesFrom  = []
 
+      cpu               = 2
       memoryReservation = 512
+      memory            = 850
 
       stopTimeout = 90
     },
