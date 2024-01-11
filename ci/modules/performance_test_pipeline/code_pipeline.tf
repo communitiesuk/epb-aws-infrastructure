@@ -43,21 +43,6 @@ resource "aws_codepipeline" "codepipeline" {
         ProjectName = module.codebuild_performance_test.codebuild_name
       }
     }
-
-    action {
-      name             = "performance-tests-production"
-      category         = "Build"
-      owner            = "AWS"
-      provider         = "CodeBuild"
-      version          = "1"
-      input_artifacts  = ["performance_tests_source_output"]
-      output_artifacts = ["performance_tests_prod_output"]
-
-      configuration = {
-        ProjectName = module.codebuild_performance_test_production.codebuild_name
-      }
-    }
-
   }
 }
 
