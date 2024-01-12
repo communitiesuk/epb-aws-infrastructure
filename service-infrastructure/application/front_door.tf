@@ -19,4 +19,6 @@ module "front_door" {
   public_subnet_ids              = var.front_door_config.public_subnet_ids
   path_based_routing_overrides   = var.front_door_config.path_based_routing_overrides
   extra_lb_target_groups         = var.front_door_config.extra_lb_target_groups
+  cdn_cache_cookie_behaviour     = var.front_door_config.cdn_cache_cookie_behaviour
+  cdn_cache_cookie_items         = var.front_door_config.cdn_cache_cookie_items
 }

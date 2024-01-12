@@ -82,3 +82,14 @@ variable "extra_lb_target_groups" {
   type    = number
   default = 0
 }
+
+variable "cdn_cache_cookie_behaviour" {
+  type    = string
+  default = "all"
+}
+
+variable "cdn_cache_cookie_items" {
+  type    = list(string)
+  default = [""]
+}
+

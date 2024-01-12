@@ -86,6 +86,8 @@ variable "front_door_config" {
     cdn_cached_methods             = list(string)
     cdn_cache_ttl                  = number
     cdn_aliases                    = set(string)
+    cdn_cache_cookie_behaviour     = optional(string)
+    cdn_cache_cookie_items         = optional(list(string))
     forbidden_ip_addresses_acl_arn = string
     public_subnet_ids              = list(string)
     path_based_routing_overrides = list(object({

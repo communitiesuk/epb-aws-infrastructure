@@ -510,6 +510,8 @@ module "frontend_application" {
     public_subnet_ids              = module.networking.public_subnet_ids
     path_based_routing_overrides   = []
     extra_lb_target_groups         = 0
+    cdn_cache_cookie_behaviour     = "whitelist"
+    cdn_cache_cookie_items         = ["cookie_consent"]
   }
   has_responsiveness_scale = var.environment == "intg" ? false : true
   task_max_capacity        = var.task_max_capacity

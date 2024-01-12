@@ -107,7 +107,13 @@ resource "aws_cloudfront_cache_policy" "ttl_based" {
 
   parameters_in_cache_key_and_forwarded_to_origin {
     cookies_config {
-      cookie_behavior = "all"
+      cookie_behavior = var.cdn_cache_cookie_behaviour
+      dynamic "cookies" {
+        for_each = var.cdn_cache_cookie_behaviour == "all" ? [] : [1]
+        content {
+          items = var.cdn_cache_cookie_items
+        }
+      }
     }
 
     query_strings_config {
