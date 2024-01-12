@@ -18,8 +18,8 @@ resource "aws_appautoscaling_policy" "ecs_policy_memory" {
       predefined_metric_type = "ECSServiceAverageMemoryUtilization"
     }
 
-    target_value     = 80
-    disable_scale_in = var.has_responsiveness_scale == true ? true : false
+    target_value      = 80
+    scale_in_cooldown = 300
   }
 }
 
@@ -35,8 +35,8 @@ resource "aws_appautoscaling_policy" "ecs_policy_cpu" {
       predefined_metric_type = "ECSServiceAverageCPUUtilization"
     }
 
-    target_value     = 60
-    disable_scale_in = var.has_responsiveness_scale == true ? true : false
+    target_value      = 60
+    scale_in_cooldown = 300
   }
 }
 
@@ -54,6 +54,7 @@ resource "aws_appautoscaling_policy" "ecs_policy_requests" {
       resource_label         = local.create_internal_alb ? "${aws_lb.internal[0].arn_suffix}/${aws_lb_target_group.internal[0].arn_suffix}" : "${module.front_door[0].alb_arn_suffix}/${module.front_door[0].tg_arn_suffix}"
     }
 
-    target_value = 1000
+    target_value      = 1000
+    scale_in_cooldown = 300
   }
 }
