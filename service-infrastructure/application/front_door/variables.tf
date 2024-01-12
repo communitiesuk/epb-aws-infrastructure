@@ -90,6 +90,6 @@ variable "cdn_cache_cookie_behaviour" {
 
 variable "cdn_cache_cookie_items" {
   type    = list(string)
-  default = [""]
+  default = []
 }
 
