@@ -109,7 +109,7 @@ resource "aws_cloudfront_cache_policy" "ttl_based" {
     cookies_config {
       cookie_behavior = var.cdn_cache_cookie_behaviour
       dynamic "cookies" {
-        for_each = var.cdn_cache_cookie_items
+        for_each = var.cdn_cache_cookie_behaviour == "all" ? [] : [1]
         content {
           items = var.cdn_cache_cookie_items
         }
