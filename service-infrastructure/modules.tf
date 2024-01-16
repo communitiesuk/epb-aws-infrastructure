@@ -673,7 +673,7 @@ module "open_data_export" {
 }
 
 module "ons_postcode_data" {
-  source = "./ons_postcode_data"
+  source = "./postcode_data"
   prefix = "${local.prefix}-ons-postcode-data"
 }
 
