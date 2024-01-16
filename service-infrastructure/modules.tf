@@ -70,6 +70,7 @@ module "secrets" {
     "EPB_UNLEASH_URI" : "https://${module.toggles_application.internal_alb_name}.${var.domain_name}:443/api"
     "EPB_WORKER_REDIS_URI" : module.register_sidekiq_redis.redis_uri
     "ODE_BUCKET_NAME" : module.open_data_export.open_data_export_bucket_name
+    "ONS_POSTCODE_BUCKET_NAME" : module.ons_postcode_data.ons_postcode_bucket_name
     "ODE_BUCKET_ACCESS_KEY" : module.open_data_export.open_data_team_s3_access_key
     "ODE_BUCKET_SECRET" : module.open_data_export.open_data_team_s3_secret
     "RDS_API_SERVICE_CONNECTION_STRING" : module.register_api_database.rds_db_connection_string
@@ -430,6 +431,7 @@ module "register_sidekiq_application" {
     "EPB_UNLEASH_URI" : module.secrets.secret_arns["EPB_UNLEASH_URI"],
     "EPB_WORKER_REDIS_URI" : module.secrets.secret_arns["EPB_WORKER_REDIS_URI"],
     "ODE_BUCKET_NAME" : module.secrets.secret_arns["ODE_BUCKET_NAME"]
+    "ONS_POSTCODE_BUCKET_NAME" : module.secrets.secret_arns["ONS_POSTCODE_BUCKET_NAME"]
   }
   parameters = merge(module.parameter_store.parameter_arns, {
     "SENTRY_DSN" : module.parameter_store.parameter_arns["SENTRY_DSN_REGISTER_WORKER"]
@@ -443,7 +445,9 @@ module "register_sidekiq_application" {
     "Redis_access" : data.aws_iam_policy.elasticache_full_access.arn
   }
   additional_task_role_policy_arns = {
-    "OpenDataExport_S3_access" : module.open_data_export.open_data_s3_write_access_policy_arn
+    "OpenDataExport_S3_access" : module.open_data_export.open_data_s3_write_access_policy_arn,
+    "OnsPostcodeData_S3_access" : module.ons_postcode_data.ons_postcode_s3_read_access_policy_arn
+
   }
   aws_cloudwatch_log_group_id   = module.logging.cloudwatch_log_group_id
   aws_cloudwatch_log_group_name = module.logging.cloudwatch_log_group_name
@@ -596,7 +600,6 @@ module "bastion" {
   }
 }
 
-
 # logging and alerts
 
 module "logging" {
@@ -667,6 +670,11 @@ module "alerts" {
 module "open_data_export" {
   source = "./open_data_export"
   prefix = "${local.prefix}-open-data-export"
+}
+
+module "ons_postcode_data" {
+  source = "./ons_postcode_data"
+  prefix = "${local.prefix}-ons-postcode-data"
 }
 
 module "parameter_groups" {
