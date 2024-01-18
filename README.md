@@ -41,7 +41,7 @@ cd code-pipeline/service-pipelines/
 1. Install Terraform:
 <https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli>
 1. Install AWS Vault: <https://github.com/99designs/aws-vault>
-1. Setup your aws access [via aws-vault profile](https://dluhc-epb-tech-docs.london.cloudapps.digital/dev-setup.html#create-an-aws-vault-profile)
+1. Setup your aws access [via aws-vault profile](https://tech-docs.epcregisters.net/dev-setup.html#create-an-aws-vault-profile)
 
 ### tfvars
 
@@ -189,22 +189,6 @@ After making changes to secrets or parameters, you will need to restart a servic
 
 where `service_name` should be replaced with the name of the service, e.g. `epb-intg-auth-service`
 
-## Setting up SSL Certificates
-
-When a new SSL certificate is made because of running `terraform apply` (e.g. because we're setting up the infrastructure
-for a new environment), you may come across issues trying to associate it with a resource because you need to validate
-and completely setup the SSL certificate first. See the tech-docs
-[here](https://dluhc-epb-tech-docs.london.cloudapps.digital/aws-migration.html#setting-up-ssl-certificates) for instructions
-on how to do this
-
-## Setting up DNS Alias Records for CloudFront
-
-When new CloudFront distributions are made for each of the services (say because you run `terraform apply` to deploy
-infrastructure to an AWS environment for the first time), AWS will give domain names for each distribution,
-and we need to put/add these in DNS Alias Records in order to be able to complete the CloudFront setup. See the tech-docs
-[here](https://dluhc-epb-tech-docs.london.cloudapps.digital/aws-migration.html#adding-dns-alias-records-for-cloudfront)
-for instructions on how to do this
-
 ## Linting with tflint
 
 You will need tflint installed
@@ -244,7 +228,9 @@ one useful option is setting `--minimum-severity` flag
 
 ## Other infrastructure related tasks
 
-You can see broader documentation of AWS Migration and related tasks in [tech docs](https://dluhc-epb-tech-docs.london.cloudapps.digital/aws-migration.html)
+You can see full documentation about 
+[working in our AWS accounts](https://tech-docs.epcregisters.net/aws-migration.html#setting-up-ssl-certificates) in tech
+docs.
 
 
 ## Setup making changes to ci
