@@ -8,9 +8,8 @@ output "ons_postcode_s3_write_access_policy_arn" {
   description = "A policy giving write access to the ONS postcode data S3 bucket"
 }
 
-
 output "ons_postcode_s3_read_access_policy_arn" {
   value       = aws_iam_policy.s3_read.arn
-  description = "A policy giving write access to the ONS postcode data S3 bucket"
+  description = "A policy giving read access to the ONS postcode data S3 bucket"
 }
 
