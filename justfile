@@ -248,11 +248,23 @@ tfvars-put path="." environment="integration": _ensure_aws_profile
 
     cd {{path}} && aws-vault exec $AWS_PROFILE -- aws s3api put-object --bucket epbr-{{environment}}-terraform-state --key .tfvars --body {{environment}}.tfvars
 
+    bg_red='\033[0;41m'
+    green='\033[0;32m'
+    cyan='\033[0;36m'
+    clear='\033[0m'
+    printf "${bg_red}LOOSE LIPS SINK SHIPS!${clear}\n${green}Always run '${cyan}rm -rf *.tfvars${green}' once you've applied your changes!\n\n"
+
 #Updates tfvars file in S3 with values from local file. environment is 'ci'
 tfvars-put-for-ci path="./ci": _ensure_aws_profile
     #!/usr/bin/env bash
 
     cd {{path}} && aws-vault exec $AWS_PROFILE -- aws s3api put-object --bucket epbr-terraform-state --key .tfvars --body .auto.tfvars
+
+    bg_red='\033[0;41m'
+    green='\033[0;32m'
+    cyan='\033[0;36m'
+    clear='\033[0m'
+    printf "${bg_red}KEEP MUM - THE WORLD HAS EARS!${clear}\n${green}Always run '${cyan}rm -rf *.tfvars${green}' once you've applied your changes!\n\n"
 
 # Updates local tfvars file with values stored in S3 bucket. environment should be one of 'integration', 'staging' or 'production'
 tfvars-get path="." environment="integration": _ensure_aws_profile
@@ -262,6 +274,12 @@ tfvars-get path="." environment="integration": _ensure_aws_profile
     aws-vault exec $AWS_PROFILE -- aws s3api get-object --bucket epbr-{{environment}}-terraform-state --key .tfvars {{environment}}.tfvars
     cp {{environment}}.tfvars .auto.tfvars
 
+    bg_red='\033[0;41m'
+    green='\033[0;32m'
+    cyan='\033[0;36m'
+    clear='\033[0m'
+    printf "${bg_red}CARELESS TALK COSTS LIVES!${clear}\n${green}Always run '${cyan}rm -rf *.tfvars${green}' once you've applied your changes!\n\n"
+
 # Updates local tfvars file for the ci with values stored in S3 bucket. environment is 'ci'
 tfvars-get-for-ci path="./ci": _ensure_aws_profile
     #!/usr/bin/env bash
@@ -269,11 +287,24 @@ tfvars-get-for-ci path="./ci": _ensure_aws_profile
     cd {{path}}
     aws-vault exec $AWS_PROFILE -- aws s3api get-object --bucket epbr-terraform-state --key .tfvars .auto.tfvars
 
+    bg_red='\033[0;41m'
+    green='\033[0;32m'
+    cyan='\033[0;36m'
+    clear='\033[0m'
+    printf "${bg_red}SILENCE MEANS SECURITY!${clear}\n${green}Always run '${cyan}rm -rf *.tfvars${green}' once you've applied your changes!\n\n"
+
+
 # Updates local tfvars file for the dev with values stored in S3 bucket.
 tfvars-get-dev: _ensure_aws_profile
  #!/usr/bin/env bash
      if [[ $PWD != *developer* ]]; then  cd developer; fi
      aws-vault exec $AWS_PROFILE -- aws s3api get-object --bucket epbr-developer-terraform-state --key .tfvars .auto.tfvars
+
+    bg_red='\033[0;41m'
+    green='\033[0;32m'
+    cyan='\033[0;36m'
+    clear='\033[0m'
+    printf "${bg_red}BECAUSE SOMEBODY TALKED!${clear}\n${green}Always run '${cyan}rm -rf *.tfvars${green}' once you've applied your changes!\n\n"
 
 # Updates tfvars file stored in the S3 bucket state folder for the developer account.
 tfvars-put-dev:  _ensure_aws_profile
@@ -281,6 +312,11 @@ tfvars-put-dev:  _ensure_aws_profile
     if [[ $PWD != *developer* ]]; then  cd developer; fi
     aws-vault exec $AWS_PROFILE -- aws s3api put-object --bucket epbr-developer-terraform-state --key .tfvars --body .auto.tfvars
 
+    bg_red='\033[0;41m'
+    green='\033[0;32m'
+    cyan='\033[0;36m'
+    clear='\033[0m'
+    printf "${bg_red}BUTTON YOUR LIP!${clear}\n${green}Always run '${cyan}rm -rf *.tfvars${green}' once you've applied your changes!\n\n"
 
 tfsec minimum_severity="HIGH":
     #!/usr/bin/env bash
