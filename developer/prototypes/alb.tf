@@ -20,9 +20,9 @@ resource "aws_lb_target_group" "public" {
     healthy_threshold   = "3"
     interval            = "300"
     protocol            = "HTTP"
-    matcher             = "200"
+    matcher             = "200,302"
     timeout             = "30"
-    path                = "/"
+    path                = "/healthcheck"
     unhealthy_threshold = "3"
   }
 }
