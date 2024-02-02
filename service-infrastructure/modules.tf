@@ -69,8 +69,9 @@ module "secrets" {
     "EPB_QUEUES_URI" : module.warehouse_redis.redis_uri
     "EPB_UNLEASH_URI" : "https://${module.toggles_application.internal_alb_name}.${var.domain_name}:443/api"
     "EPB_WORKER_REDIS_URI" : module.register_sidekiq_redis.redis_uri
+    "LANDMARK_DATA_BUCKET_NAME" : module.landmark_data.bucket_name
     "ODE_BUCKET_NAME" : module.open_data_export.open_data_export_bucket_name
-    "ONS_POSTCODE_BUCKET_NAME" : module.ons_postcode_data.ons_postcode_bucket_name
+    "ONS_POSTCODE_BUCKET_NAME" : module.ons_postcode_data.bucket_name
     "ODE_BUCKET_ACCESS_KEY" : module.open_data_export.open_data_team_s3_access_key
     "ODE_BUCKET_SECRET" : module.open_data_export.open_data_team_s3_secret
     "RDS_API_SERVICE_CONNECTION_STRING" : module.register_api_database.rds_db_connection_string
@@ -246,6 +247,7 @@ module "toggles_database" {
   storage_size          = 5
   instance_class        = var.environment == "intg" ? "db.t3.micro" : "db.m5.large"
   parameter_group_name  = module.parameter_groups.rds_pglogical_target_pg_name
+  pg_engine_version     = var.environment == "stag" ? "14.10" : "14.7"
 }
 
 module "toggles_application" {
@@ -342,6 +344,7 @@ module "auth_database" {
   storage_size          = 5
   instance_class        = var.environment == "intg" ? "db.t3.micro" : "db.m5.large"
   parameter_group_name  = module.parameter_groups.rds_pglogical_target_pg_name
+  pg_engine_version     = var.environment == "stag" ? "14.10" : "14.7"
 }
 
 module "register_api_application" {
@@ -432,6 +435,7 @@ module "register_sidekiq_application" {
     "EPB_WORKER_REDIS_URI" : module.secrets.secret_arns["EPB_WORKER_REDIS_URI"],
     "ODE_BUCKET_NAME" : module.secrets.secret_arns["ODE_BUCKET_NAME"]
     "ONS_POSTCODE_BUCKET_NAME" : module.secrets.secret_arns["ONS_POSTCODE_BUCKET_NAME"]
+    "LANDMARK_DATA_BUCKET_NAME" : module.secrets.secret_arns["LANDMARK_DATA_BUCKET_NAME"]
   }
   parameters = merge(module.parameter_store.parameter_arns, {
     "SENTRY_DSN" : module.parameter_store.parameter_arns["SENTRY_DSN_REGISTER_WORKER"]
@@ -446,7 +450,8 @@ module "register_sidekiq_application" {
   }
   additional_task_role_policy_arns = {
     "OpenDataExport_S3_access" : module.open_data_export.open_data_s3_write_access_policy_arn,
-    "OnsPostcodeData_S3_access" : module.ons_postcode_data.ons_postcode_s3_read_access_policy_arn
+    "OnsPostcodeData_S3_access" : module.ons_postcode_data.s3_read_access_policy_arn
+    "LandmarkData_S3_access" : module.landmark_data.s3_read_access_policy_arn
 
   }
   aws_cloudwatch_log_group_id   = module.logging.cloudwatch_log_group_id
@@ -673,9 +678,15 @@ module "open_data_export" {
 }
 
 module "ons_postcode_data" {
-  source = "./postcode_data"
+  source = "./s3_bucket"
   prefix = "${local.prefix}-ons-postcode-data"
 }
+
+module "landmark_data" {
+  source = "./s3_bucket"
+  prefix = "${local.prefix}-landmark-data"
+}
+
 
 module "parameter_groups" {
   source = "./database_parameter_groups"
