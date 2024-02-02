@@ -12,7 +12,7 @@ resource "aws_db_instance" "postgres_rds" {
   skip_final_snapshot     = true
   username                = "postgres"
   password                = random_password.password.result
-  engine_version          = "14.7"
+  engine_version          = var.pg_engine_version
   parameter_group_name    = var.parameter_group_name
 
   lifecycle {
