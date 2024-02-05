@@ -332,7 +332,7 @@ module "auth_application" {
 }
 
 module "auth_database" {
-  source = "./rds"
+  source                = "./rds"
   prefix                = "${local.prefix}-auth"
   db_name               = "epb"
   vpc_id                = module.networking.vpc_id
