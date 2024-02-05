@@ -247,7 +247,6 @@ module "toggles_database" {
   storage_size          = 5
   instance_class        = var.environment == "intg" ? "db.t3.micro" : "db.m5.large"
   parameter_group_name  = module.parameter_groups.rds_pglogical_target_pg_name
-  pg_engine_version     = var.environment == "stag" ? "14.10" : "14.7"
 }
 
 module "toggles_application" {
@@ -334,7 +333,6 @@ module "auth_application" {
 
 module "auth_database" {
   source = "./rds"
-
   prefix                = "${local.prefix}-auth"
   db_name               = "epb"
   vpc_id                = module.networking.vpc_id
@@ -344,7 +342,6 @@ module "auth_database" {
   storage_size          = 5
   instance_class        = var.environment == "intg" ? "db.t3.micro" : "db.m5.large"
   parameter_group_name  = module.parameter_groups.rds_pglogical_target_pg_name
-  pg_engine_version     = var.environment == "stag" ? "14.10" : "14.7"
 }
 
 module "register_api_application" {
@@ -686,7 +683,6 @@ module "landmark_data" {
   source = "./s3_bucket"
   prefix = "${local.prefix}-landmark-data"
 }
-
 
 module "parameter_groups" {
   source = "./database_parameter_groups"

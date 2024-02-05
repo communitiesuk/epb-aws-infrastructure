@@ -36,6 +36,6 @@ variable "parameter_group_name" {
 
 variable "pg_engine_version" {
   type    = string
-  default = "14.7"
+  default = "14.10"
 }
 
