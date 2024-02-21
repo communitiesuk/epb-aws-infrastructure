@@ -18,3 +18,7 @@ output "tg_arn_suffix" {
 output "cloudfront_distribution_ids" {
   value = [for cdn in aws_cloudfront_distribution.cdn : { id = cdn.id, name = flatten(cdn.aliases)[0] }]
 }
+
+output "oai_iam_arn" {
+  value = aws_cloudfront_origin_access_identity.error_pages.iam_arn
+}

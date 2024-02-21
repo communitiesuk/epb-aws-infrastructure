@@ -21,4 +21,6 @@ module "front_door" {
   extra_lb_target_groups         = var.front_door_config.extra_lb_target_groups
   cdn_cache_cookie_behaviour     = var.front_door_config.cdn_cache_cookie_behaviour
   cdn_cache_cookie_items         = var.front_door_config.cdn_cache_cookie_items
+  cdn_include_static_error_pages = var.front_door_config.cdn_include_static_error_pages
+  error_pages_bucket_name        = var.front_door_config.error_pages_bucket_name
 }

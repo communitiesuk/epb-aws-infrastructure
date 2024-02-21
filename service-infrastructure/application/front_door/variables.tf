@@ -93,3 +93,13 @@ variable "cdn_cache_cookie_items" {
   default = []
 }
 
+variable "cdn_include_static_error_pages" {
+  type     = bool
+  default  = false
+  nullable = false
+}
+
+variable "error_pages_bucket_name" {
+  type = string
+}
+

@@ -88,6 +88,8 @@ variable "front_door_config" {
     cdn_aliases                    = set(string)
     cdn_cache_cookie_behaviour     = optional(string)
     cdn_cache_cookie_items         = optional(list(string))
+    cdn_include_static_error_pages = optional(bool)
+    error_pages_bucket_name        = optional(string)
     forbidden_ip_addresses_acl_arn = string
     public_subnet_ids              = list(string)
     path_based_routing_overrides = list(object({

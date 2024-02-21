@@ -32,6 +32,20 @@ resource "aws_cloudfront_distribution" "cdn" {
     }
   }
 
+
+  dynamic "origin" {
+    for_each = var.cdn_include_static_error_pages ? ["this"] : []
+
+    content {
+      domain_name = var.error_pages_bucket_name
+      origin_path = strcontains(each.value, "find") ? "/find" : "/get"
+      origin_id   = "service-unavailable-page"
+      s3_origin_config {
+        origin_access_identity = aws_cloudfront_origin_access_identity.error_pages.cloudfront_access_identity_path
+      }
+    }
+  }
+
   default_cache_behavior {
     allowed_methods          = var.cdn_allowed_methods
     cached_methods           = var.cdn_cached_methods
@@ -52,6 +66,19 @@ resource "aws_cloudfront_distribution" "cdn" {
     cache_policy_id          = data.aws_cloudfront_cache_policy.caching_disabled.id
   }
 
+  dynamic "ordered_cache_behavior" {
+    for_each = var.cdn_include_static_error_pages ? ["this"] : []
+    content {
+      allowed_methods          = ["GET", "HEAD"]
+      cached_methods           = ["GET", "HEAD"]
+      path_pattern             = "/service-unavailable.html"
+      target_origin_id         = "service-unavailable-page"
+      viewer_protocol_policy   = "redirect-to-https"
+      origin_request_policy_id = data.aws_cloudfront_origin_request_policy.corsS3Origin.id
+      cache_policy_id          = data.aws_cloudfront_cache_policy.caching_disabled.id
+    }
+  }
+
   viewer_certificate {
     acm_certificate_arn      = var.cdn_certificate_arn
     minimum_protocol_version = "TLSv1.2_2021"
@@ -68,6 +95,36 @@ resource "aws_cloudfront_distribution" "cdn" {
     include_cookies = false
     bucket          = var.logs_bucket_url
     prefix          = "${var.prefix}-cdn"
+  }
+
+  dynamic "custom_error_response" {
+    for_each = var.cdn_include_static_error_pages ? ["this"] : []
+    content {
+      error_caching_min_ttl = 60
+      error_code            = 500
+      response_code         = 500
+      response_page_path    = "/service-unavailable.html"
+    }
+  }
+
+  dynamic "custom_error_response" {
+    for_each = var.cdn_include_static_error_pages ? ["this"] : []
+    content {
+      error_caching_min_ttl = 60
+      error_code            = 503
+      response_code         = 503
+      response_page_path    = "/service-unavailable.html"
+    }
+  }
+
+  dynamic "custom_error_response" {
+    for_each = var.cdn_include_static_error_pages ? ["this"] : []
+    content {
+      error_caching_min_ttl = 60
+      error_code            = 504
+      response_code         = 504
+      response_page_path    = "/service-unavailable.html"
+    }
   }
 
   tags = {
@@ -96,6 +153,10 @@ resource "aws_cloudfront_origin_request_policy" "cdn" {
   query_strings_config {
     query_string_behavior = "all"
   }
+}
+
+data "aws_cloudfront_origin_request_policy" "corsS3Origin" {
+  name = "Managed-CORS-S3Origin"
 }
 
 resource "aws_cloudfront_cache_policy" "ttl_based" {
@@ -134,4 +195,8 @@ resource "aws_shield_protection" "cdn" {
 
   name         = "${var.prefix}-cdn-protection-${each.key}"
   resource_arn = aws_cloudfront_distribution.cdn[each.key].arn
+}
+
+resource "aws_cloudfront_origin_access_identity" "error_pages" {
+  comment = "Error pages"
 }

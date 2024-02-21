@@ -49,3 +49,7 @@ output "ecs_security_group_id" {
 output "cloudfront_distribution_ids" {
   value = var.front_door_config != null ? module.front_door[0].cloudfront_distribution_ids : []
 }
+
+output "oai_iam_arn" {
+  value = var.front_door_config != null ? module.front_door[0].oai_iam_arn : ""
+}

@@ -518,6 +518,8 @@ module "frontend_application" {
     extra_lb_target_groups         = 0
     cdn_cache_cookie_behaviour     = "whitelist"
     cdn_cache_cookie_items         = ["cookie_consent"]
+    cdn_include_static_error_pages = true
+    error_pages_bucket_name        = module.error_pages.error_pages_bucket_name
   }
   has_responsiveness_scale = var.environment == "intg" ? false : true
   task_max_capacity        = var.task_max_capacity
@@ -686,6 +688,14 @@ module "landmark_data" {
 
 module "parameter_groups" {
   source = "./database_parameter_groups"
+}
+
+module "error_pages" {
+  source           = "./error_pages"
+  prefix           = "${local.prefix}-error-pages"
+  get_service_url  = var.get_service_url
+  find_service_url = var.find_service_url
+  oai_iam_arn      = module.frontend_application.oai_iam_arn
 }
 
 module "legacy_domain_redirect" {
