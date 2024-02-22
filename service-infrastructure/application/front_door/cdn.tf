@@ -111,16 +111,6 @@ resource "aws_cloudfront_distribution" "cdn" {
     for_each = var.cdn_include_static_error_pages ? ["this"] : []
     content {
       error_caching_min_ttl = 60
-      error_code            = 503
-      response_code         = 503
-      response_page_path    = "/service-unavailable.html"
-    }
-  }
-
-  dynamic "custom_error_response" {
-    for_each = var.cdn_include_static_error_pages ? ["this"] : []
-    content {
-      error_caching_min_ttl = 60
       error_code            = 504
       response_code         = 504
       response_page_path    = "/service-unavailable.html"
