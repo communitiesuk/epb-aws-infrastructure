@@ -504,6 +504,7 @@ module "scheduled_tasks_application" {
   task_min_capacity             = 0
   fargate_weighting             = { standard : 0, spot : 10 }
   external_ecr                  = module.register_api_application.ecr_repository_url
+  has_responsiveness_scale      = false
 }
 
 module "register_sidekiq_redis" {
