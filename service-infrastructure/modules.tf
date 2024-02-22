@@ -410,7 +410,7 @@ module "register_api_database" {
   db_name                       = "epb"
   vpc_id                        = module.networking.vpc_id
   subnet_group_name             = local.db_subnet
-  security_group_ids            = [module.register_api_application.ecs_security_group_id, module.register_sidekiq_application.ecs_security_group_id, module.bastion.security_group_id]
+  security_group_ids            = [module.register_api_application.ecs_security_group_id, module.register_sidekiq_application.ecs_security_group_id, module.bastion.security_group_id, module.scheduled_tasks_application.ecs_security_group_id]
   storage_backup_period         = var.storage_backup_period
   instance_class                = var.environment == "intg" ? "db.t3.medium" : var.environment == "stag" ? "db.r5.large" : "db.r5.2xlarge"
   cluster_parameter_group_name  = module.parameter_groups.aurora_pglogical_target_pg_name
@@ -457,6 +457,50 @@ module "register_sidekiq_application" {
   logs_bucket_url               = module.logging.logs_bucket_url
   enable_execute_command        = true
   fargate_weighting             = var.environment == "prod" ? { standard : 10, spot : 0 } : { standard : 0, spot : 10 }
+}
+
+module "scheduled_tasks_application" {
+  source                = "./application"
+  has_exec_cmd_task     = true
+  prefix                = "${local.prefix}-scheduled-tasks"
+  region                = var.region
+  container_port        = 80
+  egress_ports          = [80, 443, 5432, var.parameters["LOGSTASH_PORT"]]
+  environment_variables = {}
+  secrets = {
+    "DATABASE_URL" : module.secrets.secret_arns["RDS_API_SERVICE_CONNECTION_STRING"],
+    "DATABASE_READER_URL" : module.secrets.secret_arns["RDS_API_SERVICE_READER_CONNECTION_STRING"],
+    "EPB_UNLEASH_URI" : module.secrets.secret_arns["EPB_UNLEASH_URI"],
+    "ODE_BUCKET_NAME" : module.secrets.secret_arns["ODE_BUCKET_NAME"]
+    "ONS_POSTCODE_BUCKET_NAME" : module.secrets.secret_arns["ONS_POSTCODE_BUCKET_NAME"]
+    "LANDMARK_DATA_BUCKET_NAME" : module.secrets.secret_arns["LANDMARK_DATA_BUCKET_NAME"]
+  }
+  parameters = merge(module.parameter_store.parameter_arns, {
+    "SENTRY_DSN" : module.parameter_store.parameter_arns["SENTRY_DSN_REGISTER_WORKER"]
+  })
+  vpc_id             = module.networking.vpc_id
+  fluentbit_ecr_url  = module.fluentbit_ecr.ecr_url
+  private_subnet_ids = module.networking.private_subnet_ids
+  health_check_path  = "/healthcheck"
+  additional_task_execution_role_policy_arns = {
+    "RDS_access" : module.register_api_database.rds_full_access_policy_arn,
+    "Redis_access" : data.aws_iam_policy.elasticache_full_access.arn
+  }
+  additional_task_role_policy_arns = {
+    "OpenDataExport_S3_access" : module.open_data_export.open_data_s3_write_access_policy_arn,
+    "OnsPostcodeData_S3_access" : module.ons_postcode_data.s3_read_access_policy_arn
+    "LandmarkData_S3_access" : module.landmark_data.s3_read_access_policy_arn
+
+  }
+  aws_cloudwatch_log_group_id   = module.logging.cloudwatch_log_group_id
+  aws_cloudwatch_log_group_name = module.logging.cloudwatch_log_group_name
+  logs_bucket_name              = module.logging.logs_bucket_name
+  logs_bucket_url               = module.logging.logs_bucket_url
+  enable_execute_command        = true
+  task_max_capacity             = 3
+  task_desired_capacity         = 0
+  task_min_capacity             = 0
+  fargate_weighting             = { standard : 0, spot : 10 }
 }
 
 module "register_sidekiq_redis" {
