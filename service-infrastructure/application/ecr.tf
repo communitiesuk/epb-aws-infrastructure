@@ -1,11 +1,14 @@
+
+
 resource "aws_ecr_repository" "this" {
+  count                = local.has_ecr
   name                 = "${var.prefix}-ecr"
   image_tag_mutability = "MUTABLE"
 }
 
 resource "aws_ecr_lifecycle_policy" "main" {
-  repository = aws_ecr_repository.this.name
-
+  count      = local.has_ecr
+  repository = aws_ecr_repository.this[0].name
   policy = jsonencode({
     rules = [{
       rulePriority = 1

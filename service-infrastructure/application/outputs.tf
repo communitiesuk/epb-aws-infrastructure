@@ -53,3 +53,7 @@ output "cloudfront_distribution_ids" {
 output "oai_iam_arn" {
   value = var.front_door_config != null ? module.front_door[0].oai_iam_arn : ""
 }
+
+output "ecr_repository_url" {
+  value = try(aws_ecr_repository.this[0].repository_url, "")
+}

@@ -18,6 +18,10 @@ variable "environment_variables" {
   type = map(string)
 }
 
+variable "ci_account_id" {
+  type = string
+}
+
 variable "secrets" {
   type = map(string)
 }
@@ -146,4 +150,9 @@ variable "task_memory" {
 variable "fargate_weighting" {
   type    = object({ standard : number, spot : number })
   default = { standard : 10, spot : 0 }
+}
+
+variable "external_ecr" {
+  type    = string
+  default = ""
 }

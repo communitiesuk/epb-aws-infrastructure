@@ -2,6 +2,7 @@ locals {
   container_name           = "${var.prefix}-container"
   fluentbit_container_name = "${var.prefix}-container-fluentbit"
   migration_container_name = "${var.prefix}-container-db-migration"
+  ecr_image                = local.has_ecr == 1 ? "${aws_ecr_repository.this[0].repository_url}:latest" : var.external_ecr
 }
 
 resource "aws_ecs_cluster" "this" {
@@ -34,7 +35,7 @@ resource "aws_ecs_task_definition" "this" {
   container_definitions = jsonencode([
     {
       name      = local.container_name
-      image     = "${aws_ecr_repository.this.repository_url}:latest"
+      image     = local.ecr_image
       essential = true
 
       environment = [for key, value in var.environment_variables : {
@@ -147,7 +148,7 @@ resource "aws_ecs_task_definition" "exec_cmd_task" {
   container_definitions = jsonencode([
     {
       name      = local.migration_container_name
-      image     = "${aws_ecr_repository.this.repository_url}:latest"
+      image     = local.ecr_image
       essential = true
       environment = [for key, value in var.environment_variables : {
         name  = key

@@ -1,5 +1,6 @@
 resource "aws_ecr_repository_policy" "ecr_codebuild_policy" {
-  repository = aws_ecr_repository.this.name
+  count      = local.has_ecr
+  repository = aws_ecr_repository.this[0].name
   policy = jsonencode({
     Version = "2008-10-17"
     Statement = [
@@ -7,7 +8,7 @@ resource "aws_ecr_repository_policy" "ecr_codebuild_policy" {
         Sid    = "CodeBuildAccess"
         Effect = "Allow"
         Principal = {
-          AWS = "arn:aws:iam::145141030745:role/epbr-codebuild-role"
+          AWS = "arn:aws:iam::${var.ci_account_id}:role/epbr-codebuild-role"
         }
         Action = [
           "ecr:GetDownloadUrlForLayer",

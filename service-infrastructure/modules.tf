@@ -250,8 +250,8 @@ module "toggles_database" {
 }
 
 module "toggles_application" {
-  source = "./application"
-
+  source                = "./application"
+  ci_account_id         = var.ci_account_id
   prefix                = "${local.prefix}-toggles"
   region                = var.region
   container_port        = 4242
@@ -289,8 +289,8 @@ module "toggles_application" {
 }
 
 module "auth_application" {
-  source = "./application"
-
+  source                = "./application"
+  ci_account_id         = var.ci_account_id
   prefix                = "${local.prefix}-auth"
   region                = var.region
   container_port        = 3001
@@ -345,8 +345,8 @@ module "auth_database" {
 }
 
 module "register_api_application" {
-  source = "./application"
-
+  source                = "./application"
+  ci_account_id         = var.ci_account_id
   prefix                = "${local.prefix}-reg-api"
   region                = var.region
   container_port        = 3001
@@ -419,6 +419,7 @@ module "register_api_database" {
 
 module "register_sidekiq_application" {
   source                = "./application"
+  ci_account_id         = var.ci_account_id
   has_exec_cmd_task     = true
   prefix                = "${local.prefix}-reg-sidekiq"
   region                = var.region
@@ -461,6 +462,7 @@ module "register_sidekiq_application" {
 
 module "scheduled_tasks_application" {
   source                = "./application"
+  ci_account_id         = var.ci_account_id
   has_exec_cmd_task     = true
   prefix                = "${local.prefix}-scheduled-tasks"
   region                = var.region
@@ -501,6 +503,7 @@ module "scheduled_tasks_application" {
   task_desired_capacity         = 0
   task_min_capacity             = 0
   fargate_weighting             = { standard : 0, spot : 10 }
+  external_ecr                  = module.register_api_application.ecr_repository_url
 }
 
 module "register_sidekiq_redis" {
@@ -514,8 +517,8 @@ module "register_sidekiq_redis" {
 }
 
 module "frontend_application" {
-  source = "./application"
-
+  source         = "./application"
+  ci_account_id  = var.ci_account_id
   prefix         = "${local.prefix}-frontend"
   region         = var.region
   container_port = 3001
@@ -576,8 +579,8 @@ module "frontend_application" {
 }
 
 module "warehouse_application" {
-  source = "./application"
-
+  source                = "./application"
+  ci_account_id         = var.ci_account_id
   prefix                = "${local.prefix}-warehouse"
   region                = var.region
   container_port        = 80

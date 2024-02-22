@@ -8,3 +8,7 @@ terraform {
     }
   }
 }
+
+locals {
+  has_ecr = var.external_ecr == "" ? 1 : 0
+}
