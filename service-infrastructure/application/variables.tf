@@ -112,6 +112,11 @@ variable "enable_execute_command" {
   default = false
 }
 
+variable "has_start_task" {
+  type    = bool
+  default = true
+}
+
 variable "has_exec_cmd_task" {
   type    = bool
   default = false
@@ -130,11 +135,6 @@ variable "task_min_capacity" {
 variable "task_max_capacity" {
   type    = number
   default = 4
-}
-
-variable "has_responsiveness_scale" {
-  default = false
-  type    = bool
 }
 
 variable "task_cpu" {

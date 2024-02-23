@@ -24,6 +24,7 @@ resource "aws_ecs_cluster_capacity_providers" "this" {
 }
 
 resource "aws_ecs_task_definition" "this" {
+  count                    = var.has_start_task == true ? 1 : 0
   family                   = "${var.prefix}-ecs-task"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
@@ -181,11 +182,11 @@ resource "aws_ecs_task_definition" "exec_cmd_task" {
   ])
 }
 
-
 resource "aws_ecs_service" "this" {
+  count                              = var.has_start_task == true ? 1 : 0
   name                               = var.prefix
   cluster                            = aws_ecs_cluster.this.id
-  task_definition                    = aws_ecs_task_definition.this.arn
+  task_definition                    = try(aws_ecs_task_definition.this[0].arn, null)
   desired_count                      = var.task_desired_capacity
   deployment_minimum_healthy_percent = 100
   deployment_maximum_percent         = 200

@@ -395,13 +395,12 @@ module "register_api_application" {
     ]
     extra_lb_target_groups = 0
   }
-  has_responsiveness_scale = var.environment == "intg" ? false : true
-  task_max_capacity        = var.task_max_capacity
-  task_desired_capacity    = var.task_desired_capacity
-  task_min_capacity        = var.task_min_capacity
-  task_cpu                 = var.task_cpu
-  task_memory              = var.task_memory
-  fargate_weighting        = var.environment == "prod" ? { standard : 10, spot : 0 } : { standard : 0, spot : 10 }
+  task_max_capacity     = var.task_max_capacity
+  task_desired_capacity = var.task_desired_capacity
+  task_min_capacity     = var.task_min_capacity
+  task_cpu              = var.task_cpu
+  task_memory           = var.task_memory
+  fargate_weighting     = var.environment == "prod" ? { standard : 10, spot : 0 } : { standard : 0, spot : 10 }
 }
 
 module "register_api_database" {
@@ -463,6 +462,7 @@ module "register_sidekiq_application" {
 module "scheduled_tasks_application" {
   source                = "./application"
   ci_account_id         = var.ci_account_id
+  has_start_task        = false
   has_exec_cmd_task     = true
   prefix                = "${local.prefix}-scheduled-tasks"
   region                = var.region
@@ -504,7 +504,6 @@ module "scheduled_tasks_application" {
   task_min_capacity             = 0
   fargate_weighting             = { standard : 0, spot : 10 }
   external_ecr                  = module.register_api_application.ecr_repository_url
-  has_responsiveness_scale      = false
 }
 
 module "register_sidekiq_redis" {
@@ -569,14 +568,13 @@ module "frontend_application" {
     cdn_include_static_error_pages = true
     error_pages_bucket_name        = module.error_pages.error_pages_bucket_name
   }
-  has_responsiveness_scale = var.environment == "intg" ? false : true
-  task_max_capacity        = var.task_max_capacity
-  task_desired_capacity    = var.task_desired_capacity
-  task_min_capacity        = var.task_min_capacity
-  task_cpu                 = var.task_cpu
-  task_memory              = var.task_memory
-  enable_execute_command   = var.environment != "prod"
-  fargate_weighting        = var.environment == "prod" ? { standard : 10, spot : 0 } : { standard : 0, spot : 10 }
+  task_max_capacity      = var.task_max_capacity
+  task_desired_capacity  = var.task_desired_capacity
+  task_min_capacity      = var.task_min_capacity
+  task_cpu               = var.task_cpu
+  task_memory            = var.task_memory
+  enable_execute_command = var.environment != "prod"
+  fargate_weighting      = var.environment == "prod" ? { standard : 10, spot : 0 } : { standard : 0, spot : 10 }
 }
 
 module "warehouse_application" {

@@ -7,7 +7,7 @@ output "ecs_cluster_name" {
 }
 
 output "ecs_service_name" {
-  value = aws_ecs_service.this.name
+  value = try(aws_ecs_service.this[0].name, "")
 }
 
 output "internal_alb_dns" {
