@@ -76,6 +76,10 @@ resource "aws_cloudfront_distribution" "cdn" {
       viewer_protocol_policy   = "redirect-to-https"
       origin_request_policy_id = data.aws_cloudfront_origin_request_policy.corsS3Origin.id
       cache_policy_id          = data.aws_cloudfront_cache_policy.caching_disabled.id
+      function_association {
+        event_type   = "viewer-request"
+        function_arn = aws_cloudfront_function.welsh_errors[0].arn
+      }
     }
   }
 
@@ -103,6 +107,16 @@ resource "aws_cloudfront_distribution" "cdn" {
       error_caching_min_ttl = 60
       error_code            = 500
       response_code         = 500
+      response_page_path    = "/service-unavailable.html"
+    }
+  }
+
+  dynamic "custom_error_response" {
+    for_each = var.cdn_include_static_error_pages ? ["this"] : []
+    content {
+      error_caching_min_ttl = 60
+      error_code            = 503
+      response_code         = 503
       response_page_path    = "/service-unavailable.html"
     }
   }
@@ -189,4 +203,13 @@ resource "aws_shield_protection" "cdn" {
 
 resource "aws_cloudfront_origin_access_identity" "error_pages" {
   comment = "Error pages"
+}
+
+resource "aws_cloudfront_function" "welsh_errors" {
+  count = var.cdn_include_static_error_pages ? 1 : 0
+
+  name    = "welsh-error"
+  runtime = "cloudfront-js-1.0"
+  publish = true
+  code    = file("${path.module}/function.js")
 }
