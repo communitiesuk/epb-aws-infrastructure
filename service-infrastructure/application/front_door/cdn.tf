@@ -40,7 +40,7 @@ resource "aws_cloudfront_distribution" "cdn" {
       origin_path = strcontains(each.value, "find") ? "/find" : "/get"
       origin_id   = "service-unavailable-page"
       s3_origin_config {
-        origin_access_identity = aws_cloudfront_origin_access_identity.error_pages.cloudfront_access_identity_path
+        origin_access_identity = aws_cloudfront_origin_access_identity.error_pages[0].cloudfront_access_identity_path
       }
     }
   }
@@ -207,5 +207,6 @@ resource "aws_shield_protection" "cdn" {
 }
 
 resource "aws_cloudfront_origin_access_identity" "error_pages" {
+  count   = var.cdn_include_static_error_pages ? 1 : 0
   comment = "Error pages"
 }

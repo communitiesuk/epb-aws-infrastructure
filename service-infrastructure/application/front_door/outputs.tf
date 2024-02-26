@@ -20,5 +20,5 @@ output "cloudfront_distribution_ids" {
 }
 
 output "oai_iam_arn" {
-  value = aws_cloudfront_origin_access_identity.error_pages.iam_arn
+  value = var.cdn_include_static_error_pages ? aws_cloudfront_origin_access_identity.error_pages[0].iam_arn : ""
 }
