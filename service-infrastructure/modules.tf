@@ -285,7 +285,8 @@ module "toggles_application" {
     path_based_routing_overrides   = []
     extra_lb_target_groups         = 0
   }
-  fargate_weighting = var.environment == "prod" ? { standard : 10, spot : 0 } : { standard : 0, spot : 10 }
+  fargate_weighting   = var.environment == "prod" ? { standard : 10, spot : 0 } : { standard : 0, spot : 10 }
+  has_target_tracking = false
 }
 
 module "auth_application" {
@@ -328,7 +329,8 @@ module "auth_application" {
     path_based_routing_overrides   = []
     extra_lb_target_groups         = 1
   }
-  fargate_weighting = var.environment == "prod" ? { standard : 10, spot : 0 } : { standard : 0, spot : 10 }
+  fargate_weighting   = var.environment == "prod" ? { standard : 10, spot : 0 } : { standard : 0, spot : 10 }
+  has_target_tracking = false
 }
 
 module "auth_database" {
@@ -457,6 +459,7 @@ module "register_sidekiq_application" {
   logs_bucket_url               = module.logging.logs_bucket_url
   enable_execute_command        = true
   fargate_weighting             = var.environment == "prod" ? { standard : 10, spot : 0 } : { standard : 0, spot : 10 }
+  has_target_tracking           = false
 }
 
 module "scheduled_tasks_application" {
@@ -504,6 +507,7 @@ module "scheduled_tasks_application" {
   task_min_capacity             = 0
   fargate_weighting             = { standard : 0, spot : 10 }
   external_ecr                  = module.register_api_application.ecr_repository_url
+  has_target_tracking           = false
 }
 
 module "register_sidekiq_redis" {
@@ -612,6 +616,7 @@ module "warehouse_application" {
   logs_bucket_url               = module.logging.logs_bucket_url
   enable_execute_command        = true
   fargate_weighting             = { standard : 0, spot : 10 }
+  has_target_tracking           = false
 }
 
 module "warehouse_database" {

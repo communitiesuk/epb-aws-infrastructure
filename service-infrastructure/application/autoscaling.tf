@@ -48,8 +48,10 @@ resource "aws_appautoscaling_policy" "ecs_policy_cpu" {
   }
 }
 
+
+
 resource "aws_appautoscaling_policy" "ecs_policy_requests" {
-  count              = local.app_autoscaling == 1 && local.create_internal_alb ? 1 : 0
+  count              = var.has_target_tracking == true ? 1 : 0
   name               = "requests-autoscaling"
   policy_type        = "TargetTrackingScaling"
   resource_id        = aws_appautoscaling_target.ecs_target[0].resource_id

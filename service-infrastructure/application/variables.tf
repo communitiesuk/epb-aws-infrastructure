@@ -122,6 +122,11 @@ variable "has_exec_cmd_task" {
   default = false
 }
 
+variable "has_target_tracking" {
+  type    = bool
+  default = true
+}
+
 variable "task_desired_capacity" {
   type    = number
   default = 2
@@ -156,3 +161,4 @@ variable "external_ecr" {
   type    = string
   default = ""
 }
+
