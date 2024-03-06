@@ -505,7 +505,6 @@ module "scheduled_tasks_application" {
   task_max_capacity             = 3
   task_desired_capacity         = 0
   task_min_capacity             = 0
-  fargate_weighting             = { standard : 0, spot : 10 }
   external_ecr                  = module.register_api_application.ecr_repository_url
   has_target_tracking           = false
 }
