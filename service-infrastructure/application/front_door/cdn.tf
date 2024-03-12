@@ -3,6 +3,10 @@ resource "random_password" "cdn_header" {
   special = false
 }
 
+locals {
+  error_caching_min_ttl = 15
+}
+
 resource "aws_cloudfront_distribution" "cdn" {
   for_each = var.cdn_aliases
 
@@ -99,7 +103,7 @@ resource "aws_cloudfront_distribution" "cdn" {
   dynamic "custom_error_response" {
     for_each = var.cdn_include_static_error_pages ? ["this"] : []
     content {
-      error_caching_min_ttl = 60
+      error_caching_min_ttl = local.error_caching_min_ttl
       error_code            = 500
       response_code         = 500
       response_page_path    = "/service-unavailable.html"
@@ -109,7 +113,7 @@ resource "aws_cloudfront_distribution" "cdn" {
   dynamic "custom_error_response" {
     for_each = var.cdn_include_static_error_pages ? ["this"] : []
     content {
-      error_caching_min_ttl = 60
+      error_caching_min_ttl = local.error_caching_min_ttl
       error_code            = 502
       response_code         = 502
       response_page_path    = "/service-unavailable.html"
@@ -119,7 +123,7 @@ resource "aws_cloudfront_distribution" "cdn" {
   dynamic "custom_error_response" {
     for_each = var.cdn_include_static_error_pages ? ["this"] : []
     content {
-      error_caching_min_ttl = 60
+      error_caching_min_ttl = local.error_caching_min_ttl
       error_code            = 503
       response_code         = 503
       response_page_path    = "/service-unavailable.html"
@@ -129,7 +133,7 @@ resource "aws_cloudfront_distribution" "cdn" {
   dynamic "custom_error_response" {
     for_each = var.cdn_include_static_error_pages ? ["this"] : []
     content {
-      error_caching_min_ttl = 60
+      error_caching_min_ttl = local.error_caching_min_ttl
       error_code            = 504
       response_code         = 504
       response_page_path    = "/service-unavailable.html"
