@@ -1,0 +1,225 @@
+locals {
+  task_config = {
+    cluster_arn       = var.cluster_arn
+    security_group_id = var.security_group_id
+    vpc_subnet_ids    = var.vpc_subnet_ids
+    task_arn          = var.task_arn
+    event_role_arn    = aws_iam_role.ecs_events.arn
+    container_name    = var.container_name
+  }
+}
+
+module "save_previous_day_statistics_job" {
+  source              = "./event_rule"
+  prefix              = var.prefix
+  rule_name           = "save_previous_day_statistics_job"
+  task_config         = local.task_config
+  schedule_expression = "cron(0 3 * * ? *)"
+  command             = ["bundle", "exec", "rake", "open_data:export_not_for_publication"]
+  environment = [
+    {
+      "name" : "type_of_export",
+      "value" : "not_for_odc"
+    },
+    {
+      "name" : "ODE_BUCKET_NAME",
+      "value" : "${var.prefix}-open-data-export"
+    },
+  ]
+
+}
+
+module "post_previous_day_statistics_to_slack_job" {
+  source              = "./event_rule"
+  prefix              = var.prefix
+  rule_name           = "post_previous_day_statistics_to_slack_job"
+  task_config         = local.task_config
+  schedule_expression = "cron(30 09 * * ? *)"
+  command             = ["bundle", "exec", "rake", "maintenance:post_previous_day_statistics"]
+}
+
+module "export_not_for_publication" {
+  source              = "./event_rule"
+  prefix              = var.prefix
+  rule_name           = "schedule_export_not_for_publication"
+  schedule_expression = "cron(17 11 * * ? *)"
+  task_config         = local.task_config
+  command             = ["bundle", "exec", "rake", "open_data:export_not_for_publication"]
+  environment = [
+    {
+      "name" : "type_of_export",
+      "value" : "not_for_odc"
+    },
+    {
+      "name" : "ODE_BUCKET_NAME",
+      "value" : "${var.prefix}-open-data-export"
+    },
+  ]
+}
+
+module "update_address_base" {
+  source              = "./event_rule"
+  prefix              = var.prefix
+  rule_name           = "update_address_base"
+  task_config         = local.task_config
+  schedule_expression = "cron(15 3 * * ? *)"
+  command             = ["npm", "run", "update-address-base-auto"]
+}
+
+module "import_green_deal_fuel_price_data" {
+  source              = "./event_rule"
+  prefix              = var.prefix
+  rule_name           = "import_green_deal_fuel_price_data"
+  task_config         = local.task_config
+  schedule_expression = "cron(13 2 2 * ? *)"
+  command             = ["bundle", "exec", "rake", "maintenance:green_deal_update_fuel_data"]
+}
+
+module "export_invoice_scheme_name_type" {
+  source              = "./event_rule"
+  prefix              = var.prefix
+  rule_name           = "export_invoice_scheme_name_type"
+  task_config         = local.task_config
+  schedule_expression = "cron(56 6 1 * ? *)"
+  command             = ["bundle", "exec", "rake", "data_export:export_invoices"]
+  environment = [
+    {
+      "name" : "report_type",
+      "value" : "scheme_name_type"
+    },
+  ]
+}
+
+module "export_invoice_region_type" {
+  source              = "./event_rule"
+  prefix              = var.prefix
+  rule_name           = "export_invoice_scheme_name_type"
+  task_config         = local.task_config
+  schedule_expression = "cron(57 6 1 * ? *)"
+  command             = ["bundle", "exec", "rake", "data_export:export_invoices"]
+  environment = [
+    {
+      "name" : "report_type",
+      "value" : "region_type"
+    },
+  ]
+}
+
+module "export_invoice_rrn_scheme_type" {
+  source              = "./event_rule"
+  prefix              = var.prefix
+  rule_name           = "export_invoice_scheme_name_type"
+  task_config         = local.task_config
+  schedule_expression = "cron(58 6 1 * ? *)"
+  command             = ["bundle", "exec", "rake", "data_export:export_invoices"]
+  environment = [
+    {
+      "name" : "report_type",
+      "value" : "rrn_scheme_type"
+    },
+  ]
+}
+
+module "domestic_open_data_export" {
+  source              = "./event_rule"
+  task_config         = local.task_config
+  prefix              = var.prefix
+  rule_name           = "domestic_open_data_export"
+  schedule_expression = "cron(30 3 1 * ? *)"
+  command             = ["bundle", "exec", "rake", "open_data:export_assessments"]
+  environment = [
+    {
+      "name" : "type_of_export",
+      "value" : "for_odc"
+    },
+    {
+      "name" : "assessment_type",
+      "value" : "SAP-RDSAP"
+    },
+  ]
+}
+
+module "commercial_open_data_export" {
+  source              = "./event_rule"
+  task_config         = local.task_config
+  prefix              = var.prefix
+  rule_name           = "commercial_open_data_export"
+  schedule_expression = "cron(40 4 1 * ? *)"
+  command             = ["bundle", "exec", "rake", "open_data:export_assessments"]
+  environment = [
+    {
+      "name" : "type_of_export",
+      "value" : "for_odc"
+    },
+    {
+      "name" : "assessment_type",
+      "value" : "CEPC"
+    },
+  ]
+}
+
+module "commercial_recommendations_open_data_export" {
+  source              = "./event_rule"
+  task_config         = local.task_config
+  prefix              = var.prefix
+  rule_name           = "commercial_recommendations_open_data_export"
+  schedule_expression = "cron(30 5 1 * ? *)"
+  command             = ["bundle", "exec", "rake", "open_data:export_assessments"]
+  environment = [
+    {
+      "name" : "type_of_export",
+      "value" : "for_odc"
+    },
+    {
+      "name" : "assessment_type",
+      "value" : "CEPC-RR"
+    },
+  ]
+}
+
+module "dec_recommendations_open_data_export" {
+  source              = "./event_rule"
+  task_config         = local.task_config
+  prefix              = var.prefix
+  rule_name           = "dec_recommendations_open_data_export"
+  schedule_expression = "cron(35 5 1 * ? *)"
+  command             = ["bundle", "exec", "rake", "open_data:export_assessments"]
+  environment = [
+    {
+      "name" : "type_of_export",
+      "value" : "for_odc"
+    },
+    {
+      "name" : "assessment_type",
+      "value" : "DEC-RR"
+    },
+  ]
+}
+
+module "domestic_recommendations_open_data_export" {
+  source              = "./event_rule"
+  task_config         = local.task_config
+  prefix              = var.prefix
+  rule_name           = "dec_recommendations_open_data_export"
+  schedule_expression = "cron(37 5 1 * ? *)"
+  command             = ["bundle", "exec", "rake", "open_data:export_assessments"]
+  environment = [
+    {
+      "name" : "type_of_export",
+      "value" : "for_odc"
+    },
+    {
+      "name" : "assessment_type",
+      "value" : "SAP-RDSAP-RR"
+    },
+  ]
+}
+
+module "not_for_publication_open_data_export" {
+  source              = "./event_rule"
+  task_config         = local.task_config
+  prefix              = var.prefix
+  rule_name           = "not_for_publication_open_data_export"
+  schedule_expression = "cron(35 5 1 * ? *)"
+  command             = ["bundle", "exec", "rake", " open_data:export_not_for_publication"]
+}
