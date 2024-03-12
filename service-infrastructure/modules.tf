@@ -803,5 +803,5 @@ module "schedule_tasks" {
   security_group_id = module.scheduled_tasks_application.ecs_security_group_id
   vpc_subnet_ids    = module.networking.private_db_subnet_ids
   task_arn          = module.scheduled_tasks_application.ecs_task_exec_arn
-  container_name    = module.register_api_application.migration_container_name
+  container_name    = module.scheduled_tasks_application.migration_container_name
 }

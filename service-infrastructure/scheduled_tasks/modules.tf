@@ -7,26 +7,16 @@ locals {
     event_role_arn    = aws_iam_role.ecs_events.arn
     container_name    = var.container_name
   }
+  ode_export = "for_odc"
 }
 
 module "save_previous_day_statistics_job" {
   source              = "./event_rule"
   prefix              = var.prefix
-  rule_name           = "save-previous-day-statistics_job"
+  rule_name           = "save-previous-day-statistics-job"
   task_config         = local.task_config
   schedule_expression = "cron(0 3 * * ? *)"
-  command             = ["bundle", "exec", "rake", "open_data:export_not_for_publication"]
-  environment = [
-    {
-      "name" : "type_of_export",
-      "value" : "not_for_odc"
-    },
-    {
-      "name" : "ODE_BUCKET_NAME",
-      "value" : "${var.prefix}-open-data-export"
-    },
-  ]
-
+  command             = ["bundle", "exec", "rake", "maintenance:daily_statistics"]
 }
 
 module "post_previous_day_statistics_to_slack_job" {
@@ -34,27 +24,8 @@ module "post_previous_day_statistics_to_slack_job" {
   prefix              = var.prefix
   rule_name           = "post-previous-day-statistics-to-slack-job"
   task_config         = local.task_config
-  schedule_expression = "cron(30 09 * * ? *)"
+  schedule_expression = "cron(30 9 * * ? *)"
   command             = ["bundle", "exec", "rake", "maintenance:post_previous_day_statistics"]
-}
-
-module "export_not_for_publication" {
-  source              = "./event_rule"
-  prefix              = var.prefix
-  rule_name           = "schedule-export-not-for-publication"
-  schedule_expression = "cron(17 11 * * ? *)"
-  task_config         = local.task_config
-  command             = ["bundle", "exec", "rake", "open_data:export_not_for_publication"]
-  environment = [
-    {
-      "name" : "type_of_export",
-      "value" : "not_for_odc"
-    },
-    {
-      "name" : "ODE_BUCKET_NAME",
-      "value" : "${var.prefix}-open-data-export"
-    },
-  ]
 }
 
 module "update_address_base" {
@@ -62,7 +33,7 @@ module "update_address_base" {
   prefix              = var.prefix
   rule_name           = "update-address-base"
   task_config         = local.task_config
-  schedule_expression = "cron(15 3 * * ? *)"
+  schedule_expression = "cron(15 4 * * ? *)"
   command             = ["npm", "run", "update-address-base-auto"]
 }
 
@@ -130,7 +101,7 @@ module "domestic_open_data_export" {
   environment = [
     {
       "name" : "type_of_export",
-      "value" : "for_odc"
+      "value" : local.ode_export
     },
     {
       "name" : "assessment_type",
@@ -149,7 +120,7 @@ module "commercial_open_data_export" {
   environment = [
     {
       "name" : "type_of_export",
-      "value" : "for_odc"
+      "value" : local.ode_export
     },
     {
       "name" : "assessment_type",
@@ -168,7 +139,7 @@ module "commercial_recommendations_open_data_export" {
   environment = [
     {
       "name" : "type_of_export",
-      "value" : "for_odc"
+      "value" : local.ode_export
     },
     {
       "name" : "assessment_type",
@@ -187,7 +158,7 @@ module "dec_recommendations_open_data_export" {
   environment = [
     {
       "name" : "type_of_export",
-      "value" : "for_odc"
+      "value" : local.ode_export
     },
     {
       "name" : "assessment_type",
@@ -206,7 +177,7 @@ module "domestic_recommendations_open_data_export" {
   environment = [
     {
       "name" : "type_of_export",
-      "value" : "for_odc"
+      "value" : local.ode_export
     },
     {
       "name" : "assessment_type",
@@ -215,11 +186,21 @@ module "domestic_recommendations_open_data_export" {
   ]
 }
 
-module "not_for_publication_open_data_export" {
+module "export_not_for_publication" {
   source              = "./event_rule"
-  task_config         = local.task_config
   prefix              = var.prefix
-  rule_name           = "not-for-publication-open-data-export"
+  rule_name           = "schedule-export-not-for-publication"
   schedule_expression = "cron(35 5 1 * ? *)"
-  command             = ["bundle", "exec", "rake", " open_data:export_not_for_publication"]
+  task_config         = local.task_config
+  command             = ["bundle", "exec", "rake", "open_data:export_not_for_publication"]
+  environment = [
+    {
+      "name" : "type_of_export",
+      "value" : local.ode_export
+    },
+    {
+      "name" : "ODE_BUCKET_NAME",
+      "value" : "${var.prefix}-open-data-export"
+    },
+  ]
 }
