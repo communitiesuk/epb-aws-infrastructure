@@ -96,20 +96,6 @@ resource "aws_codepipeline" "codepipeline" {
         ProjectName = module.codebuild_build_app_image.codebuild_name
       }
     }
-
-    action {
-      name             = "build-sidekiq-image"
-      category         = "Build"
-      owner            = "AWS"
-      provider         = "CodeBuild"
-      version          = "1"
-      input_artifacts  = ["source_output"]
-      output_artifacts = ["sidekiq_docker_image"]
-
-      configuration = {
-        ProjectName = module.codebuild_build_sidekiq_image.codebuild_name
-      }
-    }
   }
 
   stage {
@@ -128,18 +114,6 @@ resource "aws_codepipeline" "codepipeline" {
     }
 
     action {
-      name            = "deploy-sidekiq-to-integration-cluster"
-      category        = "Build"
-      owner           = "AWS"
-      provider        = "CodeBuild"
-      version         = "1"
-      input_artifacts = ["sidekiq_docker_image"]
-      configuration = {
-        ProjectName = module.codebuild_deploy_sidekiq_integration.codebuild_name
-      }
-    }
-
-    action {
       name            = "deploy-reg-api-to-staging-cluster"
       category        = "Build"
       owner           = "AWS"
@@ -148,18 +122,6 @@ resource "aws_codepipeline" "codepipeline" {
       input_artifacts = ["reg_api_docker_image"]
       configuration = {
         ProjectName = module.codebuild_deploy_staging.codebuild_name
-      }
-    }
-
-    action {
-      name            = "deploy-sidekiq-to-staging-cluster"
-      category        = "Build"
-      owner           = "AWS"
-      provider        = "CodeBuild"
-      version         = "1"
-      input_artifacts = ["sidekiq_docker_image"]
-      configuration = {
-        ProjectName = module.codebuild_deploy_sidekiq_staging.codebuild_name
       }
     }
   }
@@ -209,18 +171,6 @@ resource "aws_codepipeline" "codepipeline" {
       input_artifacts = ["reg_api_docker_image"]
       configuration = {
         ProjectName = module.codebuild_deploy_production.codebuild_name
-      }
-    }
-
-    action {
-      name            = "deploy-sidekiq-to-production-cluster"
-      category        = "Build"
-      owner           = "AWS"
-      provider        = "CodeBuild"
-      version         = "1"
-      input_artifacts = ["sidekiq_docker_image"]
-      configuration = {
-        ProjectName = module.codebuild_deploy_sidekiq_production.codebuild_name
       }
     }
   }
