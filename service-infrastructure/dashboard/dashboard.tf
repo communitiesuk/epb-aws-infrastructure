@@ -19,10 +19,6 @@ resource "aws_cloudwatch_dashboard" "main" {
               "...", "epb-${var.environment}-toggles-cluster", ".", "epb-${var.environment}-toggles", { stat : "Average", region : var.region }
             ],
             [
-              "...", "epb-${var.environment}-reg-sidekiq-cluster", ".", "epb-${var.environment}-reg-sidekiq",
-              { stat : "Average", region : var.region }
-            ],
-            [
               "...", "epb-${var.environment}-reg-api-cluster", ".", "epb-${var.environment}-reg-api", { stat : "Average", region : var.region }
             ],
             [
@@ -63,10 +59,6 @@ resource "aws_cloudwatch_dashboard" "main" {
               "...", "epb-${var.environment}-toggles-cluster", ".", "epb-${var.environment}-toggles", { stat : "Average", region : var.region }
             ],
             ["...", "epb-${var.environment}-auth-cluster", ".", "epb-${var.environment}-auth", { stat : "Average", region : var.region }],
-            [
-              "...", "epb-${var.environment}-reg-sidekiq-cluster", ".", "epb-${var.environment}-reg-sidekiq",
-              { stat : "Average", region : "eu-west-2" }
-            ],
             ["...", "epb-${var.environment}-reg-api-cluster", ".", "epb-${var.environment}-reg-api", { stat : "Average", region : var.region }]
           ],
           legend : {
@@ -284,7 +276,6 @@ resource "aws_cloudwatch_dashboard" "main" {
               "epb-${var.environment}-frontend", { region : var.region }
             ],
             ["...", "epb-${var.environment}-toggles-cluster", ".", "epb-${var.environment}-toggles", { region : var.region }],
-            ["...", "epb-${var.environment}-reg-sidekiq-cluster", ".", "epb-${var.environment}-reg-sidekiq", { region : var.region }],
             ["...", "epb-${var.environment}-reg-api-cluster", ".", "epb-${var.environment}-reg-api", { region : var.region }],
             ["...", "epb-${var.environment}-warehouse-cluster", ".", "epb-${var.environment}-warehouse", { region : var.region }],
             ["...", "epb-${var.environment}-auth-cluster", ".", "epb-${var.environment}-auth", { region : var.region }]
@@ -317,7 +308,6 @@ resource "aws_cloudwatch_dashboard" "main" {
               "epb-${var.environment}-frontend", { region : var.region }
             ],
             ["...", "epb-${var.environment}-toggles-cluster", ".", "epb-${var.environment}-toggles", { region : var.region }],
-            ["...", "epb-${var.environment}-reg-sidekiq-cluster", ".", "epb-${var.environment}-reg-sidekiq", { region : var.region }],
             ["...", "epb-${var.environment}-reg-api-cluster", ".", "epb-${var.environment}-reg-api", { region : var.region }],
             ["...", "epb-${var.environment}-warehouse-cluster", ".", "epb-${var.environment}-warehouse", { region : var.region }],
             ["...", "epb-${var.environment}-auth-cluster", ".", "epb-${var.environment}-auth", { region : var.region }]
