@@ -114,7 +114,7 @@ module "commercial_open_data_export" {
   source              = "./event_rule"
   task_config         = local.task_config
   prefix              = var.prefix
-  rule_name           = "commercial-open-data-export"
+  rule_name           = "cepc-open-data-export"
   schedule_expression = "cron(40 4 1 * ? *)"
   command             = ["bundle", "exec", "rake", "open_data:export_assessments"]
   environment = [
@@ -128,6 +128,27 @@ module "commercial_open_data_export" {
     },
   ]
 }
+
+
+module "dec_open_data_export" {
+  source              = "./event_rule"
+  task_config         = local.task_config
+  prefix              = var.prefix
+  rule_name           = "dec-open-data-export"
+  schedule_expression = "cron(59 4 1 * ? *)"
+  command             = ["bundle", "exec", "rake", "open_data:export_assessments"]
+  environment = [
+    {
+      "name" : "type_of_export",
+      "value" : local.ode_export
+    },
+    {
+      "name" : "assessment_type",
+      "value" : "DEC"
+    },
+  ]
+}
+
 
 module "commercial_recommendations_open_data_export" {
   source              = "./event_rule"
