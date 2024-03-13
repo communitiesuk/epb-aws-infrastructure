@@ -115,15 +115,11 @@ module "register-api-pipeline" {
   ecs_service_name            = "reg-api"
   app_ecr_name                = "reg-api-ecr"
   project_name                = "epbr-register-api"
-  ecs_sidekiq_cluster_name    = "reg-sidekiq-cluster"
-  ecs_sidekiq_service_name    = "reg-sidekiq"
   app_image_name              = "ebpr-register-api-image"
-  sidekiq_image_name          = "ebpr-sidekiq-image"
   codebuild_image_ecr_url     = module.app_test_image_pipeline.image_repository_url
   postgres_image_ecr_url      = module.postgres_test_image_pipeline.image_repository_url
   region                      = var.region
   aws_codebuild_image         = var.aws_amd_codebuild_image
-  sidekiq_ecr_name            = "reg-sidekiq-ecr"
   performance_test_repository = var.performance_test_repository
   performance_test_branch     = var.performance_test_branch
   smoketests_repository       = var.smoketests_repository

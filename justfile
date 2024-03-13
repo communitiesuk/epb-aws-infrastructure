@@ -341,7 +341,7 @@ service-update-with-docker-image image_name service_name dockerfile_path="": _en
 
     just service-refresh {{service_name}}
 
-# Deploys paketo image to ECR. Requires both docker to be running and the pack CLI to be installed. If app_path is not specified, it attempts to use existing image. app_path should be absolute path to the root of the directory containing the application. For Paketo, uses the "full" Paketo builder by default unless specified (for the frontend app you should specify "base"), and likewise "web" for the default_process (for sidekiq you can specify "sidekiq" instead)
+# Deploys paketo image to ECR. Requires both docker to be running and the pack CLI to be installed. If app_path is not specified, it attempts to use existing image. app_path should be absolute path to the root of the directory containing the application. For Paketo, uses the "full" Paketo builder by default unless specified (for the frontend app you should specify "base"), and likewise "web" for the default_process
 service-update-with-paketo-image image_name service_name app_path="" builder="full" default_process="web": _ensure_aws_profile
     #!/usr/bin/env bash
 
