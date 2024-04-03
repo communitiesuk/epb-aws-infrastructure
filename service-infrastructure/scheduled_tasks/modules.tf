@@ -76,19 +76,13 @@ module "export_invoice_region_type" {
   ]
 }
 
-module "export_invoice_rrn_scheme_type" {
+module "export_invoices_by_assessment_scheme" {
   source              = "./event_rule"
   prefix              = var.prefix
-  rule_name           = "export-invoice-rrn-scheme-type"
+  rule_name           = "export-invoices-by-assessment-scheme"
   task_config         = local.task_config
   schedule_expression = "cron(58 6 1 * ? *)"
-  command             = ["bundle", "exec", "rake", "data_export:export_invoices"]
-  environment = [
-    {
-      "name" : "report_type",
-      "value" : "rrn_scheme_type"
-    },
-  ]
+  command             = ["bundle", "exec", "rake", "data_export:export_schema_invoices"]
 }
 
 module "domestic_open_data_export" {
@@ -129,7 +123,6 @@ module "commercial_open_data_export" {
   ]
 }
 
-
 module "dec_open_data_export" {
   source              = "./event_rule"
   task_config         = local.task_config
@@ -148,7 +141,6 @@ module "dec_open_data_export" {
     },
   ]
 }
-
 
 module "commercial_recommendations_open_data_export" {
   source              = "./event_rule"
