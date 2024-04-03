@@ -49,7 +49,6 @@ resource "aws_appautoscaling_policy" "ecs_policy_cpu" {
 }
 
 
-
 resource "aws_appautoscaling_policy" "ecs_policy_requests" {
   count              = var.has_target_tracking == true ? 1 : 0
   name               = "requests-autoscaling"
@@ -64,7 +63,7 @@ resource "aws_appautoscaling_policy" "ecs_policy_requests" {
       resource_label         = local.create_internal_alb ? "${aws_lb.internal[0].arn_suffix}/${aws_lb_target_group.internal[0].arn_suffix}" : "${module.front_door[0].alb_arn_suffix}/${module.front_door[0].tg_arn_suffix}"
     }
 
-    target_value      = 1000
+    target_value      = 800
     scale_in_cooldown = 300
   }
 }
