@@ -1,17 +1,19 @@
+
+
 locals {
   task_config = {
     cluster_arn       = var.cluster_arn
     security_group_id = var.security_group_id
     vpc_subnet_ids    = var.vpc_subnet_ids
     task_arn          = var.task_arn
-    event_role_arn    = aws_iam_role.ecs_events.arn
+    event_role_arn    = var.event_rule_arn
     container_name    = var.container_name
   }
   ode_export = "for_odc"
 }
 
 module "save_previous_day_statistics_job" {
-  source              = "./event_rule"
+  source              = "../scheduled_tasks/event_rule"
   prefix              = var.prefix
   rule_name           = "save-previous-day-statistics-job"
   task_config         = local.task_config
@@ -20,7 +22,7 @@ module "save_previous_day_statistics_job" {
 }
 
 module "post_previous_day_statistics_to_slack_job" {
-  source              = "./event_rule"
+  source              = "../scheduled_tasks/event_rule"
   prefix              = var.prefix
   rule_name           = "post-previous-day-statistics-to-slack-job"
   task_config         = local.task_config
@@ -29,7 +31,7 @@ module "post_previous_day_statistics_to_slack_job" {
 }
 
 module "update_address_base" {
-  source              = "./event_rule"
+  source              = "../scheduled_tasks/event_rule"
   prefix              = var.prefix
   rule_name           = "update-address-base"
   task_config         = local.task_config
@@ -38,7 +40,7 @@ module "update_address_base" {
 }
 
 module "import_green_deal_fuel_price_data" {
-  source              = "./event_rule"
+  source              = "../scheduled_tasks/event_rule"
   prefix              = var.prefix
   rule_name           = "import-green-deal-fuel-price-data"
   task_config         = local.task_config
@@ -47,7 +49,7 @@ module "import_green_deal_fuel_price_data" {
 }
 
 module "export_invoice_scheme_name_type" {
-  source              = "./event_rule"
+  source              = "../scheduled_tasks/event_rule"
   prefix              = var.prefix
   rule_name           = "export-invoice-scheme-name-type"
   task_config         = local.task_config
@@ -62,7 +64,7 @@ module "export_invoice_scheme_name_type" {
 }
 
 module "export_invoice_region_type" {
-  source              = "./event_rule"
+  source              = "../scheduled_tasks/event_rule"
   prefix              = var.prefix
   rule_name           = "export-invoice-region-type"
   task_config         = local.task_config
@@ -77,7 +79,7 @@ module "export_invoice_region_type" {
 }
 
 module "export_invoices_by_assessment_scheme" {
-  source              = "./event_rule"
+  source              = "../scheduled_tasks/event_rule"
   prefix              = var.prefix
   rule_name           = "export-invoices-by-assessment-scheme"
   task_config         = local.task_config
@@ -86,7 +88,7 @@ module "export_invoices_by_assessment_scheme" {
 }
 
 module "domestic_open_data_export" {
-  source              = "./event_rule"
+  source              = "../scheduled_tasks/event_rule"
   task_config         = local.task_config
   prefix              = var.prefix
   rule_name           = "domestic-open-data-export"
@@ -105,7 +107,7 @@ module "domestic_open_data_export" {
 }
 
 module "commercial_open_data_export" {
-  source              = "./event_rule"
+  source              = "../scheduled_tasks/event_rule"
   task_config         = local.task_config
   prefix              = var.prefix
   rule_name           = "cepc-open-data-export"
@@ -124,7 +126,7 @@ module "commercial_open_data_export" {
 }
 
 module "dec_open_data_export" {
-  source              = "./event_rule"
+  source              = "../scheduled_tasks/event_rule"
   task_config         = local.task_config
   prefix              = var.prefix
   rule_name           = "dec-open-data-export"
@@ -143,7 +145,7 @@ module "dec_open_data_export" {
 }
 
 module "commercial_recommendations_open_data_export" {
-  source              = "./event_rule"
+  source              = "../scheduled_tasks/event_rule"
   task_config         = local.task_config
   prefix              = var.prefix
   rule_name           = "commercial-recommendations-open-data-export"
@@ -162,7 +164,7 @@ module "commercial_recommendations_open_data_export" {
 }
 
 module "dec_recommendations_open_data_export" {
-  source              = "./event_rule"
+  source              = "../scheduled_tasks/event_rule"
   task_config         = local.task_config
   prefix              = var.prefix
   rule_name           = "dec-recommendations-open-data-export"
@@ -181,7 +183,7 @@ module "dec_recommendations_open_data_export" {
 }
 
 module "domestic_recommendations_open_data_export" {
-  source              = "./event_rule"
+  source              = "../scheduled_tasks/event_rule"
   task_config         = local.task_config
   prefix              = var.prefix
   rule_name           = "domestic-recommendations-open-data-export"
@@ -200,7 +202,7 @@ module "domestic_recommendations_open_data_export" {
 }
 
 module "export_not_for_publication" {
-  source              = "./event_rule"
+  source              = "../scheduled_tasks/event_rule"
   prefix              = var.prefix
   rule_name           = "schedule-export-not-for-publication"
   schedule_expression = "cron(35 5 1 * ? *)"

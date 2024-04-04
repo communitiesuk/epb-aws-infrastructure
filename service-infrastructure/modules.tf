@@ -43,7 +43,6 @@ module "cdn_certificate" {
   subject_alternative_names = var.subject_alternative_names
 }
 
-
 # This being on us-east-1 is a requirement for CloudFront to use the WAF
 module "waf" {
   source = "./waf"
@@ -57,7 +56,6 @@ module "waf" {
   allowed_ip_addresses     = [for ip in var.permitted_ip_addresses : ip["ip_address"]]
   allowed_ipv6_addresses   = [for ip in var.permitted_ipv6_addresses : ip["ip_address"]]
 }
-
 
 module "secrets" {
   source = "./secrets"
@@ -152,6 +150,18 @@ module "parameter_store" {
       type  = "String"
       value = var.parameters["NON_DOMESTIC_APPROVED_SOFTWARE"]
       tier  = "Advanced"
+    }
+    "NOTIFY_CLIENT_API_KEY" : {
+      type  = "String"
+      value = var.parameters["NOTIFY_CLIENT_API_KEY"]
+    }
+    "NOTIFY_EMAIL_RECIPIENT" : {
+      type  = "String"
+      value = var.parameters["NOTIFY_EMAIL_RECIPIENT"]
+    }
+    "NOTIFY_TEMPLATE_ID" : {
+      type  = "String"
+      value = var.parameters["NOTIFY_TEMPLATE_ID"]
     }
     "RACK_ENV" : {
       type  = "String"
@@ -464,6 +474,41 @@ module "scheduled_tasks_application" {
   has_target_tracking           = false
 }
 
+module "warehouse_scheduled_tasks_application" {
+  source                = "./application"
+  ci_account_id         = var.ci_account_id
+  has_start_task        = false
+  has_exec_cmd_task     = true
+  prefix                = "${local.prefix}-warehouse-scheduled-tasks"
+  region                = var.region
+  container_port        = 80
+  egress_ports          = [80, 443, 5432, var.parameters["LOGSTASH_PORT"]]
+  environment_variables = {}
+  secrets = {
+    "DATABASE_URL" : module.secrets.secret_arns["RDS_WAREHOUSE_CONNECTION_STRING"],
+  }
+  parameters = merge(module.parameter_store.parameter_arns, {
+    "SENTRY_DSN" : module.parameter_store.parameter_arns["SENTRY_DSN_REGISTER_WORKER"]
+  })
+  vpc_id             = module.networking.vpc_id
+  fluentbit_ecr_url  = module.fluentbit_ecr.ecr_url
+  private_subnet_ids = module.networking.private_subnet_ids
+  health_check_path  = "/healthcheck"
+  additional_task_execution_role_policy_arns = {
+    "RDS_access" : module.warehouse_database.rds_full_access_policy_arn,
+  }
+  aws_cloudwatch_log_group_id   = module.logging.cloudwatch_log_group_id
+  aws_cloudwatch_log_group_name = module.logging.cloudwatch_log_group_name
+  logs_bucket_name              = module.logging.logs_bucket_name
+  logs_bucket_url               = module.logging.logs_bucket_url
+  enable_execute_command        = true
+  task_max_capacity             = 3
+  task_desired_capacity         = 0
+  task_min_capacity             = 0
+  external_ecr                  = module.warehouse_application.ecr_repository_url
+  has_target_tracking           = false
+}
+
 module "frontend_application" {
   source         = "./application"
   ci_account_id  = var.ci_account_id
@@ -545,6 +590,9 @@ module "warehouse_application" {
     "EPB_AUTH_CLIENT_ID" : module.parameter_store.parameter_arns["WAREHOUSE_EPB_AUTH_CLIENT_ID"],
     "EPB_AUTH_CLIENT_SECRET" : module.parameter_store.parameter_arns["WAREHOUSE_EPB_AUTH_CLIENT_SECRET"]
     "SENTRY_DSN" : module.parameter_store.parameter_arns["SENTRY_DSN_DATA_WAREHOUSE"]
+    "NOTIFY_CLIENT_API_KEY" : module.parameter_store.parameter_arns["NOTIFY_CLIENT_API_KEY"]
+    "NOTIFY_EMAIL_RECIPIENT" : module.parameter_store.parameter_arns["NOTIFY_EMAIL_RECIPIENT"]
+    "NOTIFY_TEMPLATE_ID" : module.parameter_store.parameter_arns["NOTIFY_TEMPLATE_ID"]
   })
   vpc_id             = module.networking.vpc_id
   fluentbit_ecr_url  = module.fluentbit_ecr.ecr_url
@@ -569,7 +617,7 @@ module "warehouse_database" {
   db_name                       = "epb"
   vpc_id                        = module.networking.vpc_id
   subnet_group_name             = local.db_subnet
-  security_group_ids            = [module.warehouse_application.ecs_security_group_id, module.bastion.security_group_id]
+  security_group_ids            = [module.warehouse_application.ecs_security_group_id, module.bastion.security_group_id, module.warehouse_scheduled_tasks_application.ecs_security_group_id]
   storage_backup_period         = var.storage_backup_period
   instance_class                = var.environment == "intg" ? "db.t3.medium" : var.environment == "stag" ? "db.r5.large" : "db.r5.xlarge"
   cluster_parameter_group_name  = module.parameter_groups.aurora_pglogical_target_pg_name
@@ -736,13 +784,31 @@ module "rds_export_to_s3" {
   num_days_bucket_retention  = var.environment == "prod" ? 21 : 7
 }
 
+module "schedule_task_role" {
+  source = "./scheduled_tasks/"
+  prefix = local.prefix
 
-module "schedule_tasks" {
-  source            = "./scheduled_tasks"
+}
+
+
+module "register_schedule_tasks" {
+  source            = "./register_scheduled_tasks"
   prefix            = local.prefix
   cluster_arn       = module.scheduled_tasks_application.ecs_cluster_arn
   security_group_id = module.scheduled_tasks_application.ecs_security_group_id
   vpc_subnet_ids    = module.networking.private_db_subnet_ids
   task_arn          = module.scheduled_tasks_application.ecs_task_exec_arn
   container_name    = module.scheduled_tasks_application.migration_container_name
+  event_rule_arn    = module.schedule_task_role.ecs_events_arn
+}
+
+module "warehouse_schedule_tasks" {
+  source            = "./warehouse_scheduled_tasks"
+  prefix            = local.prefix
+  cluster_arn       = module.warehouse_scheduled_tasks_application.ecs_cluster_arn
+  security_group_id = module.warehouse_scheduled_tasks_application.ecs_security_group_id
+  vpc_subnet_ids    = module.networking.private_db_subnet_ids
+  task_arn          = module.warehouse_scheduled_tasks_application.ecs_task_exec_arn
+  container_name    = module.warehouse_scheduled_tasks_application.migration_container_name
+  event_rule_arn    = module.schedule_task_role.ecs_events_arn
 }
