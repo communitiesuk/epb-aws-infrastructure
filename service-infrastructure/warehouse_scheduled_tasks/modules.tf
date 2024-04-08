@@ -1,5 +1,3 @@
-
-
 locals {
   task_config = {
     cluster_arn       = var.cluster_arn
@@ -20,12 +18,38 @@ module "send_heat_pump_count_by_property_type" {
   command             = ["bundle", "exec", "rake", "email_heat_pump_data"]
   environment = [
     {
-      "name" : "START_DATE",
-      "value" : "2023-07-01"
+      "name" : "TYPE_OF_EXPORT",
+      "value" : "property_type"
     },
+  ]
+}
+
+module "send_heat_pump_count_by_floor_area" {
+  source              = "../scheduled_tasks/event_rule"
+  prefix              = var.prefix
+  rule_name           = "send-heat-pump-count-by-floor-area"
+  task_config         = local.task_config
+  schedule_expression = "cron(35 04 1 * ? *)"
+  command             = ["bundle", "exec", "rake", "email_heat_pump_data"]
+  environment = [
     {
-      "name" : "END_DATE",
-      "value" : "2024-03-01"
+      "name" : "TYPE_OF_EXPORT",
+      "value" : "floor_area"
+    },
+  ]
+}
+
+module "send_heat_pump_count_by_local_authority" {
+  source              = "../scheduled_tasks/event_rule"
+  prefix              = var.prefix
+  rule_name           = "send-heat-pump-count-by-local-authority"
+  task_config         = local.task_config
+  schedule_expression = "cron(45 04 1 * ? *)"
+  command             = ["bundle", "exec", "rake", "email_heat_pump_data"]
+  environment = [
+    {
+      "name" : "TYPE_OF_EXPORT",
+      "value" : "local_authority"
     },
   ]
 }
