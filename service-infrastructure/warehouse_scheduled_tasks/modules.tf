@@ -53,3 +53,19 @@ module "send_heat_pump_count_by_local_authority" {
     },
   ]
 }
+
+module "send_heat_pump_count_by_parliamentary_constituency" {
+  source              = "../scheduled_tasks/event_rule"
+  prefix              = var.prefix
+  rule_name           = "send-heat-pump-count-by-parliamentary-constituency"
+  task_config         = local.task_config
+  schedule_expression = "cron(53 04 1 * ? *)"
+  command             = ["bundle", "exec", "rake", "email_heat_pump_data"]
+  environment = [
+    {
+      "name" : "TYPE_OF_EXPORT",
+      "value" : "parliamentary_constituency"
+    },
+  ]
+}
+
