@@ -278,7 +278,7 @@ tfvars-get path="." environment="integration": _ensure_aws_profile
     green='\033[0;32m'
     cyan='\033[0;36m'
     clear='\033[0m'
-    printf "${bg_red}CARELESS TALK COSTS LIVES!${clear}\n${green}Always run '${cyan}rm -f {*.tfvars,.*.tfvars}${green}' once you've applied your changes!\n\n"
+    printf "${bg_red}CARELESS TALK COSTS LIVES!${clear}\n${green}Always run '${cyan}just tfvars-delete${green}' or '${cyan}rm -f {*.tfvars,.*.tfvars}${green}' once you've applied your changes!\n\n"
 
 # Updates local tfvars file for the ci with values stored in S3 bucket. environment is 'ci'
 tfvars-get-for-ci path="./ci": _ensure_aws_profile
@@ -317,6 +317,12 @@ tfvars-put-dev:  _ensure_aws_profile
     cyan='\033[0;36m'
     clear='\033[0m'
     printf "${bg_red}BUTTON YOUR LIP!${clear}\n${green}Always run '${cyan}rm -f {*.tfvars,.*.tfvars}${green}' once you've applied your changes!\n\n"
+
+# Deletes all tvars from local
+tfvars-delete path="service-infrastructure":
+    #!/usr/bin/env bash
+    cd {{path}}
+    rm -f {*.tfvars,.*.tfvars}
 
 tfsec minimum_severity="HIGH":
     #!/usr/bin/env bash
