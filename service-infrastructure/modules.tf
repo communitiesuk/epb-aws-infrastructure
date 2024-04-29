@@ -1,6 +1,5 @@
 locals {
-  db_subnet = var.environment == "stag" ? module.networking.private_subnet_group_name : module.networking.private_db_subnet_group_name
-
+  db_subnet                  = var.environment == "stag" ? module.networking.private_subnet_group_name : module.networking.private_db_subnet_group_name
   rds_snapshot_backup_bucket = "${local.prefix}-rds-snapshot-back-up"
   rds_snapshot_backup_tags = {
     Name      = "${local.prefix}-${local.rds_snapshot_backup_bucket}"
@@ -26,8 +25,7 @@ module "access" {
 }
 
 module "ssl_certificate" {
-  source = "./ssl"
-
+  source                    = "./ssl"
   domain_name               = var.domain_name
   subject_alternative_names = var.subject_alternative_names
 }
@@ -38,7 +36,6 @@ module "cdn_certificate" {
   providers = {
     aws = aws.us-east
   }
-
   domain_name               = var.domain_name
   subject_alternative_names = var.subject_alternative_names
 }
@@ -82,6 +79,7 @@ module "secrets" {
     "RDS_TOGGLES_PASSWORD" : module.toggles_database.rds_db_password
     "RDS_TOGGLES_USERNAME" : module.toggles_database.rds_db_username
     "RDS_WAREHOUSE_CONNECTION_STRING" : module.warehouse_database.rds_db_connection_string
+    "RDS_WAREHOUSE_READER_CONNECTION_STRING" : module.warehouse_database.rds_db_reader_connection_string
     "RDS_WAREHOUSE_PASSWORD" : module.warehouse_database.rds_db_password
     "RDS_WAREHOUSE_USERNAME" : module.warehouse_database.rds_db_username
   }
@@ -607,8 +605,50 @@ module "warehouse_application" {
   logs_bucket_name              = module.logging.logs_bucket_name
   logs_bucket_url               = module.logging.logs_bucket_url
   enable_execute_command        = true
-  fargate_weighting             = { standard : 0, spot : 10 }
+  fargate_weighting             = var.environment == "prod" ? { standard : 10, spot : 0 } : { standard : 0, spot : 10 }
   has_target_tracking           = false
+}
+
+module "warehouse_api_application" {
+  source                = "./application"
+  ci_account_id         = var.ci_account_id
+  prefix                = "${local.prefix}-warehouse-api"
+  region                = var.region
+  container_port        = 80
+  egress_ports          = [80, 443, 5432, var.parameters["LOGSTASH_PORT"]]
+  environment_variables = {}
+
+  secrets = {
+    "DATABASE_URL" : module.secrets.secret_arns["RDS_WAREHOUSE_READER_CONNECTION_STRING"],
+    "EPB_AUTH_SERVER" : module.secrets.secret_arns["EPB_AUTH_SERVER"],
+    "EPB_UNLEASH_URI" : module.secrets.secret_arns["EPB_UNLEASH_URI"]
+  }
+  parameters = merge(module.parameter_store.parameter_arns, {
+    "SENTRY_DSN" : module.parameter_store.parameter_arns["SENTRY_DSN_REGISTER_API"]
+  })
+  has_exec_cmd_task  = true
+  vpc_id             = module.networking.vpc_id
+  fluentbit_ecr_url  = module.fluentbit_ecr.ecr_url
+  private_subnet_ids = module.networking.private_subnet_ids
+  health_check_path  = "/healthcheck"
+  additional_task_execution_role_policy_arns = {
+    "RDS_access" : module.warehouse_database.rds_read_only_policy_arn
+  }
+  aws_cloudwatch_log_group_id   = module.logging.cloudwatch_log_group_id
+  aws_cloudwatch_log_group_name = module.logging.cloudwatch_log_group_name
+  logs_bucket_name              = module.logging.logs_bucket_name
+  logs_bucket_url               = module.logging.logs_bucket_url
+  enable_execute_command        = true
+  has_target_tracking           = true
+  internal_alb_config = {
+    ssl_certificate_arn = module.ssl_certificate.certificate_arn
+  }
+  task_max_capacity     = var.task_max_capacity
+  task_desired_capacity = var.task_desired_capacity
+  task_min_capacity     = var.task_min_capacity
+  task_cpu              = var.task_cpu
+  task_memory           = var.task_memory
+  fargate_weighting     = { standard : 0, spot : 10 }
 }
 
 module "warehouse_database" {
@@ -622,6 +662,7 @@ module "warehouse_database" {
   instance_class                = var.environment == "intg" ? "db.t3.medium" : var.environment == "stag" ? "db.r5.large" : "db.r5.xlarge"
   cluster_parameter_group_name  = module.parameter_groups.aurora_pglogical_target_pg_name
   instance_parameter_group_name = module.parameter_groups.rds_pglogical_target_pg_name
+  read_only_policy              = true
 }
 
 module "warehouse_redis" {
@@ -789,7 +830,6 @@ module "schedule_task_role" {
   prefix = local.prefix
 
 }
-
 
 module "register_schedule_tasks" {
   source            = "./register_scheduled_tasks"

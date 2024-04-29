@@ -1,5 +1,3 @@
-
-
 resource "aws_ecr_repository" "this" {
   count                = local.has_ecr
   name                 = "${var.prefix}-ecr"
