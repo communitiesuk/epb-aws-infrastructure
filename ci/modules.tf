@@ -186,7 +186,10 @@ module "data_warehouse-pipeline" {
   account_ids             = var.account_ids
   ecs_cluster_name        = "warehouse-cluster"
   ecs_service_name        = "warehouse"
+  ecs_api_cluster_name    = "warehouse-api-cluster"
+  ecs_api_service_name    = "warehouse-api"
   app_ecr_name            = "warehouse-ecr"
+  api_ecr_name            = "warehouse-api-ecr"
   project_name            = "epbr-data-warehouse"
   codebuild_image_ecr_url = module.app_test_image_pipeline.image_repository_url
   postgres_image_ecr_url  = module.postgres_test_image_pipeline.image_repository_url

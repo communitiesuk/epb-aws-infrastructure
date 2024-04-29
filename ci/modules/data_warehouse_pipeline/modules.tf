@@ -29,6 +29,20 @@ module "codebuild_build_app_image" {
   region = var.region
 }
 
+
+module "codebuild_build_api_image" {
+  source             = "../codebuild_project"
+  codebuild_role_arn = var.codebuild_role_arn
+  name               = "${var.project_name}-codebuild-build-api-image"
+  buildspec_file     = "buildspec/build_paketo_api_image.yml"
+  build_image_uri    = var.codebuild_image_ecr_url
+  environment_variables = [
+    { name = "AWS_DEFAULT_REGION", value = var.region },
+    { name = "AWS_ACCOUNT_ID", value = var.account_ids["integration"] },
+  ]
+  region = var.region
+}
+
 module "codebuild_deploy_integration" {
   source             = "../codebuild_project"
   codebuild_role_arn = var.codebuild_role_arn
@@ -45,6 +59,24 @@ module "codebuild_deploy_integration" {
   ]
   region = var.region
 }
+
+module "codebuild_api_deploy_integration" {
+  source             = "../codebuild_project"
+  codebuild_role_arn = var.codebuild_role_arn
+  name               = "${var.project_name}-codebuild-api-deploy-integration"
+  build_image_uri    = var.aws_codebuild_image
+  buildspec_file     = "buildspec/deploy_to_cluster.yml"
+  environment_variables = [
+    { name = "AWS_DEFAULT_REGION", value = var.region },
+    { name = "AWS_ACCOUNT_ID", value = var.account_ids["integration"] },
+    { name = "DOCKER_IMAGE_URI", value = "${var.account_ids["integration"]}.dkr.ecr.${var.region}.amazonaws.com/${var.integration_prefix}-${var.api_ecr_name}" },
+    { name = "CLUSTER_NAME", value = "${var.integration_prefix}-${var.ecs_api_cluster_name}" },
+    { name = "SERVICE_NAME", value = "${var.integration_prefix}-${var.ecs_api_service_name}" },
+    { name = "PREFIX", value = var.integration_prefix },
+  ]
+  region = var.region
+}
+
 
 module "codebuild_deploy_staging" {
   source             = "../codebuild_project"

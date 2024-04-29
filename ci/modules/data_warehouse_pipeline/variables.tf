@@ -6,6 +6,10 @@ variable "app_ecr_name" {
   type = string
 }
 
+variable "api_ecr_name" {
+  type = string
+}
+
 variable "aws_codebuild_image" {
   type = string
 }
@@ -34,9 +38,18 @@ variable "ecs_cluster_name" {
   type = string
 }
 
+variable "ecs_api_cluster_name" {
+  type = string
+}
+
 variable "ecs_service_name" {
   type = string
 }
+
+variable "ecs_api_service_name" {
+  type = string
+}
+
 
 variable "github_branch" {
   type = string

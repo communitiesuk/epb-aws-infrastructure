@@ -50,7 +50,7 @@ resource "aws_codepipeline" "codepipeline" {
     name = "build-app-image"
 
     action {
-      name             = "Build"
+      name             = "build-app-image"
       category         = "Build"
       owner            = "AWS"
       provider         = "CodeBuild"
@@ -62,6 +62,21 @@ resource "aws_codepipeline" "codepipeline" {
         ProjectName = module.codebuild_build_app_image.codebuild_name
       }
     }
+
+    action {
+      name             = "build-api-image"
+      category         = "Build"
+      owner            = "AWS"
+      provider         = "CodeBuild"
+      version          = "1"
+      input_artifacts  = ["source_output"]
+      output_artifacts = ["docker_api_image"]
+
+      configuration = {
+        ProjectName = module.codebuild_build_app_image.codebuild_name
+      }
+    }
+
   }
 
   stage {
@@ -76,6 +91,18 @@ resource "aws_codepipeline" "codepipeline" {
       input_artifacts = ["docker_image"]
       configuration = {
         ProjectName = module.codebuild_deploy_integration.codebuild_name
+      }
+    }
+
+    action {
+      name            = "deploy-data-warehouse-api-to-integration-cluster"
+      category        = "Build"
+      owner           = "AWS"
+      provider        = "CodeBuild"
+      version         = "1"
+      input_artifacts = ["docker_api_image"]
+      configuration = {
+        ProjectName = module.codebuild_api_deploy_integration.codebuild_name
       }
     }
 
