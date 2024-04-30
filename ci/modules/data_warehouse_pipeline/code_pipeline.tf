@@ -73,7 +73,7 @@ resource "aws_codepipeline" "codepipeline" {
       output_artifacts = ["docker_api_image"]
 
       configuration = {
-        ProjectName = module.codebuild_build_app_image.codebuild_name
+        ProjectName = module.codebuild_build_api_image.codebuild_name
       }
     }
 
