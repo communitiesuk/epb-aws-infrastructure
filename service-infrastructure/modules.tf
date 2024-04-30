@@ -60,6 +60,7 @@ module "secrets" {
   secrets = {
     "EPB_API_URL" : "https://${module.register_api_application.internal_alb_name}.${var.domain_name}:443"
     "EPB_AUTH_SERVER" : "https://${module.auth_application.internal_alb_name}.${var.domain_name}:443/auth"
+    "EPB_DATA_WAREHOUSE_API_URL" : "http://${module.warehouse_api_application.internal_alb_dns}"
     "EPB_DATA_WAREHOUSE_QUEUES_URI" : module.warehouse_redis.redis_uri
     "EPB_QUEUES_URI" : module.warehouse_redis.redis_uri
     "EPB_UNLEASH_URI" : "https://${module.toggles_application.internal_alb_name}.${var.domain_name}:443/api"
@@ -525,6 +526,7 @@ module "frontend_application" {
     "EPB_API_URL" : module.secrets.secret_arns["EPB_API_URL"],
     "EPB_AUTH_SERVER" : module.secrets.secret_arns["EPB_AUTH_SERVER"],
     "EPB_UNLEASH_URI" : module.secrets.secret_arns["EPB_UNLEASH_URI"]
+    "EPB_DATA_WAREHOUSE_API_URL" : module.secrets.secret_arns["EPB_DATA_WAREHOUSE_API_URL"]
   }
   parameters = merge(module.parameter_store.parameter_arns, {
     "EPB_AUTH_CLIENT_ID" : module.parameter_store.parameter_arns["FRONTEND_EPB_AUTH_CLIENT_ID"],
@@ -614,12 +616,13 @@ module "warehouse_api_application" {
   ci_account_id         = var.ci_account_id
   prefix                = "${local.prefix}-warehouse-api"
   region                = var.region
-  container_port        = 80
+  container_port        = 3001
   egress_ports          = [80, 443, 5432, var.parameters["LOGSTASH_PORT"]]
   environment_variables = {}
-
   secrets = {
     "DATABASE_URL" : module.secrets.secret_arns["RDS_WAREHOUSE_READER_CONNECTION_STRING"],
+    "EPB_AUTH_CLIENT_ID" : module.parameter_store.parameter_arns["WAREHOUSE_EPB_AUTH_CLIENT_ID"],
+    "EPB_AUTH_CLIENT_SECRET" : module.parameter_store.parameter_arns["WAREHOUSE_EPB_AUTH_CLIENT_SECRET"]
     "EPB_AUTH_SERVER" : module.secrets.secret_arns["EPB_AUTH_SERVER"],
     "EPB_UNLEASH_URI" : module.secrets.secret_arns["EPB_UNLEASH_URI"]
   }
@@ -639,7 +642,7 @@ module "warehouse_api_application" {
   logs_bucket_name              = module.logging.logs_bucket_name
   logs_bucket_url               = module.logging.logs_bucket_url
   enable_execute_command        = true
-  has_target_tracking           = true
+  has_target_tracking           = false
   internal_alb_config = {
     ssl_certificate_arn = module.ssl_certificate.certificate_arn
   }
