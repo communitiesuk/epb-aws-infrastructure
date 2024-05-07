@@ -107,6 +107,18 @@ resource "aws_codepipeline" "codepipeline" {
     }
 
     action {
+      name            = "deploy-data-warehouse-api-to-staging-cluster"
+      category        = "Build"
+      owner           = "AWS"
+      provider        = "CodeBuild"
+      version         = "1"
+      input_artifacts = ["docker_api_image"]
+      configuration = {
+        ProjectName = module.codebuild_api_deploy_staging.codebuild_name
+      }
+    }
+
+    action {
       name            = "deploy-data-warehouse-to-staging-cluster"
       category        = "Build"
       owner           = "AWS"
@@ -131,6 +143,18 @@ resource "aws_codepipeline" "codepipeline" {
       input_artifacts = ["docker_image"]
       configuration = {
         ProjectName = module.codebuild_deploy_production.codebuild_name
+      }
+    }
+
+    action {
+      name            = "deploy-data-warehouse-api-to-production-cluster"
+      category        = "Build"
+      owner           = "AWS"
+      provider        = "CodeBuild"
+      version         = "1"
+      input_artifacts = ["docker_api_image"]
+      configuration = {
+        ProjectName = module.codebuild_api_deploy_production.codebuild_name
       }
     }
   }
