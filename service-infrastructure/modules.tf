@@ -635,7 +635,7 @@ module "warehouse_api_application" {
   private_subnet_ids = module.networking.private_subnet_ids
   health_check_path  = "/healthcheck"
   additional_task_execution_role_policy_arns = {
-    "RDS_access" : module.warehouse_database.rds_read_only_policy_arn
+    "RDS_access" : module.warehouse_database.rds_full_access_policy_arn
   }
   aws_cloudwatch_log_group_id   = module.logging.cloudwatch_log_group_id
   aws_cloudwatch_log_group_name = module.logging.cloudwatch_log_group_name
@@ -660,12 +660,11 @@ module "warehouse_database" {
   db_name                       = "epb"
   vpc_id                        = module.networking.vpc_id
   subnet_group_name             = local.db_subnet
-  security_group_ids            = [module.warehouse_application.ecs_security_group_id, module.bastion.security_group_id, module.warehouse_scheduled_tasks_application.ecs_security_group_id]
+  security_group_ids            = [module.warehouse_application.ecs_security_group_id, module.bastion.security_group_id, module.warehouse_scheduled_tasks_application.ecs_security_group_id, module.warehouse_api_application.ecs_security_group_id]
   storage_backup_period         = var.storage_backup_period
   instance_class                = var.environment == "intg" ? "db.t3.medium" : var.environment == "stag" ? "db.r5.large" : "db.r5.xlarge"
   cluster_parameter_group_name  = module.parameter_groups.aurora_pglogical_target_pg_name
   instance_parameter_group_name = module.parameter_groups.rds_pglogical_target_pg_name
-  read_only_policy              = true
 }
 
 module "warehouse_redis" {

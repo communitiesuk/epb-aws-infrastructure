@@ -34,10 +34,5 @@ variable "instance_parameter_group_name" {
   type = string
 }
 
-variable "read_only_policy" {
-  type    = bool
-  default = false
-}
-
 
 

@@ -2,9 +2,6 @@ output "rds_full_access_policy_arn" {
   value = aws_iam_policy.rds.arn
 }
 
-output "rds_read_only_policy_arn" {
-  value = try(aws_iam_policy.rds-read-only[0].arn, "")
-}
 
 
 output "rds_cluster_identifier" {
