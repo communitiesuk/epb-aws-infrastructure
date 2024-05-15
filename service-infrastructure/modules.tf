@@ -607,7 +607,7 @@ module "warehouse_application" {
   logs_bucket_name              = module.logging.logs_bucket_name
   logs_bucket_url               = module.logging.logs_bucket_url
   enable_execute_command        = true
-  fargate_weighting             = var.environment == "prod" ? { standard : 10, spot : 0 } : { standard : 0, spot : 10 }
+  fargate_weighting             = { standard : 0, spot : 10 }
   has_target_tracking           = false
 }
 
@@ -651,7 +651,7 @@ module "warehouse_api_application" {
   task_min_capacity     = var.task_min_capacity
   task_cpu              = var.task_cpu
   task_memory           = var.task_memory
-  fargate_weighting     = { standard : 0, spot : 10 }
+  fargate_weighting     = var.environment == "prod" ? { standard : 10, spot : 0 } : { standard : 0, spot : 10 }
 }
 
 module "warehouse_database" {
