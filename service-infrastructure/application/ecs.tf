@@ -142,8 +142,8 @@ resource "aws_ecs_task_definition" "exec_cmd_task" {
   family                   = "${var.prefix}-ecs-exec-cmd-task"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
-  cpu                      = 512
-  memory                   = 2048
+  cpu                      = var.exec_cmd_task_cpu
+  memory                   = var.exec_cmd_task_ram
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
   task_role_arn            = aws_iam_role.ecs_task_role.arn
   container_definitions = jsonencode([

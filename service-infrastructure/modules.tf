@@ -471,6 +471,8 @@ module "scheduled_tasks_application" {
   task_min_capacity             = 0
   external_ecr                  = module.register_api_application.ecr_repository_url
   has_target_tracking           = false
+  exec_cmd_task_cpu             = var.environment == "intg" ? 512 : 1024
+  exec_cmd_task_ram             = var.environment == "intg" ? 512 : 8192
 }
 
 module "warehouse_scheduled_tasks_application" {

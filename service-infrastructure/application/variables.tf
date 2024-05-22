@@ -162,3 +162,13 @@ variable "external_ecr" {
   default = ""
 }
 
+variable "exec_cmd_task_cpu" {
+  type    = number
+  default = 512
+}
+
+variable "exec_cmd_task_ram" {
+  type    = number
+  default = 2048
+}
+
