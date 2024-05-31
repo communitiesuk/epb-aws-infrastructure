@@ -317,7 +317,7 @@ module "view-models-pipeline" {
   codebuild_role_arn      = module.codebuild_role.aws_codebuild_role_arn
   pipeline_name           = "epbr-view-models-pipeline"
   github_repository       = "epb-view-models"
-  github_branch           = "master"
+  github_branch           = "main"
   github_organisation     = var.github_organisation
   codestar_connection_arn = module.codestar_connection.codestar_connection_arn
   project_name            = "epbr-view-models"
