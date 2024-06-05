@@ -1,0 +1,26 @@
+{
+  "rules": [
+    {
+      "rule-type": "selection",
+      "rule-id": "1",
+      "rule-name": "1",
+      "object-locator": {
+        "schema-name": "public",
+        "table-name": "countries"
+      },
+      "rule-action": "include",
+      "load-order": "100"
+    },
+    {
+      "rule-type" : "selection",
+      "rule-id" : "3",
+      "rule-name" : "3",
+      "object-locator" : {
+        "schema-name" : "public",
+        "table-name" : "assessments_country_ids"
+      },
+      "rule-action" : "include",
+      "load-order" : "80"
+    }
+  ]
+}
