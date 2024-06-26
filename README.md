@@ -40,8 +40,8 @@ cd code-pipeline/service-pipelines/
 
 1. Install Terraform:
 <https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli>
-1. Install AWS Vault: <https://github.com/99designs/aws-vault>
-1. Setup your aws access [via aws-vault profile](https://tech-docs.epcregisters.net/dev-setup.html#create-an-aws-vault-profile)
+2. Install AWS Vault: <https://github.com/99designs/aws-vault>
+3. Setup your aws access [via aws-vault profile](https://tech-docs.epcregisters.net/dev-setup.html#create-an-aws-vault-profile)
 
 ### tfvars
 
@@ -102,13 +102,13 @@ The infrastructure used for the S3 backend is defined via terraform in the `/sta
 
 1. `cd /state-init`
 
-1. Initialize your Terraform enivronment  
+2. Initialize your Terraform enivronment  
     `aws-vault exec {profile_name_for_AWS_environment} -- terraform init`
 
     Example:  
     `aws-vault exec integration -- terraform init`
 
-1. Create infrastructure
+3. Create infrastructure
     `aws-vault exec {profile_name_for_AWS_environment} -- terraform apply`
 
     Example:  
@@ -164,11 +164,11 @@ Sanity check the changes have been applied as you expected
 
     `just set-profile  {profile_name_for_AWS_environment}`
 
-1. download a copy of the parameters stored as tfvars in the environment. To do this run
+2. download a copy of the parameters stored as tfvars in the environment. To do this run
 
     `just tfvars-get service-infrastructure {profile_name_for_AWS_environment}`
 
-1. run the apply
+3. run the apply
 
     ` just tf-apply service-infrastructure `
 
@@ -178,7 +178,7 @@ When deployed infrastructure is no longer needed
 
 1. `aws-vault exec {profile_name_for_AWS_environment} -- terraform destroy`
 
-1. Because the state of the S3 and DynamoDB are not stored in a permanent backend, those resources should be deleted
+2. Because the state of the S3 and DynamoDB are not stored in a permanent backend, those resources should be deleted
 through AWS console
 
 ## Restarting a service
