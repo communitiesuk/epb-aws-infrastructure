@@ -65,10 +65,10 @@ module "secrets" {
     "EPB_QUEUES_URI" : module.warehouse_redis.redis_uri
     "EPB_UNLEASH_URI" : "https://${module.toggles_application.internal_alb_name}.${var.domain_name}:443/api"
     "LANDMARK_DATA_BUCKET_NAME" : module.landmark_data.bucket_name
-    "ODE_BUCKET_NAME" : module.open_data_export.open_data_export_bucket_name
+    "ODE_BUCKET_NAME" : module.open_data_export.bucket_name
+    "ODE_BUCKET_ACCESS_KEY" : module.open_data_export.s3_access_key
+    "ODE_BUCKET_SECRET" : module.open_data_export.s3_secret
     "ONS_POSTCODE_BUCKET_NAME" : module.ons_postcode_data.bucket_name
-    "ODE_BUCKET_ACCESS_KEY" : module.open_data_export.open_data_team_s3_access_key
-    "ODE_BUCKET_SECRET" : module.open_data_export.open_data_team_s3_secret
     "RDS_API_SERVICE_CONNECTION_STRING" : module.register_api_database.rds_db_connection_string
     "RDS_API_SERVICE_READER_CONNECTION_STRING" : module.register_api_database.rds_db_reader_connection_string
     "RDS_API_SERVICE_PASSWORD" : module.register_api_database.rds_db_password
@@ -83,6 +83,9 @@ module "secrets" {
     "RDS_WAREHOUSE_READER_CONNECTION_STRING" : module.warehouse_database.rds_db_reader_connection_string
     "RDS_WAREHOUSE_PASSWORD" : module.warehouse_database.rds_db_password
     "RDS_WAREHOUSE_USERNAME" : module.warehouse_database.rds_db_username
+    "WAREHOUSE_EXPORT_BUCKET_NAME" : module.open_data_export.bucket_name
+    "WAREHOUSE_EXPORT_BUCKET_ACCESS_KEY" : module.open_data_export.s3_access_key
+    "WAREHOUSE_EXPORT_BUCKET_SECRET" : module.open_data_export.s3_secret
   }
 }
 
@@ -456,7 +459,7 @@ module "scheduled_tasks_application" {
     "Redis_access" : data.aws_iam_policy.elasticache_full_access.arn
   }
   additional_task_role_policy_arns = {
-    "OpenDataExport_S3_access" : module.open_data_export.open_data_s3_write_access_policy_arn,
+    "OpenDataExport_S3_access" : module.open_data_export.s3_write_access_policy_arn,
     "OnsPostcodeData_S3_access" : module.ons_postcode_data.s3_read_access_policy_arn
     "LandmarkData_S3_access" : module.landmark_data.s3_read_access_policy_arn
 
@@ -603,6 +606,7 @@ module "warehouse_application" {
   additional_task_execution_role_policy_arns = {
     "RDS_access" : module.register_api_database.rds_full_access_policy_arn
     "Redis_access" : data.aws_iam_policy.elasticache_full_access.arn
+    "WarehouseDocumentExport_S3_access" : module.warehouse_document_export.s3_write_access_policy_arn
   }
   aws_cloudwatch_log_group_id   = module.logging.cloudwatch_log_group_id
   aws_cloudwatch_log_group_name = module.logging.cloudwatch_log_group_name
@@ -756,8 +760,13 @@ module "alerts" {
 }
 
 module "open_data_export" {
-  source = "./open_data_export"
+  source = "./s3_bucket_data_export"
   prefix = "${local.prefix}-open-data-export"
+}
+
+module "warehouse_document_export" {
+  source = "./s3_bucket_data_export"
+  prefix = "${local.prefix}-warehouse-document-export"
 }
 
 module "ons_postcode_data" {
