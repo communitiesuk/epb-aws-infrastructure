@@ -229,7 +229,7 @@ one useful option is setting `--minimum-severity` flag
 ## Other infrastructure related tasks
 
 You can see full documentation about 
-[working in our AWS accounts](https://tech-docs.epcregisters.net/aws-migration.html#setting-up-ssl-certificates) in tech
+[working in our AWS accounts](https://tech-docs.epcregisters.net/aws.html#working-in-our-aws-accounts) in tech
 docs.
 
 
