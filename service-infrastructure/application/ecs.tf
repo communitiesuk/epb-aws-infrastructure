@@ -78,7 +78,7 @@ resource "aws_ecs_task_definition" "this" {
       name      = local.fluentbit_container_name
       image     = "${var.fluentbit_ecr_url}:latest"
       cpu       = 0
-      essential = true
+      essential = false
 
       environment = [
         { Name = "FLB_LOG_LEVEL", Value = "debug" },
