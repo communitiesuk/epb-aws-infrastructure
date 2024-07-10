@@ -108,3 +108,8 @@ variable "recaptcha_secret_key" {
   type    = string
   default = ""
 }
+
+variable "postgres_version" {
+  type    = string
+  default = "14.10"
+}

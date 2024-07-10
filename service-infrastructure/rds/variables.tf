@@ -34,3 +34,7 @@ variable "parameter_group_name" {
   type = string
 }
 
+variable "postgres_version" {
+  type = string
+}
+

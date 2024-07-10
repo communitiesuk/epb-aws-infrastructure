@@ -1,7 +1,7 @@
 resource "aws_rds_cluster" "this" {
   cluster_identifier               = "${var.prefix}-aurora-db-cluster"
   engine                           = "aurora-postgresql"
-  engine_version                   = "14.9"
+  engine_version                   = var.postgres_version
   availability_zones               = ["eu-west-2a", "eu-west-2b", "eu-west-2c"]
   database_name                    = var.db_name
   master_username                  = "postgres"

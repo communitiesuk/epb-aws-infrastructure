@@ -2,6 +2,7 @@ resource "aws_db_instance" "postgres_rds" {
   identifier              = "${var.prefix}-postgres-db"
   db_name                 = var.db_name
   engine                  = "postgres"
+  engine_version          = var.postgres_version
   instance_class          = var.instance_class
   vpc_security_group_ids  = [aws_security_group.rds_security_group.id]
   db_subnet_group_name    = var.subnet_group_name
