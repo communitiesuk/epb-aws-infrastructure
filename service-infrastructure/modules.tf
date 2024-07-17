@@ -467,7 +467,6 @@ module "scheduled_tasks_application" {
     "OpenDataExport_S3_access" : module.open_data_export.s3_write_access_policy_arn,
     "OnsPostcodeData_S3_access" : module.ons_postcode_data.s3_read_access_policy_arn
     "LandmarkData_S3_access" : module.landmark_data.s3_read_access_policy_arn
-
   }
   aws_cloudwatch_log_group_id   = module.logging.cloudwatch_log_group_id
   aws_cloudwatch_log_group_name = module.logging.cloudwatch_log_group_name
@@ -608,10 +607,12 @@ module "warehouse_application" {
   fluentbit_ecr_url  = module.fluentbit_ecr.ecr_url
   private_subnet_ids = module.networking.private_subnet_ids
   health_check_path  = null
+  additional_task_role_policy_arns = {
+    "WarehouseDocumentExport_S3_access" : module.warehouse_document_export.s3_write_access_policy_arn
+  }
   additional_task_execution_role_policy_arns = {
     "RDS_access" : module.register_api_database.rds_full_access_policy_arn
     "Redis_access" : data.aws_iam_policy.elasticache_full_access.arn
-    "WarehouseDocumentExport_S3_access" : module.warehouse_document_export.s3_write_access_policy_arn
   }
   aws_cloudwatch_log_group_id   = module.logging.cloudwatch_log_group_id
   aws_cloudwatch_log_group_name = module.logging.cloudwatch_log_group_name
