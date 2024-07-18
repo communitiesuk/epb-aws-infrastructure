@@ -450,7 +450,7 @@ module "scheduled_tasks_application" {
   aws_cloudwatch_log_group_name = module.logging.cloudwatch_log_group_name
   ci_account_id                 = var.ci_account_id
   container_port                = 80
-  egress_ports                  = [80, 443, 5432, var.parameters["LOGSTASH_PORT"]]
+  egress_ports                  = [80, 443, 5432, local.redis_port, var.parameters["LOGSTASH_PORT"]]
   enable_execute_command        = true
   environment_variables         = {}
   exec_cmd_task_cpu             = var.environment == "intg" ? 512 : 1024
