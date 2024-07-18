@@ -435,51 +435,53 @@ module "register_api_database" {
 }
 
 module "scheduled_tasks_application" {
-  source                = "./application"
-  ci_account_id         = var.ci_account_id
-  has_start_task        = false
-  has_exec_cmd_task     = true
-  prefix                = "${local.prefix}-scheduled-tasks"
-  region                = var.region
-  container_port        = 80
-  egress_ports          = [80, 443, 5432, var.parameters["LOGSTASH_PORT"]]
-  environment_variables = {}
-  secrets = {
-    "DATABASE_URL" : module.secrets.secret_arns["RDS_API_SERVICE_CONNECTION_STRING"],
-    "DATABASE_READER_URL" : module.secrets.secret_arns["RDS_API_SERVICE_READER_CONNECTION_STRING"],
-    "EPB_UNLEASH_URI" : module.secrets.secret_arns["EPB_UNLEASH_URI"],
-    "ODE_BUCKET_NAME" : module.secrets.secret_arns["ODE_BUCKET_NAME"]
-    "ONS_POSTCODE_BUCKET_NAME" : module.secrets.secret_arns["ONS_POSTCODE_BUCKET_NAME"]
-    "LANDMARK_DATA_BUCKET_NAME" : module.secrets.secret_arns["LANDMARK_DATA_BUCKET_NAME"]
-  }
-  parameters = merge(module.parameter_store.parameter_arns, {
-    "SENTRY_DSN" : module.parameter_store.parameter_arns["SENTRY_DSN_REGISTER_WORKER"]
-  })
-  vpc_id             = module.networking.vpc_id
-  fluentbit_ecr_url  = module.fluentbit_ecr.ecr_url
-  private_subnet_ids = module.networking.private_subnet_ids
-  health_check_path  = "/healthcheck"
+  source = "./application"
+
   additional_task_execution_role_policy_arns = {
     "RDS_access" : module.register_api_database.rds_full_access_policy_arn,
     "Redis_access" : data.aws_iam_policy.elasticache_full_access.arn
   }
   additional_task_role_policy_arns = {
-    "OpenDataExport_S3_access" : module.open_data_export.s3_write_access_policy_arn,
-    "OnsPostcodeData_S3_access" : module.ons_postcode_data.s3_read_access_policy_arn
-    "LandmarkData_S3_access" : module.landmark_data.s3_read_access_policy_arn
+    "LandmarkData_S3_access" : module.landmark_data.s3_read_access_policy_arn,
+    "OnsPostcodeData_S3_access" : module.ons_postcode_data.s3_read_access_policy_arn,
+    "OpenDataExport_S3_access" : module.open_data_export.s3_write_access_policy_arn
   }
   aws_cloudwatch_log_group_id   = module.logging.cloudwatch_log_group_id
   aws_cloudwatch_log_group_name = module.logging.cloudwatch_log_group_name
-  logs_bucket_name              = module.logging.logs_bucket_name
-  logs_bucket_url               = module.logging.logs_bucket_url
+  ci_account_id                 = var.ci_account_id
+  container_port                = 80
+  egress_ports                  = [80, 443, 5432, var.parameters["LOGSTASH_PORT"]]
   enable_execute_command        = true
-  task_max_capacity             = 3
-  task_desired_capacity         = 0
-  task_min_capacity             = 0
-  external_ecr                  = module.register_api_application.ecr_repository_url
-  has_target_tracking           = false
+  environment_variables         = {}
   exec_cmd_task_cpu             = var.environment == "intg" ? 512 : 1024
   exec_cmd_task_ram             = var.environment == "intg" ? 2048 : 8192
+  external_ecr                  = module.register_api_application.ecr_repository_url
+  fluentbit_ecr_url             = module.fluentbit_ecr.ecr_url
+  has_start_task                = false
+  has_exec_cmd_task             = true
+  has_target_tracking           = false
+  health_check_path             = "/healthcheck"
+  logs_bucket_name              = module.logging.logs_bucket_name
+  logs_bucket_url               = module.logging.logs_bucket_url
+  parameters = merge(module.parameter_store.parameter_arns, {
+    "SENTRY_DSN" : module.parameter_store.parameter_arns["SENTRY_DSN_REGISTER_WORKER"]
+  })
+  prefix             = "${local.prefix}-scheduled-tasks"
+  private_subnet_ids = module.networking.private_subnet_ids
+  region             = var.region
+  secrets = {
+    "DATABASE_URL" : module.secrets.secret_arns["RDS_API_SERVICE_CONNECTION_STRING"],
+    "DATABASE_READER_URL" : module.secrets.secret_arns["RDS_API_SERVICE_READER_CONNECTION_STRING"],
+    "EPB_DATA_WAREHOUSE_QUEUES_URI" : module.secrets.secret_arns["EPB_DATA_WAREHOUSE_QUEUES_URI"],
+    "EPB_UNLEASH_URI" : module.secrets.secret_arns["EPB_UNLEASH_URI"],
+    "LANDMARK_DATA_BUCKET_NAME" : module.secrets.secret_arns["LANDMARK_DATA_BUCKET_NAME"],
+    "ODE_BUCKET_NAME" : module.secrets.secret_arns["ODE_BUCKET_NAME"],
+    "ONS_POSTCODE_BUCKET_NAME" : module.secrets.secret_arns["ONS_POSTCODE_BUCKET_NAME"]
+  }
+  task_desired_capacity = 0
+  task_max_capacity     = 3
+  task_min_capacity     = 0
+  vpc_id                = module.networking.vpc_id
 }
 
 module "warehouse_scheduled_tasks_application" {
