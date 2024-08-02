@@ -141,7 +141,7 @@ resource "aws_cloudwatch_metric_alarm" "rds_alb_5xx_errors" {
   ]
 }
 
-# Create a CloudWatch alarm for ALB 5xx errors
+# Create a CloudWatch alarm for ALB 4xx errors
 resource "aws_cloudwatch_metric_alarm" "rds_alb_4xx_errors" {
   for_each = var.albs
 
@@ -165,6 +165,21 @@ resource "aws_cloudwatch_metric_alarm" "rds_alb_4xx_errors" {
     aws_sns_topic.cloudwatch_alerts.arn,
   ]
   insufficient_data_actions = [
+    aws_sns_topic.cloudwatch_alerts.arn,
+  ]
+}
+
+resource "aws_cloudwatch_metric_alarm" "fargate_spot_instance_terminated_by_AWS_alarm" {
+  alarm_name          = "${aws_cloudwatch_log_metric_filter.fargate_spot_instance_terminated_by_AWS_metric.name}-alarm"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = 1
+  metric_name         = aws_cloudwatch_log_metric_filter.fargate_spot_instance_terminated_by_AWS_metric.name
+  namespace           = "CISBenchmark"
+  period              = 300
+  statistic           = "Sum"
+  threshold           = 1
+
+  alarm_actions = [
     aws_sns_topic.cloudwatch_alerts.arn,
   ]
 }

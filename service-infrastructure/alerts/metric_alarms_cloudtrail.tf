@@ -147,18 +147,3 @@ resource "aws_cloudwatch_metric_alarm" "organization_changes_alarm" {
     aws_sns_topic.cloudwatch_alerts_cloudtrail.arn,
   ]
 }
-
-resource "aws_cloudwatch_metric_alarm" "fargate_spot_instance_terminated_by_AWS_alarm" {
-  alarm_name          = "${aws_cloudwatch_log_metric_filter.fargate_spot_instance_terminated_by_AWS_metric.name}-alarm"
-  comparison_operator = "GreaterThanOrEqualToThreshold"
-  evaluation_periods  = 1
-  metric_name         = aws_cloudwatch_log_metric_filter.fargate_spot_instance_terminated_by_AWS_metric.name
-  namespace           = "CISBenchmark"
-  period              = 300
-  statistic           = "Sum"
-  threshold           = 1
-
-  alarm_actions = [
-    aws_sns_topic.cloudwatch_alerts_cloudtrail.arn,
-  ]
-}
