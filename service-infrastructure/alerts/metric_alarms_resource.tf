@@ -114,7 +114,7 @@ resource "aws_cloudwatch_metric_alarm" "rds_cluster_cpu_usage" {
 }
 
 # Create a CloudWatch alarm for ALB 5xx errors
-resource "aws_cloudwatch_metric_alarm" "rds_alb_5xx_errors" {
+resource "aws_cloudwatch_metric_alarm" "alb_5xx_errors" {
   for_each = var.albs
 
   alarm_name          = "${each.value}-5xx-errors"
@@ -125,6 +125,7 @@ resource "aws_cloudwatch_metric_alarm" "rds_alb_5xx_errors" {
   period              = 300
   statistic           = "Sum"
   threshold           = 0
+  treat_missing_data  = "notBreaching"
 
   dimensions = {
     LoadBalancer = each.value
@@ -142,7 +143,7 @@ resource "aws_cloudwatch_metric_alarm" "rds_alb_5xx_errors" {
 }
 
 # Create a CloudWatch alarm for ALB 4xx errors
-resource "aws_cloudwatch_metric_alarm" "rds_alb_4xx_errors" {
+resource "aws_cloudwatch_metric_alarm" "alb_4xx_errors" {
   for_each = var.albs
 
   alarm_name          = "${each.value}-4xx-errors"
@@ -152,7 +153,8 @@ resource "aws_cloudwatch_metric_alarm" "rds_alb_4xx_errors" {
   namespace           = "AWS/ApplicationELB"
   period              = 300
   statistic           = "Sum"
-  threshold           = 0
+  threshold           = 100
+  treat_missing_data  = "notBreaching"
 
   dimensions = {
     LoadBalancer = each.value
@@ -169,15 +171,16 @@ resource "aws_cloudwatch_metric_alarm" "rds_alb_4xx_errors" {
   ]
 }
 
-resource "aws_cloudwatch_metric_alarm" "fargate_spot_instance_terminated_by_AWS_alarm" {
+resource "aws_cloudwatch_metric_alarm" "fargate_spot_instance_terminated_by_AWS" {
   alarm_name          = "${aws_cloudwatch_log_metric_filter.fargate_spot_instance_terminated_by_AWS_metric.name}-alarm"
-  comparison_operator = "GreaterThanOrEqualToThreshold"
+  comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 1
   metric_name         = aws_cloudwatch_log_metric_filter.fargate_spot_instance_terminated_by_AWS_metric.name
   namespace           = "CISBenchmark"
   period              = 300
   statistic           = "Sum"
-  threshold           = 1
+  threshold           = 0
+  treat_missing_data  = "notBreaching"
 
   alarm_actions = [
     aws_sns_topic.cloudwatch_alerts.arn,
