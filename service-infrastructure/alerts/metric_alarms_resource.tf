@@ -7,9 +7,9 @@ resource "aws_cloudwatch_metric_alarm" "ecs_cpu_usage" {
   evaluation_periods  = 1
   metric_name         = "CPUUtilization"
   namespace           = "AWS/ECS"
-  period              = 300
+  period              = 60
   statistic           = "Average"
-  threshold           = 95
+  threshold           = 90
 
   dimensions = {
     ClusterName = each.value.cluster_name
@@ -36,9 +36,9 @@ resource "aws_cloudwatch_metric_alarm" "ecs_memory_usage" {
   evaluation_periods  = 1
   metric_name         = "MemoryUtilization"
   namespace           = "AWS/ECS"
-  period              = 300
+  period              = 60
   statistic           = "Average"
-  threshold           = 95
+  threshold           = 90
 
   dimensions = {
     ClusterName = each.value.cluster_name
@@ -66,9 +66,9 @@ resource "aws_cloudwatch_metric_alarm" "rds_cpu_usage" {
   evaluation_periods  = 1
   metric_name         = "CPUUtilization"
   namespace           = "AWS/RDS"
-  period              = 300
+  period              = 60
   statistic           = "Average"
-  threshold           = 95
+  threshold           = 90
 
   dimensions = {
     DBInstanceIdentifier = each.value
@@ -94,9 +94,9 @@ resource "aws_cloudwatch_metric_alarm" "rds_cluster_cpu_usage" {
   evaluation_periods  = 1
   metric_name         = "CPUUtilization"
   namespace           = "AWS/RDS"
-  period              = 300
+  period              = 60
   statistic           = "Average"
-  threshold           = 95
+  threshold           = 90
 
   dimensions = {
     DBClusterIdentifier = each.value
@@ -122,9 +122,9 @@ resource "aws_cloudwatch_metric_alarm" "alb_5xx_errors" {
   evaluation_periods  = 1
   metric_name         = "HTTPCode_ELB_5XX_Count"
   namespace           = "AWS/ApplicationELB"
-  period              = 300
+  period              = 60
   statistic           = "Sum"
-  threshold           = 0
+  threshold           = 10
   treat_missing_data  = "notBreaching"
 
   dimensions = {
@@ -148,12 +148,12 @@ resource "aws_cloudwatch_metric_alarm" "alb_4xx_errors" {
 
   alarm_name          = "${each.value}-4xx-errors"
   comparison_operator = "GreaterThanThreshold"
-  evaluation_periods  = 1
+  evaluation_periods  = 2
   metric_name         = "HTTPCode_ELB_4XX_Count"
   namespace           = "AWS/ApplicationELB"
-  period              = 300
+  period              = 60
   statistic           = "Sum"
-  threshold           = 100
+  threshold           = 50
   treat_missing_data  = "notBreaching"
 
   dimensions = {
@@ -177,7 +177,7 @@ resource "aws_cloudwatch_metric_alarm" "fargate_spot_instance_terminated_by_AWS"
   evaluation_periods  = 1
   metric_name         = aws_cloudwatch_log_metric_filter.fargate_spot_instance_terminated_by_AWS_metric.name
   namespace           = "CISBenchmark"
-  period              = 300
+  period              = 60
   statistic           = "Sum"
   threshold           = 0
   treat_missing_data  = "notBreaching"
