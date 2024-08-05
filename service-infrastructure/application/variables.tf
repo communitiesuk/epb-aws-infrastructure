@@ -172,3 +172,7 @@ variable "exec_cmd_task_ram" {
   default = 2048
 }
 
+variable "cloudwatch_ecs_events_arn" {
+  type = string
+}
+

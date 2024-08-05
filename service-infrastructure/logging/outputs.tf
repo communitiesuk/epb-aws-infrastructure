@@ -17,3 +17,8 @@ output "logs_bucket_name" {
 output "logs_bucket_url" {
   value = aws_s3_bucket.logs.bucket_domain_name
 }
+
+output "cloudwatch_ecs_events_arn" {
+  value = aws_cloudwatch_log_group.ecs_events.arn
+}
+

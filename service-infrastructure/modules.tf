@@ -297,8 +297,9 @@ module "toggles_application" {
     path_based_routing_overrides   = []
     extra_lb_target_groups         = 0
   }
-  fargate_weighting   = var.environment == "prod" ? { standard : 10, spot : 0 } : { standard : 0, spot : 10 }
-  has_target_tracking = false
+  fargate_weighting         = var.environment == "prod" ? { standard : 10, spot : 0 } : { standard : 0, spot : 10 }
+  has_target_tracking       = false
+  cloudwatch_ecs_events_arn = module.logging.cloudwatch_ecs_events_arn
 }
 
 module "auth_application" {
@@ -341,8 +342,9 @@ module "auth_application" {
     path_based_routing_overrides   = []
     extra_lb_target_groups         = 1
   }
-  fargate_weighting   = var.environment == "prod" ? { standard : 10, spot : 0 } : { standard : 0, spot : 10 }
-  has_target_tracking = false
+  fargate_weighting         = var.environment == "prod" ? { standard : 10, spot : 0 } : { standard : 0, spot : 10 }
+  has_target_tracking       = false
+  cloudwatch_ecs_events_arn = module.logging.cloudwatch_ecs_events_arn
 }
 
 module "auth_database" {
@@ -411,12 +413,13 @@ module "register_api_application" {
     ]
     extra_lb_target_groups = 0
   }
-  task_max_capacity     = var.task_max_capacity
-  task_desired_capacity = var.task_desired_capacity
-  task_min_capacity     = var.task_min_capacity
-  task_cpu              = var.task_cpu
-  task_memory           = var.task_memory
-  fargate_weighting     = var.environment == "prod" ? { standard : 10, spot : 0 } : { standard : 0, spot : 10 }
+  task_max_capacity         = var.task_max_capacity
+  task_desired_capacity     = var.task_desired_capacity
+  task_min_capacity         = var.task_min_capacity
+  task_cpu                  = var.task_cpu
+  task_memory               = var.task_memory
+  fargate_weighting         = var.environment == "prod" ? { standard : 10, spot : 0 } : { standard : 0, spot : 10 }
+  cloudwatch_ecs_events_arn = module.logging.cloudwatch_ecs_events_arn
 }
 
 module "register_api_database" {
@@ -478,10 +481,11 @@ module "scheduled_tasks_application" {
     "ODE_BUCKET_NAME" : module.secrets.secret_arns["ODE_BUCKET_NAME"],
     "ONS_POSTCODE_BUCKET_NAME" : module.secrets.secret_arns["ONS_POSTCODE_BUCKET_NAME"]
   }
-  task_desired_capacity = 0
-  task_max_capacity     = 3
-  task_min_capacity     = 0
-  vpc_id                = module.networking.vpc_id
+  task_desired_capacity     = 0
+  task_max_capacity         = 3
+  task_min_capacity         = 0
+  vpc_id                    = module.networking.vpc_id
+  cloudwatch_ecs_events_arn = module.logging.cloudwatch_ecs_events_arn
 }
 
 module "warehouse_scheduled_tasks_application" {
@@ -517,6 +521,7 @@ module "warehouse_scheduled_tasks_application" {
   task_min_capacity             = 0
   external_ecr                  = module.warehouse_application.ecr_repository_url
   has_target_tracking           = false
+  cloudwatch_ecs_events_arn     = module.logging.cloudwatch_ecs_events_arn
 }
 
 module "frontend_application" {
@@ -572,13 +577,14 @@ module "frontend_application" {
     cdn_include_static_error_pages = true
     error_pages_bucket_name        = module.error_pages.error_pages_bucket_name
   }
-  task_max_capacity      = var.task_max_capacity
-  task_desired_capacity  = var.task_desired_capacity
-  task_min_capacity      = var.task_min_capacity
-  task_cpu               = var.task_cpu
-  task_memory            = var.task_memory
-  enable_execute_command = var.environment != "prod"
-  fargate_weighting      = var.environment == "prod" ? { standard : 10, spot : 0 } : { standard : 0, spot : 10 }
+  task_max_capacity         = var.task_max_capacity
+  task_desired_capacity     = var.task_desired_capacity
+  task_min_capacity         = var.task_min_capacity
+  task_cpu                  = var.task_cpu
+  task_memory               = var.task_memory
+  enable_execute_command    = var.environment != "prod"
+  fargate_weighting         = var.environment == "prod" ? { standard : 10, spot : 0 } : { standard : 0, spot : 10 }
+  cloudwatch_ecs_events_arn = module.logging.cloudwatch_ecs_events_arn
 }
 
 module "warehouse_application" {
@@ -623,6 +629,7 @@ module "warehouse_application" {
   enable_execute_command        = true
   fargate_weighting             = { standard : 0, spot : 10 }
   has_target_tracking           = false
+  cloudwatch_ecs_events_arn     = module.logging.cloudwatch_ecs_events_arn
 }
 
 module "warehouse_api_application" {
@@ -660,12 +667,13 @@ module "warehouse_api_application" {
   internal_alb_config = {
     ssl_certificate_arn = module.ssl_certificate.certificate_arn
   }
-  task_max_capacity     = var.task_max_capacity
-  task_desired_capacity = var.task_desired_capacity
-  task_min_capacity     = var.task_min_capacity
-  task_cpu              = var.task_cpu
-  task_memory           = var.task_memory
-  fargate_weighting     = var.environment == "prod" ? { standard : 10, spot : 0 } : { standard : 0, spot : 10 }
+  task_max_capacity         = var.task_max_capacity
+  task_desired_capacity     = var.task_desired_capacity
+  task_min_capacity         = var.task_min_capacity
+  task_cpu                  = var.task_cpu
+  task_memory               = var.task_memory
+  fargate_weighting         = var.environment == "prod" ? { standard : 10, spot : 0 } : { standard : 0, spot : 10 }
+  cloudwatch_ecs_events_arn = module.logging.cloudwatch_ecs_events_arn
 }
 
 module "warehouse_database" {

@@ -43,3 +43,11 @@ resource "aws_iam_policy" "cloudwatch_logs_access" {
     ]
   })
 }
+
+# CloudWatch logs group for ECS events
+resource "aws_cloudwatch_log_group" "ecs_events" {
+  # the log group name must always start with "/aws/events/" otherwise it won't work
+  name = "/aws/events/ecs/"
+  # always add logs retention as ECS produces huge amount of events
+  retention_in_days = 1
+}
