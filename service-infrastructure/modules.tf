@@ -83,9 +83,9 @@ module "secrets" {
     "RDS_WAREHOUSE_READER_CONNECTION_STRING" : module.warehouse_database.rds_db_reader_connection_string
     "RDS_WAREHOUSE_PASSWORD" : module.warehouse_database.rds_db_password
     "RDS_WAREHOUSE_USERNAME" : module.warehouse_database.rds_db_username
-    "WAREHOUSE_EXPORT_BUCKET_NAME" : module.open_data_export.bucket_name
-    "WAREHOUSE_EXPORT_BUCKET_ACCESS_KEY" : module.open_data_export.s3_access_key
-    "WAREHOUSE_EXPORT_BUCKET_SECRET" : module.open_data_export.s3_secret
+    "WAREHOUSE_EXPORT_BUCKET_NAME" : module.warehouse_document_export.bucket_name
+    "WAREHOUSE_EXPORT_BUCKET_ACCESS_KEY" : module.warehouse_document_export.s3_access_key
+    "WAREHOUSE_EXPORT_BUCKET_SECRET" : module.warehouse_document_export.s3_secret
   }
 }
 
