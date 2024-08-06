@@ -10,7 +10,7 @@ resource "aws_cloudwatch_metric_alarm" "unauthorized_api_calls_alarm" {
   treat_missing_data  = "notBreaching"
 
   alarm_actions = [
-    aws_sns_topic.cloudwatch_alerts_cloudtrail.arn,
+    aws_sns_topic.cloudwatch_alerts.arn,
   ]
 }
 
@@ -26,7 +26,7 @@ resource "aws_cloudwatch_metric_alarm" "no_mfa_console_signin_alarm" {
   treat_missing_data  = "notBreaching"
 
   alarm_actions = [
-    aws_sns_topic.cloudwatch_alerts_cloudtrail.arn,
+    aws_sns_topic.cloudwatch_alerts.arn,
   ]
 }
 
@@ -42,7 +42,7 @@ resource "aws_cloudwatch_metric_alarm" "root_account_login_alarm" {
   treat_missing_data  = "notBreaching"
 
   alarm_actions = [
-    aws_sns_topic.cloudwatch_alerts_cloudtrail.arn,
+    aws_sns_topic.cloudwatch_alerts.arn,
   ]
 }
 
@@ -58,7 +58,7 @@ resource "aws_cloudwatch_metric_alarm" "iam_policy_changes_alarm" {
   treat_missing_data  = "notBreaching"
 
   alarm_actions = [
-    aws_sns_topic.cloudwatch_alerts_cloudtrail.arn,
+    aws_sns_topic.cloudwatch_alerts.arn,
   ]
 }
 
@@ -74,7 +74,7 @@ resource "aws_cloudwatch_metric_alarm" "cloudtrail_config_changes_alarm" {
   treat_missing_data  = "notBreaching"
 
   alarm_actions = [
-    aws_sns_topic.cloudwatch_alerts_cloudtrail.arn,
+    aws_sns_topic.cloudwatch_alerts.arn,
   ]
 }
 
@@ -90,7 +90,7 @@ resource "aws_cloudwatch_metric_alarm" "s3_bucket_policy_changes_alarm" {
   treat_missing_data  = "notBreaching"
 
   alarm_actions = [
-    aws_sns_topic.cloudwatch_alerts_cloudtrail.arn,
+    aws_sns_topic.cloudwatch_alerts.arn,
   ]
 }
 
@@ -106,7 +106,7 @@ resource "aws_cloudwatch_metric_alarm" "network_gateway_changes_alarm" {
   treat_missing_data  = "notBreaching"
 
   alarm_actions = [
-    aws_sns_topic.cloudwatch_alerts_cloudtrail.arn,
+    aws_sns_topic.cloudwatch_alerts.arn,
   ]
 }
 
@@ -122,7 +122,7 @@ resource "aws_cloudwatch_metric_alarm" "route_tables_changes_alarm" {
   treat_missing_data  = "notBreaching"
 
   alarm_actions = [
-    aws_sns_topic.cloudwatch_alerts_cloudtrail.arn,
+    aws_sns_topic.cloudwatch_alerts.arn,
   ]
 }
 
@@ -138,7 +138,7 @@ resource "aws_cloudwatch_metric_alarm" "vpc_changes_alarm" {
   treat_missing_data  = "notBreaching"
 
   alarm_actions = [
-    aws_sns_topic.cloudwatch_alerts_cloudtrail.arn,
+    aws_sns_topic.cloudwatch_alerts.arn,
   ]
 }
 
@@ -154,6 +154,6 @@ resource "aws_cloudwatch_metric_alarm" "organization_changes_alarm" {
   treat_missing_data  = "notBreaching"
 
   alarm_actions = [
-    aws_sns_topic.cloudwatch_alerts_cloudtrail.arn,
+    aws_sns_topic.cloudwatch_alerts.arn,
   ]
 }
