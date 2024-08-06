@@ -4,9 +4,7 @@ resource "aws_cloudwatch_log_metric_filter" "unauthorized_api_calls_metric" {
   log_group_name = var.cloudtrail_log_group_name
   pattern        = <<EOT
     {($.errorCode = UnauthorizedOperation) ||
-    ($.errorCode = AccessDenied) ||
-    ($.sourceIPAddress != "delivery.logs.amazonaws.com") ||
-    ($.eventName != HeadBucket) }
+    ($.errorCode = AccessDenied) }
   EOT
 
   metric_transformation {
