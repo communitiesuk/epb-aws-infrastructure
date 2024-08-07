@@ -223,7 +223,28 @@ resource "aws_cloudwatch_log_metric_filter" "fargate_spot_instance_terminated_by
 
   metric_transformation {
     name      = "fargate_spot_instance_terminated_by_AWS_metric"
-    namespace = "CISBenchmark"
+    namespace = "ECS"
     value     = "1"
+  }
+}
+
+resource "aws_cloudwatch_log_metric_filter" "ecs_task_failure" {
+  name = "ecs_task_failure"
+
+  pattern        = <<EOT
+{
+  ($.detail.stopCode = "TaskFailedToStart" && $.detail-type = "ECS Task State Change")
+}
+EOT
+  log_group_name = var.cloudwatch_ecs_events_name
+
+  metric_transformation {
+    name      = "ecs_task_failure"
+    namespace = "ECS"
+    value     = "1"
+    unit      = "Count"
+    dimensions = {
+      group = "$.detail.group"
+    }
   }
 }

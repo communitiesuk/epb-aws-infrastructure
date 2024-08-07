@@ -729,9 +729,10 @@ module "fluentbit_ecr" {
 module "alerts" {
   source = "./alerts"
 
-  prefix                    = local.prefix
-  slack_webhook_url         = var.parameters["EPB_TEAM_SLACK_URL"]
-  cloudtrail_log_group_name = module.logging.cloudtrail_log_group_name
+  prefix                     = local.prefix
+  slack_webhook_url          = var.parameters["EPB_TEAM_SLACK_URL"]
+  cloudtrail_log_group_name  = module.logging.cloudtrail_log_group_name
+  cloudwatch_ecs_events_name = module.logging.cloudwatch_ecs_events_name
 
   ecs_services = {
     api_service = {

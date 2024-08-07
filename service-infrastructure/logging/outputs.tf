@@ -22,3 +22,7 @@ output "cloudwatch_ecs_events_arn" {
   value = aws_cloudwatch_log_group.ecs_events.arn
 }
 
+output "cloudwatch_ecs_events_name" {
+  value = aws_cloudwatch_log_group.ecs_events.name
+}
+

@@ -176,7 +176,7 @@ resource "aws_cloudwatch_metric_alarm" "fargate_spot_instance_terminated_by_AWS"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 1
   metric_name         = aws_cloudwatch_log_metric_filter.fargate_spot_instance_terminated_by_AWS_metric.name
-  namespace           = "CISBenchmark"
+  namespace           = "ECS"
   period              = 60
   statistic           = "Sum"
   threshold           = 0
@@ -186,3 +186,23 @@ resource "aws_cloudwatch_metric_alarm" "fargate_spot_instance_terminated_by_AWS"
     aws_sns_topic.cloudwatch_alerts.arn,
   ]
 }
+
+resource "aws_cloudwatch_metric_alarm" "ecs_task_failure" {
+  for_each = var.ecs_services
+
+  alarm_name          = "${each.value.service_name}-ecs-task-failure-alarm"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = 1
+  metric_name         = "ecs_task_failure"
+  namespace           = "ECS"
+  period              = 60
+  statistic           = "SampleCount"
+  threshold           = 1
+  alarm_description   = "task failed"
+  alarm_actions       = [aws_sns_topic.cloudwatch_alerts.arn]
+  treat_missing_data  = "notBreaching"
+  dimensions = {
+    group = "family:${each.value.service_name}-ecs-task"
+  }
+}
+

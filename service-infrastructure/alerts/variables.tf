@@ -28,3 +28,7 @@ variable "slack_webhook_url" {
 variable "cloudtrail_log_group_name" {
   type = string
 }
+
+variable "cloudwatch_ecs_events_name" {
+  type = string
+}
