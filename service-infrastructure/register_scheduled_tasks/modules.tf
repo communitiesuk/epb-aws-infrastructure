@@ -12,6 +12,15 @@ locals {
   ode_export = "for_odc"
 }
 
+module "link_non_dom_assessment_ids_job" {
+  source              = "../scheduled_tasks/event_rule"
+  prefix              = var.prefix
+  rule_name           = "link-non-dom-assessment-ids-job"
+  task_config         = local.task_config
+  schedule_expression = "cron(0 6 ? * 1 *)"
+  command             = ["bundle", "exec", "rake", "maintenance:bulk_link_assessments"]
+}
+
 module "save_previous_day_statistics_job" {
   source              = "../scheduled_tasks/event_rule"
   prefix              = var.prefix
