@@ -153,7 +153,7 @@ resource "aws_cloudwatch_metric_alarm" "alb_4xx_errors" {
   namespace           = "AWS/ApplicationELB"
   period              = 60
   statistic           = "Sum"
-  threshold           = 50
+  threshold           = 1000
   treat_missing_data  = "notBreaching"
 
   dimensions = {
