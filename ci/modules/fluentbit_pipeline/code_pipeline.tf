@@ -24,22 +24,6 @@ resource "aws_codepipeline" "codepipeline" {
     name = "source"
 
     action {
-      name             = "code-source"
-      category         = "Source"
-      owner            = "AWS"
-      provider         = "CodeStarSourceConnection"
-      version          = "1"
-      output_artifacts = ["code_source"]
-
-      configuration = {
-        ConnectionArn        = var.codestar_connection_arn
-        FullRepositoryId     = "${var.github_organisation}/${var.github_repository}"
-        BranchName           = var.github_branch
-        OutputArtifactFormat = "CODEBUILD_CLONE_REF"
-      }
-    }
-
-    action {
       name             = "pipeline-source"
       category         = "Source"
       owner            = "AWS"
@@ -64,7 +48,7 @@ resource "aws_codepipeline" "codepipeline" {
       owner            = "AWS"
       provider         = "CodeBuild"
       version          = "1"
-      input_artifacts  = ["code_source", "pipeline_source"]
+      input_artifacts  = ["pipeline_source"]
       output_artifacts = ["docker_image"]
 
       configuration = {

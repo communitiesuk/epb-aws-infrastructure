@@ -9,7 +9,7 @@ phases:
     commands:
       - echo Build started on `date`
       - echo Building the Docker image...
-      - docker build -t fluentbit $CODEBUILD_SRC_DIR_code_source/fluentbit
+      - docker build -t fluentbit .
 
   post_build:
     commands:
