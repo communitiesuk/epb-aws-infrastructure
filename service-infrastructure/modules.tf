@@ -108,6 +108,10 @@ module "parameter_store" {
       type  = "SecureString"
       value = var.parameters["EPB_TEAM_SLACK_URL"]
     }
+    EPB_TEAM_MAIN_SLACK_URL : {
+      type  = "SecureString"
+      value = var.parameters["EPB_TEAM_MAIN_SLACK_URL"]
+    }
     "EPB_UNLEASH_AUTH_TOKEN" : {
       type  = "SecureString"
       value = var.parameters["EPB_UNLEASH_AUTH_TOKEN"]
