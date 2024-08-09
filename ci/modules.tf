@@ -35,6 +35,7 @@ module "codebuild_role" {
 module "app_test_image_pipeline" {
   artefact_bucket         = module.artefact.codepipeline_bucket
   artefact_bucket_arn     = module.artefact.codepipeline_bucket_arn
+  build_spec_file         = "aws-ruby-node/buildspec_aws.yml"
   configuration           = "aws-ruby-node"
   source                  = "./modules/build_test_image_pipeline"
   codepipeline_role_arn   = module.codepipeline_role.aws_codepipeline_role_arn
@@ -47,13 +48,16 @@ module "app_test_image_pipeline" {
 }
 
 module "postgres_test_image_pipeline" {
-  artefact_bucket         = module.artefact.codepipeline_bucket
-  artefact_bucket_arn     = module.artefact.codepipeline_bucket_arn
-  configuration           = "postgres"
-  source                  = "./modules/build_test_image_pipeline"
+  source = "./modules/build_test_image_pipeline"
+
+  artefact_bucket     = module.artefact.codepipeline_bucket
+  artefact_bucket_arn = module.artefact.codepipeline_bucket_arn
+  build_spec_file     = "buildspec_aws.yml"
+  configuration       = "postgres"
+
   codepipeline_role_arn   = module.codepipeline_role.aws_codepipeline_role_arn
-  github_repository       = "epb-docker-images"
-  github_branch           = "master"
+  github_repository       = "epb-postgres-docker-image"
+  github_branch           = "main"
   github_organisation     = var.github_organisation
   codestar_connection_arn = module.codestar_connection.codestar_connection_arn
   project_name            = "epbr-postgres-image"
