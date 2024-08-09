@@ -10,7 +10,7 @@ variable "task_arn" {
   type = string
 }
 
-variable "vpc_subnet_ids" {
+variable "private_db_subnet_ids" {
   type = list(string)
 }
 
@@ -26,5 +26,8 @@ variable "event_rule_arn" {
   type = string
 }
 
+variable "private_subnet_ids" {
+  type = list(string)
+}
 
 

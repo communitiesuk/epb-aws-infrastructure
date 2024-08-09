@@ -4,7 +4,15 @@ locals {
   task_config = {
     cluster_arn       = var.cluster_arn
     security_group_id = var.security_group_id
-    vpc_subnet_ids    = var.vpc_subnet_ids
+    vpc_subnet_ids    = var.private_db_subnet_ids
+    task_arn          = var.task_arn
+    event_role_arn    = var.event_rule_arn
+    container_name    = var.container_name
+  }
+  task_config_redis = {
+    cluster_arn       = var.cluster_arn
+    security_group_id = var.security_group_id
+    vpc_subnet_ids    = var.private_subnet_ids
     task_arn          = var.task_arn
     event_role_arn    = var.event_rule_arn
     container_name    = var.container_name
@@ -16,7 +24,7 @@ module "link_non_dom_assessment_ids_job" {
   source              = "../scheduled_tasks/event_rule"
   prefix              = var.prefix
   rule_name           = "link-non-dom-assessment-ids-job"
-  task_config         = local.task_config
+  task_config         = local.task_config_redis
   schedule_expression = "cron(0 6 ? * 1 *)"
   command             = ["bundle", "exec", "rake", "maintenance:bulk_link_assessments"]
 }

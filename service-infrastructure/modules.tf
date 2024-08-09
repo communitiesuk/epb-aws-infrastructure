@@ -868,14 +868,15 @@ module "schedule_task_role" {
 }
 
 module "register_schedule_tasks" {
-  source            = "./register_scheduled_tasks"
-  prefix            = local.prefix
-  cluster_arn       = module.scheduled_tasks_application.ecs_cluster_arn
-  security_group_id = module.scheduled_tasks_application.ecs_security_group_id
-  vpc_subnet_ids    = module.networking.private_db_subnet_ids
-  task_arn          = module.scheduled_tasks_application.ecs_task_exec_arn
-  container_name    = module.scheduled_tasks_application.migration_container_name
-  event_rule_arn    = module.schedule_task_role.ecs_events_arn
+  source                = "./register_scheduled_tasks"
+  prefix                = local.prefix
+  cluster_arn           = module.scheduled_tasks_application.ecs_cluster_arn
+  security_group_id     = module.scheduled_tasks_application.ecs_security_group_id
+  private_db_subnet_ids = module.networking.private_db_subnet_ids
+  private_subnet_ids    = module.networking.private_subnet_ids
+  task_arn              = module.scheduled_tasks_application.ecs_task_exec_arn
+  container_name        = module.scheduled_tasks_application.migration_container_name
+  event_rule_arn        = module.schedule_task_role.ecs_events_arn
 }
 
 module "warehouse_schedule_tasks" {
