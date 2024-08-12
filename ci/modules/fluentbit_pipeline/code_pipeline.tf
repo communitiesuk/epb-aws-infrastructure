@@ -34,7 +34,7 @@ resource "aws_codepipeline" "codepipeline" {
       configuration = {
         S3Bucket             = resource.aws_s3_object.code.bucket
         S3ObjectKey          = resource.aws_s3_object.code.key
-        PollForSourceChanges = "false"
+        PollForSourceChanges = "true"
       }
     }
   }

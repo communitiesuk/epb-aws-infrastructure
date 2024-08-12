@@ -33,11 +33,12 @@ module "codebuild_role" {
 }
 
 module "app_test_image_pipeline" {
+  source = "./modules/build_test_image_pipeline"
+
   artefact_bucket         = module.artefact.codepipeline_bucket
   artefact_bucket_arn     = module.artefact.codepipeline_bucket_arn
   build_spec_file         = "aws-ruby-node/buildspec_aws.yml"
   configuration           = "aws-ruby-node"
-  source                  = "./modules/build_test_image_pipeline"
   codepipeline_role_arn   = module.codepipeline_role.aws_codepipeline_role_arn
   github_repository       = "epb-docker-images"
   github_branch           = "master"
@@ -48,20 +49,14 @@ module "app_test_image_pipeline" {
 }
 
 module "postgres_test_image_pipeline" {
-  source = "./modules/build_test_image_pipeline"
+  source                = "./modules/postgres_image_pipeline"
+  artefact_bucket       = module.artefact.codepipeline_bucket
+  artefact_bucket_arn   = module.artefact.codepipeline_bucket_arn
+  codepipeline_role_arn = module.codepipeline_role.aws_codepipeline_role_arn
+  pipeline_name         = "epbr-postgres-image-pipeline"
+  project_name          = "epbr-postgres-image"
+  region                = var.region
 
-  artefact_bucket     = module.artefact.codepipeline_bucket
-  artefact_bucket_arn = module.artefact.codepipeline_bucket_arn
-  build_spec_file     = "buildspec_aws.yml"
-  configuration       = "postgres"
-
-  codepipeline_role_arn   = module.codepipeline_role.aws_codepipeline_role_arn
-  github_repository       = "epb-postgres-docker-image"
-  github_branch           = "main"
-  github_organisation     = var.github_organisation
-  codestar_connection_arn = module.codestar_connection.codestar_connection_arn
-  project_name            = "epbr-postgres-image"
-  region                  = var.region
 }
 
 module "auth-server-pipeline" {
@@ -232,10 +227,6 @@ module "fluentbit_pipeline" {
   codepipeline_role_arn   = module.codepipeline_role.aws_codepipeline_role_arn
   codebuild_role_arn      = module.codebuild_role.aws_codebuild_role_arn
   pipeline_name           = "fluentbit-pipeline"
-  github_repository       = "epb-docker-images"
-  github_branch           = "master"
-  github_organisation     = var.github_organisation
-  codestar_connection_arn = module.codestar_connection.codestar_connection_arn
   account_ids             = var.account_ids
   fluentbit_ecr_name      = "fluentbit"
   project_name            = "fluentbit"
