@@ -11,4 +11,3 @@ repos:
         - --args=-d .
         - --args=--check HIGH  # Only HIGH+ severity issues
         - --args=--skip-check CKV_AWS_103  # Prevents Internal Load balancers HTTP access issues
-      

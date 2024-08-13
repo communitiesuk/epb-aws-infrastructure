@@ -38,7 +38,6 @@ variable "region" {
   type = string
 }
 
-
 variable "build_spec_file" {
   type = string
 }

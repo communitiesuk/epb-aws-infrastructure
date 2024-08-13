@@ -10,7 +10,6 @@ resource "aws_cloudwatch_event_rule" "this" {
 
 }
 
-
 resource "aws_cloudwatch_event_target" "this" {
   target_id = var.app_name
   rule      = aws_cloudwatch_event_rule.this.name
