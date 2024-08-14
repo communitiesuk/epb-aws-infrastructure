@@ -78,7 +78,7 @@ resource "aws_ecs_task_definition" "this" {
       name      = local.fluentbit_container_name
       image     = "${var.fluentbit_ecr_url}:latest"
       cpu       = 0
-      essential = false
+      essential = var.is_fluentbit_container_essential
 
       environment = [
         { Name = "FLB_LOG_LEVEL", Value = "debug" },
@@ -188,7 +188,7 @@ resource "aws_ecs_service" "this" {
   cluster                            = aws_ecs_cluster.this.id
   task_definition                    = try(aws_ecs_task_definition.this[0].arn, null)
   desired_count                      = var.task_desired_capacity
-  deployment_minimum_healthy_percent = 100
+  deployment_minimum_healthy_percent = var.deployment_minimum_healthy_percent
   deployment_maximum_percent         = 200
   scheduling_strategy                = "REPLICA"
   enable_execute_command             = var.enable_execute_command

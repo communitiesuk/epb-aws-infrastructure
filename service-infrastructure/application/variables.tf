@@ -176,3 +176,12 @@ variable "cloudwatch_ecs_events_arn" {
   type = string
 }
 
+variable "deployment_minimum_healthy_percent" {
+  type    = number
+  default = 100
+}
+
+variable "is_fluentbit_container_essential" {
+  type    = bool
+  default = false
+}

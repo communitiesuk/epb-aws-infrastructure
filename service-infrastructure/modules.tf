@@ -529,12 +529,13 @@ module "warehouse_scheduled_tasks_application" {
 }
 
 module "frontend_application" {
-  source         = "./application"
-  ci_account_id  = var.ci_account_id
-  prefix         = "${local.prefix}-frontend"
-  region         = var.region
-  container_port = 3001
-  egress_ports   = [80, 443, 5432, var.parameters["LOGSTASH_PORT"]]
+  source                             = "./application"
+  ci_account_id                      = var.ci_account_id
+  prefix                             = "${local.prefix}-frontend"
+  region                             = var.region
+  container_port                     = 3001
+  deployment_minimum_healthy_percent = var.environment == "intg" ? 0 : 100
+  egress_ports                       = [80, 443, 5432, var.parameters["LOGSTASH_PORT"]]
   environment_variables = {
     "EPB_SUSPECTED_BOT_USER_AGENTS" : var.suspected_bot_user_agents,
     "GTM_PROPERTY_FINDING" : var.gtm_property_finding,
@@ -581,14 +582,15 @@ module "frontend_application" {
     cdn_include_static_error_pages = true
     error_pages_bucket_name        = module.error_pages.error_pages_bucket_name
   }
-  task_max_capacity         = var.task_max_capacity
-  task_desired_capacity     = var.task_desired_capacity
-  task_min_capacity         = var.task_min_capacity
-  task_cpu                  = var.task_cpu
-  task_memory               = var.task_memory
-  enable_execute_command    = var.environment != "prod"
-  fargate_weighting         = var.environment == "prod" ? { standard : 10, spot : 0 } : { standard : 0, spot : 10 }
-  cloudwatch_ecs_events_arn = module.logging.cloudwatch_ecs_events_arn
+  task_max_capacity                = var.task_max_capacity
+  task_desired_capacity            = var.task_desired_capacity
+  task_min_capacity                = var.task_min_capacity
+  task_cpu                         = var.task_cpu
+  task_memory                      = var.task_memory
+  enable_execute_command           = var.environment != "prod"
+  fargate_weighting                = var.environment == "prod" ? { standard : 10, spot : 0 } : { standard : 0, spot : 10 }
+  cloudwatch_ecs_events_arn        = module.logging.cloudwatch_ecs_events_arn
+  is_fluentbit_container_essential = var.environment == "intg" ? true : false
 }
 
 module "warehouse_application" {
