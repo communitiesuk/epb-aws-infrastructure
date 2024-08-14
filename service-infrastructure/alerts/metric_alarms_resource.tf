@@ -199,7 +199,7 @@ resource "aws_cloudwatch_metric_alarm" "ecs_task_failure" {
   statistic           = "SampleCount"
   threshold           = 1
   alarm_description   = "task failed"
-  alarm_actions       = [aws_sns_topic.cloudwatch_alerts.arn]
+  alarm_actions       = [aws_sns_topic.cloudwatch_to_main_slack_alerts.arn]
   treat_missing_data  = "notBreaching"
   dimensions = {
     group = "family:${each.value.service_name}-ecs-task"
