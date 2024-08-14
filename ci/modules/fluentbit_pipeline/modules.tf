@@ -25,7 +25,24 @@ module "codebuild_push_image_integration" {
   environment_variables = [
     { name = "AWS_DEFAULT_REGION", value = var.region },
     { name = "AWS_ACCOUNT_ID", value = var.account_ids["integration"] },
+    { name = "DOCKER_IMAGE_URI", value = "${var.account_ids["integration"]}.dkr.ecr.${var.region}.amazonaws.com/${var.integration_prefix}-${var.app_ecr_name}" },
+    { name = "DOCKER_IMAGE", value = var.app_ecr_name },
     { name = "ECR_URL", value = "${var.account_ids["integration"]}.dkr.ecr.${var.region}.amazonaws.com/${var.integration_prefix}-${var.fluentbit_ecr_name}" },
+    { name = "PREFIX", value = var.integration_prefix },
+  ]
+}
+
+module "codebuild_run_integration_task" {
+  source = "../codebuild_project"
+
+  name               = "${var.project_name}-run-integration-task"
+  region             = var.region
+  codebuild_role_arn = var.codebuild_role_arn
+  build_image_uri    = var.aws_amd_codebuild_image
+  buildspec_file     = "run_integration_task.yml"
+  environment_variables = [
+    { name = "AWS_DEFAULT_REGION", value = var.region },
+    { name = "AWS_ACCOUNT_ID", value = var.account_ids["integration"] },
     { name = "PREFIX", value = var.integration_prefix },
   ]
 }
@@ -41,6 +58,8 @@ module "codebuild_push_image_staging" {
   environment_variables = [
     { name = "AWS_DEFAULT_REGION", value = var.region },
     { name = "AWS_ACCOUNT_ID", value = var.account_ids["staging"] },
+    { name = "DOCKER_IMAGE_URI", value = "${var.account_ids["staging"]}.dkr.ecr.${var.region}.amazonaws.com/${var.integration_prefix}-${var.app_ecr_name}" },
+    { name = "DOCKER_IMAGE", value = var.app_ecr_name },
     { name = "ECR_URL", value = "${var.account_ids["staging"]}.dkr.ecr.${var.region}.amazonaws.com/${var.staging_prefix}-${var.fluentbit_ecr_name}" },
     { name = "PREFIX", value = var.staging_prefix },
   ]
@@ -57,6 +76,8 @@ module "codebuild_push_image_production" {
   environment_variables = [
     { name = "AWS_DEFAULT_REGION", value = var.region },
     { name = "AWS_ACCOUNT_ID", value = var.account_ids["production"] },
+    { name = "DOCKER_IMAGE_URI", value = "${var.account_ids["production"]}.dkr.ecr.${var.region}.amazonaws.com/${var.integration_prefix}-${var.app_ecr_name}" },
+    { name = "DOCKER_IMAGE", value = var.app_ecr_name },
     { name = "ECR_URL", value = "${var.account_ids["production"]}.dkr.ecr.${var.region}.amazonaws.com/${var.production_prefix}-${var.fluentbit_ecr_name}" },
     { name = "PREFIX", value = var.production_prefix },
   ]

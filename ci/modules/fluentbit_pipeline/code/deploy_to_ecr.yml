@@ -11,6 +11,6 @@ phases:
     commands:
       - echo Build started on `date`
       - echo Building the Docker image...
-      - docker load --input $CODEBUILD_SRC_DIR_docker_image/fluentbit.tar
-      - docker tag fluentbit:latest $ECR_URL:latest
-      - docker push $ECR_URL
+      - docker load --input $DOCKER_IMAGE.tar
+      - docker tag $DOCKER_IMAGE:latest $DOCKER_IMAGE_URI:latest
+      - docker push $DOCKER_IMAGE_URI:latest

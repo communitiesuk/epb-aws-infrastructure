@@ -5,6 +5,11 @@ variable "codepipeline_role_arn" {
   type = string
 }
 
+variable "app_ecr_name" {
+  type    = string
+  default = "fluentbit"
+}
+
 variable "codebuild_role_arn" {
   type = string
 }

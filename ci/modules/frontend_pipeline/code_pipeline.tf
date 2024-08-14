@@ -108,6 +108,7 @@ resource "aws_codepipeline" "codepipeline" {
     }
   }
 
+
   stage {
     name = "frontend-smoke-test"
 

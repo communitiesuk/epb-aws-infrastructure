@@ -35,6 +35,7 @@ resource "aws_codepipeline" "codepipeline" {
         S3Bucket             = resource.aws_s3_object.code.bucket
         S3ObjectKey          = resource.aws_s3_object.code.key
         PollForSourceChanges = "true"
+
       }
     }
   }
@@ -50,10 +51,8 @@ resource "aws_codepipeline" "codepipeline" {
       version          = "1"
       input_artifacts  = ["pipeline_source"]
       output_artifacts = ["docker_image"]
-
       configuration = {
-        ProjectName   = module.codebuild_build_image.codebuild_name
-        PrimarySource = "pipeline_source"
+        ProjectName = module.codebuild_build_image.codebuild_name
       }
     }
   }
@@ -62,12 +61,12 @@ resource "aws_codepipeline" "codepipeline" {
     name = "push-image-integration"
 
     action {
-      name            = "push"
+      name            = "push-image-integration"
       category        = "Build"
       owner           = "AWS"
       provider        = "CodeBuild"
       version         = "1"
-      input_artifacts = ["docker_image", "pipeline_source"]
+      input_artifacts = ["docker_image"]
 
       configuration = {
         ProjectName   = module.codebuild_push_image_integration.codebuild_name
@@ -77,19 +76,34 @@ resource "aws_codepipeline" "codepipeline" {
   }
 
   stage {
-    name = "push-image-staging"
-
+    name = "test-frontend-task"
     action {
-      name            = "push"
+      name            = "test-frontend-task"
       category        = "Build"
       owner           = "AWS"
       provider        = "CodeBuild"
       version         = "1"
-      input_artifacts = ["docker_image", "pipeline_source"]
-
+      input_artifacts = ["docker_image"]
       configuration = {
-        ProjectName   = module.codebuild_push_image_staging.codebuild_name
-        PrimarySource = "pipeline_source"
+        ProjectName = module.codebuild_run_integration_task.codebuild_name
+
+      }
+    }
+  }
+
+  stage {
+    name = "push-image-staging"
+
+    action {
+      name            = "push-image-staging"
+      category        = "Build"
+      owner           = "AWS"
+      provider        = "CodeBuild"
+      version         = "1"
+      input_artifacts = ["docker_image"]
+      configuration = {
+        ProjectName = module.codebuild_push_image_staging.codebuild_name
+
       }
     }
   }
@@ -98,16 +112,16 @@ resource "aws_codepipeline" "codepipeline" {
     name = "push-image-production"
 
     action {
-      name            = "push"
+      name            = "push-image-production"
       category        = "Build"
       owner           = "AWS"
       provider        = "CodeBuild"
       version         = "1"
-      input_artifacts = ["docker_image", "pipeline_source"]
+      input_artifacts = ["docker_image"]
 
       configuration = {
-        ProjectName   = module.codebuild_push_image_production.codebuild_name
-        PrimarySource = "pipeline_source"
+        ProjectName = module.codebuild_push_image_production.codebuild_name
+
       }
     }
   }
