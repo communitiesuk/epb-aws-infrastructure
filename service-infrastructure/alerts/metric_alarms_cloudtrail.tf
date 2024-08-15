@@ -6,7 +6,7 @@ resource "aws_cloudwatch_metric_alarm" "unauthorized_api_calls_alarm" {
   namespace           = "CISBenchmark"
   period              = 60
   statistic           = "Sum"
-  threshold           = 1
+  threshold           = 3
   treat_missing_data  = "notBreaching"
 
   alarm_actions = [
