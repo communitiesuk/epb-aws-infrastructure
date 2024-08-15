@@ -31,7 +31,8 @@ resource "aws_iam_role_policy" "ci_ecs_policy" {
           "ec2:Describe*",
           "ecs:RunTask",
           "ecs:DescribeTasks",
-          "iam:PassRole"
+          "ecs:DescribeServices",
+          "iam:PassRole",
         ]
         Resource = "*"
       }
