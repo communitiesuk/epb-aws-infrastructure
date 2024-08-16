@@ -44,6 +44,3 @@ elif [[ $STATUS == "\"STOPPED\"" ]]; then
 fi
 
 done
-
-
-
