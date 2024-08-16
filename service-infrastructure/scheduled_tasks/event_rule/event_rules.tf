@@ -19,6 +19,7 @@ resource "aws_cloudwatch_event_target" "target" {
     }
     launch_type            = "FARGATE"
     enable_execute_command = true
+    propagate_tags         = "TASK_DEFINITION"
   }
 
   input = jsonencode({

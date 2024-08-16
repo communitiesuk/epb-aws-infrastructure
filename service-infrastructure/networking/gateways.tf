@@ -18,6 +18,6 @@ resource "aws_nat_gateway" "this" {
 }
 
 resource "aws_eip" "nat" {
-  count = length(aws_subnet.private)
-  vpc   = true
+  count  = length(aws_subnet.private)
+  domain = "vpc"
 }
