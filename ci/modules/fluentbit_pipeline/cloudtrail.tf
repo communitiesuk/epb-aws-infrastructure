@@ -8,7 +8,7 @@ resource "aws_cloudtrail" "source_updated" {
     data_resource {
       type = "AWS::S3::Object"
 
-      values = ["${var.artefact_bucket_arn}/modules/postgres_image_pipeline/code.zip"]
+      values = ["${var.artefact_bucket_arn}/modules/fluentbit_pipeline/code.zip"]
     }
   }
 }
