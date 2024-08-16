@@ -725,6 +725,7 @@ module "bastion" {
 module "logging" {
   source = "./logging"
   prefix = local.prefix
+  region = var.region
 }
 
 module "fluentbit_ecr" {
