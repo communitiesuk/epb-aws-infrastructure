@@ -15,8 +15,6 @@ resource "aws_iam_role" "ci_role" {
   })
 }
 
-
-
 # https://docs.aws.amazon.com/AmazonECS/latest/userguide/security_iam_id-based-policy-examples.html#IAM_update_service_policies
 resource "aws_iam_role_policy" "ci_ecs_policy" {
   name = "ci-ecs-policy"
