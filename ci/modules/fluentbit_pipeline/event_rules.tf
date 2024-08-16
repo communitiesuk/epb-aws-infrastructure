@@ -1,6 +1,6 @@
-resource "aws_cloudwatch_event_rule" "postgres_image_pipeline_event" {
-  name        = "codepipeline-postgres-image-epbrpipelinestorage-rule"
-  description = "Cloud watch event when new postgres image zip is uploaded to S3"
+resource "aws_cloudwatch_event_rule" "fluentbit_image_pipeline_event" {
+  name        = "codepipeline-fluentbit-image-epbrpipelinestorage-rule"
+  description = "Cloud watch event when new fluentbit image zip is uploaded to S3"
 
   event_pattern = <<EOF
 {
@@ -11,7 +11,7 @@ resource "aws_cloudwatch_event_rule" "postgres_image_pipeline_event" {
     "eventName": ["PutObject", "CompleteMultipartUpload", "CopyObject"],
     "requestParameters": {
       "bucketName": ["epbr-pipeline-storage"],
-      "key": ["modules/postgres_image_pipeline/code.zip"]
+      "key": ["modules/fluentbit_pipeline/code.zip"]
     }
   }
 }
@@ -19,8 +19,8 @@ EOF
 }
 
 resource "aws_cloudwatch_event_target" "code-pipeline" {
-  rule      = aws_cloudwatch_event_rule.postgres_image_pipeline_event.name
+  rule      = aws_cloudwatch_event_rule.fluentbit_image_pipeline_event.name
   target_id = "SendToCodePipeline"
-  arn       = aws_codepipeline.postgres_image_codepipeline.arn
+  arn       = aws_codepipeline.fluentbit_image_codepipeline.arn
   role_arn  = aws_iam_role.pipeline_event_role.arn
 }

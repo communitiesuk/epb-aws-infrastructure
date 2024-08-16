@@ -10,7 +10,7 @@ resource "aws_s3_bucket_public_access_block" "logs" {
   restrict_public_buckets = true
 }
 
-resource "aws_s3_bucket_ownership_controls" "example" {
+resource "aws_s3_bucket_ownership_controls" "bucket_owner" {
   bucket = aws_s3_bucket.logs.id
 
   rule {

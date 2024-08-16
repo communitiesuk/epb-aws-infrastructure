@@ -12,7 +12,7 @@ resource "aws_s3_object" "code" {
   etag = filemd5(data.archive_file.code_zip.output_path)
 }
 
-resource "aws_codepipeline" "codepipeline" {
+resource "aws_codepipeline" "fluentbit_image_codepipeline" {
   name     = var.pipeline_name
   role_arn = var.codepipeline_role_arn
 
@@ -34,7 +34,7 @@ resource "aws_codepipeline" "codepipeline" {
       configuration = {
         S3Bucket             = resource.aws_s3_object.code.bucket
         S3ObjectKey          = resource.aws_s3_object.code.key
-        PollForSourceChanges = "true"
+        PollForSourceChanges = "false"
 
       }
     }

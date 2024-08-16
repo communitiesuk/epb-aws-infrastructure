@@ -1,5 +1,5 @@
 resource "aws_cloudtrail" "source_updated" {
-  name           = "codepipeline-source-trail-postgres"
+  name           = "codepipeline-source-trail-fluentbit"
   s3_bucket_name = "codepipeline-cloudtrail-placeholder-bucket-eu-west-2"
   event_selector {
     read_write_type           = "WriteOnly"
