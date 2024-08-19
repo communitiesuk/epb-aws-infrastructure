@@ -765,6 +765,10 @@ module "alerts" {
       cluster_name = module.warehouse_application.ecs_cluster_name
       service_name = module.warehouse_application.ecs_service_name
     },
+    warehouse_api = {
+      cluster_name = module.warehouse_api_application.ecs_cluster_name
+      service_name = module.warehouse_api_application.ecs_service_name
+    }
   }
 
   rds_instances = {
