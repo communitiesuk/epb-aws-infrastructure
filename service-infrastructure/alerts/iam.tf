@@ -36,8 +36,7 @@ resource "aws_iam_policy" "cloudwatch_sns_subscriber" {
           "sns:Publish",
         ]
         Resource = [
-          aws_sns_topic.cloudwatch_alerts.arn,
-          aws_sns_topic.cloudwatch_to_main_slack_alerts.arn
+          "arn:aws:sns:${var.region}:*:*"
         ]
       }
     ]

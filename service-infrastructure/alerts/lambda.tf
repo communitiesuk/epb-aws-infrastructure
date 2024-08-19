@@ -32,6 +32,8 @@ resource "aws_lambda_permission" "with_sns" {
 }
 
 resource "aws_lambda_function" "main_slack_alerts" {
+  description   = "lambda to send pre-production alerts to the team-epb slack channel"
+  count         = var.main_slack_alerts
   filename      = "slack_alerts.zip" # replace with the name of your lambda function code zip file
   function_name = "${var.prefix}-main-slack-alerts"
   role          = aws_iam_role.lambda_sns_subscriber.arn
@@ -49,9 +51,10 @@ resource "aws_lambda_function" "main_slack_alerts" {
 }
 
 resource "aws_lambda_permission" "main_slack_alerts_with_sns" {
+  count         = var.main_slack_alerts
   statement_id  = "AllowExecutionFromSNS"
   action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.main_slack_alerts.function_name
+  function_name = aws_lambda_function.main_slack_alerts[0].function_name
   principal     = "sns.amazonaws.com"
-  source_arn    = aws_sns_topic.cloudwatch_to_main_slack_alerts.arn
+  source_arn    = aws_sns_topic.cloudwatch_to_main_slack_alerts[0].arn
 }

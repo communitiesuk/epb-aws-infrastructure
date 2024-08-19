@@ -2,6 +2,10 @@ variable "prefix" {
   type = string
 }
 
+variable "region" {
+  type = string
+}
+
 variable "ecs_services" {
   type = map(object({
     cluster_name = string
@@ -27,6 +31,10 @@ variable "slack_webhook_url" {
 
 variable "main_slack_webhook_url" {
   type = string
+}
+
+variable "main_slack_alerts" {
+  type = number
 }
 
 variable "cloudtrail_log_group_name" {
