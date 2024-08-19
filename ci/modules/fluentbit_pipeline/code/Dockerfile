@@ -1,16 +1,16 @@
-FROM fluent/fluent-bit:3.0.6 as builder
-FROM debian:bullseye-slim as debug
+FROM fluent/fluent-bit:latest as builder
+FROM debian:bookworm-slim as debug
 ENV DEBIAN_FRONTEND noninteractive
 
 # hadolint ignore=DL3008
-RUN echo "deb http://deb.debian.org/debian bullseye-backports main" >> /etc/apt/sources.list && \
+RUN echo "deb http://deb.debian.org/debian bookworm-backports main" >> /etc/apt/sources.list && \
     apt-get update && \
     apt-get install -y --no-install-recommends \
-    libssl1.1 \
+    libssl3 \
     libsasl2-2 \
     pkg-config \
     libpq5 \
-    libsystemd0/bullseye-backports \
+    libsystemd0/bookworm-backports \
     zlib1g \
     ca-certificates \
     libatomic1 \
