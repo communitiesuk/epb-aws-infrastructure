@@ -21,10 +21,14 @@ TASK_ID=$(aws ecs run-task  --cluster $CLUSTER_NAME  --task-definition $TASK  \
 
 STATUS=$(aws ecs describe-tasks  --cluster $CLUSTER_NAME --tasks $TASK_ID --query 'tasks[0].containers[0].lastStatus' --profile $PROFILE)
 
+declare -i sleep_count=0
+
 while [[ $STATUS == "\"PENDING\"" ]]; do
 echo "${TASK_ID}  IS PENDING, WAITING FOR STATUS TO CHANGE"
 echo "...sleep for 30 seconds"
 sleep 30
+(( ++sleep_count ))
+
 STATUS=$(aws ecs describe-tasks  --cluster $CLUSTER_NAME --tasks $TASK_ID --query 'tasks[0].containers[0].lastStatus' --profile $PROFILE )
 if [[ $STATUS == "\"RUNNING\"" ]]; then
   # check that a running does not not consequently stop
@@ -43,4 +47,16 @@ elif [[ $STATUS == "\"STOPPED\"" ]]; then
  exit 1
 fi
 
+# Give up waiting after half an hour and fail the pipeline
+if [[ $sleep_count -ge 60 ]]; then
+  echo "${TASK_ID} TASK HAS NOT STARTED AFTER 30 MINUTES"
+  exit 1
+fi
+
 done
+
+# Catch for if task wasn't PENDING at the start of the loop, or has some unexpected value at the end
+if [[ $STATUS != "RUNNING" ]]; then
+  echo "${TASK_ID} TASK STATUS IS $STATUS AND NOT RUNNING"
+  exit 1
+fi
