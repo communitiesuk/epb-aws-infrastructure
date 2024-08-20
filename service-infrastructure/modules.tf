@@ -60,7 +60,7 @@ module "secrets" {
   secrets = {
     "EPB_API_URL" : "https://${module.register_api_application.internal_alb_name}.${var.domain_name}:443"
     "EPB_AUTH_SERVER" : "https://${module.auth_application.internal_alb_name}.${var.domain_name}:443/auth"
-    "EPB_DATA_WAREHOUSE_API_URL" : "http://${module.warehouse_api_application.internal_alb_dns}"
+    "EPB_DATA_WAREHOUSE_API_URL" : "https://${module.warehouse_api_application.internal_alb_name}.${var.domain_name}"
     "EPB_DATA_WAREHOUSE_QUEUES_URI" : module.warehouse_redis.redis_uri
     "EPB_QUEUES_URI" : module.warehouse_redis.redis_uri
     "EPB_UNLEASH_URI" : "https://${module.toggles_application.internal_alb_name}.${var.domain_name}:443/api"
