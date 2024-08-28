@@ -236,3 +236,12 @@ module "export_not_for_publication" {
     },
   ]
 }
+
+module "post_updated_address_id_stats_to_slack_job" {
+  source              = "../scheduled_tasks/event_rule"
+  prefix              = var.prefix
+  rule_name           = "post-updated-address-id-stats-to-slack-job"
+  task_config         = local.task_config
+  schedule_expression = "cron(0 6 ? * mon *)"
+  command             = ["bundle", "exec", "rake", "maintenance:post_updated_address_id_stats"]
+}
