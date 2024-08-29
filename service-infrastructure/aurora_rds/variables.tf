@@ -34,9 +34,19 @@ variable "instance_parameter_group_name" {
   type = string
 }
 
+
+
 variable "postgres_version" {
   type = string
 }
 
+variable "scaling_configuration" {
+  type = object({
+    max_capacity = number
+    min_capacity = number
+  })
+
+  default = null
+}
 
 

@@ -19,7 +19,18 @@ resource "aws_rds_cluster" "this" {
   lifecycle {
     prevent_destroy = true
   }
+
+  dynamic "serverlessv2_scaling_configuration" {
+    for_each = var.scaling_configuration == null ? [] : [0]
+    content {
+      max_capacity = var.scaling_configuration.max_capacity
+      min_capacity = var.scaling_configuration.min_capacity
+    }
+  }
+
 }
+
+
 
 resource "aws_rds_cluster_instance" "this" {
   count = 2

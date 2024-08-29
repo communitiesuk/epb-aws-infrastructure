@@ -687,7 +687,7 @@ module "warehouse_database" {
 
   cluster_parameter_group_name  = module.parameter_groups.aurora_pglogical_target_pg_name
   db_name                       = "epb"
-  instance_class                = var.environment == "intg" ? "db.t3.medium" : var.environment == "stag" ? "db.r5.large" : "db.r5.xlarge"
+  instance_class                = "db.serverless"
   instance_parameter_group_name = module.parameter_groups.rds_pglogical_target_pg_name
   postgres_version              = var.postgres_version
   prefix                        = "${local.prefix}-warehouse"
@@ -695,6 +695,7 @@ module "warehouse_database" {
   storage_backup_period         = var.storage_backup_period
   subnet_group_name             = local.db_subnet
   vpc_id                        = module.networking.vpc_id
+  scaling_configuration         = { max_capacity = 16, min_capacity = 0.5 }
 }
 
 module "warehouse_redis" {
