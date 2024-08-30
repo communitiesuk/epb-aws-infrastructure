@@ -695,7 +695,7 @@ module "warehouse_database" {
   storage_backup_period         = var.storage_backup_period
   subnet_group_name             = local.db_subnet
   vpc_id                        = module.networking.vpc_id
-  scaling_configuration         = { max_capacity = 16, min_capacity = 0.5 }
+  scaling_configuration         = var.environment == "prod" ? { max_capacity = 16, min_capacity = 2 } : { max_capacity = 16, min_capacity = 0.5 }
 }
 
 module "warehouse_redis" {
