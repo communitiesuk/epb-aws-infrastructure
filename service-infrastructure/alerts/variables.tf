@@ -6,6 +6,10 @@ variable "region" {
   type = string
 }
 
+variable "environment" {
+  type = string
+}
+
 variable "ecs_services" {
   type = map(object({
     cluster_name = string

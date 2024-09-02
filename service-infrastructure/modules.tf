@@ -739,6 +739,7 @@ module "alerts" {
 
   prefix                     = local.prefix
   region                     = var.region
+  environment                = var.parameters["STAGE"]
   slack_webhook_url          = var.parameters["EPB_TEAM_SLACK_URL"]
   main_slack_alerts          = var.environment == "intg" ? 1 : 0
   main_slack_webhook_url     = var.parameters["EPB_TEAM_MAIN_SLACK_URL"]

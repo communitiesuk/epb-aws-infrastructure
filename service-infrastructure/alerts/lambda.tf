@@ -19,6 +19,7 @@ resource "aws_lambda_function" "slack_alerts" {
   environment {
     variables = {
       SLACK_WEBHOOK_URL = var.slack_webhook_url
+      ENVIRONMENT       = var.environment
     }
   }
 }
@@ -46,6 +47,7 @@ resource "aws_lambda_function" "main_slack_alerts" {
   environment {
     variables = {
       SLACK_WEBHOOK_URL = var.main_slack_webhook_url
+      ENVIRONMENT       = var.environment
     }
   }
 }

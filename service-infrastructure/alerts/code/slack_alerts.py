@@ -4,6 +4,7 @@ import os
 import logging
 
 slack_hook = os.getenv("SLACK_WEBHOOK_URL")
+environment = os.getenv("ENVIRONMENT")
 http = urllib3.PoolManager()
 
 def lambda_handler(event, context):
@@ -41,6 +42,7 @@ def get_alarm_attributes(sns_message):
         'resource_name': " - ".join([d['value'] for d in sns_message['Trigger']['Dimensions']]),
         'state': sns_message['NewStateValue'],
         'previous_state': sns_message['OldStateValue'],
+        'environment': environment,
     }
 
     return alarm
@@ -54,7 +56,7 @@ def register_alarm(alarm):
                 "type": "header",
                 "text": {
                     "type": "plain_text",
-                    "text": f":new: {alarm['name']} alarm was registered"
+                    "text": f":new: {alarm['name']} alarm was registered in {alarm['environment']}"
                 }
             },
             {
@@ -81,7 +83,7 @@ def activate_alarm(alarm):
                 "type": "header",
                 "text": {
                     "type": "plain_text",
-                    "text": f":red_circle: Alarm: {alarm['name']}",
+                    "text": f":red_circle: Alarm in {alarm['environment']}: {alarm['name']}",
                 }
             },
             {
@@ -119,7 +121,7 @@ def resolve_alarm(alarm):
                 "type": "header",
                 "text": {
                     "type": "plain_text",
-                    "text": f":large_green_circle: Alarm: {alarm['name']} was resolved",
+                    "text": f":large_green_circle: Alarm in {alarm['environment']}: {alarm['name']} was resolved",
                 }
             },
             {
