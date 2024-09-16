@@ -255,7 +255,7 @@ module "toggles_database" {
 
   db_name               = "unleash"
   instance_class        = var.environment == "intg" ? "db.t3.micro" : "db.m5.large"
-  parameter_group_name  = module.parameter_groups.rds_pglogical_target_pg_name
+  parameter_group_name  = module.parameter_groups.rds_pg_param_group_name
   prefix                = "${local.prefix}-toggles"
   postgres_version      = var.postgres_version
   security_group_ids    = [module.toggles_application.ecs_security_group_id, module.bastion.security_group_id]
@@ -356,7 +356,7 @@ module "auth_database" {
 
   db_name               = "epb"
   instance_class        = var.environment == "intg" ? "db.t3.micro" : "db.m5.large"
-  parameter_group_name  = module.parameter_groups.rds_pglogical_target_pg_name
+  parameter_group_name  = module.parameter_groups.rds_pg_param_group_name
   postgres_version      = var.postgres_version
   prefix                = "${local.prefix}-auth"
   security_group_ids    = [module.auth_application.ecs_security_group_id, module.bastion.security_group_id]
@@ -429,10 +429,10 @@ module "register_api_application" {
 module "register_api_database" {
   source = "./aurora_rds"
 
-  cluster_parameter_group_name  = module.parameter_groups.aurora_pglogical_target_pg_name
+  cluster_parameter_group_name  = module.parameter_groups.aurora_pg_param_group_name
   db_name                       = "epb"
   instance_class                = var.environment == "intg" ? "db.t3.medium" : var.environment == "stag" ? "db.r5.large" : "db.r5.2xlarge"
-  instance_parameter_group_name = module.parameter_groups.rds_pglogical_target_pg_name
+  instance_parameter_group_name = module.parameter_groups.rds_pg_param_group_name
   prefix                        = "${local.prefix}-reg-api"
   postgres_version              = var.postgres_version
   security_group_ids            = [module.register_api_application.ecs_security_group_id, module.bastion.security_group_id, module.scheduled_tasks_application.ecs_security_group_id]
@@ -685,10 +685,10 @@ module "warehouse_api_application" {
 module "warehouse_database" {
   source = "./aurora_rds"
 
-  cluster_parameter_group_name  = module.parameter_groups.aurora_pglogical_target_pg_name
+  cluster_parameter_group_name  = module.parameter_groups.aurora_pg_param_group_name
   db_name                       = "epb"
   instance_class                = "db.serverless"
-  instance_parameter_group_name = module.parameter_groups.rds_pglogical_target_pg_name
+  instance_parameter_group_name = module.parameter_groups.rds_pg_param_group_name
   postgres_version              = var.postgres_version
   prefix                        = "${local.prefix}-warehouse"
   security_group_ids            = [module.warehouse_application.ecs_security_group_id, module.bastion.security_group_id, module.warehouse_scheduled_tasks_application.ecs_security_group_id, module.warehouse_api_application.ecs_security_group_id]
