@@ -83,3 +83,18 @@ module "send_heat_pump_count_by_description" {
     },
   ]
 }
+
+module "refresh_average_co2_emissions" {
+  source              = "../scheduled_tasks/event_rule"
+  prefix              = var.prefix
+  rule_name           = "refresh-average-co2-emissions"
+  task_config         = local.task_config
+  schedule_expression = "cron(20 01 1 * ? *)"
+  command             = ["bundle", "exec", "rake", "refresh_average_co2_emissions"]
+  environment = [
+    {
+      "name" : "CONCURRENTLY",
+      "value" : "true"
+    },
+  ]
+}
