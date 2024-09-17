@@ -257,7 +257,7 @@ module "toggles_database" {
   instance_class        = var.environment == "intg" ? "db.t3.micro" : "db.m5.large"
   parameter_group_name  = module.parameter_groups.rds_pg_param_group_name
   prefix                = "${local.prefix}-toggles"
-  postgres_version      = var.postgres_version
+  postgres_version      = var.postgres_rds_version
   security_group_ids    = [module.toggles_application.ecs_security_group_id, module.bastion.security_group_id]
   storage_backup_period = 1
   storage_size          = 5
@@ -357,7 +357,7 @@ module "auth_database" {
   db_name               = "epb"
   instance_class        = var.environment == "intg" ? "db.t3.micro" : "db.m5.large"
   parameter_group_name  = module.parameter_groups.rds_pg_param_group_name
-  postgres_version      = var.postgres_version
+  postgres_version      = var.postgres_rds_version
   prefix                = "${local.prefix}-auth"
   security_group_ids    = [module.auth_application.ecs_security_group_id, module.bastion.security_group_id]
   storage_backup_period = 1 # to prevent weird behaviour when the backup window is set to 0
@@ -434,7 +434,7 @@ module "register_api_database" {
   instance_class                = var.environment == "intg" ? "db.t3.medium" : var.environment == "stag" ? "db.r5.large" : "db.r5.2xlarge"
   instance_parameter_group_name = module.parameter_groups.rds_pg_param_group_name
   prefix                        = "${local.prefix}-reg-api"
-  postgres_version              = var.postgres_version
+  postgres_version              = var.postgres_aurora_version
   security_group_ids            = [module.register_api_application.ecs_security_group_id, module.bastion.security_group_id, module.scheduled_tasks_application.ecs_security_group_id]
   storage_backup_period         = var.storage_backup_period
   subnet_group_name             = local.db_subnet
@@ -689,7 +689,7 @@ module "warehouse_database" {
   db_name                       = "epb"
   instance_class                = "db.serverless"
   instance_parameter_group_name = module.parameter_groups.rds_pg_param_group_name
-  postgres_version              = var.postgres_version
+  postgres_version              = var.postgres_aurora_version
   prefix                        = "${local.prefix}-warehouse"
   security_group_ids            = [module.warehouse_application.ecs_security_group_id, module.bastion.security_group_id, module.warehouse_scheduled_tasks_application.ecs_security_group_id, module.warehouse_api_application.ecs_security_group_id]
   storage_backup_period         = var.storage_backup_period
