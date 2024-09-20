@@ -3,13 +3,14 @@ resource "aws_cloudwatch_metric_alarm" "ecs_cpu_usage" {
   for_each = var.ecs_services
 
   alarm_name          = "${each.value.service_name}-cpu-usage"
-  comparison_operator = "GreaterThanThreshold"
-  evaluation_periods  = 1
-  metric_name         = "CPUUtilization"
+  alarm_description   = "ECS CPU utilization has been >90% for over a minute"
   namespace           = "AWS/ECS"
+  comparison_operator = "GreaterThanThreshold"
+  metric_name         = "CPUUtilization"
+  evaluation_periods  = 1
   period              = 60
-  statistic           = "Average"
   threshold           = 90
+  statistic           = "Average"
 
   dimensions = {
     ClusterName = each.value.cluster_name
@@ -32,13 +33,14 @@ resource "aws_cloudwatch_metric_alarm" "ecs_memory_usage" {
   for_each = var.ecs_services
 
   alarm_name          = "${each.value.service_name}-memory-usage"
-  comparison_operator = "GreaterThanThreshold"
-  evaluation_periods  = 1
-  metric_name         = "MemoryUtilization"
+  alarm_description   = "ECS memory usage has been >90% for over a minute"
   namespace           = "AWS/ECS"
+  comparison_operator = "GreaterThanThreshold"
+  metric_name         = "MemoryUtilization"
+  evaluation_periods  = 1
   period              = 60
-  statistic           = "Average"
   threshold           = 90
+  statistic           = "Average"
 
   dimensions = {
     ClusterName = each.value.cluster_name
@@ -62,10 +64,11 @@ resource "aws_cloudwatch_metric_alarm" "rds_cpu_usage" {
   for_each = var.rds_instances
 
   alarm_name          = "${each.value}-cpu-usage"
-  comparison_operator = "GreaterThanThreshold"
-  evaluation_periods  = 1
-  metric_name         = "CPUUtilization"
+  alarm_description   = "RDS Database CPU utilization has been >90% for over a minute"
   namespace           = "AWS/RDS"
+  comparison_operator = "GreaterThanThreshold"
+  metric_name         = "CPUUtilization"
+  evaluation_periods  = 1
   period              = 60
   statistic           = "Average"
   threshold           = 90
@@ -86,17 +89,20 @@ resource "aws_cloudwatch_metric_alarm" "rds_cpu_usage" {
 }
 
 # Create a CloudWatch alarm for RDS Cluster CPU usage
+# CPUUtilization is the average of reader and writer instances, so we alert at 45% average utilization,
+# which could correspond to one instance being over 90%
 resource "aws_cloudwatch_metric_alarm" "rds_cluster_cpu_usage" {
   for_each = var.rds_clusters
 
   alarm_name          = "${each.value}-cpu-usage"
-  comparison_operator = "GreaterThanThreshold"
-  evaluation_periods  = 1
-  metric_name         = "CPUUtilization"
+  alarm_description   = "Aurora cluster CPU utilization has been >45% for over a minute"
   namespace           = "AWS/RDS"
+  comparison_operator = "GreaterThanThreshold"
+  metric_name         = "CPUUtilization"
+  evaluation_periods  = 1
   period              = 60
+  threshold           = 45
   statistic           = "Average"
-  threshold           = 90
 
   dimensions = {
     DBClusterIdentifier = each.value
@@ -118,14 +124,15 @@ resource "aws_cloudwatch_metric_alarm" "alb_5xx_errors" {
   for_each = var.albs
 
   alarm_name          = "${each.value}-5xx-errors"
-  comparison_operator = "GreaterThanThreshold"
-  evaluation_periods  = 1
-  metric_name         = "HTTPCode_ELB_5XX_Count"
+  alarm_description   = "There have been >10 5xx responses at the ALB in a minute"
   namespace           = "AWS/ApplicationELB"
-  period              = 60
-  statistic           = "Sum"
-  threshold           = 10
+  comparison_operator = "GreaterThanThreshold"
   treat_missing_data  = "notBreaching"
+  metric_name         = "HTTPCode_ELB_5XX_Count"
+  evaluation_periods  = 1
+  period              = 60
+  threshold           = 10
+  statistic           = "Sum"
 
   dimensions = {
     LoadBalancer = each.value
@@ -147,14 +154,15 @@ resource "aws_cloudwatch_metric_alarm" "alb_4xx_errors" {
   for_each = var.albs
 
   alarm_name          = "${each.value}-4xx-errors"
-  comparison_operator = "GreaterThanThreshold"
-  evaluation_periods  = 2
-  metric_name         = "HTTPCode_ELB_4XX_Count"
+  alarm_description   = "There have been >5000 ALB 4xx for 3 minutes straight"
   namespace           = "AWS/ApplicationELB"
-  period              = 60
-  statistic           = "Sum"
-  threshold           = 1000
+  comparison_operator = "GreaterThanThreshold"
   treat_missing_data  = "notBreaching"
+  metric_name         = "HTTPCode_ELB_4XX_Count"
+  evaluation_periods  = 3
+  period              = 60
+  threshold           = 5000
+  statistic           = "Sum"
 
   dimensions = {
     LoadBalancer = each.value
@@ -173,14 +181,15 @@ resource "aws_cloudwatch_metric_alarm" "alb_4xx_errors" {
 
 resource "aws_cloudwatch_metric_alarm" "fargate_spot_instance_terminated_by_AWS" {
   alarm_name          = "${aws_cloudwatch_log_metric_filter.fargate_spot_instance_terminated_by_AWS_metric.name}-alarm"
-  comparison_operator = "GreaterThanThreshold"
-  evaluation_periods  = 1
-  metric_name         = aws_cloudwatch_log_metric_filter.fargate_spot_instance_terminated_by_AWS_metric.name
+  alarm_description   = "A Fargate Spot instance has been terminated by AWS"
   namespace           = "ECS"
-  period              = 60
-  statistic           = "Sum"
-  threshold           = 0
+  comparison_operator = "GreaterThanThreshold"
   treat_missing_data  = "notBreaching"
+  metric_name         = aws_cloudwatch_log_metric_filter.fargate_spot_instance_terminated_by_AWS_metric.name
+  evaluation_periods  = 1
+  period              = 60
+  threshold           = 0
+  statistic           = "Sum"
 
   alarm_actions = [
     aws_sns_topic.cloudwatch_alerts.arn,
@@ -191,18 +200,18 @@ resource "aws_cloudwatch_metric_alarm" "ecs_task_failure" {
   for_each = var.ecs_services
 
   alarm_name          = "${each.value.service_name}-ecs-task-failure-alarm"
+  alarm_description   = "An ECS task has failed to start and reach a healthy state"
+  namespace           = "AWS/ECS"
   comparison_operator = "GreaterThanOrEqualToThreshold"
-  evaluation_periods  = 1
-  metric_name         = "ecs_task_failure"
-  namespace           = "ECS"
-  period              = 60
-  statistic           = "SampleCount"
-  threshold           = 1
-  alarm_description   = "task failed"
-  alarm_actions       = var.main_slack_alerts == 1 ? [aws_sns_topic.cloudwatch_to_main_slack_alerts[0].arn] : [aws_sns_topic.cloudwatch_alerts.arn]
   treat_missing_data  = "notBreaching"
+  metric_name         = "ecs_task_failure"
+  evaluation_periods  = 1
+  period              = 60
+  threshold           = 1
+  statistic           = "SampleCount"
+  alarm_actions       = var.main_slack_alerts == 1 ? [aws_sns_topic.cloudwatch_to_main_slack_alerts[0].arn] : [aws_sns_topic.cloudwatch_alerts.arn]
+
   dimensions = {
     group = "family:${each.value.service_name}-ecs-task"
   }
 }
-

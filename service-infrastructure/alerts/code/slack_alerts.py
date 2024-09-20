@@ -83,7 +83,7 @@ def activate_alarm(alarm):
                 "type": "header",
                 "text": {
                     "type": "plain_text",
-                    "text": f":red_circle: Alarm in {alarm['environment']}: {alarm['name']}",
+                    "text": f":red_circle: Alarm in {alarm['environment']}: {alarm['description']}",
                 }
             },
             {
@@ -121,7 +121,7 @@ def resolve_alarm(alarm):
                 "type": "header",
                 "text": {
                     "type": "plain_text",
-                    "text": f":large_green_circle: Alarm in {alarm['environment']}: {alarm['name']} was resolved",
+                    "text": f":large_green_circle: Resolved in {alarm['environment']}: {alarm['description']}",
                 }
             },
             {
