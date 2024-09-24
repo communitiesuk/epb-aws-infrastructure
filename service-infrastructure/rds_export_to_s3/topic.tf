@@ -68,3 +68,13 @@ resource "aws_lambda_permission" "snsCanTriggerMonitorExportTask" {
   principal     = "sns.amazonaws.com"
   source_arn    = aws_sns_topic.rdsSnapshotsEvents.arn
 }
+
+#
+# Subscribe SQS to the Topics
+#
+
+resource "aws_sns_topic_subscription" "monitor_message_to_sqs" {
+  topic_arn = aws_sns_topic.exportMonitorNotifications[0].arn
+  protocol  = "sqs"
+  endpoint  = aws_sqs_queue.monitor_queue.arn
+}
