@@ -1,5 +1,23 @@
 resource "aws_sqs_queue" "monitor_queue" {
   name = "monitor-queue"
+
+  redrive_policy = jsonencode({
+    deadLetterTargetArn = aws_sqs_queue.monitor_dead_letter.arn
+    maxReceiveCount     = 4
+  })
+}
+
+resource "aws_sqs_queue" "monitor_dead_letter" {
+  name = "monitor-dead-letter-queue"
+}
+
+resource "aws_sqs_queue_redrive_allow_policy" "terraform_queue_redrive_allow_policy" {
+  queue_url = aws_sqs_queue.monitor_dead_letter.id
+
+  redrive_allow_policy = jsonencode({
+    redrivePermission = "byQueue",
+    sourceQueueArns   = [aws_sqs_queue.monitor_queue.arn]
+  })
 }
 
 data "aws_iam_policy_document" "sns_to_sqs_document" {
