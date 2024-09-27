@@ -254,8 +254,3 @@ EOT
     }
   }
 }
-
-moved {
-  from = aws_cloudwatch_log_metric_filter.ecs_task_failure
-  to   = aws_cloudwatch_log_metric_filter.ecs_task_start_failure
-}
