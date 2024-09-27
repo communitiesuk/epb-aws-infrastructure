@@ -184,7 +184,7 @@ resource "aws_cloudwatch_metric_alarm" "ecs_task_start_failure" {
 
   alarm_name          = "${each.value.service_name}-ecs-task-start-failure-alarm"
   alarm_description   = "An ECS task has failed to start and reach a healthy state"
-  namespace           = "AWS/ECS"
+  namespace           = "ECS"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   treat_missing_data  = "notBreaching"
   metric_name         = "ecs_task_start_failure"
