@@ -17,6 +17,10 @@ variable "ecs_services" {
   }))
 }
 
+variable "exec_cmd_tasks" {
+  type = map(string)
+}
+
 variable "rds_instances" {
   type = map(string)
 }

@@ -179,32 +179,15 @@ resource "aws_cloudwatch_metric_alarm" "alb_4xx_errors" {
   ]
 }
 
-resource "aws_cloudwatch_metric_alarm" "fargate_spot_instance_terminated_by_AWS" {
-  alarm_name          = "${aws_cloudwatch_log_metric_filter.fargate_spot_instance_terminated_by_AWS_metric.name}-alarm"
-  alarm_description   = "A Fargate Spot instance has been terminated by AWS"
-  namespace           = "ECS"
-  comparison_operator = "GreaterThanThreshold"
-  treat_missing_data  = "notBreaching"
-  metric_name         = aws_cloudwatch_log_metric_filter.fargate_spot_instance_terminated_by_AWS_metric.name
-  evaluation_periods  = 1
-  period              = 60
-  threshold           = 0
-  statistic           = "Sum"
-
-  alarm_actions = [
-    aws_sns_topic.cloudwatch_alerts.arn,
-  ]
-}
-
-resource "aws_cloudwatch_metric_alarm" "ecs_task_failure" {
+resource "aws_cloudwatch_metric_alarm" "ecs_task_start_failure" {
   for_each = var.ecs_services
 
-  alarm_name          = "${each.value.service_name}-ecs-task-failure-alarm"
+  alarm_name          = "${each.value.service_name}-ecs-task-start-failure-alarm"
   alarm_description   = "An ECS task has failed to start and reach a healthy state"
   namespace           = "AWS/ECS"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   treat_missing_data  = "notBreaching"
-  metric_name         = "ecs_task_failure"
+  metric_name         = "ecs_task_start_failure"
   evaluation_periods  = 1
   period              = 60
   threshold           = 1
@@ -213,5 +196,25 @@ resource "aws_cloudwatch_metric_alarm" "ecs_task_failure" {
 
   dimensions = {
     group = "family:${each.value.service_name}-ecs-task"
+  }
+}
+
+resource "aws_cloudwatch_metric_alarm" "ecs_exec_cmd_task_failure" {
+  for_each = var.exec_cmd_tasks
+
+  alarm_name          = "${each.value}-failure-alarm"
+  alarm_description   = "An ECS exec cmd task has failed"
+  namespace           = "ECS"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  treat_missing_data  = "notBreaching"
+  metric_name         = "ecs_exec_cmd_task_failure"
+  evaluation_periods  = 1
+  period              = 60
+  threshold           = 1
+  statistic           = "SampleCount"
+  alarm_actions       = [aws_sns_topic.cloudwatch_alerts.arn]
+
+  dimensions = {
+    group = "family:${each.value}"
   }
 }

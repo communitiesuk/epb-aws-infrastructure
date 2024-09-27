@@ -213,23 +213,8 @@ resource "aws_cloudwatch_log_metric_filter" "organization_changes_metric" {
   }
 }
 
-resource "aws_cloudwatch_log_metric_filter" "fargate_spot_instance_terminated_by_AWS_metric" {
-  name = "fargate_spot_instance_terminated_by_AWS_metric"
-
-  log_group_name = var.cloudtrail_log_group_name
-  pattern        = <<EOT
-    {($.eventName = BidEvictedEvent)}
-  EOT
-
-  metric_transformation {
-    name      = "fargate_spot_instance_terminated_by_AWS_metric"
-    namespace = "ECS"
-    value     = "1"
-  }
-}
-
-resource "aws_cloudwatch_log_metric_filter" "ecs_task_failure" {
-  name = "ecs_task_failure"
+resource "aws_cloudwatch_log_metric_filter" "ecs_task_start_failure" {
+  name = "ecs_task_start_failure"
 
   pattern        = <<EOT
 {
@@ -239,7 +224,7 @@ EOT
   log_group_name = var.cloudwatch_ecs_events_name
 
   metric_transformation {
-    name      = "ecs_task_failure"
+    name      = "ecs_task_start_failure"
     namespace = "ECS"
     value     = "1"
     unit      = "Count"
@@ -247,4 +232,30 @@ EOT
       group = "$.detail.group"
     }
   }
+}
+
+resource "aws_cloudwatch_log_metric_filter" "ecs_exec_cmd_task_failure" {
+  name = "ecs_exec_cmd_task_failure"
+
+  pattern        = <<EOT
+{
+  ($.detail-type = "ECS Task State Change" && $.detail.stopCode != "SpotInterruption" && $.detail.stopCode != "ServiceSchedulerInitiated" && $.detail.containers[0].exitCode != 0)
+}
+EOT
+  log_group_name = var.cloudwatch_ecs_events_name
+
+  metric_transformation {
+    name      = "ecs_exec_cmd_task_failure"
+    namespace = "ECS"
+    value     = "1"
+    unit      = "Count"
+    dimensions = {
+      group = "$.detail.group"
+    }
+  }
+}
+
+moved {
+  from = aws_cloudwatch_log_metric_filter.ecs_task_failure
+  to   = aws_cloudwatch_log_metric_filter.ecs_task_start_failure
 }

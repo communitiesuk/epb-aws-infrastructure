@@ -773,6 +773,14 @@ module "alerts" {
     }
   }
 
+  exec_cmd_tasks = {
+    auth_service          = module.auth_application.ecs_exec_cmd_task_family
+    reg_api_service       = module.register_api_application.ecs_exec_cmd_task_family
+    scheduled_tasks       = module.scheduled_tasks_application.ecs_exec_cmd_task_family
+    warehouse_service     = module.warehouse_application.ecs_exec_cmd_task_family
+    warehouse_api_service = module.warehouse_api_application.ecs_exec_cmd_task_family
+  }
+
   rds_instances = {
     auth_service = module.auth_database.rds_instance_identifier
     toggles      = module.toggles_database.rds_instance_identifier

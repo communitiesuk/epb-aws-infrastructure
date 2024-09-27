@@ -59,6 +59,10 @@ output "ecs_task_exec_arn" {
   value = try(aws_ecs_task_definition.exec_cmd_task[0].arn, "")
 }
 
+output "ecs_exec_cmd_task_family" {
+  value = try(aws_ecs_task_definition.exec_cmd_task[0].family, "")
+}
+
 output "migration_container_name" {
   value = local.migration_container_name
 }
