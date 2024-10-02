@@ -148,7 +148,7 @@ rds-list: _ensure_aws_profile
 
 # list available rds aurora endpoints (shown with WRITER/READER type)
 aurora-list: _ensure_aws_profile
-    #!/usr/bin/env bash
+    #!/usr/bin/env bash.j
 
     aws-vault exec $AWS_PROFILE -- aws rds describe-db-cluster-endpoints --query 'DBClusterEndpoints[*].[EndpointType,Endpoint]' --output table
     echo "run 'just rds-connect <endpoint>' to connect to the rds instance"
@@ -166,14 +166,20 @@ rds-connect rds_endpoint local_port="5555": _ensure_aws_profile
     
     aws-vault exec $AWS_PROFILE -- aws ssm start-session --target "$BASTION_RDS_INSTANCE_ID" --document-name AWS-StartPortForwardingSessionToRemoteHost --parameters host="{{rds_endpoint}}",portNumber="5432",localPortNumber="{{local_port}}"
 
-redis-connect redis_endpoint local_port="6380": _ensure_aws_profile
+# Creates ssh tunnel to Redis cluster intance
+redis-connect redis_endpoint="" local_port="6380": _ensure_aws_profile
      #!/usr/bin/env bash
+     if [ -z "$1" ]; then
+       REDIS_ENDPOINT=$(aws-vault exec $AWS_PROFILE -- aws elasticache describe-cache-clusters --query 'CacheClusters[0].CacheNodes[0].Endpoint.Address' --show-cache-node-info --output text | awk '{print $1}')
+     else
+        REDIS_ENDPOINT={{redis_endpoint}}
+     fi
 
      BASTION_INSTANCE_ID=$(aws-vault exec $AWS_PROFILE -- aws ec2 describe-instances --filters "Name=tag:Name,Values=bastion-host" --query 'Reservations[*].Instances[*].InstanceId' --output text)
      echo "You can connect to Redis now using localhost:{{local_port}}"
      echo "e.g. redis-cli -h localhost -p 6380"
 
-     aws-vault exec $AWS_PROFILE -- aws ssm start-session --target "$BASTION_INSTANCE_ID" --document-name AWS-StartPortForwardingSessionToRemoteHost --parameters host="{{redis_endpoint}}",portNumber="6379",localPortNumber="{{local_port}}"
+     aws-vault exec $AWS_PROFILE -- aws ssm start-session --target "$BASTION_INSTANCE_ID" --document-name AWS-StartPortForwardingSessionToRemoteHost --parameters host="$REDIS_ENDPOINT",portNumber="6379",localPortNumber="{{local_port}}"
 
 
 # Disconnects from RDS instance
