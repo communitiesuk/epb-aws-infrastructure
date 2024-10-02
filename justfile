@@ -148,7 +148,7 @@ rds-list: _ensure_aws_profile
 
 # list available rds aurora endpoints (shown with WRITER/READER type)
 aurora-list: _ensure_aws_profile
-    #!/usr/bin/env bash.j
+    #!/usr/bin/env bash
 
     aws-vault exec $AWS_PROFILE -- aws rds describe-db-cluster-endpoints --query 'DBClusterEndpoints[*].[EndpointType,Endpoint]' --output table
     echo "run 'just rds-connect <endpoint>' to connect to the rds instance"
