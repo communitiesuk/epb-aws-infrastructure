@@ -47,14 +47,14 @@ module "post_previous_day_statistics_to_slack_job" {
   command             = ["bundle", "exec", "rake", "maintenance:post_previous_day_statistics"]
 }
 
-module "update_address_base" {
-  source              = "../scheduled_tasks/event_rule"
-  prefix              = var.prefix
-  rule_name           = "update-address-base"
-  task_config         = local.task_config
-  schedule_expression = "cron(15 4 * * ? *)"
-  command             = ["npm", "run", "update-address-base-auto"]
-}
+# module "update_address_base" {
+#   source              = "../scheduled_tasks/event_rule"
+#   prefix              = var.prefix
+#   rule_name           = "update-address-base"
+#   task_config         = local.task_config
+#   schedule_expression = "cron(15 4 * * ? *)"
+#   command             = ["npm", "run", "update-address-base-auto"]
+# }
 
 module "import_green_deal_fuel_price_data" {
   source              = "../scheduled_tasks/event_rule"
