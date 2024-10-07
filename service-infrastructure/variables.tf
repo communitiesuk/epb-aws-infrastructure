@@ -116,5 +116,5 @@ variable "postgres_rds_version" {
 
 variable "postgres_aurora_version" {
   type    = string
-  default = "14.10"
+  default = "14.12"
 }
