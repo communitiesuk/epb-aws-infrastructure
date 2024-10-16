@@ -506,7 +506,7 @@ module "warehouse_scheduled_tasks_application" {
     "DATABASE_URL" : module.secrets.secret_arns["RDS_WAREHOUSE_CONNECTION_STRING"],
   }
   parameters = merge(module.parameter_store.parameter_arns, {
-    "SENTRY_DSN" : module.parameter_store.parameter_arns["SENTRY_DSN_REGISTER_WORKER"]
+    "SENTRY_DSN" : module.parameter_store.parameter_arns["SENTRY_DSN_DATA_WAREHOUSE"]
   })
   vpc_id             = module.networking.vpc_id
   fluentbit_ecr_url  = module.fluentbit_ecr.ecr_url
