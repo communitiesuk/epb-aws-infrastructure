@@ -319,3 +319,25 @@ module "view-models-pipeline" {
   codebuild_image_ecr_url = module.app_test_image_pipeline.image_repository_url
   region                  = var.region
 }
+
+module "address-base-updater-pipeline" {
+  source                  = "./modules/address_base_updater_pipeline"
+  codepipeline_bucket     = module.artefact.codepipeline_bucket
+  codepipeline_role_arn   = module.codepipeline_role.aws_codepipeline_role_arn
+  codebuild_role_arn      = module.codebuild_role.aws_codebuild_role_arn
+  integration_prefix      = var.integration_prefix
+  staging_prefix          = var.staging_prefix
+  production_prefix       = var.production_prefix
+  pipeline_name           = "epbr-address-base-updater-pipeline"
+  github_repository       = "epb-update-address-base"
+  github_branch           = "main"
+  github_organisation     = var.github_organisation
+  codestar_connection_arn = module.codestar_connection.codestar_connection_arn
+  project_name            = "epbr-address-base-updater"
+  codebuild_image_ecr_url = module.app_test_image_pipeline.image_repository_url
+  region                  = var.region
+  account_ids             = var.account_ids
+  app_ecr_name            = "address-base-updater-ecr"
+  aws_codebuild_image     = var.aws_amd_codebuild_image
+  postgres_image_ecr_url  = module.postgres_test_image_pipeline.image_repository_url
+}
