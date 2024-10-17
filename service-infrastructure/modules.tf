@@ -909,3 +909,8 @@ module "warehouse_schedule_tasks" {
   container_name    = module.warehouse_scheduled_tasks_application.migration_container_name
   event_rule_arn    = module.schedule_task_role.ecs_events_arn
 }
+
+module "address_base_updater_ecr" {
+  source              = "./ecr"
+  ecr_repository_name = "${local.prefix}-address-base-updater-ecr"
+}
