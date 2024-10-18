@@ -79,32 +79,32 @@ resource "aws_codepipeline" "codepipeline" {
       }
     }
 
-    #     action {
-    #       name            = "deploy-address-base-updater-to-staging-ecr"
-    #       category        = "Build"
-    #       owner           = "AWS"
-    #       provider        = "CodeBuild"
-    #       version         = "1"
-    #       input_artifacts = ["docker_image"]
-    #       configuration = {
-    #         ProjectName = module.codebuild_deploy_staging.codebuild_name
-    #       }
-    #     }
+    action {
+      name            = "deploy-address-base-updater-to-staging-ecr"
+      category        = "Build"
+      owner           = "AWS"
+      provider        = "CodeBuild"
+      version         = "1"
+      input_artifacts = ["docker_image"]
+      configuration = {
+        ProjectName = module.codebuild_deploy_staging.codebuild_name
+      }
+    }
   }
 
-  #   stage {
-  #     name = "deploy-to-production"
-  #
-  #     action {
-  #       name            = "deploy-address-base-updater-to-production-ecr"
-  #       category        = "Build"
-  #       owner           = "AWS"
-  #       provider        = "CodeBuild"
-  #       version         = "1"
-  #       input_artifacts = ["docker_image"]
-  #       configuration = {
-  #         ProjectName = module.codebuild_deploy_production.codebuild_name
-  #       }
-  #     }
-  #   }
+  stage {
+    name = "deploy-to-production"
+
+    action {
+      name            = "deploy-address-base-updater-to-production-ecr"
+      category        = "Build"
+      owner           = "AWS"
+      provider        = "CodeBuild"
+      version         = "1"
+      input_artifacts = ["docker_image"]
+      configuration = {
+        ProjectName = module.codebuild_deploy_production.codebuild_name
+      }
+    }
+  }
 }
