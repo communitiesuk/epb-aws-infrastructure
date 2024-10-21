@@ -162,6 +162,11 @@ variable "external_ecr" {
   default = ""
 }
 
+variable "address_base_updater_ecr" {
+  type    = string
+  default = null
+}
+
 variable "exec_cmd_task_cpu" {
   type    = number
   default = 512

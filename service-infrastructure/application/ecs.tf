@@ -1,8 +1,9 @@
 locals {
-  container_name           = "${var.prefix}-container"
-  fluentbit_container_name = "${var.prefix}-container-fluentbit"
-  migration_container_name = "${var.prefix}-container-db-migration"
-  ecr_image                = local.has_ecr == 1 ? "${aws_ecr_repository.this[0].repository_url}:latest" : var.external_ecr
+  container_name                 = "${var.prefix}-container"
+  fluentbit_container_name       = "${var.prefix}-container-fluentbit"
+  migration_container_name       = "${var.prefix}-container-db-migration"
+  ecr_image                      = local.has_ecr == 1 ? "${aws_ecr_repository.this[0].repository_url}:latest" : var.external_ecr
+  has_address_base_updater_image = var.address_base_updater_ecr != null ? true : false
 }
 
 resource "aws_ecs_cluster" "this" {
@@ -176,6 +177,51 @@ resource "aws_ecs_task_definition" "exec_cmd_task" {
           awslogs-group         = var.aws_cloudwatch_log_group_id
           awslogs-region        = var.region
           awslogs-stream-prefix = "ecs-exec-cmd"
+        }
+      }
+    },
+  ])
+}
+
+resource "aws_ecs_task_definition" "address_base_updater_task" {
+  count                    = local.has_address_base_updater_image == true ? 1 : 0
+  family                   = "${var.prefix}-ecs-address-base-updater-task"
+  requires_compatibilities = ["FARGATE"]
+  network_mode             = "awsvpc"
+  cpu                      = var.exec_cmd_task_cpu
+  memory                   = var.exec_cmd_task_ram
+  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
+  task_role_arn            = aws_iam_role.ecs_task_role.arn
+  container_definitions = jsonencode([
+    {
+      name      = "${var.prefix}-container-address-base-updater"
+      image     = "${var.address_base_updater_ecr}:latest"
+      essential = true
+      environment = [for key, value in var.environment_variables : {
+        name  = key
+        value = value
+      }]
+      user = "root" #added to ensure paketo image defaults to root user
+      secrets = [for key, value in merge(var.secrets, var.parameters) : {
+        name      = key
+        valueFrom = value
+      }]
+      entryPoint  = ["launcher"]
+      command     = ["npm", "run", "update-address-base-auto"]
+      cpu         = 0
+      mountPoints = []
+      volumesFrom = []
+
+      memoryReservation = 512
+
+      stopTimeout = 90
+
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          awslogs-group         = var.aws_cloudwatch_log_group_id
+          awslogs-region        = var.region
+          awslogs-stream-prefix = "ecs-address-base-updater"
         }
       }
     },
