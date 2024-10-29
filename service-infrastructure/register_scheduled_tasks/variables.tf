@@ -6,19 +6,11 @@ variable "cluster_arn" {
   type = string
 }
 
-variable "task_arn" {
-  type = string
-}
-
 variable "private_db_subnet_ids" {
   type = list(string)
 }
 
 variable "security_group_id" {
-  type = string
-}
-
-variable "container_name" {
   type = string
 }
 
@@ -28,6 +20,15 @@ variable "event_rule_arn" {
 
 variable "private_subnet_ids" {
   type = list(string)
+}
+
+variable "app_containers" {
+  type = object({
+    register_container_name     = string
+    register_task_arn           = string
+    address_base_container_name = string
+    address_base_task_arn       = string
+  })
 }
 
 

@@ -4,6 +4,7 @@ locals {
   migration_container_name       = "${var.prefix}-container-db-migration"
   ecr_image                      = local.has_ecr == 1 ? "${aws_ecr_repository.this[0].repository_url}:latest" : var.external_ecr
   has_address_base_updater_image = var.address_base_updater_ecr != null ? true : false
+  address_base_container_name    = "${var.prefix}-container-address-base-updater"
 }
 
 resource "aws_ecs_cluster" "this" {
@@ -194,7 +195,7 @@ resource "aws_ecs_task_definition" "address_base_updater_task" {
   task_role_arn            = aws_iam_role.ecs_task_role.arn
   container_definitions = jsonencode([
     {
-      name      = "${var.prefix}-container-address-base-updater"
+      name      = local.address_base_container_name
       image     = "${var.address_base_updater_ecr}:latest"
       essential = true
       environment = [for key, value in var.environment_variables : {

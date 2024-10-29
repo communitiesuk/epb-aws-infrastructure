@@ -73,3 +73,11 @@ output "oai_iam_arn" {
 output "ecr_repository_url" {
   value = try(aws_ecr_repository.this[0].repository_url, "")
 }
+
+output "address_base_updater_container_name" {
+  value = local.address_base_container_name
+}
+
+output "address_base_ecs_task_exec_arn" {
+  value = try(aws_ecs_task_definition.address_base_updater_task[0].arn, "")
+}

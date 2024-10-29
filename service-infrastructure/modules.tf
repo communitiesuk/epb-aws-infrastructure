@@ -383,12 +383,11 @@ module "register_api_application" {
   parameters = merge(module.parameter_store.parameter_arns, {
     "SENTRY_DSN" : module.parameter_store.parameter_arns["SENTRY_DSN_REGISTER_API"]
   })
-  has_exec_cmd_task        = true
-  vpc_id                   = module.networking.vpc_id
-  fluentbit_ecr_url        = module.fluentbit_ecr.ecr_url
-  address_base_updater_ecr = module.address_base_updater_ecr.ecr_url
-  private_subnet_ids       = module.networking.private_subnet_ids
-  health_check_path        = "/healthcheck"
+  has_exec_cmd_task  = true
+  vpc_id             = module.networking.vpc_id
+  fluentbit_ecr_url  = module.fluentbit_ecr.ecr_url
+  private_subnet_ids = module.networking.private_subnet_ids
+  health_check_path  = "/healthcheck"
   additional_task_execution_role_policy_arns = {
     "RDS_access" : module.register_api_database.rds_full_access_policy_arn,
     "Redis_access" : data.aws_iam_policy.elasticache_full_access.arn
@@ -445,6 +444,7 @@ module "register_api_database" {
 module "scheduled_tasks_application" {
   source = "./application"
 
+  address_base_updater_ecr = module.address_base_updater_ecr.ecr_url
   additional_task_execution_role_policy_arns = {
     "RDS_access" : module.register_api_database.rds_full_access_policy_arn,
     "Redis_access" : data.aws_iam_policy.elasticache_full_access.arn
@@ -889,15 +889,20 @@ module "schedule_task_role" {
 }
 
 module "register_schedule_tasks" {
-  source                = "./register_scheduled_tasks"
+  source = "./register_scheduled_tasks"
+  app_containers = {
+    register_container_name     = module.scheduled_tasks_application.migration_container_name
+    register_task_arn           = module.scheduled_tasks_application.ecs_task_exec_arn
+    address_base_container_name = module.scheduled_tasks_application.address_base_updater_container_name
+    address_base_task_arn       = module.scheduled_tasks_application.address_base_ecs_task_exec_arn
+  }
   prefix                = local.prefix
   cluster_arn           = module.scheduled_tasks_application.ecs_cluster_arn
   security_group_id     = module.scheduled_tasks_application.ecs_security_group_id
   private_db_subnet_ids = module.networking.private_db_subnet_ids
   private_subnet_ids    = module.networking.private_subnet_ids
-  task_arn              = module.scheduled_tasks_application.ecs_task_exec_arn
-  container_name        = module.scheduled_tasks_application.migration_container_name
   event_rule_arn        = module.schedule_task_role.ecs_events_arn
+
 }
 
 module "warehouse_schedule_tasks" {
