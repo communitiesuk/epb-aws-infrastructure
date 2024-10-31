@@ -725,9 +725,10 @@ module "bastion" {
 # logging and alerts
 
 module "logging" {
-  source = "./logging"
-  prefix = local.prefix
-  region = var.region
+  source                    = "./logging"
+  prefix                    = local.prefix
+  region                    = var.region
+  is_cloudwatch_insights_on = var.environment == "intg" ? 1 : 0
 }
 
 module "fluentbit_ecr" {
