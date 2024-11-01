@@ -921,3 +921,9 @@ module "address_base_updater_ecr" {
   source              = "./ecr"
   ecr_repository_name = "${local.prefix}-address-base-updater-ecr"
 }
+
+module "rds_kms_key" {
+  source      = "./kms"
+  prefix      = local.prefix
+  environment = var.environment
+}
