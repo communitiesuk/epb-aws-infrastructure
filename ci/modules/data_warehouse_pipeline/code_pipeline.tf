@@ -132,7 +132,7 @@ resource "aws_codepipeline" "codepipeline" {
   }
 
   stage {
-    name = "deploy-to-production"
+    name = "deploy-app-to-production"
 
     action {
       name            = "deploy-data-warehouse-to-production-cluster"
@@ -145,6 +145,10 @@ resource "aws_codepipeline" "codepipeline" {
         ProjectName = module.codebuild_deploy_production.codebuild_name
       }
     }
+  }
+
+  stage {
+    name = "deploy-api-to-production"
 
     action {
       name            = "deploy-data-warehouse-api-to-production-cluster"
