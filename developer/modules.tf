@@ -10,6 +10,10 @@ module "parameters" {
       type  = "String"
       value = var.parameters["PROTOTYPES_PASSWORD"]
     }
+    EPB_TEAM_MAIN_SLACK_URL : {
+      type  = "SecureString"
+      value = var.parameters["EPB_TEAM_MAIN_SLACK_URL"]
+    }
   }
 }
 
@@ -35,4 +39,18 @@ module "api-docs" {
   ci_account_id = var.ci_account_id
   domain_name   = var.domain_name
   ci_role_id    = module.ci_role.ci_role_id
+}
+
+module "logging" {
+  source = "./logging"
+  region = var.region
+}
+
+module "alerts" {
+  source = "./alerts"
+
+  region                     = var.region
+  environment                = "developer"
+  main_slack_webhook_url     = var.parameters["EPB_TEAM_MAIN_SLACK_URL"]
+  cloudtrail_log_group_name  = module.logging.cloudtrail_log_group_name
 }
