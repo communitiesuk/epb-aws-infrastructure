@@ -1,5 +1,10 @@
+locals {
+  cluster_name  = var.name_suffix == null ? "${var.prefix}-aurora-db-cluster" : "${var.prefix}-aurora-db-cluster-${var.name_suffix}"
+  instance_name = var.name_suffix == null ? "${var.prefix}-aurora-db" : "${var.prefix}-aurora-db-${var.name_suffix}"
+}
+
 resource "aws_rds_cluster" "this" {
-  cluster_identifier               = "${var.prefix}-aurora-db-cluster"
+  cluster_identifier               = local.cluster_name
   engine                           = "aurora-postgresql"
   engine_version                   = var.postgres_version
   availability_zones               = ["eu-west-2a", "eu-west-2b", "eu-west-2c"]
@@ -15,7 +20,7 @@ resource "aws_rds_cluster" "this" {
   vpc_security_group_ids = [aws_security_group.rds_security_group.id]
   storage_encrypted      = true
   skip_final_snapshot    = true
-
+  kms_key_id             = var.kms_key_id
   lifecycle {
     prevent_destroy = true
   }
@@ -30,12 +35,9 @@ resource "aws_rds_cluster" "this" {
 
 }
 
-
-
 resource "aws_rds_cluster_instance" "this" {
-  count = 2
-
-  identifier                   = "${var.prefix}-aurora-db-${count.index}"
+  count                        = 2
+  identifier                   = "${local.instance_name}-${count.index}"
   cluster_identifier           = aws_rds_cluster.this.id
   instance_class               = var.instance_class
   engine                       = aws_rds_cluster.this.engine
@@ -46,3 +48,5 @@ resource "aws_rds_cluster_instance" "this" {
     prevent_destroy = true
   }
 }
+
+

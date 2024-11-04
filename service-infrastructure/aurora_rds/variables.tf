@@ -34,8 +34,6 @@ variable "instance_parameter_group_name" {
   type = string
 }
 
-
-
 variable "postgres_version" {
   type = string
 }
@@ -49,4 +47,15 @@ variable "scaling_configuration" {
   default = null
 }
 
+variable "kms_key_id" {
+  description = "Custom encryption key for db"
+  default     = null
+  type        = string
+}
+
+variable "name_suffix" {
+  description = "Suffix added to the cluster name for when have 2 versions of the same db e.g v2"
+  default     = null
+  type        = string
+}
 
