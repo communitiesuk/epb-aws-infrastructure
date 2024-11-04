@@ -739,6 +739,7 @@ module "bastion" {
     "API" : module.register_api_database.rds_full_access_policy_arn
     "Toggles" : module.toggles_database.rds_full_access_policy_arn
     "Warehouse" : module.warehouse_database.rds_full_access_policy_arn
+    "API-V2" : module.register_api_database-v2.rds_full_access_policy_arn
   }
 }
 
