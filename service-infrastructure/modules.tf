@@ -72,6 +72,7 @@ module "secrets" {
     "RDS_API_SERVICE_CONNECTION_STRING" : module.register_api_database.rds_db_connection_string
     "RDS_API_SERVICE_READER_CONNECTION_STRING" : module.register_api_database.rds_db_reader_connection_string
     "RDS_API_SERVICE_PASSWORD" : module.register_api_database.rds_db_password
+    "RDS_API_V2_SERVICE_PASSWORD" : module.register_api_database-v2.rds_db_password
     "RDS_API_SERVICE_USERNAME" : module.register_api_database.rds_db_username
     "RDS_AUTH_SERVICE_CONNECTION_STRING" : module.auth_database.rds_db_connection_string
     "RDS_AUTH_SERVICE_PASSWORD" : module.auth_database.rds_db_password
@@ -442,6 +443,23 @@ module "register_api_database" {
   vpc_id                        = module.networking.vpc_id
 }
 
+module "register_api_database-v2" {
+  source = "./aurora_rds"
+
+  cluster_parameter_group_name  = module.parameter_groups.aurora_pg_param_group_name
+  db_name                       = "epb"
+  instance_class                = var.environment == "intg" ? "db.t3.medium" : var.environment == "stag" ? "db.r5.large" : "db.r5.2xlarge"
+  instance_parameter_group_name = module.parameter_groups.rds_pg_param_group_name
+  prefix                        = "${local.prefix}-reg-api"
+  postgres_version              = var.postgres_aurora_version
+  security_group_ids            = [module.register_api_application.ecs_security_group_id, module.bastion.security_group_id, module.scheduled_tasks_application.ecs_security_group_id]
+  storage_backup_period         = var.storage_backup_period
+  subnet_group_name             = local.db_subnet
+  vpc_id                        = module.networking.vpc_id
+  name_suffix                   = "v2"
+  kms_key_id                    = module.rds_kms_key.key_arn
+}
+
 module "scheduled_tasks_application" {
   source = "./application"
 
@@ -710,6 +728,7 @@ module "warehouse_redis" {
   subnet_cidr                   = module.networking.private_subnet_cidr
   vpc_id                        = module.networking.vpc_id
 }
+
 
 module "bastion" {
   source    = "./bastion"
