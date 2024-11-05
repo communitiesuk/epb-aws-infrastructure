@@ -379,8 +379,8 @@ module "register_api_application" {
   egress_ports          = [80, 443, 5432, local.redis_port, var.parameters["LOGSTASH_PORT"]]
   environment_variables = {}
   secrets = {
-    "DATABASE_URL" : module.secrets.secret_arns["RDS_API_SERVICE_CONNECTION_STRING"],
-    "DATABASE_READER_URL" : module.secrets.secret_arns["RDS_API_SERVICE_READER_CONNECTION_STRING"],
+    "DATABASE_URL" : module.secrets.secret_arns["RDS_API_V2_SERVICE_CONNECTION_STRING"],
+    "DATABASE_READER_URL" : module.secrets.secret_arns["RDS_API_V2_SERVICE_READER_CONNECTION_STRING"],
     "EPB_UNLEASH_URI" : module.secrets.secret_arns["EPB_UNLEASH_URI"],
     "EPB_DATA_WAREHOUSE_QUEUES_URI" : module.secrets.secret_arns["EPB_DATA_WAREHOUSE_QUEUES_URI"]
   }
