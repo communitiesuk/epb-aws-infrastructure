@@ -224,7 +224,7 @@ You can see the options with `tfsec -h`
 
 one useful option is setting `--minimum-severity` flag
 
-`tfsec --minimum-severity HIGH` will ignore any *Low* adn *Medium* issues
+`tfsec --minimum-severity HIGH` will ignore any *Low* and *Medium* issues
 
 ## Other infrastructure related tasks
 

@@ -341,3 +341,27 @@ module "address-base-updater-pipeline" {
   aws_codebuild_image     = var.aws_amd_codebuild_image
   postgres_image_ecr_url  = module.postgres_test_image_pipeline.image_repository_url
 }
+
+module "logging" {
+  source = "./logging"
+  region = var.region
+}
+
+module "alerts" {
+  source = "./alerts"
+
+  region                     = var.region
+  environment                = "developer"
+  main_slack_webhook_url     = var.parameters["EPB_TEAM_MAIN_SLACK_URL"]
+  cloudtrail_log_group_name  = module.logging.cloudtrail_log_group_name
+}
+
+module "parameters" {
+  source = "./parameter_store"
+  parameters = {
+    EPB_TEAM_MAIN_SLACK_URL : {
+      type  = "SecureString"
+      value = var.parameters["EPB_TEAM_MAIN_SLACK_URL"]
+    }
+  }
+}
