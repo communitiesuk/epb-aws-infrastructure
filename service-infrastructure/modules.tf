@@ -72,8 +72,11 @@ module "secrets" {
     "RDS_API_SERVICE_CONNECTION_STRING" : module.register_api_database.rds_db_connection_string
     "RDS_API_SERVICE_READER_CONNECTION_STRING" : module.register_api_database.rds_db_reader_connection_string
     "RDS_API_SERVICE_PASSWORD" : module.register_api_database.rds_db_password
-    "RDS_API_V2_SERVICE_PASSWORD" : module.register_api_database-v2.rds_db_password
     "RDS_API_SERVICE_USERNAME" : module.register_api_database.rds_db_username
+    "RDS_API_V2_SERVICE_CONNECTION_STRING" : module.register_api_database-v2.rds_db_connection_string
+    "RDS_API_V2_SERVICE_READER_CONNECTION_STRING" : module.register_api_database-v2.rds_db_reader_connection_string
+    "RDS_API_V2_SERVICE_PASSWORD" : module.register_api_database-v2.rds_db_password
+    "RDS_API_V2_SERVICE_USERNAME" : module.register_api_database.rds_db_username
     "RDS_AUTH_SERVICE_CONNECTION_STRING" : module.auth_database.rds_db_connection_string
     "RDS_AUTH_SERVICE_PASSWORD" : module.auth_database.rds_db_password
     "RDS_AUTH_SERVICE_USERNAME" : module.auth_database.rds_db_username
