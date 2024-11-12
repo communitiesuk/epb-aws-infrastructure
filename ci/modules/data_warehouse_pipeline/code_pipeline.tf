@@ -132,22 +132,6 @@ resource "aws_codepipeline" "codepipeline" {
   }
 
   stage {
-    name = "deploy-app-to-production"
-
-    action {
-      name            = "deploy-data-warehouse-to-production-cluster"
-      category        = "Build"
-      owner           = "AWS"
-      provider        = "CodeBuild"
-      version         = "1"
-      input_artifacts = ["docker_image"]
-      configuration = {
-        ProjectName = module.codebuild_deploy_production.codebuild_name
-      }
-    }
-  }
-
-  stage {
     name = "deploy-api-to-production"
 
     action {
@@ -159,6 +143,22 @@ resource "aws_codepipeline" "codepipeline" {
       input_artifacts = ["docker_api_image"]
       configuration = {
         ProjectName = module.codebuild_api_deploy_production.codebuild_name
+      }
+    }
+  }
+
+  stage {
+    name = "deploy-app-to-production"
+
+    action {
+      name            = "deploy-data-warehouse-to-production-cluster"
+      category        = "Build"
+      owner           = "AWS"
+      provider        = "CodeBuild"
+      version         = "1"
+      input_artifacts = ["docker_image"]
+      configuration = {
+        ProjectName = module.codebuild_deploy_production.codebuild_name
       }
     }
   }
