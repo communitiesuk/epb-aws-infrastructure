@@ -34,6 +34,19 @@ cd code-pipeline/service-pipelines/
 .j tf-init $(pwd) $(pwd)/backend_cicd.hcl
 ```
 
+## Working in this repository
+
+### Pre-commit hooks
+
+We have pre-commit hooks set up for working in this repo that run a linter and security checker (Checkov)
+before committing any updates to the code.
+
+To install these hooks on your development machine you just need to run:
+
+```bash
+just install-hooks
+```
+
 ## Terraform Setup
 
 ### Terraform installation
