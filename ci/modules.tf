@@ -350,10 +350,10 @@ module "logging" {
 module "alerts" {
   source = "./alerts"
 
-  region                     = var.region
-  environment                = "ci-cd"
-  main_slack_webhook_url     = var.parameters["EPB_TEAM_MAIN_SLACK_URL"]
-  cloudtrail_log_group_name  = module.logging.cloudtrail_log_group_name
+  region                    = var.region
+  environment               = "ci-cd"
+  main_slack_webhook_url    = var.parameters["EPB_TEAM_MAIN_SLACK_URL"]
+  cloudtrail_log_group_name = module.logging.cloudtrail_log_group_name
 }
 
 module "parameters" {
