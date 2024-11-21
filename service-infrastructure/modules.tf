@@ -457,7 +457,7 @@ module "register_api_database-v2" {
   postgres_version              = var.postgres_aurora_version
   security_group_ids            = [module.register_api_application.ecs_security_group_id, module.bastion.security_group_id, module.scheduled_tasks_application.ecs_security_group_id]
   storage_backup_period         = var.storage_backup_period
-  subnet_group_name             = local.db_subnet
+  subnet_group_name             = module.networking.private_db_subnet_group_name
   vpc_id                        = module.networking.vpc_id
   name_suffix                   = "v2"
   kms_key_id                    = module.rds_kms_key.key_arn
