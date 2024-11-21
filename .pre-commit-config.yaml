@@ -3,7 +3,7 @@ repos:
   rev: 4a0e56f  # Get the latest from: https://github.com/antonbabenko/pre-commit-terraform/releases
   hooks:
     - id: terraform_fmt
-      args: 
+      args:
         - --args=-recursive
     - id: terraform_tflint
     - id: terraform_checkov

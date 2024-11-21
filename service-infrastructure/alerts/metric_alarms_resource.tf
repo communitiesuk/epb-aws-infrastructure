@@ -124,14 +124,14 @@ resource "aws_cloudwatch_metric_alarm" "alb_5xx_errors" {
   for_each = var.albs
 
   alarm_name          = "${each.value}-5xx-errors"
-  alarm_description   = "There have been >20 5xx responses at the ALB in a minute"
+  alarm_description   = "There have been >${strcontains(each.value, "frontend") ? 100 : 3} 5xx responses at the ALB in a minute"
   namespace           = "AWS/ApplicationELB"
   comparison_operator = "GreaterThanThreshold"
   treat_missing_data  = "notBreaching"
   metric_name         = "HTTPCode_ELB_5XX_Count"
   evaluation_periods  = 1
   period              = 60
-  threshold           = 20
+  threshold           = strcontains(each.value, "frontend") ? 100 : 3
   statistic           = "Sum"
 
   dimensions = {
