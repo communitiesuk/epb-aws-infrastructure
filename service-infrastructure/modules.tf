@@ -73,9 +73,9 @@ module "secrets" {
     "RDS_API_SERVICE_READER_CONNECTION_STRING" : module.register_api_database.rds_db_reader_connection_string
     "RDS_API_SERVICE_PASSWORD" : module.register_api_database.rds_db_password
     "RDS_API_SERVICE_USERNAME" : module.register_api_database.rds_db_username
-    #     "RDS_API_V2_SERVICE_CONNECTION_STRING" : module.register_api_database-v2.rds_db_connection_string
-    #     "RDS_API_V2_SERVICE_READER_CONNECTION_STRING" : module.register_api_database-v2.rds_db_reader_connection_string
-    #     "RDS_API_V2_SERVICE_PASSWORD" : module.register_api_database-v2.rds_db_password
+    #     "RDS_API_V2_SERVICE_CONNECTION_STRING" : module.register_api_database_v2.rds_db_connection_string
+    #     "RDS_API_V2_SERVICE_READER_CONNECTION_STRING" : module.register_api_database_v2.rds_db_reader_connection_string
+    #     "RDS_API_V2_SERVICE_PASSWORD" : module.register_api_database_v2.rds_db_password
     #     "RDS_API_V2_SERVICE_USERNAME" : module.register_api_database.rds_db_username
     "RDS_AUTH_SERVICE_CONNECTION_STRING" : module.auth_database.rds_db_connection_string
     "RDS_AUTH_SERVICE_PASSWORD" : module.auth_database.rds_db_password
@@ -446,7 +446,7 @@ module "register_api_database" {
   vpc_id                        = module.networking.vpc_id
 }
 
-module "register_api_database-v2" {
+module "register_api_database_v2" {
   source = "./aurora_rds"
 
   cluster_parameter_group_name  = module.parameter_groups.aurora_pg_param_group_name
@@ -742,7 +742,7 @@ module "bastion" {
     "API" : module.register_api_database.rds_full_access_policy_arn
     "Toggles" : module.toggles_database.rds_full_access_policy_arn
     "Warehouse" : module.warehouse_database.rds_full_access_policy_arn
-    "API-V2" : module.register_api_database-v2.rds_full_access_policy_arn
+    "API-V2" : module.register_api_database_v2.rds_full_access_policy_arn
   }
 }
 
