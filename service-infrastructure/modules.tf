@@ -637,11 +637,6 @@ module "warehouse_application" {
   fargate_weighting             = { standard : 0, spot : 10 }
   has_target_tracking           = false
   cloudwatch_ecs_events_arn     = module.logging.cloudwatch_ecs_events_arn
-  task_max_capacity             = var.environment == "stag" ? 30 : var.task_max_capacity
-  task_desired_capacity         = var.environment == "stag" ? 30 : var.task_desired_capacity
-  task_cpu                      = var.environment == "stag" ? 8192 : var.task_cpu
-  task_memory                   = var.environment == "stag" ? 32768 : var.task_memory
-
 }
 
 module "warehouse_api_application" {
