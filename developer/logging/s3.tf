@@ -34,7 +34,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "logs" {
 # Used by logit.io
 resource "aws_s3_bucket_policy" "root_log_bucket_access" {
   bucket     = aws_s3_bucket.logs.id
-  depends_on = ["aws_s3_bucket.logs"]
+  depends_on = [aws_s3_bucket.logs]
 
   policy = jsonencode({
     Version = "2012-10-17"

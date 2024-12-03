@@ -15,7 +15,9 @@ resource "aws_cloudfront_distribution" "tech_docs_s3_distribution" {
   # By default, show index.html file
   default_root_object = "index.html"
   enabled             = true
-  aliases             = [aws_acm_certificate.cert.domain_name]
+  is_ipv6_enabled     = true
+  price_class         = "PriceClass_100" # Affects CDN distribution https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/PriceClass.html
+  aliases             = [aws_acm_certificate.cert-cdn.domain_name]
 
 
   default_cache_behavior {
@@ -30,7 +32,7 @@ resource "aws_cloudfront_distribution" "tech_docs_s3_distribution" {
         forward = "all"
       }
     }
-    viewer_protocol_policy = "allow-all"
+    viewer_protocol_policy = "redirect-to-https"
     min_ttl                = 0
     default_ttl            = 3600
     max_ttl                = 86400
@@ -57,8 +59,8 @@ resource "aws_cloudfront_distribution" "tech_docs_s3_distribution" {
   # SSL certificate for the service.
   viewer_certificate {
     acm_certificate_arn      = aws_acm_certificate.cert-cdn.arn
+    minimum_protocol_version = "TLSv1.2_2021"
     ssl_support_method       = "sni-only"
-    minimum_protocol_version = "TLSv1.2_2018"
   }
 
 

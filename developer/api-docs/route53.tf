@@ -7,7 +7,7 @@ data "aws_route53_zone" "hosted_zone" {
 # validate cert:
 resource "aws_route53_record" "this" {
   for_each = {
-    for d in aws_acm_certificate.cert.domain_validation_options : d.domain_name => {
+    for d in aws_acm_certificate.cert-cdn.domain_validation_options : d.domain_name => {
       name   = d.resource_record_name
       record = d.resource_record_value
       type   = d.resource_record_type
@@ -21,14 +21,10 @@ resource "aws_route53_record" "this" {
   zone_id         = data.aws_route53_zone.hosted_zone.zone_id
 }
 
-resource "aws_acm_certificate_validation" "this" {
-  certificate_arn         = aws_acm_certificate.cert.arn
-  validation_record_fqdns = [for r in aws_route53_record.this : r.fqdn]
-}
 
 # creating A record for domain:
 resource "aws_route53_record" "website_url" {
-  name    = aws_acm_certificate.cert.domain_name
+  name    = aws_acm_certificate.cert-cdn.domain_name
   zone_id = data.aws_route53_zone.hosted_zone.id
   type    = "A"
   alias {
