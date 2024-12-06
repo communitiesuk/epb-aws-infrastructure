@@ -168,7 +168,7 @@ resource "aws_cloudwatch_log_group" "s3_logs" {
 
 data "archive_file" "archive_pipe_logs_s3_cloudwatch_lambda" {
   type        = "zip"
-  source_file = "${path.module}/functions/forward-logs-cloudwatch-lambda/index.js"
+  source_file = "${path.module}/functions/forward-logs-cloudwatch-lambda/index.mjs"
   output_path = "${path.module}/functions/forward-logs-cloudwatch-lambda/archive.zip"
 }
 
@@ -178,7 +178,7 @@ resource "aws_lambda_function" "forward_logs_s3_cloudwatch" {
   function_name = "${var.prefix}-forward-logs"
   role          = aws_iam_role.lambda_forward_logs_s3_cloudwatch_role[0].arn
   handler       = "index.handler"
-  runtime       = "nodejs14.x"
+  runtime       = "nodejs20.x"
   timeout       = 30
 
   // Redeploy when lambda function code change

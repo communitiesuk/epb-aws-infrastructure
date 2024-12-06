@@ -1,19 +1,22 @@
 'use strict';
 
-const aws = require('aws-sdk');
-const zlib = require('zlib');
-const s3 = new aws.S3({ apiVersion: '2006-03-01' });
-const cloudWatchLogs = new aws.CloudWatchLogs({
+import { CloudWatchLogsClient, DescribeLogGroupsCommand, CreateLogGroupCommand, DescribeLogStreamsCommand, CreateLogStreamCommand, PutLogEventsCommand } from "@aws-sdk/client-cloudwatch-logs";
+import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3'
+const s3Client = new S3Client({
+    apiVersion: '2006-03-01',
+})
+const cloudWatchLogsClient = new CloudWatchLogsClient({
     apiVersion: '2014-03-28'
 });
-
-const readline = require('readline');
-const stream = require('stream');
+import zlib from 'zlib';
+import readline from 'readline';
+import stream from 'stream';
+import { Buffer } from 'node:buffer';
 
 let logGroupName = process.env.logGroupName// Name of the log group goes here;
 let logStreamName // Name of the log stream goes here;
 
-exports.handler = (event, context, callback) => {
+export const handler = async (event, context, callback) => {
     // We are attaching this lambda as event notification - So the event will contains details about the object
     // to see the sample refer to this URL - https://docs.aws.amazon.com/lambda/latest/dg/with-s3.html
 
@@ -22,79 +25,80 @@ exports.handler = (event, context, callback) => {
     const bucket = event.Records[0].s3.bucket.name;
     console.log('Name of S3 bucket is:', bucket);
     const key = decodeURIComponent(event.Records[0].s3.object.key.replace(/\+/g, ' '));
+    console.log('Name of key is:', key)
 
 
     // Retrieve S3 Object based on the bucket and key name in the event parameter
-    const params = {
-        Bucket: bucket,
-        Key: key,
-    };
-    s3.getObject(params, (err, data) => {
-        if (err) {
-            console.log(err);
-            const message = `Error getting object ${key} from bucket ${bucket}. Make sure they exist and your bucket is in the same region as this function.`;
-            console.log(message);
-            callback(message);
-        } else {
-            //uncompressing the S3 data - most logs in S3 is in GZ format
-            zlib.gunzip(data.Body, function (error, buffer) {
-                if (error) {
-                    console.log('Error uncompressing data', error);
-                    return;
-                }
+    try {
+        const response = await s3Client.send(new GetObjectCommand({
+            Key: key,
+            Bucket: bucket,
+        }))
 
-                const logData = buffer.toString('ascii');
-                manageLogGroups(logData);
+        const stream = await response.Body
 
-            });
-            callback(null, data.ContentType);
-        }
-    });
+        const buffered_data = Buffer.concat(await stream.toArray())
+
+        zlib.gunzip(buffered_data, async function (error, buffer) {
+            if (error) {
+                console.log('Error uncompressing data', error);
+                return;
+            }
+
+            const logData = buffer.toString('ascii');
+            await manageLogGroups(logData);
+
+        });
+        callback(null, response.ContentType);
+    } catch (error) {
+        console.log(error);
+        const message = `Error getting object ${key} from bucket ${bucket}. Make sure they exist and your bucket is in the same region as this function.`;
+        console.log(message);
+        callback(message);
+    }
 
     // Manage the log group
-    function manageLogGroups(logData) {
-
+    async function manageLogGroups(logData) {
         const describeLogGroupParams = {
             logGroupNamePrefix: logGroupName
         };
 
         //check if the log group already exists
-        cloudWatchLogs.describeLogGroups(describeLogGroupParams, function (err, data) {
-            if (err) {
-                console.log('Error while describing log group:', err);
-                createLogGroup(logData);
+        try {
+            const data = await cloudWatchLogsClient.send(new DescribeLogGroupsCommand(describeLogGroupParams))
+
+            if (!data.logGroups[0]) {
+                console.log('Need to  create log group:', data);
+                //create log group
+                await createLogGroup(logData);
             } else {
-                if (!data.logGroups[0]) {
-                    console.log('Need to  create log group:', data);
-                    //create log group
-                    createLogGroup(logData);
-                } else {
-                    console.log('Success while describing log group:', data);
-                    manageLogStreams(logData);
-                }
+                console.log('Success while describing log group:', data);
+                await manageLogStreams(logData);
             }
-        });
+        } catch (error) {
+            console.log('Error while describing log group:', error);
+            await createLogGroup(logData);
+        }
     }
 
     // Create log group
-    function createLogGroup(logData) {
+    async function createLogGroup(logData) {
         const logGroupParams = {
             logGroupName: logGroupName
         };
-        cloudWatchLogs.createLogGroup(logGroupParams, function (err, data) {
-            if (err) {
-                console.log('error while creating log group: ', err, err.stack);
-                return;
-            } else {
-                console.log('Success in creating log group: ', logGroupName);
-                manageLogStreams(logData);
-            }
-        });
+
+        try {
+            await cloudWatchLogsClient.send(new CreateLogGroupCommand(logGroupParams))
+            console.log('Success in creating log group: ', logGroupName);
+            await manageLogStreams(logData);
+        } catch (error) {
+            console.log('error while creating log group: ', error, error.stack);
+        }
     }
 
 
     // Manage the log stream and get the sequenceToken - The sequence token is the order of the logs being added to the stream
-    function manageLogStreams(logData) {
+    async function manageLogStreams(logData) {
         const describeLogStreamsParams = {
             logGroupName: logGroupName,
             logStreamNamePrefix: logStreamName
@@ -102,38 +106,35 @@ exports.handler = (event, context, callback) => {
 
         // check if the log stream already exists and get the sequenceToken
         // Logs within the same period might be put into the same log stream, it is important to check fi the log stream exists
-        cloudWatchLogs.describeLogStreams(describeLogStreamsParams, function (err, data) {
-            if (err) {
-                console.log('Error during describe log streams:', err);
-                createLogStream(logData);
+        try {
+            const data = await cloudWatchLogsClient.send(new DescribeLogStreamsCommand(describeLogStreamsParams))
+            if (!data.logStreams[0]) {
+                console.log('Need to  create log stream:', data);
+                await createLogStream(logData);
             } else {
-                if (!data.logStreams[0]) {
-                    console.log('Need to  create log stream:', data);
-                    createLogStream(logData);
-                } else {
-                    console.log('Log Stream already defined:', logStreamName);
-                    putLogEvents(data.logStreams[0].uploadSequenceToken, logData);
-                }
+                console.log('Log Stream already defined:', logStreamName);
+                putLogEvents(data.logStreams[0].uploadSequenceToken, logData);
             }
-        });
+        } catch (error) {
+            console.log('Error during describe log streams:', error);
+            await createLogStream(logData);
+        }
     }
 
     // Create Log Stream
-    function createLogStream(logData) {
+    async function createLogStream(logData) {
         const logStreamParams = {
             logGroupName: logGroupName,
             logStreamName: logStreamName
         };
 
-        cloudWatchLogs.createLogStream(logStreamParams, function (err, data) {
-            if (err) {
-                console.log('error while creating log stream: ', err, err.stack);
-                return;
-            } else {
-                console.log('Success in creating log stream: ', logStreamName);
-                putLogEvents(null, logData);
-            }
-        });
+        try {
+            await cloudWatchLogsClient.send( new CreateLogStreamCommand(logStreamParams))
+            console.log('Success in creating log stream: ', logStreamName);
+            putLogEvents(null, logData);
+        } catch (error) {
+            console.log('error while creating log stream: ', error, error.stack);
+        }
     }
 
     function putLogEvents(sequenceToken, logData) {
@@ -209,7 +210,7 @@ exports.handler = (event, context, callback) => {
         let count = 0;
         let batch_count = 0;
 
-        function sendNextBatch(err, nextSequenceToken) {
+        async function sendNextBatch(err, nextSequenceToken) {
             if (err) {
                 console.log('Error sending batch: ', err, err.stack);
                 return;
@@ -219,7 +220,7 @@ exports.handler = (event, context, callback) => {
                     // send this batch
                     ++batch_count;
                     count += nextBatch.length;
-                    sendBatch(nextSequenceToken, nextBatch, sendNextBatch);
+                    await sendBatch(nextSequenceToken, nextBatch, sendNextBatch);
                 } else {
                     // no more batches: we are done
                     const msg = `Successfully put ${count} events in ${batch_count} batches`;
@@ -232,7 +233,7 @@ exports.handler = (event, context, callback) => {
         sendNextBatch(null, sequenceToken);
     }
 
-    function sendBatch(sequenceToken, batch, doNext) {
+    async function sendBatch(sequenceToken, batch, doNext) {
         const putLogEventParams = {
             logEvents: batch,
             logGroupName: logGroupName,
@@ -253,15 +254,13 @@ exports.handler = (event, context, callback) => {
             return 0;
         });
 
-        cloudWatchLogs.putLogEvents(putLogEventParams, function (err, data) {
-            if (err) {
-                console.log('Error during put log events: ', err, err.stack);
-                doNext(err, null);
-            } else {
-                console.log(`Success in putting ${putLogEventParams.logEvents.length} events`);
-                doNext(null, data.nextSequenceToken);
-            }
-        });
+        try {
+            const data = await cloudWatchLogsClient.send(new PutLogEventsCommand(putLogEventParams))
+            console.log(`Success in putting ${putLogEventParams.logEvents.length} events`);
+            doNext(null, data.nextSequenceToken);
+        } catch (error) {
+            console.log('Error during put log events: ', error, error.stack);
+            doNext(error, null);
+        }
     }
-
 };
