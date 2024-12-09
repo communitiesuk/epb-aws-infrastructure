@@ -728,7 +728,7 @@ module "logging" {
   source                    = "./logging"
   prefix                    = local.prefix
   region                    = var.region
-  is_cloudwatch_insights_on = var.environment == "stag" ? 0 : 1
+  is_cloudwatch_insights_on = 1
 }
 
 module "fluentbit_ecr" {
