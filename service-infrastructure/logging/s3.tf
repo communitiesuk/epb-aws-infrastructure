@@ -179,6 +179,7 @@ resource "aws_lambda_function" "forward_logs_s3_cloudwatch" {
   role          = aws_iam_role.lambda_forward_logs_s3_cloudwatch_role[0].arn
   handler       = "index.handler"
   runtime       = "nodejs20.x"
+  memory_size   = var.memory_size
   timeout       = 30
 
   // Redeploy when lambda function code change

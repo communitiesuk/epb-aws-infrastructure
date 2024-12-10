@@ -729,6 +729,7 @@ module "logging" {
   prefix                    = local.prefix
   region                    = var.region
   is_cloudwatch_insights_on = 1
+  memory_size               = var.environment == "prod" ? 256 : 128
 }
 
 module "fluentbit_ecr" {
