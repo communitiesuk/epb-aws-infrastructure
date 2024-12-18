@@ -383,11 +383,12 @@ module "register_api_application" {
   parameters = merge(module.parameter_store.parameter_arns, {
     "SENTRY_DSN" : module.parameter_store.parameter_arns["SENTRY_DSN_REGISTER_API"]
   })
-  has_exec_cmd_task  = true
-  vpc_id             = module.networking.vpc_id
-  fluentbit_ecr_url  = module.fluentbit_ecr.ecr_url
-  private_subnet_ids = module.networking.private_subnet_ids
-  health_check_path  = "/healthcheck"
+  has_exec_cmd_task                  = true
+  deployment_minimum_healthy_percent = var.environment == "prod" ? 100 : 0
+  vpc_id                             = module.networking.vpc_id
+  fluentbit_ecr_url                  = module.fluentbit_ecr.ecr_url
+  private_subnet_ids                 = module.networking.private_subnet_ids
+  health_check_path                  = "/healthcheck"
   additional_task_execution_role_policy_arns = {
     "RDS_access" : module.register_api_database.rds_full_access_policy_arn,
     "Redis_access" : data.aws_iam_policy.elasticache_full_access.arn
