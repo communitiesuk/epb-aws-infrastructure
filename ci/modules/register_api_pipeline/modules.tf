@@ -109,3 +109,33 @@ module "codebuild_performance_test" {
   environment_variables = []
   region                = var.region
 }
+
+module "codebuild_check_integration_restart" {
+  source             = "../codebuild_project"
+  codebuild_role_arn = var.codebuild_role_arn
+  name               = "${var.project_name}-codebuild-check-integration-restart"
+  build_image_uri    = var.aws_codebuild_image
+  buildspec_file     = "buildspec/check_service_status.yml"
+  environment_variables = [
+    { name = "AWS_DEFAULT_REGION", value = var.region },
+    { name = "AWS_ACCOUNT_ID", value = var.account_ids["integration"] },
+    { name = "CLUSTER_NAME", value = "${var.integration_prefix}-${var.ecs_cluster_name}" },
+    { name = "SERVICE_NAME", value = "${var.integration_prefix}-${var.ecs_service_name}" },
+  ]
+  region = var.region
+}
+
+module "codebuild_check_staging_restart" {
+  source             = "../codebuild_project"
+  codebuild_role_arn = var.codebuild_role_arn
+  name               = "${var.project_name}-codebuild-check-staging-restart"
+  build_image_uri    = var.aws_codebuild_image
+  buildspec_file     = "buildspec/check_service_status.yml"
+  environment_variables = [
+    { name = "AWS_DEFAULT_REGION", value = var.region },
+    { name = "AWS_ACCOUNT_ID", value = var.account_ids["staging"] },
+    { name = "CLUSTER_NAME", value = "${var.staging_prefix}-${var.ecs_cluster_name}" },
+    { name = "SERVICE_NAME", value = "${var.staging_prefix}-${var.ecs_service_name}" },
+  ]
+  region = var.region
+}
