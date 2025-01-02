@@ -158,7 +158,6 @@ resource "aws_cloudfront_origin_request_policy" "cdn" {
     cookie_behavior = "all"
   }
 
-  # TODO: Check for any headers we want to restrict
   headers_config {
     header_behavior = "allViewer"
   }
