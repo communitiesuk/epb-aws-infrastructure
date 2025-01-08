@@ -263,6 +263,7 @@ module "toggles_database" {
   storage_size          = 5
   subnet_group_name     = local.db_subnet
   vpc_id                = module.networking.vpc_id
+  multi_az              = var.environment == "prod" ? true : false
 }
 
 module "toggles_application" {
@@ -364,6 +365,7 @@ module "auth_database" {
   storage_size          = 5
   subnet_group_name     = local.db_subnet
   vpc_id                = module.networking.vpc_id
+  multi_az              = var.environment == "prod" ? true : false
 }
 
 module "register_api_application" {

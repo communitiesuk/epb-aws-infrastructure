@@ -38,3 +38,8 @@ variable "postgres_version" {
   type = string
 }
 
+variable "multi_az" {
+  type    = bool
+  default = false
+}
+
