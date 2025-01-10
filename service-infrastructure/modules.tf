@@ -73,6 +73,10 @@ module "secrets" {
     "RDS_API_SERVICE_READER_CONNECTION_STRING" : module.register_api_database.rds_db_reader_connection_string
     "RDS_API_SERVICE_PASSWORD" : module.register_api_database.rds_db_password
     "RDS_API_SERVICE_USERNAME" : module.register_api_database.rds_db_username
+    "RDS_API_V2_SERVICE_CONNECTION_STRING" : module.register_api_database_v2.rds_db_connection_string
+    "RDS_API_V2_SERVICE_READER_CONNECTION_STRING" : module.register_api_database_v2.rds_db_reader_connection_string
+    "RDS_API_V2_SERVICE_PASSWORD" : module.register_api_database_v2.rds_db_password
+    "RDS_API_V2_SERVICE_USERNAME" : module.register_api_database.rds_db_username
     "RDS_AUTH_SERVICE_CONNECTION_STRING" : module.auth_database.rds_db_connection_string
     "RDS_AUTH_SERVICE_PASSWORD" : module.auth_database.rds_db_password
     "RDS_AUTH_SERVICE_USERNAME" : module.auth_database.rds_db_username
@@ -377,8 +381,8 @@ module "register_api_application" {
   egress_ports          = [80, 443, 5432, local.redis_port, var.parameters["LOGSTASH_PORT"]]
   environment_variables = {}
   secrets = {
-    "DATABASE_URL" : module.secrets.secret_arns["RDS_API_SERVICE_CONNECTION_STRING"],
-    "DATABASE_READER_URL" : module.secrets.secret_arns["RDS_API_SERVICE_READER_CONNECTION_STRING"],
+    "DATABASE_URL" : module.secrets.secret_arns["RDS_API_V2_SERVICE_CONNECTION_STRING"],
+    "DATABASE_READER_URL" : module.secrets.secret_arns["RDS_API_V2_SERVICE_READER_CONNECTION_STRING"],
     "EPB_UNLEASH_URI" : module.secrets.secret_arns["EPB_UNLEASH_URI"],
     "EPB_DATA_WAREHOUSE_QUEUES_URI" : module.secrets.secret_arns["EPB_DATA_WAREHOUSE_QUEUES_URI"]
   }
@@ -444,6 +448,23 @@ module "register_api_database" {
   vpc_id                        = module.networking.vpc_id
 }
 
+module "register_api_database_v2" {
+  source = "./aurora_rds"
+
+  cluster_parameter_group_name  = module.parameter_groups.aurora_pg_param_group_name
+  db_name                       = "epb"
+  instance_class                = var.environment == "intg" ? "db.t3.medium" : var.environment == "stag" ? "db.r5.large" : "db.r5.2xlarge"
+  instance_parameter_group_name = module.parameter_groups.rds_pg_param_group_name
+  prefix                        = "${local.prefix}-reg-api"
+  postgres_version              = var.postgres_aurora_version
+  security_group_ids            = [module.register_api_application.ecs_security_group_id, module.bastion.security_group_id, module.scheduled_tasks_application.ecs_security_group_id]
+  storage_backup_period         = var.storage_backup_period
+  subnet_group_name             = local.db_subnet
+  vpc_id                        = module.networking.vpc_id
+  name_suffix                   = "v2"
+  kms_key_id                    = module.rds_kms_key.key_arn
+}
+
 module "scheduled_tasks_application" {
   source = "./application"
 
@@ -481,8 +502,8 @@ module "scheduled_tasks_application" {
   private_subnet_ids = module.networking.private_subnet_ids
   region             = var.region
   secrets = {
-    "DATABASE_URL" : module.secrets.secret_arns["RDS_API_SERVICE_CONNECTION_STRING"],
-    "DATABASE_READER_URL" : module.secrets.secret_arns["RDS_API_SERVICE_READER_CONNECTION_STRING"],
+    "DATABASE_URL" : module.secrets.secret_arns["RDS_API_V2_SERVICE_CONNECTION_STRING"],
+    "DATABASE_READER_URL" : module.secrets.secret_arns["RDS_API_V2_SERVICE_READER_CONNECTION_STRING"],
     "EPB_DATA_WAREHOUSE_QUEUES_URI" : module.secrets.secret_arns["EPB_DATA_WAREHOUSE_QUEUES_URI"],
     "EPB_UNLEASH_URI" : module.secrets.secret_arns["EPB_UNLEASH_URI"],
     "LANDMARK_DATA_BUCKET_NAME" : module.secrets.secret_arns["LANDMARK_DATA_BUCKET_NAME"],
@@ -713,6 +734,7 @@ module "warehouse_redis" {
   vpc_id                        = module.networking.vpc_id
 }
 
+
 module "bastion" {
   source    = "./bastion"
   subnet_id = module.networking.private_subnet_ids[0]
@@ -722,6 +744,7 @@ module "bastion" {
     "API" : module.register_api_database.rds_full_access_policy_arn
     "Toggles" : module.toggles_database.rds_full_access_policy_arn
     "Warehouse" : module.warehouse_database.rds_full_access_policy_arn
+    "API-V2" : module.register_api_database_v2.rds_full_access_policy_arn
   }
 }
 
