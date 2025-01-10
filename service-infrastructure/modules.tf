@@ -73,10 +73,10 @@ module "secrets" {
     "RDS_API_SERVICE_READER_CONNECTION_STRING" : module.register_api_database.rds_db_reader_connection_string
     "RDS_API_SERVICE_PASSWORD" : module.register_api_database.rds_db_password
     "RDS_API_SERVICE_USERNAME" : module.register_api_database.rds_db_username
-    #     "RDS_API_V2_SERVICE_CONNECTION_STRING" : module.register_api_database_v2.rds_db_connection_string
-    #     "RDS_API_V2_SERVICE_READER_CONNECTION_STRING" : module.register_api_database_v2.rds_db_reader_connection_string
-    #     "RDS_API_V2_SERVICE_PASSWORD" : module.register_api_database_v2.rds_db_password
-    #     "RDS_API_V2_SERVICE_USERNAME" : module.register_api_database.rds_db_username
+    "RDS_API_V2_SERVICE_CONNECTION_STRING" : module.register_api_database_v2.rds_db_connection_string
+    "RDS_API_V2_SERVICE_READER_CONNECTION_STRING" : module.register_api_database_v2.rds_db_reader_connection_string
+    "RDS_API_V2_SERVICE_PASSWORD" : module.register_api_database_v2.rds_db_password
+    "RDS_API_V2_SERVICE_USERNAME" : module.register_api_database.rds_db_username
     "RDS_AUTH_SERVICE_CONNECTION_STRING" : module.auth_database.rds_db_connection_string
     "RDS_AUTH_SERVICE_PASSWORD" : module.auth_database.rds_db_password
     "RDS_AUTH_SERVICE_USERNAME" : module.auth_database.rds_db_username
@@ -379,8 +379,8 @@ module "register_api_application" {
   egress_ports          = [80, 443, 5432, local.redis_port, var.parameters["LOGSTASH_PORT"]]
   environment_variables = {}
   secrets = {
-    "DATABASE_URL" : module.secrets.secret_arns["RDS_API_SERVICE_CONNECTION_STRING"],
-    "DATABASE_READER_URL" : module.secrets.secret_arns["RDS_API_SERVICE_READER_CONNECTION_STRING"],
+    "DATABASE_URL" : module.secrets.secret_arns["RDS_API_V2_SERVICE_CONNECTION_STRING"],
+    "DATABASE_READER_URL" : module.secrets.secret_arns["RDS_API_V2_SERVICE_READER_CONNECTION_STRING"],
     "EPB_UNLEASH_URI" : module.secrets.secret_arns["EPB_UNLEASH_URI"],
     "EPB_DATA_WAREHOUSE_QUEUES_URI" : module.secrets.secret_arns["EPB_DATA_WAREHOUSE_QUEUES_URI"]
   }
@@ -500,8 +500,8 @@ module "scheduled_tasks_application" {
   private_subnet_ids = module.networking.private_subnet_ids
   region             = var.region
   secrets = {
-    "DATABASE_URL" : module.secrets.secret_arns["RDS_API_SERVICE_CONNECTION_STRING"],
-    "DATABASE_READER_URL" : module.secrets.secret_arns["RDS_API_SERVICE_READER_CONNECTION_STRING"],
+    "DATABASE_URL" : module.secrets.secret_arns["RDS_API_V2_SERVICE_CONNECTION_STRING"],
+    "DATABASE_READER_URL" : module.secrets.secret_arns["RDS_API_V2_SERVICE_READER_CONNECTION_STRING"],
     "EPB_DATA_WAREHOUSE_QUEUES_URI" : module.secrets.secret_arns["EPB_DATA_WAREHOUSE_QUEUES_URI"],
     "EPB_UNLEASH_URI" : module.secrets.secret_arns["EPB_UNLEASH_URI"],
     "LANDMARK_DATA_BUCKET_NAME" : module.secrets.secret_arns["LANDMARK_DATA_BUCKET_NAME"],
