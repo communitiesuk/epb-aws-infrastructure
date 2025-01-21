@@ -619,7 +619,7 @@ module "frontend_application" {
 }
 
 module "data_frontend_application" {
-  count                              = var.environment == "prod" ? 0 : 1
+  count                              = var.environment == "intg" ? 1 : 0
   source                             = "./application"
   ci_account_id                      = var.ci_account_id
   prefix                             = "${local.prefix}-data-frontend"
@@ -627,11 +627,11 @@ module "data_frontend_application" {
   container_port                     = 3001
   deployment_minimum_healthy_percent = var.environment == "intg" ? 0 : 100
   egress_ports                       = [80, 443, 5432, var.parameters["LOGSTASH_PORT"]]
-  environment_variables = {}
+  environment_variables              = {}
   secrets = {
     "EPB_UNLEASH_URI" : module.secrets.secret_arns["EPB_UNLEASH_URI"]
   }
-  parameters = module.parameter_store.parameter_arns
+  parameters                                 = module.parameter_store.parameter_arns
   vpc_id                                     = module.networking.vpc_id
   fluentbit_ecr_url                          = module.fluentbit_ecr.ecr_url
   private_subnet_ids                         = module.networking.private_subnet_ids
