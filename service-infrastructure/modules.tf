@@ -618,6 +618,58 @@ module "frontend_application" {
   is_fluentbit_container_essential = var.environment == "intg" ? true : false
 }
 
+module "data_frontend_application" {
+  count                              = var.environment == "prod" ? 0 : 1
+  source                             = "./application"
+  ci_account_id                      = var.ci_account_id
+  prefix                             = "${local.prefix}-data-frontend"
+  region                             = var.region
+  container_port                     = 3001
+  deployment_minimum_healthy_percent = var.environment == "intg" ? 0 : 100
+  egress_ports                       = [80, 443, 5432, var.parameters["LOGSTASH_PORT"]]
+  environment_variables = {}
+  secrets = {
+    "EPB_UNLEASH_URI" : module.secrets.secret_arns["EPB_UNLEASH_URI"]
+  }
+  parameters = module.parameter_store.parameter_arns
+  vpc_id                                     = module.networking.vpc_id
+  fluentbit_ecr_url                          = module.fluentbit_ecr.ecr_url
+  private_subnet_ids                         = module.networking.private_subnet_ids
+  health_check_path                          = "/healthcheck"
+  additional_task_execution_role_policy_arns = {}
+  aws_cloudwatch_log_group_id                = module.logging.cloudwatch_log_group_id
+  aws_cloudwatch_log_group_name              = module.logging.cloudwatch_log_group_name
+  logs_bucket_name                           = module.logging.logs_bucket_name
+  logs_bucket_url                            = module.logging.logs_bucket_url
+  front_door_config = {
+    ssl_certificate_arn = module.ssl_certificate.certificate_arn
+    cdn_certificate_arn = module.cdn_certificate.certificate_arn
+    cdn_allowed_methods = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
+    cdn_cached_methods  = ["GET", "HEAD", "OPTIONS"]
+    cdn_cache_ttl       = 60 # 1 minute
+    cdn_aliases = toset([
+      var.data_service_url,
+    ])
+    forbidden_ip_addresses_acl_arn = module.waf.forbidden_ip_addresses_acl_arn
+    public_subnet_ids              = module.networking.public_subnet_ids
+    path_based_routing_overrides   = []
+    extra_lb_target_groups         = 0
+    cdn_cache_cookie_behaviour     = "whitelist"
+    cdn_cache_cookie_items         = ["cookie_consent"]
+    cdn_include_static_error_pages = true
+    error_pages_bucket_name        = module.error_pages.error_pages_bucket_name
+  }
+  task_max_capacity                = var.task_max_capacity
+  task_desired_capacity            = var.task_desired_capacity
+  task_min_capacity                = var.task_min_capacity
+  task_cpu                         = var.task_cpu
+  task_memory                      = var.task_memory
+  enable_execute_command           = var.environment != "prod"
+  fargate_weighting                = var.environment == "prod" ? { standard : 10, spot : 0 } : { standard : 0, spot : 10 }
+  cloudwatch_ecs_events_arn        = module.logging.cloudwatch_ecs_events_arn
+  is_fluentbit_container_essential = var.environment == "intg" ? true : false
+}
+
 module "warehouse_application" {
   source                = "./application"
   ci_account_id         = var.ci_account_id
