@@ -87,6 +87,7 @@ module "secrets" {
     "RDS_WAREHOUSE_READER_CONNECTION_STRING" : module.warehouse_database.rds_db_reader_connection_string
     "RDS_WAREHOUSE_PASSWORD" : module.warehouse_database.rds_db_password
     "RDS_WAREHOUSE_USERNAME" : module.warehouse_database.rds_db_username
+    "UD_BUCKET_NAME" : module.user_data.bucket_name
     "WAREHOUSE_EXPORT_BUCKET_NAME" : module.warehouse_document_export.bucket_name
     "WAREHOUSE_EXPORT_BUCKET_ACCESS_KEY" : module.warehouse_document_export.s3_access_key
     "WAREHOUSE_EXPORT_BUCKET_SECRET" : module.warehouse_document_export.s3_secret
@@ -529,6 +530,7 @@ module "warehouse_scheduled_tasks_application" {
   environment_variables = {}
   secrets = {
     "DATABASE_URL" : module.secrets.secret_arns["RDS_WAREHOUSE_CONNECTION_STRING"],
+    "UD_BUCKET_NAME" : module.secrets.secret_arns["UD_BUCKET_NAME"],
   }
   parameters = merge(module.parameter_store.parameter_arns, {
     "SENTRY_DSN" : module.parameter_store.parameter_arns["SENTRY_DSN_DATA_WAREHOUSE"]
@@ -540,6 +542,10 @@ module "warehouse_scheduled_tasks_application" {
   additional_task_execution_role_policy_arns = {
     "RDS_access" : module.warehouse_database.rds_full_access_policy_arn,
   }
+  additional_task_role_policy_arns = {
+    "UserData_S3_access" : module.user_data.s3_write_access_policy_arn
+  }
+
   aws_cloudwatch_log_group_id   = module.logging.cloudwatch_log_group_id
   aws_cloudwatch_log_group_name = module.logging.cloudwatch_log_group_name
   logs_bucket_name              = module.logging.logs_bucket_name
@@ -901,6 +907,11 @@ module "ons_postcode_data" {
 module "landmark_data" {
   source = "./s3_bucket"
   prefix = "${local.prefix}-landmark-data"
+}
+
+module "user_data" {
+  source = "./s3_bucket"
+  prefix = "${local.prefix}-user-data"
 }
 
 module "parameter_groups" {
