@@ -190,10 +190,7 @@ module "data_frontend-pipeline" {
   codebuild_image_ecr_url = module.app_test_image_pipeline.image_repository_url
   region                  = var.region
   aws_codebuild_image     = var.aws_amd_codebuild_image
-  staging_prefix          = var.staging_prefix
-  production_prefix       = var.production_prefix
-  static_start_page_url   = var.static_start_page_url
-  front_end_domain        = var.front_end_domain
+
 }
 
 module "data_warehouse-pipeline" {
