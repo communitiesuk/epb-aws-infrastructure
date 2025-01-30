@@ -62,13 +62,14 @@ variable "get_service_url" {
 
 variable "data_service_url" {
   type = string
+  default = null
 }
 
 variable "task_desired_capacity" {
   type    = number
   default = 2
 }
-
+yes
 variable "task_min_capacity" {
   type    = number
   default = 2
