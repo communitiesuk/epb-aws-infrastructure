@@ -1,5 +1,5 @@
 locals {
-  policy_name = var.name_suffix == null ? "${var.prefix}-RDSAccess" : "${var.prefix}-RDSAccess-V2"
+  policy_name = var.name_suffix == null ? "${var.prefix}-RDSAccess" : "${var.prefix}-RDSAccess-v2"
 }
 
 

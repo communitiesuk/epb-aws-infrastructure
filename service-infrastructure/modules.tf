@@ -69,14 +69,10 @@ module "secrets" {
     "ODE_BUCKET_ACCESS_KEY" : module.open_data_export.s3_access_key
     "ODE_BUCKET_SECRET" : module.open_data_export.s3_secret
     "ONS_POSTCODE_BUCKET_NAME" : module.ons_postcode_data.bucket_name
-    "RDS_API_SERVICE_CONNECTION_STRING" : module.register_api_database.rds_db_connection_string
-    "RDS_API_SERVICE_READER_CONNECTION_STRING" : module.register_api_database.rds_db_reader_connection_string
-    "RDS_API_SERVICE_PASSWORD" : module.register_api_database.rds_db_password
-    "RDS_API_SERVICE_USERNAME" : module.register_api_database.rds_db_username
     "RDS_API_V2_SERVICE_CONNECTION_STRING" : module.register_api_database_v2.rds_db_connection_string
     "RDS_API_V2_SERVICE_READER_CONNECTION_STRING" : module.register_api_database_v2.rds_db_reader_connection_string
     "RDS_API_V2_SERVICE_PASSWORD" : module.register_api_database_v2.rds_db_password
-    "RDS_API_V2_SERVICE_USERNAME" : module.register_api_database.rds_db_username
+    "RDS_API_V2_SERVICE_USERNAME" : module.register_api_database_v2.rds_db_username
     "RDS_AUTH_SERVICE_CONNECTION_STRING" : module.auth_database.rds_db_connection_string
     "RDS_AUTH_SERVICE_PASSWORD" : module.auth_database.rds_db_password
     "RDS_AUTH_SERVICE_USERNAME" : module.auth_database.rds_db_username
@@ -397,7 +393,7 @@ module "register_api_application" {
   private_subnet_ids                 = module.networking.private_subnet_ids
   health_check_path                  = "/healthcheck"
   additional_task_execution_role_policy_arns = {
-    "RDS_access" : module.register_api_database.rds_full_access_policy_arn,
+    "RDS_access" : module.register_api_database_v2.rds_full_access_policy_arn,
     "Redis_access" : data.aws_iam_policy.elasticache_full_access.arn
   }
   aws_cloudwatch_log_group_id   = module.logging.cloudwatch_log_group_id
@@ -434,21 +430,6 @@ module "register_api_application" {
   cloudwatch_ecs_events_arn = module.logging.cloudwatch_ecs_events_arn
 }
 
-module "register_api_database" {
-  source = "./aurora_rds"
-
-  cluster_parameter_group_name  = module.parameter_groups.aurora_pg_param_group_name
-  db_name                       = "epb"
-  instance_class                = var.environment == "intg" ? "db.t3.medium" : var.environment == "stag" ? "db.r5.large" : "db.r5.2xlarge"
-  instance_parameter_group_name = module.parameter_groups.rds_pg_param_group_name
-  prefix                        = "${local.prefix}-reg-api"
-  postgres_version              = var.postgres_aurora_version
-  security_group_ids            = [module.register_api_application.ecs_security_group_id, module.bastion.security_group_id, module.scheduled_tasks_application.ecs_security_group_id]
-  storage_backup_period         = var.storage_backup_period
-  subnet_group_name             = local.db_subnet
-  vpc_id                        = module.networking.vpc_id
-}
-
 module "register_api_database_v2" {
   source = "./aurora_rds"
 
@@ -471,7 +452,7 @@ module "scheduled_tasks_application" {
 
   address_base_updater_ecr = module.address_base_updater_ecr.ecr_url
   additional_task_execution_role_policy_arns = {
-    "RDS_access" : module.register_api_database.rds_full_access_policy_arn,
+    "RDS_access" : module.register_api_database_v2.rds_full_access_policy_arn,
     "Redis_access" : data.aws_iam_policy.elasticache_full_access.arn
   }
   additional_task_role_policy_arns = {
@@ -708,7 +689,7 @@ module "warehouse_application" {
     "WarehouseDocumentExport_S3_access" : module.warehouse_document_export.s3_write_access_policy_arn
   }
   additional_task_execution_role_policy_arns = {
-    "RDS_access" : module.register_api_database.rds_full_access_policy_arn
+    "RDS_access" : module.warehouse_database.rds_full_access_policy_arn
     "Redis_access" : data.aws_iam_policy.elasticache_full_access.arn
   }
   aws_cloudwatch_log_group_id   = module.logging.cloudwatch_log_group_id
@@ -799,10 +780,9 @@ module "bastion" {
   vpc_id    = module.networking.vpc_id
   rds_access_policy_arns = {
     "Auth" : module.auth_database.rds_full_access_policy_arn
-    "API" : module.register_api_database.rds_full_access_policy_arn
     "Toggles" : module.toggles_database.rds_full_access_policy_arn
     "Warehouse" : module.warehouse_database.rds_full_access_policy_arn
-    "API-V2" : module.register_api_database_v2.rds_full_access_policy_arn
+    "API-v2" : module.register_api_database_v2.rds_full_access_policy_arn
   }
 }
 
@@ -874,8 +854,8 @@ module "alerts" {
   }
 
   rds_clusters = {
-    warehouse   = module.warehouse_database.rds_cluster_identifier
-    api_service = module.register_api_database.rds_cluster_identifier
+    warehouse      = module.warehouse_database.rds_cluster_identifier
+    api_service_v2 = module.register_api_database_v2.rds_cluster_identifier
   }
 
   albs = {
@@ -964,7 +944,7 @@ module "dashboard" {
 module "rds_export_to_s3" {
   source                     = "./rds_export_to_s3"
   prefix                     = local.prefix
-  database_names             = "${module.register_api_database.rds_cluster_identifier},${module.warehouse_database.rds_cluster_identifier}"
+  database_names             = "${module.register_api_database_v2.rds_cluster_identifier},${module.warehouse_database.rds_cluster_identifier}"
   snapshots_bucket_name      = local.rds_snapshot_backup_bucket
   snapshots_bucket_prefix    = "rds_snapshots/"
   create_customer_kms_key    = true
