@@ -746,7 +746,6 @@ module "warehouse_api_application" {
   cloudwatch_ecs_events_arn = module.logging.cloudwatch_ecs_events_arn
 }
 
-
 module "warehouse_database" {
   source = "./aurora_rds"
 
@@ -756,7 +755,7 @@ module "warehouse_database" {
   instance_parameter_group_name = module.data_warehouse_parameter_groups.rds_pg_param_group_name
   postgres_version              = var.postgres_aurora_version
   prefix                        = "${local.prefix}-warehouse"
-  security_group_ids            = [module.warehouse_application.ecs_security_group_id, module.bastion.security_group_id, module.warehouse_scheduled_tasks_application.ecs_security_group_id, module.warehouse_api_application.ecs_security_group_id]
+  security_group_ids            = [module.warehouse_application.ecs_security_group_id, module.bastion.security_group_id, module.warehouse_scheduled_tasks_application.ecs_security_group_id, module.warehouse_api_application.ecs_security_group_id, module.data_warehouse_glue.glue_security_group_id]
   storage_backup_period         = var.storage_backup_period
   subnet_group_name             = local.db_subnet
   vpc_id                        = module.networking.vpc_id
@@ -773,7 +772,6 @@ module "warehouse_redis" {
   subnet_cidr                   = module.networking.private_subnet_cidr
   vpc_id                        = module.networking.vpc_id
 }
-
 
 module "bastion" {
   source    = "./bastion"
@@ -1007,3 +1005,13 @@ module "rds_kms_key" {
   environment = var.environment
 }
 
+module "data_warehouse_glue" {
+  source          = "./glue"
+  prefix          = local.prefix
+  subnet_group_id = module.networking.private_db_subnet_first_id
+  db_instance     = module.warehouse_database.rds_db_reader_endpoint
+  db_user         = module.warehouse_database.rds_db_username
+  db_password     = module.warehouse_database.rds_db_password
+  subnet_group_az = module.networking.private_db_subnet_first_az
+  vpc_id          = module.networking.vpc_id
+}

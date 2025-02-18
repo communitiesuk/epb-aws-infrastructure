@@ -33,3 +33,11 @@ output "private_db_subnet_cidr" {
 output "private_db_subnet_ids" {
   value = aws_subnet.private_db[*].id
 }
+
+output "private_db_subnet_first_id" {
+  value = aws_subnet.private_db[0].id
+}
+
+output "private_db_subnet_first_az" {
+  value = aws_subnet.private_db[0].availability_zone
+}

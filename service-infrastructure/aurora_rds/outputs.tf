@@ -33,3 +33,8 @@ output "rds_db_reader_connection_string" {
   value       = local.reader_connection_string
   sensitive   = true
 }
+
+output "rds_db_reader_endpoint" {
+  value     = aws_rds_cluster.this.reader_endpoint
+  sensitive = true
+}
