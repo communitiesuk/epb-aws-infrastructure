@@ -746,13 +746,14 @@ module "warehouse_api_application" {
   cloudwatch_ecs_events_arn = module.logging.cloudwatch_ecs_events_arn
 }
 
+
 module "warehouse_database" {
   source = "./aurora_rds"
 
-  cluster_parameter_group_name  = module.parameter_groups.aurora_pg_param_group_name
+  cluster_parameter_group_name  = module.data_warehouse_parameter_groups.aurora_pg_param_group_name
   db_name                       = "epb"
   instance_class                = "db.serverless"
-  instance_parameter_group_name = module.parameter_groups.rds_pg_param_group_name
+  instance_parameter_group_name = module.data_warehouse_parameter_groups.rds_pg_param_group_name
   postgres_version              = var.postgres_aurora_version
   prefix                        = "${local.prefix}-warehouse"
   security_group_ids            = [module.warehouse_application.ecs_security_group_id, module.bastion.security_group_id, module.warehouse_scheduled_tasks_application.ecs_security_group_id, module.warehouse_api_application.ecs_security_group_id]
@@ -898,6 +899,14 @@ module "parameter_groups" {
   source = "./database_parameter_groups"
 }
 
+module "data_warehouse_parameter_groups" {
+  source            = "./database_parameter_groups"
+  has_rds           = false
+  has_md_5_password = true
+  aurora_name       = "aurora-pg-md5"
+}
+
+
 module "error_pages" {
   source           = "./error_pages"
   prefix           = "${local.prefix}-error-pages"
@@ -997,3 +1006,4 @@ module "rds_kms_key" {
   prefix      = local.prefix
   environment = var.environment
 }
+
