@@ -3,7 +3,7 @@ resource "aws_glue_connection" "example" {
   name = "${var.prefix}-datawarehouse-db-connection"
   connection_properties = {
     JDBC_CONNECTION_URL = "jdbc:postgresql://${var.db_instance}:5432/epb"
-    SECRET_ID           = aws_secretsmanager_secret.glue_db_creds.id
+    SECRET_ID           = aws_secretsmanager_secret.glue_db_creds.name
   }
 
 

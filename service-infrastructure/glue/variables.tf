@@ -26,5 +26,8 @@ variable "db_password" {
   type = string
 }
 
-
+variable "secrets" {
+  default = {}
+  type    = map(string)
+}
 

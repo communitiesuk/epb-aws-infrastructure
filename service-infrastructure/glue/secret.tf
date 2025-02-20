@@ -1,14 +1,20 @@
 
 resource "aws_secretsmanager_secret" "glue_db_creds" {
-  name = "GLUE-DATAWAREHOUSE-CREDS"
+  name = "GLUE_DATAWAREHOUSE_CREDS"
 }
 
-resource "aws_secretsmanager_secret_version" "glue_db_creds_varsion" {
+
+locals {
+  secret_contents = merge(
+    var.secrets,
+    {
+      password = var.db_user
+      username = var.db_password
+    }
+  )
+}
+
+resource "aws_secretsmanager_secret_version" "secret_val" {
   secret_id     = aws_secretsmanager_secret.glue_db_creds.id
-  secret_string = <<EOF
-   {
-    "username": ${var.db_user}",
-    "password":  ${var.db_password}"
-   }
-EOF
+  secret_string = jsonencode(local.secret_contents)
 }
