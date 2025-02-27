@@ -510,7 +510,7 @@ module "warehouse_scheduled_tasks_application" {
   egress_ports          = [80, 443, 5432, var.parameters["LOGSTASH_PORT"]]
   environment_variables = {}
   secrets = {
-    "DATABASE_URL" : module.secrets.secret_arns["RDS_WAREHOUSE_CONNECTION_STRING"],
+    "DATABASE_URL" : module.secrets.secret_arns["RDS_WAREHOUSE_READER_CONNECTION_STRING"],
     "UD_BUCKET_NAME" : module.secrets.secret_arns["UD_BUCKET_NAME"],
   }
   parameters = merge(module.parameter_store.parameter_arns, {
