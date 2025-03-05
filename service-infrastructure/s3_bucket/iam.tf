@@ -1,6 +1,6 @@
 resource "aws_iam_policy" "s3_write" {
   name        = "${var.prefix}-policy-s3-write"
-  description = "Policy that allows write access to the ONS postcode data bucket"
+  description = "Policy that allows write access to an S3 bucket"
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -21,7 +21,7 @@ resource "aws_iam_policy" "s3_write" {
 
 resource "aws_iam_policy" "s3_read" {
   name        = "${var.prefix}-policy-s3-read"
-  description = "Policy that allows read-only access to the ONS postcode bucket"
+  description = "Policy that allows read-only access to an S3 bucket"
 
   policy = jsonencode({
     Version = "2012-10-17"
