@@ -79,7 +79,6 @@ resource "aws_ecs_task_definition" "this" {
     {
       name      = local.fluentbit_container_name
       image     = "${var.fluentbit_ecr_url}:latest"
-      cpu       = 0
       essential = var.is_fluentbit_container_essential
 
       environment = [
