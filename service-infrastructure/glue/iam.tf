@@ -18,6 +18,16 @@ resource "aws_iam_role_policy_attachment" "default" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
 }
 
+resource "aws_iam_role_policy_attachment" "output_bucket_read_policy_attachment" {
+  policy_arn = var.output_bucket_read_policy
+  role       = aws_iam_role.glueServiceRole.name
+}
+
+resource "aws_iam_role_policy_attachment" "output_bucket_write_policy_attachment" {
+  policy_arn = var.output_bucket_write_policy
+  role       = aws_iam_role.glueServiceRole.name
+}
+
 resource "aws_iam_role_policy" "s3_bucket_policy" {
   name = "${var.prefix}-glue-role-s3-policy"
   role = aws_iam_role.glueServiceRole.id

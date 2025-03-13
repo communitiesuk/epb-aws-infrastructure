@@ -898,7 +898,6 @@ module "parameter_groups" {
   source = "./database_parameter_groups"
 }
 
-
 module "error_pages" {
   source           = "./error_pages"
   prefix           = "${local.prefix}-error-pages"
@@ -1000,12 +999,15 @@ module "rds_kms_key" {
 }
 
 module "data_warehouse_glue" {
-  source          = "./glue"
-  prefix          = local.prefix
-  subnet_group_id = module.networking.private_db_subnet_first_id
-  db_instance     = module.warehouse_database.rds_db_reader_endpoint
-  db_user         = module.warehouse_database.rds_db_username
-  db_password     = module.warehouse_database.rds_db_password
-  subnet_group_az = module.networking.private_db_subnet_first_az
-  vpc_id          = module.networking.vpc_id
+  source                     = "./glue"
+  prefix                     = local.prefix
+  subnet_group_id            = module.networking.private_db_subnet_first_id
+  db_instance                = module.warehouse_database.rds_db_reader_endpoint
+  db_user                    = module.warehouse_database.rds_db_username
+  db_password                = module.warehouse_database.rds_db_password
+  subnet_group_az            = module.networking.private_db_subnet_first_az
+  vpc_id                     = module.networking.vpc_id
+  output_bucket_name         = module.user_data.bucket_name
+  output_bucket_read_policy  = module.user_data.s3_read_access_policy_arn
+  output_bucket_write_policy = module.user_data.s3_write_access_policy_arn
 }

@@ -31,3 +31,16 @@ variable "secrets" {
   type    = map(string)
 }
 
+variable "output_bucket_name" {
+  type = string
+}
+
+variable "output_bucket_read_policy" {
+  type = string
+}
+
+variable "output_bucket_write_policy" {
+  type = string
+}
+
+

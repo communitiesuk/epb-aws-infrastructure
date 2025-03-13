@@ -1,5 +1,5 @@
 
-resource "aws_glue_connection" "example" {
+resource "aws_glue_connection" "this" {
   name = "${var.prefix}-datawarehouse-db-connection"
   connection_properties = {
     JDBC_CONNECTION_URL = "jdbc:postgresql://${var.db_instance}:5432/epb"

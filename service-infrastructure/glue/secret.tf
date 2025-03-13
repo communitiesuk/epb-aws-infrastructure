@@ -8,8 +8,8 @@ locals {
   secret_contents = merge(
     var.secrets,
     {
-      password = var.db_user
-      username = var.db_password
+      username = var.db_user
+      password = var.db_password
     }
   )
 }
