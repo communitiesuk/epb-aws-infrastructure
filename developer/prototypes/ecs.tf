@@ -16,10 +16,6 @@ resource "aws_ecs_task_definition" "this" {
       image     = "${aws_ecr_repository.this.repository_url}:latest"
       essential = true
 
-      environment = [
-
-      ]
-
       portMappings = [
         {
           protocol      = "tcp"
