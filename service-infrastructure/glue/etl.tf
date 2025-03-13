@@ -1,51 +1,30 @@
-resource "aws_s3_object" "export_data_by_year_script" {
-  bucket = aws_s3_bucket.this.id
-  key    = "etl_scripts/export_epb_data_by_year.py"
-  source = "${path.module}/etl_scripts/export_epb_data_by_year.py"
-  etag   = filemd5("${path.module}/etl_scripts/export_epb_data_by_year.py")
-}
-
-resource "aws_s3_object" "create_domestic_script" {
-  bucket = aws_s3_bucket.this.id
-  key    = "etl_scripts/create_domestic_data.py"
-  source = "${path.module}/etl_scripts/create_domestic_data.py"
-  etag   = filemd5("${path.module}/etl_scripts/create_domestic_data.py")
-}
-
-
-resource "aws_glue_job" "create_domestic" {
-  name         = "Create domestic catalog table"
-  role_arn     = aws_iam_role.glueServiceRole.arn
-  glue_version = "5.0"
-  connections  = [aws_glue_connection.this.name]
-  command {
-    name            = "glueetl"
-    python_version  = "3"
-    script_location = "s3://${aws_s3_bucket.this.bucket}/${aws_s3_object.create_domestic_script.key}"
-  }
-
-  default_arguments = {
-    "--DATABASE_NAME"   = aws_glue_catalog_database.this.name
-    "--TABLE_NAME"      = "domestic"
-    "--S3_BUCKET"       = aws_s3_bucket.this.bucket
-    "--CONNECTION_NAME" = aws_glue_connection.this.name
+module "create_domestic_etl" {
+  source           = "./etl_job"
+  bucket_name      = aws_s3_bucket.this.bucket
+  glue_connector   = [aws_glue_connection.this.name]
+  job_name         = "Create domestic catalog table"
+  role_arn         = aws_iam_role.glueServiceRole.arn
+  script_file_name = "create_data_catalog.py"
+  scripts_module   = path.module
+  arguments = {
+    "--DATABASE_NAME"      = aws_glue_catalog_database.this.name
+    "--CATALOG_TABLE_NAME" = "domestic"
+    "--S3_BUCKET"          = aws_s3_bucket.this.bucket
+    "--CONNECTION_NAME"    = aws_glue_connection.this.name
+    "--DB_TABLE_NAME"      = "mvw_domestic_search"
   }
 }
 
-resource "aws_glue_job" "export_domestic_data_by_year" {
-  name         = "Export Domestic Data By Year"
-  role_arn     = aws_iam_role.glueServiceRole.arn
-  glue_version = "5.0"
-
-  command {
-    name            = "glueetl"
-    python_version  = "3"
-    script_location = "s3://${var.output_bucket_name}/${aws_s3_object.export_data_by_year_script.key}"
-  }
-
-  default_arguments = {
+module "export_domestic_data_by_year" {
+  source           = "./etl_job"
+  bucket_name      = aws_s3_bucket.this.bucket
+  job_name         = "Export Domestic Data By Year"
+  role_arn         = aws_iam_role.glueServiceRole.arn
+  script_file_name = "export_by_year.py"
+  scripts_module   = path.module
+  arguments = {
     "--DATABASE_NAME" = aws_glue_catalog_database.this.name
     "--TABLE_NAME"    = "domestic"
-    "--S3_BUCKET"     = aws_s3_bucket.this.bucket
+    "--S3_BUCKET"     = var.output_bucket_name
   }
 }

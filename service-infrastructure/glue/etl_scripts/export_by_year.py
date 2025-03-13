@@ -12,7 +12,7 @@ from awsglue.job import Job
 args = getResolvedOptions(sys.argv,
                           ['JOB_NAME',
                            'TABLE_NAME',
-                           'S3_BUCKET'
+                           'S3_BUCKET',
                            'DATABASE_NAME'
                          ])
 sc = SparkContext()
