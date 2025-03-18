@@ -1,8 +1,4 @@
 variable "environment" {
-  description = "must be one of: integration, staging, production"
+  description = "environment you wish to add terraform state set up to"
   type        = string
-  validation {
-    condition     = contains(["integration", "staging", "production"], var.environment)
-    error_message = "Environment must be one of: integration, staging, production"
-  }
 }
