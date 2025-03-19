@@ -12,6 +12,12 @@ module "account_security" {
   source = "./account_security"
 }
 
+module "data_frontend_delivery" {
+  count  = var.environment == "intg" ? 1 : 0
+  source = "./data_frontend_delivery"
+  prefix = local.prefix
+}
+
 module "networking" {
   source         = "./networking"
   prefix         = local.prefix
@@ -624,10 +630,13 @@ module "data_frontend_application" {
   private_subnet_ids                         = module.networking.private_subnet_ids
   health_check_path                          = "/healthcheck"
   additional_task_execution_role_policy_arns = {}
-  aws_cloudwatch_log_group_id                = module.logging.cloudwatch_log_group_id
-  aws_cloudwatch_log_group_name              = module.logging.cloudwatch_log_group_name
-  logs_bucket_name                           = module.logging.logs_bucket_name
-  logs_bucket_url                            = module.logging.logs_bucket_url
+  additional_task_role_policy_arns = {
+    "DataFrontendDelivery_SNS_access" : module.data_frontend_delivery[0].sns_write_access_policy_arn
+  }
+  aws_cloudwatch_log_group_id   = module.logging.cloudwatch_log_group_id
+  aws_cloudwatch_log_group_name = module.logging.cloudwatch_log_group_name
+  logs_bucket_name              = module.logging.logs_bucket_name
+  logs_bucket_url               = module.logging.logs_bucket_url
   front_door_config = {
     ssl_certificate_arn = module.ssl_certificate.certificate_arn
     cdn_certificate_arn = module.cdn_certificate.certificate_arn
