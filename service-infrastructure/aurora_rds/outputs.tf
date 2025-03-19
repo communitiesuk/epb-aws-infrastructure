@@ -15,6 +15,10 @@ output "rds_db_username" {
   value = aws_rds_cluster.this.master_username
 }
 
+output "rds_db_arn" {
+  value = aws_rds_cluster.this.arn
+}
+
 locals {
   connection_string        = "postgresql://${aws_rds_cluster.this.master_username == null ? "" : aws_rds_cluster.this.master_username}:${aws_rds_cluster.this.master_password == null ? "" : aws_rds_cluster.this.master_password}@${aws_rds_cluster.this.endpoint == null ? "" : aws_rds_cluster.this.endpoint}/${aws_rds_cluster.this.database_name == null ? "" : aws_rds_cluster.this.database_name}"
   reader_connection_string = replace(local.connection_string, aws_rds_cluster.this.endpoint, aws_rds_cluster.this.reader_endpoint)

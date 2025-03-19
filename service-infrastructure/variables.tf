@@ -21,6 +21,10 @@ variable "ci_account_id" {
   type    = string
 }
 
+variable "backup_account_id" {
+  type = string
+}
+
 variable "domain_name" {
   type = string
 }

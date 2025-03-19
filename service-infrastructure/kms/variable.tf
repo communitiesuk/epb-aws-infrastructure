@@ -8,3 +8,7 @@ variable "environment" {
   type    = string
   default = null
 }
+
+variable "backup_account_id" {
+  type = string
+}

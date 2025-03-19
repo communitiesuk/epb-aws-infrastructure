@@ -1,0 +1,20 @@
+variable "kms_key_arn" {
+  type = string
+}
+
+variable "backup_account_id" {
+  type = string
+}
+
+variable "backup_account_vault_name" {
+  default = "backup_vault"
+  type    = string
+}
+
+variable "database_to_backup_arn" {
+  type = string
+}
+
+variable "backup_frequency" {
+  type = string
+}
