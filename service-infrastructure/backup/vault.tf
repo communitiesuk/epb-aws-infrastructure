@@ -1,5 +1,3 @@
-data "aws_caller_identity" "current" {}
-
 resource "aws_backup_vault" "this" {
   name        = "backup_vault"
   kms_key_arn = var.kms_key_arn
@@ -49,11 +47,37 @@ resource "aws_backup_plan" "this" {
 }
 
 resource "aws_backup_selection" "this" {
-  iam_role_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/service-role/AWSBackupDefaultServiceRole"
+  iam_role_arn = aws_iam_role.this.arn
   name         = "resource_assignment"
   plan_id      = aws_backup_plan.this.id
 
   resources = [
     var.database_to_backup_arn
   ]
+}
+
+resource "aws_iam_role" "this" {
+  name               = "aws-backup-service-role"
+  assume_role_policy = data.aws_iam_policy_document.assume_role.json
+}
+
+data "aws_iam_policy_document" "assume_role" {
+  statement {
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["backup.amazonaws.com"]
+    }
+  }
+}
+
+resource "aws_iam_role_policy_attachment" "attach-backup-policy" {
+  role       = aws_iam_role.this.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSBackupServiceRolePolicyForBackup"
+}
+
+resource "aws_iam_role_policy_attachment" "attach-restore-policy" {
+  role       = aws_iam_role.this.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSBackupServiceRolePolicyForRestores"
 }
