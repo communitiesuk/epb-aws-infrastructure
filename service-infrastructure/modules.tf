@@ -13,7 +13,7 @@ module "account_security" {
 }
 
 module "data_frontend_delivery" {
-  count  = var.environment == "intg" ? 1 : 0
+  count  = var.environment == "prod" ? 0 : 1
   source = "./data_frontend_delivery"
   prefix = local.prefix
 }
@@ -612,7 +612,7 @@ module "frontend_application" {
 }
 
 module "data_frontend_application" {
-  count                              = var.environment == "intg" ? 1 : 0
+  count                              = var.environment == "prod" ? 0 : 1
   source                             = "./application"
   ci_account_id                      = var.ci_account_id
   prefix                             = "${local.prefix}-data-frontend"
