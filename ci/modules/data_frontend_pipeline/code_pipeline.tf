@@ -78,6 +78,18 @@ resource "aws_codepipeline" "codepipeline" {
         ProjectName = module.codebuild_deploy_integration.codebuild_name
       }
     }
+
+    action {
+      name            = "deploy-frontend-to-staging-cluster"
+      category        = "Build"
+      owner           = "AWS"
+      provider        = "CodeBuild"
+      version         = "1"
+      input_artifacts = ["docker_image"]
+      configuration = {
+        ProjectName = module.codebuild_deploy_staging.codebuild_name
+      }
+    }
   }
 
   stage {

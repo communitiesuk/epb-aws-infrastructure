@@ -67,6 +67,14 @@ variable "integration_prefix" {
   type = string
 }
 
+variable "staging_prefix" {
+  type = string
+}
+
+variable "production_prefix" {
+  type = string
+}
+
 variable "pipeline_name" {
   type = string
 }
@@ -80,13 +88,5 @@ variable "project_name" {
 }
 
 variable "region" {
-  type = string
-}
-
-variable "staging_prefix" {
-  type = string
-}
-
-variable "production_prefix" {
   type = string
 }

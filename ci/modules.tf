@@ -69,6 +69,8 @@ module "auth-server-pipeline" {
   github_branch           = "master"
   github_organisation     = var.github_organisation
   integration_prefix      = var.integration_prefix
+  staging_prefix          = var.staging_prefix
+  production_prefix       = var.production_prefix
   codestar_connection_arn = module.codestar_connection.codestar_connection_arn
   account_ids             = var.account_ids
   ecs_cluster_name        = "auth-cluster"
@@ -79,8 +81,6 @@ module "auth-server-pipeline" {
   postgres_image_ecr_url  = module.postgres_test_image_pipeline.image_repository_url
   region                  = var.region
   aws_codebuild_image     = var.aws_amd_codebuild_image
-  staging_prefix          = var.staging_prefix
-  production_prefix       = var.production_prefix
 }
 
 module "auth-tools-pipeline" {
@@ -108,6 +108,8 @@ module "register-api-pipeline" {
   github_branch               = "master"
   github_organisation         = var.github_organisation
   integration_prefix          = var.integration_prefix
+  staging_prefix              = var.staging_prefix
+  production_prefix           = var.production_prefix
   codestar_connection_arn     = module.codestar_connection.codestar_connection_arn
   account_ids                 = var.account_ids
   ecs_cluster_name            = "reg-api-cluster"
@@ -123,8 +125,6 @@ module "register-api-pipeline" {
   performance_test_branch     = var.performance_test_branch
   smoketests_repository       = var.smoketests_repository
   smoketests_branch           = var.smoketests_branch
-  staging_prefix              = var.staging_prefix
-  production_prefix           = var.production_prefix
   static_start_page_url       = var.static_start_page_url
   front_end_domain            = var.front_end_domain
 }
@@ -154,6 +154,8 @@ module "frontend-pipeline" {
   github_branch           = "master"
   github_organisation     = var.github_organisation
   integration_prefix      = var.integration_prefix
+  staging_prefix          = var.staging_prefix
+  production_prefix       = var.production_prefix
   codestar_connection_arn = module.codestar_connection.codestar_connection_arn
   account_ids             = var.account_ids
   ecs_cluster_name        = "frontend-cluster"
@@ -165,22 +167,22 @@ module "frontend-pipeline" {
   aws_codebuild_image     = var.aws_amd_codebuild_image
   smoketests_repository   = var.smoketests_repository
   smoketests_branch       = var.smoketests_branch
-  staging_prefix          = var.staging_prefix
-  production_prefix       = var.production_prefix
   static_start_page_url   = var.static_start_page_url
   front_end_domain        = var.front_end_domain
 }
 
 module "data_frontend-pipeline" {
-  source                  = "./modules/data_frontend_pipeline"
-  codepipeline_bucket     = module.artefact.codepipeline_bucket
-  codepipeline_role_arn   = module.codepipeline_role.aws_codepipeline_role_arn
-  codebuild_role_arn      = module.codebuild_role.aws_codebuild_role_arn
-  pipeline_name           = "epbr-data-frontend-pipeline"
-  github_repository       = "epb-data-frontend"
-  github_branch           = "main"
-  github_organisation     = var.github_organisation
-  integration_prefix      = var.integration_prefix
+  source                = "./modules/data_frontend_pipeline"
+  codepipeline_bucket   = module.artefact.codepipeline_bucket
+  codepipeline_role_arn = module.codepipeline_role.aws_codepipeline_role_arn
+  codebuild_role_arn    = module.codebuild_role.aws_codebuild_role_arn
+  pipeline_name         = "epbr-data-frontend-pipeline"
+  github_repository     = "epb-data-frontend"
+  github_branch         = "main"
+  github_organisation   = var.github_organisation
+  integration_prefix    = var.integration_prefix
+  staging_prefix        = var.staging_prefix
+  # production_prefix       = var.production_prefix
   codestar_connection_arn = module.codestar_connection.codestar_connection_arn
   account_ids             = var.account_ids
   ecs_cluster_name        = "data-frontend-cluster"
@@ -203,6 +205,8 @@ module "data_warehouse-pipeline" {
   github_branch           = "main"
   github_organisation     = var.github_organisation
   integration_prefix      = var.integration_prefix
+  staging_prefix          = var.staging_prefix
+  production_prefix       = var.production_prefix
   codestar_connection_arn = module.codestar_connection.codestar_connection_arn
   account_ids             = var.account_ids
   ecs_cluster_name        = "warehouse-cluster"
@@ -216,8 +220,6 @@ module "data_warehouse-pipeline" {
   postgres_image_ecr_url  = module.postgres_test_image_pipeline.image_repository_url
   region                  = var.region
   aws_codebuild_image     = var.aws_amd_codebuild_image
-  staging_prefix          = var.staging_prefix
-  production_prefix       = var.production_prefix
 }
 
 module "toggles-pipeline" {
@@ -230,6 +232,8 @@ module "toggles-pipeline" {
   github_branch           = "master"
   github_organisation     = var.github_organisation
   integration_prefix      = var.integration_prefix
+  staging_prefix          = var.staging_prefix
+  production_prefix       = var.production_prefix
   codestar_connection_arn = module.codestar_connection.codestar_connection_arn
   account_ids             = var.account_ids
   ecs_cluster_name        = "toggles-cluster"
@@ -238,8 +242,6 @@ module "toggles-pipeline" {
   project_name            = "epbr-toggles"
   region                  = var.region
   aws_codebuild_image     = var.aws_amd_codebuild_image
-  staging_prefix          = var.staging_prefix
-  production_prefix       = var.production_prefix
 }
 
 module "fluentbit_pipeline" {

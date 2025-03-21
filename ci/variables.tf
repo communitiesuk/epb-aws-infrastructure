@@ -16,6 +16,11 @@ variable "github_organisation" {
   type    = string
 }
 
+variable "developer_prefix" {
+  default = "epb-dev"
+  type    = string
+}
+
 variable "integration_prefix" {
   default = "epb-intg"
   type    = string
@@ -28,11 +33,6 @@ variable "staging_prefix" {
 
 variable "production_prefix" {
   default = "epb-prod"
-  type    = string
-}
-
-variable "developer_prefix" {
-  default = "epb-dev"
   type    = string
 }
 

@@ -58,6 +58,14 @@ variable "integration_prefix" {
   type = string
 }
 
+variable "staging_prefix" {
+  type = string
+}
+
+variable "production_prefix" {
+  type = string
+}
+
 variable "performance_test_repository" {
   type = string
 }
@@ -88,14 +96,6 @@ variable "smoketests_repository" {
 }
 
 variable "smoketests_branch" {
-  type = string
-}
-
-variable "staging_prefix" {
-  type = string
-}
-
-variable "production_prefix" {
   type = string
 }
 
