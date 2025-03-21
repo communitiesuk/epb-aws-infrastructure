@@ -953,7 +953,7 @@ module "dashboard" {
 module "rds_export_to_s3" {
   source                     = "./rds_export_to_s3"
   prefix                     = local.prefix
-  database_names             = "${module.register_api_database_v2.rds_cluster_identifier},${module.warehouse_database.rds_cluster_identifier}"
+  database_names             = module.warehouse_database.rds_cluster_identifier
   snapshots_bucket_name      = local.rds_snapshot_backup_bucket
   snapshots_bucket_prefix    = "rds_snapshots/"
   create_customer_kms_key    = true
