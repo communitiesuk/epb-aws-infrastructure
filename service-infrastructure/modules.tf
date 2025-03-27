@@ -66,6 +66,8 @@ module "secrets" {
   secrets = {
     "EPB_API_URL" : "https://${module.register_api_application.internal_alb_name}.${var.domain_name}:443"
     "EPB_AUTH_SERVER" : "https://${module.auth_application.internal_alb_name}.${var.domain_name}:443/auth"
+    "EPB_DATA_FRONTEND_DELIVERY_SNS_ARN" : var.environment != "prod" ? module.data_frontend_delivery[0].sns_topic_arn : null,
+    "EPB_DATA_FRONTEND_DELIVERY_TEMP_EMAIL" : var.environment != "prod" ? var.temp_notification_email : null,
     "EPB_DATA_WAREHOUSE_API_URL" : "https://${module.warehouse_api_application.internal_alb_name}.${var.domain_name}"
     "EPB_DATA_WAREHOUSE_QUEUES_URI" : module.warehouse_redis.redis_uri
     "EPB_QUEUES_URI" : module.warehouse_redis.redis_uri
@@ -623,6 +625,8 @@ module "data_frontend_application" {
   environment_variables              = {}
   secrets = {
     "EPB_UNLEASH_URI" : module.secrets.secret_arns["EPB_UNLEASH_URI"]
+    "SEND_DOWNLOAD_TOPIC_ARN" : module.secrets.secret_arns["EPB_DATA_FRONTEND_DELIVERY_SNS_ARN"]
+    "TESTING_EMAIL_ADDRESS" : module.secrets.secret_arns["EPB_DATA_FRONTEND_DELIVERY_TEMP_EMAIL"]
   }
   parameters                                 = module.parameter_store.parameter_arns
   vpc_id                                     = module.networking.vpc_id
