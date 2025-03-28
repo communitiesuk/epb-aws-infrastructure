@@ -1,0 +1,11 @@
+{
+  "Type" : "Notification",
+  "MessageId" : "dce10bad-e770-5ed4-89e2-6bcd6512a7a4",
+  "TopicArn" : "arn:aws:sns:eu-west-2:851965904888:epb-intg-data-frontend-delivery-notifications",
+  "Message" : "{\"property_type\":\"domestic\",\"date_start\":\"2012-01-01\",\"date_end\":\"2025-02-01\",\"area\":{\"local-authority\":\"Select all\"},\"efficiency_ratings\":[\"A\",\"B\",\"C\",\"D\",\"E\",\"F\",\"G\"],\"include_recommendations\":null,\"email_address\":\"epc-data-request@example.com\"}",
+  "Timestamp" : "2025-03-28T10:55:30.820Z",
+  "SignatureVersion" : "1",
+  "Signature" : "eyaMVR4bcSnoW4w1bPKGONJnqdL+EittW74i6dllijHnjwMZLALXOYRW8j9HNKjDgaNSiIzxE9dKmyvaC7756w+jU8HV5ncHdy444cKDVBHNtB7jHlmplCTDgdUWl1LuV2qztY33720CzDzl+MZ1LPkgH6gmG4qP2XqLvMelhwaf/tSZhkMntAH1aXO9JhGYTNicDJrCqQ5yTxig5yF4FQv/YIxZqWIJmQoGJgyKZapSBXnyefLqaii3ceH14USjRbpTUn3ntc/jpeMhQ+SaCrsh1+ftwizT1q1cjCJzz/zGxoec6/6WoQKSMdFUisVV6saorgX5rbc25wRwiQaz7g==",
+  "SigningCertURL" : "https://sns.eu-west-2.amazonaws.com/SimpleNotificationService-9c6465fa7f48f5cacd23014631ec1136.pem",
+  "UnsubscribeURL" : "https://sns.eu-west-2.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:eu-west-2:851965904888:epb-intg-data-frontend-delivery-notifications:164a754f-97e5-4088-b7fd-e8c54e1daef7"
+}
