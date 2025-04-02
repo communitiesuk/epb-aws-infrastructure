@@ -4,14 +4,6 @@ set dotenv-load
 default:
     @just --list
 
-# Install dependencies
-[windows]
-install:
-    @choco install terraform aws-vault tfsec tflint docker docker-compose awscli pack
-    @pip install checkov
-
-    @just _alias_this
-    @just install-hooks
 
 # Install dependencies
 [macos]
@@ -472,12 +464,12 @@ ecs-shell-windows service_name profile:
     set ECS_CONTAINER_NAME (aws-vault exec $AWS_PROFILE -- aws ecs describe-tasks --cluster $SERVICE_NAME-cluster --tasks $ECS_TASK_ARN | jq -r '.tasks[0].containers|map(select(.name|contains(\"fluentbit\")|not))[0].name'
     aws-vault exec $AWS_PROFILE -- aws ecs execute-command --cluster $SERVICE_NAME-cluster --task $ECS_TASK_ARN --interactive --container $ECS_CONTAINER_NAME --command "/usr/bin/env bash"
 
-tf-switch profile:
+tf-switch env: _ensure_aws_profile
      #!/usr/bin/env bash
      echo "cd into service-infrastructure"
      cd service-infrastructure/
-     echo "performing tf init for {{profile}}"
-     aws-vault exec {{profile}} -- terraform init -backend-config=backend_{{profile}}.hcl -reconfigure
+     echo "performing tf init for {{env}}"
+     aws-vault exec $AWS_PROFILE -- terraform init -backend-config=backend_{{env}}.hcl -reconfigure
 
 tf-switch-to profile repo:
      #!/usr/bin/env bash
