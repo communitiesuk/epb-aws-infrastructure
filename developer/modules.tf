@@ -17,6 +17,16 @@ module "parameters" {
   }
 }
 
+module "secrets" {
+  source = "./secrets"
+
+  secrets = {
+    "SCOTLAND_BUCKET_NAME" : module.scotland_data.bucket_name
+    "SCOTLAND_BUCKET_ACCESS_KEY" : module.scotland_data.s3_access_key
+    "SCOTLAND_BUCKET_SECRET" : module.scotland_data.s3_secret
+  }
+}
+
 module "prototypes" {
   source     = "./prototypes"
   ci_role_id = module.ci_role.ci_role_id
@@ -53,4 +63,10 @@ module "alerts" {
   environment               = "developer"
   main_slack_webhook_url    = var.parameters["EPB_TEAM_MAIN_SLACK_URL"]
   cloudtrail_log_group_name = module.logging.cloudtrail_log_group_name
+}
+
+module "scotland_data" {
+  source      = "./s3_bucket_data_export"
+  bucket_name = "scotland-data"
+  allow_write = true
 }
