@@ -129,7 +129,3 @@ variable "postgres_aurora_version" {
   default = "14.12"
 }
 
-variable "temp_notification_email" {
-  type    = string
-  default = ""
-}
