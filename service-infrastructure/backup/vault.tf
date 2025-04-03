@@ -1,5 +1,5 @@
 resource "aws_backup_vault" "this" {
-  name        = "backup_vault"
+  name        = "${var.prefix}-backup-vault"
   kms_key_arn = var.kms_key_arn
 }
 
@@ -26,10 +26,10 @@ resource "aws_backup_vault_policy" "this" {
 }
 
 resource "aws_backup_plan" "this" {
-  name = "register_backup_plan"
+  name = "${var.prefix}-register-backup-plan"
 
   rule {
-    rule_name         = "register_backup_rule"
+    rule_name         = "${var.prefix}-register-backup-rule"
     target_vault_name = aws_backup_vault.this.name
     schedule          = var.backup_frequency
 
@@ -57,7 +57,7 @@ resource "aws_backup_selection" "this" {
 }
 
 resource "aws_iam_role" "this" {
-  name               = "aws-backup-service-role"
+  name               = "${var.prefix}-aws-backup-service-role"
   assume_role_policy = data.aws_iam_policy_document.assume_role.json
 }
 

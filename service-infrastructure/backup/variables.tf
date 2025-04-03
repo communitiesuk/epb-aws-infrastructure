@@ -18,3 +18,7 @@ variable "database_to_backup_arn" {
 variable "backup_frequency" {
   type = string
 }
+
+variable "prefix" {
+  type = string
+}

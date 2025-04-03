@@ -1020,6 +1020,7 @@ module "rds_kms_key" {
 
 module "backup-vault" {
   source                 = "./backup"
+  prefix                 = local.prefix
   backup_account_id      = var.backup_account_id
   database_to_backup_arn = module.register_api_database_v2.rds_db_arn
   kms_key_arn            = module.rds_kms_key.key_arn
