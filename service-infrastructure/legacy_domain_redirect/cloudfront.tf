@@ -1,18 +1,21 @@
 resource "aws_cloudfront_distribution" "legacy_domain_redirect" {
+  comment         = "Legacy (pre-public-beta) domain redirect entrypoint"
+  enabled         = true
+  is_ipv6_enabled = true
+  price_class     = "PriceClass_100" # Affects CDN distribution https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/PriceClass.html
+  aliases         = ["find-energy-certificate.digital.communities.gov.uk", "getting-new-energy-certificate.digital.communities.gov.uk"]
+  web_acl_id      = var.waf_acl_arn
+
   origin {
     domain_name = "fake-origin.invalid"
     origin_id   = "nullDomain"
     custom_origin_config {
       http_port              = 80
       https_port             = 443
-      origin_protocol_policy = "match-viewer"
-      origin_ssl_protocols   = ["SSLv3", "TLSv1", "TLSv1.1", "TLSv1.2"]
+      origin_protocol_policy = "https-only"
+      origin_ssl_protocols   = ["TLSv1.2"]
     }
   }
-
-  comment = "legacy domain redirect entrypoint"
-
-  aliases = ["find-energy-certificate.digital.communities.gov.uk", "getting-new-energy-certificate.digital.communities.gov.uk"]
 
   default_cache_behavior {
     allowed_methods        = ["GET", "HEAD", "OPTIONS"]
@@ -30,7 +33,7 @@ resource "aws_cloudfront_distribution" "legacy_domain_redirect" {
       }
     }
   }
-  enabled = true
+
   restrictions {
     geo_restriction {
       restriction_type = "none"
@@ -40,7 +43,7 @@ resource "aws_cloudfront_distribution" "legacy_domain_redirect" {
   viewer_certificate {
     acm_certificate_arn      = var.cdn_certificate_arn
     ssl_support_method       = "sni-only"
-    minimum_protocol_version = "TLSv1.2_2018"
+    minimum_protocol_version = "TLSv1.2_2021"
   }
 }
 
