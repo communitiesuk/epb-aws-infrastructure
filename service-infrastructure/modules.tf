@@ -307,16 +307,16 @@ module "toggles_application" {
     ssl_certificate_arn = module.ssl_certificate.certificate_arn
   }
   front_door_config = {
-    ssl_certificate_arn            = module.ssl_certificate.certificate_arn
-    cdn_certificate_arn            = module.cdn_certificate.certificate_arn
-    cdn_allowed_methods            = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
-    cdn_cached_methods             = ["GET", "HEAD", "OPTIONS"]
-    cdn_cache_ttl                  = 0
-    cdn_aliases                    = toset(["toggles.${var.domain_name}"])
-    forbidden_ip_addresses_acl_arn = module.waf.forbidden_ip_addresses_acl_arn
-    public_subnet_ids              = module.networking.public_subnet_ids
-    path_based_routing_overrides   = []
-    extra_lb_target_groups         = 0
+    ssl_certificate_arn          = module.ssl_certificate.certificate_arn
+    cdn_certificate_arn          = module.cdn_certificate.certificate_arn
+    cdn_allowed_methods          = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
+    cdn_cached_methods           = ["GET", "HEAD", "OPTIONS"]
+    cdn_cache_ttl                = 0
+    cdn_aliases                  = toset(["toggles.${var.domain_name}"])
+    waf_acl_arn                  = module.waf.waf_acl_arn
+    public_subnet_ids            = module.networking.public_subnet_ids
+    path_based_routing_overrides = []
+    extra_lb_target_groups       = 0
   }
   fargate_weighting         = var.environment == "prod" ? { standard : 10, spot : 0 } : { standard : 0, spot : 10 }
   has_target_tracking       = false
@@ -352,16 +352,16 @@ module "auth_application" {
     ssl_certificate_arn = module.ssl_certificate.certificate_arn
   }
   front_door_config = {
-    ssl_certificate_arn            = module.ssl_certificate.certificate_arn
-    cdn_certificate_arn            = module.cdn_certificate.certificate_arn
-    cdn_allowed_methods            = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
-    cdn_cached_methods             = ["GET", "HEAD", "OPTIONS"]
-    cdn_cache_ttl                  = 0
-    cdn_aliases                    = toset(["auth.${var.domain_name}"])
-    forbidden_ip_addresses_acl_arn = module.waf.forbidden_ip_addresses_acl_arn
-    public_subnet_ids              = module.networking.public_subnet_ids
-    path_based_routing_overrides   = []
-    extra_lb_target_groups         = 1
+    ssl_certificate_arn          = module.ssl_certificate.certificate_arn
+    cdn_certificate_arn          = module.cdn_certificate.certificate_arn
+    cdn_allowed_methods          = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
+    cdn_cached_methods           = ["GET", "HEAD", "OPTIONS"]
+    cdn_cache_ttl                = 0
+    cdn_aliases                  = toset(["auth.${var.domain_name}"])
+    waf_acl_arn                  = module.waf.waf_acl_arn
+    public_subnet_ids            = module.networking.public_subnet_ids
+    path_based_routing_overrides = []
+    extra_lb_target_groups       = 1
   }
   fargate_weighting         = var.environment == "prod" ? { standard : 10, spot : 0 } : { standard : 0, spot : 10 }
   has_target_tracking       = false
@@ -419,14 +419,14 @@ module "register_api_application" {
     ssl_certificate_arn = module.ssl_certificate.certificate_arn
   }
   front_door_config = {
-    ssl_certificate_arn            = module.ssl_certificate.certificate_arn
-    cdn_certificate_arn            = module.cdn_certificate.certificate_arn
-    cdn_allowed_methods            = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
-    cdn_cached_methods             = ["GET", "HEAD", "OPTIONS"]
-    cdn_cache_ttl                  = 0
-    cdn_aliases                    = toset(["api.${var.domain_name}"])
-    forbidden_ip_addresses_acl_arn = module.waf.forbidden_ip_addresses_acl_arn
-    public_subnet_ids              = module.networking.public_subnet_ids
+    ssl_certificate_arn = module.ssl_certificate.certificate_arn
+    cdn_certificate_arn = module.cdn_certificate.certificate_arn
+    cdn_allowed_methods = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
+    cdn_cached_methods  = ["GET", "HEAD", "OPTIONS"]
+    cdn_cache_ttl       = 0
+    cdn_aliases         = toset(["api.${var.domain_name}"])
+    waf_acl_arn         = module.waf.waf_acl_arn
+    public_subnet_ids   = module.networking.public_subnet_ids
     path_based_routing_overrides = [
       # forward requests for auth tokens to the auth application
       {
@@ -600,7 +600,7 @@ module "frontend_application" {
       var.find_service_url,
       var.get_service_url
     ])
-    forbidden_ip_addresses_acl_arn = module.waf.forbidden_ip_addresses_acl_arn
+    waf_acl_arn                    = module.waf.waf_acl_arn
     public_subnet_ids              = module.networking.public_subnet_ids
     path_based_routing_overrides   = []
     extra_lb_target_groups         = 0
@@ -656,7 +656,7 @@ module "data_frontend_application" {
     cdn_aliases = toset([
       var.data_service_url,
     ])
-    forbidden_ip_addresses_acl_arn = module.waf.forbidden_ip_addresses_acl_arn
+    waf_acl_arn                    = module.waf.waf_acl_arn
     public_subnet_ids              = module.networking.public_subnet_ids
     path_based_routing_overrides   = []
     extra_lb_target_groups         = 0
@@ -929,6 +929,7 @@ module "legacy_domain_redirect" {
   source              = "./legacy_domain_redirect"
   count               = var.environment == "prod" ? 1 : 0
   cdn_certificate_arn = module.cdn_certificate.certificate_arn
+  waf_acl_arn         = module.waf.waf_acl_arn
 }
 
 module "dashboard" {
