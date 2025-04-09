@@ -13,9 +13,14 @@ module "account_security" {
 }
 
 module "data_frontend_delivery" {
-  count  = var.environment == "prod" ? 0 : 1
-  source = "./data_frontend_delivery"
-  prefix = local.prefix
+  count                          = var.environment == "prod" ? 0 : 1
+  source                         = "./data_frontend_delivery"
+  prefix                         = local.prefix
+  athena_workgroup_arn           = module.data_warehouse_glue.athena_workgroup_arn
+  glue_s3_bucket_read_policy_arn = module.data_warehouse_glue.glue_s3_bucket_read_policy_arn
+  output_bucket_write_policy_arn = module.user_data.s3_write_access_policy_arn
+  glue_catalog_name              = module.data_warehouse_glue.glue_catalog_name
+
 }
 
 module "networking" {

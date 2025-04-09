@@ -53,6 +53,35 @@ resource "aws_iam_role_policy" "s3_bucket_policy" {
 
 }
 
+resource "aws_iam_policy" "s3_bucket_read" {
+  name = "${var.prefix}-glue-s3-read"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:ListBucket",
+        ]
+        Resource = [
+          aws_s3_bucket.this.arn,
+        ]
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:GetObject",
+          "s3:GetObjectVersion"
+        ]
+        Resource = [
+          "${aws_s3_bucket.this.arn}/*"
+        ]
+      }
+    ]
+  })
+}
+
 resource "aws_iam_role_policy" "secret_access" {
   name = "${var.prefix}-glue-role-secret-access-db-creds-policy"
   role = aws_iam_role.glueServiceRole.id
