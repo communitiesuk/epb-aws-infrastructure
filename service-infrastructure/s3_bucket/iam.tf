@@ -6,8 +6,11 @@ resource "aws_iam_policy" "s3_write" {
     Version = "2012-10-17"
     Statement = [
       {
-        Effect   = "Allow"
-        Action   = "s3:ListObjects*"
+        Effect = "Allow"
+        Action = [
+          "s3:ListObjects*",
+          "s3:GetBucketLocation"
+        ]
         Resource = aws_s3_bucket.this.arn
       },
       {
