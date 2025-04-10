@@ -638,8 +638,13 @@ module "data_frontend_application" {
   secrets = {
     "EPB_UNLEASH_URI" : module.secrets.secret_arns["EPB_UNLEASH_URI"]
     "SEND_DOWNLOAD_TOPIC_ARN" : module.secrets.secret_arns["EPB_DATA_FRONTEND_DELIVERY_SNS_ARN"]
+    "EPB_AUTH_SERVER" : module.secrets.secret_arns["EPB_AUTH_SERVER"],
+    "EPB_DATA_WAREHOUSE_API_URL" : module.secrets.secret_arns["EPB_DATA_WAREHOUSE_API_URL"]
   }
-  parameters                                 = module.parameter_store.parameter_arns
+  parameters = merge(module.parameter_store.parameter_arns, {
+    "EPB_AUTH_CLIENT_ID" : module.parameter_store.parameter_arns["WAREHOUSE_EPB_AUTH_CLIENT_ID"],
+    "EPB_AUTH_CLIENT_SECRET" : module.parameter_store.parameter_arns["WAREHOUSE_EPB_AUTH_CLIENT_SECRET"]
+  })
   vpc_id                                     = module.networking.vpc_id
   fluentbit_ecr_url                          = module.fluentbit_ecr.ecr_url
   private_subnet_ids                         = module.networking.private_subnet_ids
