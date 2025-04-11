@@ -1,45 +1,7 @@
-resource "aws_iam_role" "lambda_role" {
-  name = "${var.prefix}-lambda-user-data-role"
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Principal = {
-          Service = "lambda.amazonaws.com"
-        }
-        Action = "sts:AssumeRole"
-      }
-    ]
-  })
-}
-
-resource "aws_iam_role_policy" "cloudwatch_logs_access" {
-  name = "${var.prefix}-cloudwatch-logs-access"
-  role = aws_iam_role.lambda_role.id
-
-  policy = jsonencode(
-    {
-      Version = "2012-10-17"
-      Statement = [
-        {
-          Action = [
-            "logs:CreateLogGroup",
-            "logs:CreateLogStream",
-            "logs:DescribeLogStreams",
-            "logs:PutLogEvents",
-            "logs:PutRetentionPolicy"
-          ]
-          Effect   = "Allow"
-          Resource = "*"
-        }
-      ]
-  })
-}
 
 resource "aws_iam_role_policy" "athena_execution_access" {
   name = "${var.prefix}-athena-execution-access"
-  role = aws_iam_role.lambda_role.id
+  role = module.collect_user_data_lambda.lambda_role_id
 
   policy = jsonencode(
     {
@@ -64,7 +26,7 @@ resource "aws_iam_role_policy" "athena_execution_access" {
 
 resource "aws_iam_role_policy" "glue_read_access" {
   name = "${var.prefix}-glue-read-access"
-  role = aws_iam_role.lambda_role.id
+  role = module.collect_user_data_lambda.lambda_role_id
 
   policy = jsonencode(
     {
@@ -104,7 +66,7 @@ resource "aws_iam_policy" "list_bucket" {
           "s3:ListBucket",
         ]
         Resource = [
-          var.output_bucket_arn,
+          "${var.output_bucket_arn}/*"
         ]
       }
     ]
@@ -112,17 +74,17 @@ resource "aws_iam_policy" "list_bucket" {
 }
 
 resource "aws_iam_role_policy_attachment" "list_bucket_policy_attachment" {
-  role       = aws_iam_role.lambda_role.name
+  role       = module.collect_user_data_lambda.lambda_role_id
   policy_arn = aws_iam_policy.list_bucket.arn
 }
 
 resource "aws_iam_role_policy_attachment" "glue_s3_read_policy_attachment" {
-  role       = aws_iam_role.lambda_role.name
+  role       = module.collect_user_data_lambda.lambda_role_id
   policy_arn = var.glue_s3_bucket_read_policy_arn
 }
 
 resource "aws_iam_role_policy_attachment" "output_s3_write_policy_attachment" {
-  role       = aws_iam_role.lambda_role.name
+  role       = module.collect_user_data_lambda.lambda_role_id
   policy_arn = var.output_bucket_write_policy_arn
 }
 
@@ -130,7 +92,7 @@ resource "aws_iam_role_policy" "parameter_access" {
   for_each = var.parameters
 
   name = "${var.prefix}-lambda-parameter-access-${each.key}"
-  role = aws_iam_role.lambda_role.arn
+  role = module.send_user_data_lambda.lambda_role_id
 
   policy = jsonencode({
     Version = "2012-10-17"

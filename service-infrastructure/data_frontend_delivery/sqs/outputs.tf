@@ -6,3 +6,7 @@ output "sns_write_access_policy_arn" {
 output "sns_topic_arn" {
   value = aws_sns_topic.this.arn
 }
+
+output "sqs_queue_arn" {
+  value = aws_sqs_queue.this.arn
+}

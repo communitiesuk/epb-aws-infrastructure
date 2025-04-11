@@ -20,10 +20,10 @@ module "data_frontend_delivery" {
   glue_s3_bucket_read_policy_arn = module.data_warehouse_glue.glue_s3_bucket_read_policy_arn
   output_bucket_write_policy_arn = module.user_data.s3_write_access_policy_arn
   glue_catalog_name              = module.data_warehouse_glue.glue_catalog_name
-  output_bucket_arn              = module.user_data.bucket_name
-  parameters                     = {
-    "NOTIFY_DATA_API_KEY": module.parameter_store.parameter_arns["NOTIFY_DATA_API_KEY"],
-    "NOTIFY_DATA_DOWNLOAD_TEMPLATE_ID": module.parameter_store.parameter_arns["NOTIFY_DATA_DOWNLOAD_TEMPLATE_ID"]
+  output_bucket_arn              = module.user_data.bucket_arn
+  parameters = {
+    "NOTIFY_DATA_API_KEY" : module.parameter_store.parameter_arns["NOTIFY_DATA_API_KEY"],
+    "NOTIFY_DATA_DOWNLOAD_TEMPLATE_ID" : module.parameter_store.parameter_arns["NOTIFY_DATA_DOWNLOAD_TEMPLATE_ID"]
   }
 }
 

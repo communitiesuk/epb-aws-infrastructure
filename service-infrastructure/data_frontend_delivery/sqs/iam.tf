@@ -36,5 +36,5 @@ resource "aws_iam_role_policy" "sqs_consumer_access" {
           ]
         }
       ]
-    })
+  })
 }

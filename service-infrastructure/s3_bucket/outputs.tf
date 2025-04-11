@@ -3,6 +3,12 @@ output "bucket_name" {
   description = "The Access URL (using the S3 protocol for the data bucket)"
 }
 
+output "bucket_arn" {
+  value       = aws_s3_bucket.this.arn
+  description = "The ARN for the S3 Bucket)"
+}
+
+
 output "s3_write_access_policy_arn" {
   value       = aws_iam_policy.s3_write.arn
   description = "A policy giving write access to the data S3 bucket"
