@@ -17,3 +17,11 @@ variable "output_bucket_write_policy_arn" {
 variable "glue_catalog_name" {
   type = string
 }
+
+variable "output_bucket_arn" {
+  type = string
+}
+
+variable "parameters" {
+  type = map(string)
+}

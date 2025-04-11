@@ -1,9 +1,9 @@
 resource "aws_sqs_queue" "dead_letter_queue" {
-  name = "${var.prefix}-data-frontend-delivery-dead-letter-queue"
+  name = "${local.resource_name}-dead-letter-queue"
 }
 
 resource "aws_sqs_queue" "this" {
-  name = "${var.prefix}-data-frontend-delivery-queue"
+  name = "${local.resource_name}-queue"
 
   redrive_policy = jsonencode({
     deadLetterTargetArn = aws_sqs_queue.dead_letter_queue.arn

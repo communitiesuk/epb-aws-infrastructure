@@ -2,6 +2,8 @@ import json
 import logging
 import os
 import boto3
+import uuid
+import time
 
 """
 This function processes a data request from an SQS queue (triggered by SNS),
@@ -66,6 +68,78 @@ def execute_athena_query(query):
         logger.error(f"Error executing Athena query: {e}")
         raise
 
+def get_query_results_location(query_execution_id):
+    athena_client = boto3.client("athena")
+    try:
+        response = athena_client.get_query_execution(QueryExecutionId=query_execution_id)
+        status = response["QueryExecution"]["Status"]["State"]
+        if status in ["QUEUED", "RUNNING"]:
+            logger.info(f"Query {query_execution_id} is still running. Status: {status}")
+            return None
+        elif status == "SUCCEEDED":
+            return response["QueryExecution"]["ResultConfiguration"]["OutputLocation"]
+        else:
+            logger.error(f"Athena query {query_execution_id} failed. Status: {status}")
+            return None
+    except Exception as e:
+        logger.error(f"Error getting Athena query execution status: {e}")
+        return None
+
+def copy_results_to_user_location(athena_results_location, user_email):
+    bucket_name = ATHENA_OUTPUT_LOCATION
+    source_prefix = "output/"
+    destination_prefix = f"{ATHENA_TABLE}/user-exports/{user_email.replace('@', '-').replace('.', '-')}/{uuid.uuid4()}/"
+    copied_file_key = None
+
+    try:
+        s3_client = boto3.client("s3")
+        response = s3_client.list_objects_v2(Bucket=bucket_name, Prefix=source_prefix)
+        if 'Contents' not in response:
+            logger.warning(f"No results found in: s3://{bucket_name}/{source_prefix}")
+            return None
+
+        for obj in response['Contents']:
+            if obj['Key'].endswith(os.path.basename(athena_results_location)):
+                file_name = os.path.basename(obj['Key'])
+                copy_source = {
+                    'Bucket': bucket_name,
+                    'Key': obj['Key']
+                }
+                destination_key = f"{destination_prefix}{file_name}"
+                s3_client.copy(copy_source, bucket_name, destination_key)
+                copied_file_key = destination_key
+                break  # Assuming only one relevant file (csv)
+
+        if not copied_file_key:
+            logger.warning(f"Could not find the expected Athena results file in: s3://{bucket_name}/{source_prefix}")
+
+        return copied_file_key
+
+    except Exception as e:
+        logger.error(f"Error copying results to user location: {e}")
+        return None
+
+def send_email_and_s3_key_to_sqs(user_email, s3_key):
+    if not EMAIL_NOTIFICATION_SQS_URL:
+        logger.warning("EMAIL_NOTIFICATION_SQS_URL environment variable not set. Cannot send notification.")
+        return
+
+    try:
+        sqs_client = boto3.client("sqs")
+
+        message = {
+            "email": user_email,
+            "s3_key": s3_key,
+            "bucket_name": ATHENA_OUTPUT_LOCATION
+        }
+        logger.info(f"Sending user email and S3 key to SQS: {message}")
+        response = sqs_client.send_message(
+            QueueUrl=EMAIL_NOTIFICATION_SQS_URL,
+            MessageBody=json.dumps(message)
+        )
+        logger.info(f"Sent user email and S3 key to SQS. Message ID: {response['MessageId']}")
+    except Exception as e:
+        logger.error(f"Error sending message to email notification SQS: {e}")
 
 def lambda_handler(event, context):
     logger.debug("EVENT INFO:")
@@ -88,3 +162,35 @@ def lambda_handler(event, context):
                 "body": json.dumps("Failed to execute Athena query"),
             }
         logger.info(f"Query Execution ID: {query_execution_id}")
+
+        # Wait for Athena query to complete and get results location
+        results_location = None
+        wait_time = 0
+        max_wait = 60  # 1 minute
+        poll_interval = 5  # Check every 5 seconds
+        while not results_location and wait_time < max_wait:
+            logger.info(f"Waiting for Athena query {query_execution_id}. Elapsed time: {wait_time}/{max_wait} seconds.")
+            time.sleep(poll_interval)
+            wait_time += poll_interval
+            results_location = get_query_results_location(query_execution_id)
+
+        if not results_location:
+            logger.error(f"Athena query {query_execution_id} did not complete within the allowed time ({max_wait} seconds).")
+            return {
+                "statusCode": 500,
+                "body": json.dumps(f"Athena query did not complete in time ({max_wait} seconds)."),
+            }
+        logger.info(f"Athena Results Location: {results_location}")
+
+
+        # Get and put email and results location to the SQS queue
+        user_email = filters.pop("email_address")
+        s3_key = copy_results_to_user_location(results_location, user_email)
+        if s3_key:
+            send_email_and_s3_key_to_sqs(user_email, s3_key)
+        else:
+            logger.error(f"Failed to generate S3 key for user with email {user_email}")
+            return {
+                "statusCode": 500,
+                "body": json.dumps("Failed to generate the S3 key."),
+            }

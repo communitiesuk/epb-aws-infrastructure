@@ -1,23 +1,5 @@
-resource "aws_iam_policy" "sns_write_policy" {
-  name        = "${var.prefix}-data-frontend-delivery-sns-write"
-  description = "Policy that allows write access to the data_frontend sns"
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow",
-        Action = [
-          "sns:Publish"
-        ],
-        Resource = aws_sns_topic.this.arn
-      }
-    ]
-  })
-}
-
-resource "aws_iam_role" "lambda_collect_user_filtered_data_role" {
-  name = "${var.prefix}-lambda-collect-user-filtered-data-role"
+resource "aws_iam_role" "lambda_role" {
+  name = "${var.prefix}-lambda-user-data-role"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -34,7 +16,7 @@ resource "aws_iam_role" "lambda_collect_user_filtered_data_role" {
 
 resource "aws_iam_role_policy" "cloudwatch_logs_access" {
   name = "${var.prefix}-cloudwatch-logs-access"
-  role = aws_iam_role.lambda_collect_user_filtered_data_role.id
+  role = aws_iam_role.lambda_role.id
 
   policy = jsonencode(
     {
@@ -55,32 +37,9 @@ resource "aws_iam_role_policy" "cloudwatch_logs_access" {
   })
 }
 
-resource "aws_iam_role_policy" "sqs_consumer_access" {
-  name = "${var.prefix}-sqs-consumer-access"
-  role = aws_iam_role.lambda_collect_user_filtered_data_role.id
-
-  policy = jsonencode(
-    {
-      Version = "2012-10-17"
-      Statement = [
-        {
-          Action = [
-            "sqs:ReceiveMessage",
-            "sqs:DeleteMessage",
-            "sqs:GetQueueAttributes",
-          ]
-          Effect = "Allow"
-          Resource = [
-            aws_sqs_queue.this.arn
-          ]
-        }
-      ]
-  })
-}
-
 resource "aws_iam_role_policy" "athena_execution_access" {
   name = "${var.prefix}-athena-execution-access"
-  role = aws_iam_role.lambda_collect_user_filtered_data_role.id
+  role = aws_iam_role.lambda_role.id
 
   policy = jsonencode(
     {
@@ -105,7 +64,7 @@ resource "aws_iam_role_policy" "athena_execution_access" {
 
 resource "aws_iam_role_policy" "glue_read_access" {
   name = "${var.prefix}-glue-read-access"
-  role = aws_iam_role.lambda_collect_user_filtered_data_role.id
+  role = aws_iam_role.lambda_role.id
 
   policy = jsonencode(
     {
@@ -132,12 +91,57 @@ resource "aws_iam_role_policy" "glue_read_access" {
   })
 }
 
+resource "aws_iam_policy" "list_bucket" {
+  name        = "${var.prefix}-policy-list-bucket"
+  description = "Policy that allows list access to an S3 bucket"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:ListBucket",
+        ]
+        Resource = [
+          var.output_bucket_arn,
+        ]
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "list_bucket_policy_attachment" {
+  role       = aws_iam_role.lambda_role.name
+  policy_arn = aws_iam_policy.list_bucket.arn
+}
+
 resource "aws_iam_role_policy_attachment" "glue_s3_read_policy_attachment" {
-  role       = aws_iam_role.lambda_collect_user_filtered_data_role.name
+  role       = aws_iam_role.lambda_role.name
   policy_arn = var.glue_s3_bucket_read_policy_arn
 }
 
 resource "aws_iam_role_policy_attachment" "output_s3_write_policy_attachment" {
-  role       = aws_iam_role.lambda_collect_user_filtered_data_role.name
+  role       = aws_iam_role.lambda_role.name
   policy_arn = var.output_bucket_write_policy_arn
+}
+
+resource "aws_iam_role_policy" "parameter_access" {
+  for_each = var.parameters
+
+  name = "${var.prefix}-lambda-parameter-access-${each.key}"
+  role = aws_iam_role.lambda_role.arn
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
+          "ssm:GetParameters"
+        ]
+        Effect   = "Allow"
+        Resource = each.value
+      }
+    ]
+  })
 }
