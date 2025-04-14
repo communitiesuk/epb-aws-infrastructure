@@ -2,7 +2,7 @@ variable "prefix" {
   type = string
 }
 
-variable "output_path" {
+variable "output_file" {
   type = string
 }
 

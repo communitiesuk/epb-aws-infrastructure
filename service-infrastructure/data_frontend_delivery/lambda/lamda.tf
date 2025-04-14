@@ -1,7 +1,11 @@
+locals {
+  source = "${path.module}/functions/"
+}
+
 data "archive_file" "this" {
   type        = "zip"
-  source_dir  = "${path.module}/functions/${var.function_name}"
-  output_path = "${var.output_path}.zip"
+  source_dir  = "${local.source}${var.function_name}"
+  output_path = "${local.source}${var.function_name}/${var.output_file}"
 }
 
 resource "aws_lambda_function" "this" {

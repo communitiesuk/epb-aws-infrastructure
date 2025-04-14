@@ -20,8 +20,7 @@ module "collect_user_data_lambda" {
   source        = "./lambda"
   prefix        = var.prefix
   function_name = "collect-user-filtered-data"
-  output_path   = "collect_user_filtered_data.zip"
-  source_dir    = "${path.module}/functions/lamda/collect-user-filtered-data"
+  output_file   = "collect_user_filtered_data.zip"
   environment = {
     ATHENA_TABLE     = "domestic",
     ATHENA_DATABASE  = var.glue_catalog_name
@@ -34,8 +33,7 @@ module "send_user_data_lambda" {
   source        = "./lambda"
   prefix        = var.prefix
   function_name = "send-user-requested-data"
-  output_path   = "send_user_requested_data.zip"
-  source_dir    = "${path.module}/functions/lamda/send-user-request-data"
+  output_file   = "send_user_requested_data.zip"
   environment = {
     NOTIFY_DATA_API_KEY              = var.parameters["NOTIFY_DATA_API_KEY"],
     NOTIFY_DATA_DOWNLOAD_TEMPLATE_ID = var.parameters["NOTIFY_DATA_DOWNLOAD_TEMPLATE_ID"],
