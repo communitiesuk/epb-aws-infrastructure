@@ -22,6 +22,10 @@ variable "output_bucket_arn" {
   type = string
 }
 
-variable "parameters" {
+variable "notify_environment" {
   type = map(string)
+}
+
+variable "output_bucket_name" {
+  type = string
 }

@@ -16,6 +16,8 @@ logger.setLevel(os.getenv("LOG_LEVEL", logging.INFO))
 ATHENA_DATABASE = os.getenv("ATHENA_DATABASE")
 ATHENA_TABLE = os.getenv("ATHENA_TABLE")
 ATHENA_WORKGROUP = os.getenv("ATHENA_WORKGROUP")
+OUTPUT_BUCKET = os.getenv("OUTPUT_BUCKET")
+SQS_QUEUE_URL = os.getenv("SQS_QUEUE_URL")
 
 
 def construct_athena_query(filters):
@@ -85,10 +87,10 @@ def get_query_results_location(query_execution_id):
         logger.error(f"Error getting Athena query execution status: {e}")
         return None
 
-def copy_results_to_user_location(athena_results_location, user_email):
-    bucket_name = ATHENA_OUTPUT_LOCATION
+def copy_results_to_user_location(athena_results_location, user_email, query_execution_id):
+    bucket_name = OUTPUT_BUCKET
     source_prefix = "output/"
-    destination_prefix = f"{ATHENA_TABLE}/user-exports/{user_email.replace('@', '-').replace('.', '-')}/{uuid.uuid4()}/"
+    destination_prefix = f"{ATHENA_TABLE}/user-exports/{query_execution_id}/{uuid.uuid4()}/"
     copied_file_key = None
 
     try:
@@ -120,21 +122,17 @@ def copy_results_to_user_location(athena_results_location, user_email):
         return None
 
 def send_email_and_s3_key_to_sqs(user_email, s3_key):
-    if not EMAIL_NOTIFICATION_SQS_URL:
-        logger.warning("EMAIL_NOTIFICATION_SQS_URL environment variable not set. Cannot send notification.")
-        return
-
     try:
         sqs_client = boto3.client("sqs")
 
         message = {
             "email": user_email,
             "s3_key": s3_key,
-            "bucket_name": ATHENA_OUTPUT_LOCATION
+            "bucket_name": OUTPUT_BUCKET
         }
         logger.info(f"Sending user email and S3 key to SQS: {message}")
         response = sqs_client.send_message(
-            QueueUrl=EMAIL_NOTIFICATION_SQS_URL,
+            QueueUrl=SQS_QUEUE_URL,
             MessageBody=json.dumps(message)
         )
         logger.info(f"Sent user email and S3 key to SQS. Message ID: {response['MessageId']}")
@@ -185,7 +183,7 @@ def lambda_handler(event, context):
 
         # Get and put email and results location to the SQS queue
         user_email = filters.pop("email_address")
-        s3_key = copy_results_to_user_location(results_location, user_email)
+        s3_key = copy_results_to_user_location(results_location, user_email, query_execution_id)
         if s3_key:
             send_email_and_s3_key_to_sqs(user_email, s3_key)
         else:

@@ -66,11 +66,36 @@ resource "aws_iam_policy" "list_bucket" {
           "s3:ListBucket",
         ]
         Resource = [
-          "${var.output_bucket_arn}/*"
+          var.output_bucket_arn
         ]
       }
     ]
   })
+}
+
+resource "aws_iam_policy" "sqs_send_message_policy" {
+  name_prefix = "${var.prefix}-sqs-send-message"
+  description = "Policy to allow to send messages to the SQS queue"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
+          "sqs:SendMessage",
+        ],
+        Effect   = "Allow",
+        Resource = [
+          module.send_data_queue.sqs_queue_arn
+        ]
+      },
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "sqs_send_message_policy_attachment" {
+  role       = module.collect_user_data_lambda.lambda_role_id
+  policy_arn = aws_iam_policy.sqs_send_message_policy.arn
 }
 
 resource "aws_iam_role_policy_attachment" "list_bucket_policy_attachment" {
@@ -86,24 +111,4 @@ resource "aws_iam_role_policy_attachment" "glue_s3_read_policy_attachment" {
 resource "aws_iam_role_policy_attachment" "output_s3_write_policy_attachment" {
   role       = module.collect_user_data_lambda.lambda_role_id
   policy_arn = var.output_bucket_write_policy_arn
-}
-
-resource "aws_iam_role_policy" "parameter_access" {
-  for_each = var.parameters
-
-  name = "${var.prefix}-lambda-parameter-access-${each.key}"
-  role = module.send_user_data_lambda.lambda_role_id
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = [
-          "ssm:GetParameters"
-        ]
-        Effect   = "Allow"
-        Resource = each.value
-      }
-    ]
-  })
 }

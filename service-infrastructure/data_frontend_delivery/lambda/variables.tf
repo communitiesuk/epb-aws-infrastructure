@@ -19,5 +19,10 @@ variable "environment" {
   default = {}
 }
 
+variable "lambda_timeout" {
+  type    = number
+  default = 3
+}
+
 
 
