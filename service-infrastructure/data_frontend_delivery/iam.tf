@@ -84,7 +84,7 @@ resource "aws_iam_policy" "sqs_send_message_policy" {
         Action = [
           "sqs:SendMessage",
         ],
-        Effect   = "Allow",
+        Effect = "Allow",
         Resource = [
           module.send_data_queue.sqs_queue_arn
         ]

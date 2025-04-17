@@ -22,7 +22,7 @@ module "data_frontend_delivery" {
   glue_catalog_name              = module.data_warehouse_glue.glue_catalog_name
   output_bucket_arn              = module.user_data.bucket_arn
   output_bucket_name             = module.user_data.bucket_name
-  notify_environment   = {
+  notify_environment = {
     "NOTIFY_DATA_API_KEY"              = var.parameters["NOTIFY_DATA_API_KEY"],
     "NOTIFY_DATA_DOWNLOAD_TEMPLATE_ID" = var.parameters["NOTIFY_DATA_TEMPLATE_ID"],
     "NOTIFY_DATA_EMAIL_RECIPIENT"      = var.parameters["NOTIFY_DATA_EMAIL_RECIPIENT"],
