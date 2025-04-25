@@ -37,15 +37,23 @@ def construct_athena_query(filters):
                     )
             elif key == "area":
                 for sub_key, sub_value in value.items():
-                    if (
-                        sub_value
-                        and sub_value.lower() != "select all"
-                        and sub_value != ""
-                    ):
+                    if sub_value:
                         if sub_key == "local-authority":
-                            clauses.append(f"\"local_authority_label\" = '{sub_value}'")
+                            valid_authorities = [
+                                f"'{v}'" for v in sub_value if v.lower() != "select all" and v != ""
+                            ]
+                            if valid_authorities:
+                                clauses.append(
+                                    f"\"local_authority_label\" IN ({', '.join(valid_authorities)})"
+                                )
                         elif sub_key == "parliamentary-constituency":
-                            clauses.append(f"\"constituency_label\" = '{sub_value}'")
+                            valid_constituencies = [
+                                f"'{v}'" for v in sub_value if v.lower() != "select all" and v != ""
+                            ]
+                            if valid_constituencies:
+                                clauses.append(
+                                    f"\"constituency_label\" IN ({', '.join(valid_constituencies)})"
+                                )
                         else:
                             clauses.append(f"{sub_key} = '{sub_value}'")
             else:
