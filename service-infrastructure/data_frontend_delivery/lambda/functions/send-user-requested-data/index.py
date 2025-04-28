@@ -20,6 +20,7 @@ logger.setLevel(os.getenv("LOG_LEVEL", logging.INFO))
 NOTIFY_API_KEY = os.getenv("NOTIFY_DATA_API_KEY")
 NOTIFY_TEMPLATE_ID = os.getenv("NOTIFY_DATA_DOWNLOAD_TEMPLATE_ID")
 NOTIFY_DATA_EMAIL_RECIPIENT = os.getenv("NOTIFY_DATA_EMAIL_RECIPIENT")
+FRONTEND_URL = os.getenv("FRONTEND_URL")
 
 def send_notify_email(email_address, url):
     logger.info(f"Sending email to {email_address}: {url}")
@@ -47,6 +48,7 @@ def lambda_handler(event, context):
             sns_message = json.loads(record["body"])
             email_address = NOTIFY_DATA_EMAIL_RECIPIENT
             s3_key = sns_message.get("s3_key")
+            url = f"{FRONTEND_URL}/download?file={s3_key}"
 
             if not email_address or not s3_key:
                 logger.error(f"Missing required fields (email, s3_key) in SQS message: {sns_message}")
@@ -56,7 +58,7 @@ def lambda_handler(event, context):
 
             # Send an email via Notify
             if s3_key:
-                send_notify_email(email_address, s3_key)
+                send_notify_email(email_address, url)
                 logger.info(f"Successfully sent email to {email_address} with S3 key: {s3_key}")
             else:
                 logger.error(f"Failed to send the email via Notify")

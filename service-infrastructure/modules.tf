@@ -26,6 +26,7 @@ module "data_frontend_delivery" {
     "NOTIFY_DATA_API_KEY"              = var.parameters["NOTIFY_DATA_API_KEY"],
     "NOTIFY_DATA_DOWNLOAD_TEMPLATE_ID" = var.parameters["NOTIFY_DATA_TEMPLATE_ID"],
     "NOTIFY_DATA_EMAIL_RECIPIENT"      = var.parameters["NOTIFY_DATA_EMAIL_RECIPIENT"],
+    "FRONTEND_URL"                     = "https://${var.data_service_url}",
   }
 }
 
