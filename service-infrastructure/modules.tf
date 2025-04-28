@@ -644,7 +644,9 @@ module "data_frontend_application" {
   container_port                     = 3001
   deployment_minimum_healthy_percent = var.environment == "intg" ? 0 : 100
   egress_ports                       = [80, 443, 5432, var.parameters["LOGSTASH_PORT"]]
-  environment_variables              = {}
+  environment_variables = {
+    "AWS_S3_USER_DATA_BUCKET_NAME" : module.user_data.bucket_name
+  }
   secrets = {
     "EPB_UNLEASH_URI" : module.secrets.secret_arns["EPB_UNLEASH_URI"]
     "SEND_DOWNLOAD_TOPIC_ARN" : module.secrets.secret_arns["EPB_DATA_FRONTEND_DELIVERY_SNS_ARN"]
@@ -654,6 +656,7 @@ module "data_frontend_application" {
   parameters = merge(module.parameter_store.parameter_arns, {
     "EPB_AUTH_CLIENT_ID" : module.parameter_store.parameter_arns["WAREHOUSE_EPB_AUTH_CLIENT_ID"],
     "EPB_AUTH_CLIENT_SECRET" : module.parameter_store.parameter_arns["WAREHOUSE_EPB_AUTH_CLIENT_SECRET"]
+
   })
   vpc_id                                     = module.networking.vpc_id
   fluentbit_ecr_url                          = module.fluentbit_ecr.ecr_url
