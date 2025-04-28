@@ -661,7 +661,8 @@ module "data_frontend_application" {
   health_check_path                          = "/healthcheck"
   additional_task_execution_role_policy_arns = {}
   additional_task_role_policy_arns = {
-    "DataFrontendDelivery_SNS_access" : module.data_frontend_delivery[0].sns_write_access_policy_arn
+    "DataFrontendDelivery_SNS_access" : module.data_frontend_delivery[0].sns_write_access_policy_arn,
+    "UseData_S3_access" : module.user_data.s3_read_access_policy_arn
   }
   aws_cloudwatch_log_group_id   = module.logging.cloudwatch_log_group_id
   aws_cloudwatch_log_group_name = module.logging.cloudwatch_log_group_name
