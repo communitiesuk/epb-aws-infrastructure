@@ -42,6 +42,7 @@ module "export_domestic_data_by_year" {
   arguments = {
     "--DATABASE_NAME" = aws_glue_catalog_database.this.name
     "--TABLE_NAME"    = "domestic"
+    "--TABLE_NAME_RR" = "domestic_rr"
     "--S3_BUCKET"     = var.output_bucket_name
   }
 }
