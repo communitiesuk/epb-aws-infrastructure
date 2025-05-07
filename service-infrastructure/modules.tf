@@ -229,6 +229,10 @@ module "parameter_store" {
       type  = "SecureString"
       value = var.parameters["SENTRY_DSN_FRONTEND"]
     }
+    "SENTRY_DSN_DATA_FRONTEND" : {
+      type  = "SecureString"
+      value = var.parameters["SENTRY_DSN_DATA_FRONTEND"]
+    }
     "SLACK_EPB_BOT_TOKEN" : {
       type  = "SecureString"
       value = var.parameters["SLACK_EPB_BOT_TOKEN"]
@@ -657,6 +661,7 @@ module "data_frontend_application" {
   parameters = merge(module.parameter_store.parameter_arns, {
     "EPB_AUTH_CLIENT_ID" : module.parameter_store.parameter_arns["WAREHOUSE_EPB_AUTH_CLIENT_ID"],
     "EPB_AUTH_CLIENT_SECRET" : module.parameter_store.parameter_arns["WAREHOUSE_EPB_AUTH_CLIENT_SECRET"]
+    "SENTRY_DSN" : module.parameter_store.parameter_arns["SENTRY_DSN_DATA_FRONTEND"]
 
   })
   vpc_id                                     = module.networking.vpc_id
