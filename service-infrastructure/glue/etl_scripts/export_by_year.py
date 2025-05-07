@@ -95,11 +95,11 @@ def process_and_zip(df, table_name, years, zipf, csv_filename=None):
 zip_buffer = io.BytesIO()
 with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zipf:
     logger.warn(f'Will start processing "{TABLE_NAME}"')
-    process_and_zip(df, TABLE_NAME, years, zipf)
+    process_and_zip(df, TABLE_NAME, years, zipf, csv_filename="certificates")
 
     if TABLE_NAME_RR:
         logger.warn(f'Will start processing "{TABLE_NAME_RR}" for recommendations')
-        process_and_zip(joined_df, TABLE_NAME_RR, years, zipf, csv_filename="report")
+        process_and_zip(joined_df, TABLE_NAME_RR, years, zipf, csv_filename="recommendations")
 
 # Upload ZIP to S3
 zip_buffer.seek(0)
