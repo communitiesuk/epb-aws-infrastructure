@@ -83,6 +83,8 @@ module "secrets" {
     "EPB_DATA_WAREHOUSE_QUEUES_URI" : module.warehouse_redis.redis_uri
     "EPB_QUEUES_URI" : module.warehouse_redis.redis_uri
     "EPB_UNLEASH_URI" : "https://${module.toggles_application.internal_alb_name}.${var.domain_name}:443/api"
+    "EPB_DATA_ONELOGIN_CLIENT_ID" : var.parameters["EPB_DATA_ONELOGIN_CLIENT_ID"]
+    "EPB_DATA_ONELOGIN_HOST_URL" : var.parameters["EPB_DATA_ONELOGIN_HOST_URL"]
     "LANDMARK_DATA_BUCKET_NAME" : module.landmark_data.bucket_name
     "ODE_BUCKET_NAME" : module.open_data_export.bucket_name
     "ODE_BUCKET_ACCESS_KEY" : module.open_data_export.s3_access_key
@@ -657,6 +659,8 @@ module "data_frontend_application" {
     "SEND_DOWNLOAD_TOPIC_ARN" : module.secrets.secret_arns["EPB_DATA_FRONTEND_DELIVERY_SNS_ARN"]
     "EPB_AUTH_SERVER" : module.secrets.secret_arns["EPB_AUTH_SERVER"],
     "EPB_DATA_WAREHOUSE_API_URL" : module.secrets.secret_arns["EPB_DATA_WAREHOUSE_API_URL"]
+    "EPB_DATA_ONELOGIN_CLIENT_ID" : module.secrets.secret_arns["EPB_DATA_ONELOGIN_CLIENT_ID"]
+    "EPB_DATA_ONELOGIN_HOST_URL" : module.secrets.secret_arns["EPB_DATA_ONELOGIN_HOST_URL"]
   }
   parameters = merge(module.parameter_store.parameter_arns, {
     "EPB_AUTH_CLIENT_ID" : module.parameter_store.parameter_arns["WAREHOUSE_EPB_AUTH_CLIENT_ID"],
