@@ -29,7 +29,7 @@ module "collect_user_data_lambda" {
     SQS_QUEUE_URL    = module.send_data_queue.sqs_queue_url
   }
   sqs_arn        = module.collect_data_queue.sqs_queue_arn
-  lambda_timeout = 60
+  lambda_timeout = 900
 }
 
 module "send_user_data_lambda" {
