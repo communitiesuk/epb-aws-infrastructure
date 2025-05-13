@@ -4,17 +4,16 @@ resource "aws_db_parameter_group" "rds_db" {
   family = "postgres14"
 }
 
-
-
 resource "aws_rds_cluster_parameter_group" "rds_aurora" {
   name   = var.aurora_name
   family = "aurora-postgresql14"
 
   dynamic "parameter" {
-    for_each = var.has_md_5_password == true ? [0] : []
+    for_each = [0]
     content {
-      name  = "password_encryption"
-      value = "MD5"
+      name         = "rds.logical_replication"
+      value        = "1"
+      apply_method = "pending-reboot"
     }
   }
 
