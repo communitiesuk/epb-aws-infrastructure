@@ -74,6 +74,7 @@ module "waf" {
 
 module "onelogin_keys" {
   source = "./tls_key"
+  count  = var.environment == "prod" ? 0 : 1
 }
 
 module "secrets" {
@@ -86,10 +87,9 @@ module "secrets" {
     "EPB_DATA_WAREHOUSE_API_URL" : "https://${module.warehouse_api_application.internal_alb_name}.${var.domain_name}"
     "EPB_DATA_WAREHOUSE_QUEUES_URI" : module.warehouse_redis.redis_uri
     "EPB_QUEUES_URI" : module.warehouse_redis.redis_uri
-    "EPB_UNLEASH_URI" : "https://${module.toggles_application.internal_alb_name}.${var.domain_name}:443/api"
-    "ONELOGIN_CLIENT_ID" : var.parameters["ONELOGIN_CLIENT_ID"]
-    "ONELOGIN_HOST_URL" : var.parameters["ONELOGIN_HOST_URL"]
-    "ONELOGIN_TLS_KEYS" : jsonencode({ "kid" = module.onelogin_keys.key_id, "private_key" = module.onelogin_keys.private_key_pem, "public_key" = module.onelogin_keys.public_key_pem })
+    "ONELOGIN_CLIENT_ID" : var.environment != "prod" ? var.parameters["ONELOGIN_CLIENT_ID"] : "test"
+    "ONELOGIN_HOST_URL" : var.environment != "prod" ? var.parameters["ONELOGIN_HOST_URL"] : "test"
+    "ONELOGIN_TLS_KEYS" : var.environment != "prod" ? jsonencode({ "kid" = module.onelogin_keys[0].key_id, "private_key" = module.onelogin_keys[0].private_key_pem, "public_key" = module.onelogin_keys[0].public_key_pem }) : "test"
     "LANDMARK_DATA_BUCKET_NAME" : module.landmark_data.bucket_name
     "ODE_BUCKET_NAME" : module.open_data_export.bucket_name
     "ODE_BUCKET_ACCESS_KEY" : module.open_data_export.s3_access_key
