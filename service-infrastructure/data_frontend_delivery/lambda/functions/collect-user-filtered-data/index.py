@@ -15,12 +15,14 @@ logger.setLevel(os.getenv("LOG_LEVEL", logging.INFO))
 
 ATHENA_DATABASE = os.getenv("ATHENA_DATABASE")
 ATHENA_TABLE = os.getenv("ATHENA_TABLE")
+ATHENA_RR_TABLE = os.getenv("ATHENA_RR_TABLE")
 ATHENA_WORKGROUP = os.getenv("ATHENA_WORKGROUP")
 OUTPUT_BUCKET = os.getenv("OUTPUT_BUCKET")
 SQS_QUEUE_URL = os.getenv("SQS_QUEUE_URL")
 
+max_wait = 60
 
-def construct_athena_query(filters):
+def query_search_filter_setup(filters):
     clauses = []
 
     clauses.append(
@@ -58,13 +60,31 @@ def construct_athena_query(filters):
                             clauses.append(f"{sub_key} = '{sub_value}'")
             else:
                 continue
-
+            
+    return clauses
+    
+def construct_athena_query(filters):
+    clauses = query_search_filter_setup(filters)
     base_query = f'SELECT * FROM "{ATHENA_DATABASE}"."{ATHENA_TABLE}"'
-    if clauses:
-        return f"{base_query} WHERE {' AND '.join(clauses)}"
-    return base_query
+    query = f"{base_query} WHERE {' AND '.join(clauses)}"
+    logger.info(f"Athena Query: {query}")
+    return query
 
-
+def construct_rr_athena_query(filters):
+    clauses = query_search_filter_setup(filters)
+    base_rr_query = f'SELECT rr.rrn, \
+                      improvement_item, \
+                      improvement_id, \
+                      indicative_cost, \
+                      improvement_summary_text, \
+                      improvement_descr_text \
+                      FROM "{ATHENA_DATABASE}"."{ATHENA_RR_TABLE}" rr \
+                      JOIN "{ATHENA_DATABASE}"."{ATHENA_TABLE}" m ON m.rrn=rr.rrn'
+                      
+    query = f"{base_rr_query} WHERE {' AND '.join(clauses)}"
+    logger.info(f"Athena Recommendations Query: {query}")
+    return query
+                        
 def execute_athena_query(query):
     athena_client = boto3.client("athena")
     try:
@@ -129,13 +149,13 @@ def copy_results_to_user_location(athena_results_location, user_email, query_exe
         logger.error(f"Error copying results to user location: {e}")
         return None
 
-def send_email_and_s3_key_to_sqs(user_email, s3_key):
+def send_email_and_s3_key_to_sqs(user_email, s3_keys):
     try:
         sqs_client = boto3.client("sqs")
 
         message = {
             "email": user_email,
-            "s3_key": s3_key,
+            "s3_keys": s3_keys,
             "bucket_name": OUTPUT_BUCKET
         }
         logger.info(f"Sending user email and S3 key to SQS: {message}")
@@ -146,6 +166,58 @@ def send_email_and_s3_key_to_sqs(user_email, s3_key):
         logger.info(f"Sent user email and S3 key to SQS. Message ID: {response['MessageId']}")
     except Exception as e:
         logger.error(f"Error sending message to email notification SQS: {e}")
+        
+def get_result_location(query_execution_id):
+    results_location = None
+    wait_time = 0
+
+    poll_interval = 5  # Check every 5 seconds
+    while not results_location and wait_time < max_wait:
+        logger.info(f"Waiting for Athena query {query_execution_id}. Elapsed time: {wait_time}/{max_wait} seconds.")
+        time.sleep(poll_interval)
+        wait_time += poll_interval
+        results_location = get_query_results_location(query_execution_id)
+        
+    return results_location
+
+def build_certificates(filters):
+    filters_copy = filters.copy()
+    # Construct Athena query
+    athena_query = construct_athena_query(filters_copy)
+    
+    # Execute Athena query
+    query_execution_id = execute_athena_query(athena_query)
+    if not query_execution_id:
+        return log_error("Failed to execute Athena query", "Failed to execute Athena query")
+
+    logger.info(f"Query Execution ID: {query_execution_id}")
+
+    # Wait for Athena query to complete and get results location
+    results_location = get_result_location(query_execution_id)
+    return results_location, query_execution_id  
+
+def build_recommendations(filters):
+    filters_copy = filters.copy()
+    # Construct Athena rr query
+    athena_rr_query = construct_rr_athena_query(filters_copy)
+    
+    # Execute Athena rr query
+    query_execution_rr_id = execute_athena_query(athena_rr_query)
+    if not query_execution_rr_id:
+        return log_error("Failed to execute Athena Recommendations query", "Failed to execute Athena Recommendations query")
+
+    logger.info(f"Query Execution Recommendations ID: {query_execution_rr_id}")
+
+    # Wait for Athena query to complete and get results location                
+    results_rr_location = get_result_location(query_execution_rr_id)
+    return results_rr_location, query_execution_rr_id
+
+def log_error(error_message, body):
+    logger.error(error_message)
+    return {
+        "statusCode": 500,
+        "body": json.dumps(body)
+    }
 
 def lambda_handler(event, context):
     logger.debug("EVENT INFO:")
@@ -154,49 +226,39 @@ def lambda_handler(event, context):
     for record in event["Records"]:
         sns_message = json.loads(record["body"])
         filters = json.loads(sns_message["Message"])
-
-        # Construct Athena query
-        athena_query = construct_athena_query(filters)
-        logger.info(f"Athena Query: {athena_query}")
-
-        # Execute Athena query
-        query_execution_id = execute_athena_query(athena_query)
-        if not query_execution_id:
-            logger.error("Failed to execute Athena query")
-            return {
-                "statusCode": 500,
-                "body": json.dumps("Failed to execute Athena query"),
-            }
-        logger.info(f"Query Execution ID: {query_execution_id}")
-
-        # Wait for Athena query to complete and get results location
-        results_location = None
-        wait_time = 0
-        max_wait = 60  # 1 minute
-        poll_interval = 5  # Check every 5 seconds
-        while not results_location and wait_time < max_wait:
-            logger.info(f"Waiting for Athena query {query_execution_id}. Elapsed time: {wait_time}/{max_wait} seconds.")
-            time.sleep(poll_interval)
-            wait_time += poll_interval
-            results_location = get_query_results_location(query_execution_id)
-
-        if not results_location:
-            logger.error(f"Athena query {query_execution_id} did not complete within the allowed time ({max_wait} seconds).")
-            return {
-                "statusCode": 500,
-                "body": json.dumps(f"Athena query did not complete in time ({max_wait} seconds)."),
-            }
-        logger.info(f"Athena Results Location: {results_location}")
-
-
-        # Get and put email and results location to the SQS queue
         user_email = filters.pop("email_address")
+        s3_keys = {}
+
+        results_location, query_execution_id = build_certificates(filters)
+        if not results_location:
+            return log_error(f"Athena query {query_execution_id} did not complete within the allowed time ({max_wait} seconds).", 
+                             f"Athena query did not complete in time ({max_wait} seconds).")
+
+        logger.info(f"Athena Results Location: {results_location}")
+        
         s3_key = copy_results_to_user_location(results_location, user_email, query_execution_id)
+        
         if s3_key:
-            send_email_and_s3_key_to_sqs(user_email, s3_key)
+            s3_keys["certificates"] = s3_key
         else:
-            logger.error(f"Failed to generate S3 key for user with email {user_email}")
-            return {
-                "statusCode": 500,
-                "body": json.dumps("Failed to generate the S3 key."),
-            }
+            return log_error(f"Failed to generate S3 key for user with email {user_email}",
+                             "Failed to generate the S3 key.")
+        
+        if filters['include_recommendations']:
+            results_rr_location, query_execution_rr_id = build_recommendations(filters)
+            if not results_rr_location:
+                return log_error(f"Athena Recommendations query {query_execution_rr_id} did not complete within the allowed time ({max_wait} seconds).",
+                                 f"Athena query did not complete in time ({max_wait} seconds).")
+
+            logger.info(f"Athena Results Recommendations Location: {results_rr_location}")
+    
+            s3_rr_key = copy_results_to_user_location(results_rr_location, user_email, query_execution_rr_id)
+            
+            if s3_rr_key:
+                s3_keys["recommendations"] = s3_rr_key
+            else:
+                return log_error(f"Failed to generate S3 Recommendations key for user with email {user_email}",
+                             "Failed to generate the S3 Recommendations key.")
+            
+        # Get and put email and results location to the SQS queue
+        send_email_and_s3_key_to_sqs(user_email, s3_keys)

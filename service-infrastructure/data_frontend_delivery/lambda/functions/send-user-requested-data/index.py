@@ -22,8 +22,8 @@ NOTIFY_TEMPLATE_ID = os.getenv("NOTIFY_DATA_DOWNLOAD_TEMPLATE_ID")
 NOTIFY_DATA_EMAIL_RECIPIENT = os.getenv("NOTIFY_DATA_EMAIL_RECIPIENT")
 FRONTEND_URL = os.getenv("FRONTEND_URL")
 
-def send_notify_email(email_address, url):
-    logger.info(f"Sending email to {email_address}: {url}")
+def send_notify_email(email_address, urls):
+    logger.info(f"Sending email to {email_address}: {urls}")
 
     if not NOTIFY_API_KEY or not NOTIFY_TEMPLATE_ID:
         logger.warning("NOTIFY_API_KEY or NOTIFY_TEMPLATE_ID environment variables not set. Cannot send email.")
@@ -35,7 +35,7 @@ def send_notify_email(email_address, url):
         template_id=NOTIFY_TEMPLATE_ID,
         personalisation={
             "subject": "Your data download link",
-            "link": url
+            "link": urls
         },
     )
 
@@ -47,19 +47,22 @@ def lambda_handler(event, context):
         try:
             sns_message = json.loads(record["body"])
             email_address = NOTIFY_DATA_EMAIL_RECIPIENT
-            s3_key = sns_message.get("s3_key")
-            url = f"{FRONTEND_URL}/download?file={s3_key}"
+            s3_keys = sns_message.get("s3_keys")
+            urls = []
+            
+            for file_name, s3_link in s3_keys.items():
+                urls.append(f"[{file_name}.csv]({FRONTEND_URL}/download?file={s3_link})")
 
-            if not email_address or not s3_key:
-                logger.error(f"Missing required fields (email, s3_key) in SQS message: {sns_message}")
+            if not email_address or not s3_keys:
+                logger.error(f"Missing required fields (email, s3_keys) in SQS message: {sns_message}")
                 continue
 
-            logger.info(f"Processing request for email: {email_address}, S3 key: {s3_key}")
+            logger.info(f"Processing request for email: {email_address}, S3 keys: {s3_keys}")
 
             # Send an email via Notify
-            if s3_key:
-                send_notify_email(email_address, url)
-                logger.info(f"Successfully sent email to {email_address} with S3 key: {s3_key}")
+            if s3_keys:
+                send_notify_email(email_address, urls)
+                logger.info(f"Successfully sent email to {email_address} with S3 key: {s3_keys}")
             else:
                 logger.error(f"Failed to send the email via Notify")
         except Exception as e:
