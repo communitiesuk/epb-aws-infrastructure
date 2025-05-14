@@ -22,8 +22,6 @@ module "collect_user_data_lambda" {
   function_name = "collect-user-filtered-data"
   output_file   = "collect_user_filtered_data.zip"
   environment = {
-    ATHENA_TABLE     = "domestic",
-    ATHENA_RR_TABLE  = "domestic_rr",
     ATHENA_DATABASE  = var.glue_catalog_name
     ATHENA_WORKGROUP = basename(data.aws_arn.athena_workgroup.resource)
     OUTPUT_BUCKET    = var.output_bucket_name

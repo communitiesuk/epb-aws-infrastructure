@@ -14,13 +14,17 @@ logger = logging.getLogger()
 logger.setLevel(os.getenv("LOG_LEVEL", logging.INFO))
 
 ATHENA_DATABASE = os.getenv("ATHENA_DATABASE")
-ATHENA_TABLE = os.getenv("ATHENA_TABLE")
-ATHENA_RR_TABLE = os.getenv("ATHENA_RR_TABLE")
 ATHENA_WORKGROUP = os.getenv("ATHENA_WORKGROUP")
 OUTPUT_BUCKET = os.getenv("OUTPUT_BUCKET")
 SQS_QUEUE_URL = os.getenv("SQS_QUEUE_URL")
 
 max_wait = 60
+
+def table(filters):
+    return filters["property_type"]
+
+def rr_table(filters):
+    return f"{filters["property_type"]}_rr"
 
 def query_search_filter_setup(filters):
     clauses = []
@@ -65,7 +69,7 @@ def query_search_filter_setup(filters):
     
 def construct_athena_query(filters):
     clauses = query_search_filter_setup(filters)
-    base_query = f'SELECT * FROM "{ATHENA_DATABASE}"."{ATHENA_TABLE}"'
+    base_query = f'SELECT * FROM "{ATHENA_DATABASE}"."{table(filters)}"'
     query = f"{base_query} WHERE {' AND '.join(clauses)}"
     logger.info(f"Athena Query: {query}")
     return query
@@ -78,8 +82,8 @@ def construct_rr_athena_query(filters):
                       indicative_cost, \
                       improvement_summary_text, \
                       improvement_descr_text \
-                      FROM "{ATHENA_DATABASE}"."{ATHENA_RR_TABLE}" rr \
-                      JOIN "{ATHENA_DATABASE}"."{ATHENA_TABLE}" m ON m.rrn=rr.rrn'
+                      FROM "{ATHENA_DATABASE}"."{rr_table(filters)}" rr \
+                      JOIN "{ATHENA_DATABASE}"."{table(filters)}" m ON m.rrn=rr.rrn'
                       
     query = f"{base_rr_query} WHERE {' AND '.join(clauses)}"
     logger.info(f"Athena Recommendations Query: {query}")
@@ -115,10 +119,10 @@ def get_query_results_location(query_execution_id):
         logger.error(f"Error getting Athena query execution status: {e}")
         return None
 
-def copy_results_to_user_location(athena_results_location, user_email, query_execution_id):
+def copy_results_to_user_location(athena_results_location, user_email, query_execution_id, table):
     bucket_name = OUTPUT_BUCKET
     source_prefix = "output/"
-    destination_prefix = f"{ATHENA_TABLE}/user-exports/{query_execution_id}/{uuid.uuid4()}/"
+    destination_prefix = f"{table}/user-exports/{query_execution_id}/{uuid.uuid4()}/"
     copied_file_key = None
 
     try:
@@ -227,6 +231,8 @@ def lambda_handler(event, context):
         sns_message = json.loads(record["body"])
         filters = json.loads(sns_message["Message"])
         user_email = filters.pop("email_address")
+        table_name = table(filters)
+        rr_table_name = rr_table(filters)
         s3_keys = {}
 
         results_location, query_execution_id = build_certificates(filters)
@@ -236,7 +242,7 @@ def lambda_handler(event, context):
 
         logger.info(f"Athena Results Location: {results_location}")
         
-        s3_key = copy_results_to_user_location(results_location, user_email, query_execution_id)
+        s3_key = copy_results_to_user_location(results_location, user_email, query_execution_id, table_name)
         
         if s3_key:
             s3_keys["certificates"] = s3_key
@@ -252,7 +258,7 @@ def lambda_handler(event, context):
 
             logger.info(f"Athena Results Recommendations Location: {results_rr_location}")
     
-            s3_rr_key = copy_results_to_user_location(results_rr_location, user_email, query_execution_rr_id)
+            s3_rr_key = copy_results_to_user_location(results_rr_location, user_email, query_execution_rr_id, rr_table_name)
             
             if s3_rr_key:
                 s3_keys["recommendations"] = s3_rr_key
