@@ -72,6 +72,10 @@ module "waf" {
   allowed_ipv6_addresses   = [for ip in var.permitted_ipv6_addresses : ip["ip_address"]]
 }
 
+module "onelogin_keys" {
+  source = "./tls_key"
+}
+
 module "secrets" {
   source = "./secrets"
 
@@ -85,6 +89,7 @@ module "secrets" {
     "EPB_UNLEASH_URI" : "https://${module.toggles_application.internal_alb_name}.${var.domain_name}:443/api"
     "ONELOGIN_CLIENT_ID" : var.parameters["ONELOGIN_CLIENT_ID"]
     "ONELOGIN_HOST_URL" : var.parameters["ONELOGIN_HOST_URL"]
+    "ONELOGIN_TLS_KEYS" : jsonencode({ "kid" = module.onelogin_keys.key_id, "private_key" = module.onelogin_keys.private_key_pem, "public_key" = module.onelogin_keys.public_key_pem })
     "LANDMARK_DATA_BUCKET_NAME" : module.landmark_data.bucket_name
     "ODE_BUCKET_NAME" : module.open_data_export.bucket_name
     "ODE_BUCKET_ACCESS_KEY" : module.open_data_export.s3_access_key
@@ -661,12 +666,12 @@ module "data_frontend_application" {
     "EPB_DATA_WAREHOUSE_API_URL" : module.secrets.secret_arns["EPB_DATA_WAREHOUSE_API_URL"]
     "ONELOGIN_CLIENT_ID" : module.secrets.secret_arns["ONELOGIN_CLIENT_ID"]
     "ONELOGIN_HOST_URL" : module.secrets.secret_arns["ONELOGIN_HOST_URL"]
+    "ONELOGIN_TLS_KEYS" : module.secrets.secret_arns["ONELOGIN_TLS_KEYS"]
   }
   parameters = merge(module.parameter_store.parameter_arns, {
     "EPB_AUTH_CLIENT_ID" : module.parameter_store.parameter_arns["WAREHOUSE_EPB_AUTH_CLIENT_ID"],
     "EPB_AUTH_CLIENT_SECRET" : module.parameter_store.parameter_arns["WAREHOUSE_EPB_AUTH_CLIENT_SECRET"]
     "SENTRY_DSN" : module.parameter_store.parameter_arns["SENTRY_DSN_DATA_FRONTEND"]
-
   })
   vpc_id                                     = module.networking.vpc_id
   fluentbit_ecr_url                          = module.fluentbit_ecr.ecr_url
