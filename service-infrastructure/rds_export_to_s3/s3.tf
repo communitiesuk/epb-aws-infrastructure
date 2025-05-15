@@ -12,11 +12,21 @@ resource "aws_s3_bucket_public_access_block" "block_public_access" {
 }
 
 resource "aws_s3_bucket_lifecycle_configuration" "backup_bucket_config" {
-  bucket = aws_s3_bucket.this.id
+  bucket                                 = aws_s3_bucket.this.id
+  transition_default_minimum_object_size = "varies_by_storage_class"
 
   rule {
     id     = "remove_old_files"
     status = "Enabled"
+
+    filter {
+      and {
+        prefix                   = "/"
+        object_size_greater_than = "0"
+      }
+    }
+
+
     expiration { days = var.num_days_bucket_retention }
   }
 }

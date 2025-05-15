@@ -19,15 +19,21 @@ resource "aws_s3_bucket_ownership_controls" "bucket_owner" {
 }
 
 resource "aws_s3_bucket_lifecycle_configuration" "logs" {
-  bucket = aws_s3_bucket.logs.id
-
+  bucket                                 = aws_s3_bucket.logs.id
+  transition_default_minimum_object_size = "varies_by_storage_class"
   rule {
     id     = "all_logs"
     status = "Enabled"
-
+    filter {
+      and {
+        prefix                   = "/"
+        object_size_greater_than = "0"
+      }
+    }
     expiration {
       days = 14
     }
+
   }
 }
 
