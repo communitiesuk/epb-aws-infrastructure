@@ -86,6 +86,7 @@ module "secrets" {
     "EPB_DATA_FRONTEND_DELIVERY_SNS_ARN" : var.environment != "prod" ? module.data_frontend_delivery[0].sns_topic_arn : "test",
     "EPB_DATA_WAREHOUSE_API_URL" : "https://${module.warehouse_api_application.internal_alb_name}.${var.domain_name}"
     "EPB_DATA_WAREHOUSE_QUEUES_URI" : module.warehouse_redis.redis_uri
+    "EPB_UNLEASH_URI" : "https://${module.toggles_application.internal_alb_name}.${var.domain_name}:443/api"
     "EPB_QUEUES_URI" : module.warehouse_redis.redis_uri
     "ONELOGIN_CLIENT_ID" : var.environment != "prod" ? var.parameters["ONELOGIN_CLIENT_ID"] : "test"
     "ONELOGIN_HOST_URL" : var.environment != "prod" ? var.parameters["ONELOGIN_HOST_URL"] : "test"
@@ -808,7 +809,7 @@ module "warehouse_api_application" {
 module "warehouse_database" {
   source = "./aurora_rds"
 
-  cluster_parameter_group_name  = module.parameter_groups.aurora_pg_param_group_name
+  cluster_parameter_group_name  = module.parameter_groups.aurora_pg_serverless_param_group_name
   db_name                       = "epb"
   instance_class                = "db.serverless"
   instance_parameter_group_name = module.parameter_groups.aurora_pg_param_group_name

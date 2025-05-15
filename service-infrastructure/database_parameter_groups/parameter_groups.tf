@@ -8,6 +8,13 @@ resource "aws_rds_cluster_parameter_group" "rds_aurora" {
   name   = var.aurora_name
   family = "aurora-postgresql14"
 
+
+}
+
+resource "aws_rds_cluster_parameter_group" "rds_aurora_serverless" {
+  name   = "${var.aurora_name}-serverless"
+  family = "aurora-postgresql14"
+
   dynamic "parameter" {
     for_each = [0]
     content {
