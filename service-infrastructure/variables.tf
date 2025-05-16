@@ -129,3 +129,9 @@ variable "postgres_aurora_version" {
   default = "14.15"
 }
 
+variable "data_warehouse_postgres_aurora_version" {
+  type    = string
+  default = "14.15"
+}
+
+
