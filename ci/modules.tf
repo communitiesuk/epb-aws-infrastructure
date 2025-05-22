@@ -389,3 +389,9 @@ module "parameters" {
     }
   }
 }
+
+module "scheduler" {
+  source = "./modules/scheduler"
+
+  postgres_codepipeline_arn = module.postgres_test_image_pipeline.postgres_codepipeline_arn
+}
