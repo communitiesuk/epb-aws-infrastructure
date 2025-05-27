@@ -391,7 +391,13 @@ module "parameters" {
 }
 
 module "scheduler" {
-  source = "./modules/scheduler"
-
-  postgres_codepipeline_arn = module.postgres_test_image_pipeline.postgres_codepipeline_arn
+  source                         = "./modules/scheduler"
+  aws_ruby_node_codepipeline_arn = module.app_test_image_pipeline.aws_ruby_node_codepipeline_arn
+  auth_server_codepipeline_arn   = module.auth-server-pipeline.auth_server_codepipeline_arn
+  data_frontend_codepipeline_arn = module.data_frontend-pipeline.data_frontend_codepipeline_arn
+  fluentbit_codepipeline_arn     = module.fluentbit_pipeline.fluentbit_codepipeline_arn
+  frontend_codepipeline_arn      = module.frontend-pipeline.frontend_codepipeline_arn
+  reg_api_codepipeline_arn       = module.register-api-pipeline.reg_api_codepipeline_arn
+  warehouse_codepipeline_arn     = module.data_warehouse-pipeline.warehouse_codepipeline_arn
+  postgres_codepipeline_arn      = module.postgres_test_image_pipeline.postgres_codepipeline_arn
 }
