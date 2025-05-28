@@ -33,3 +33,36 @@ data "aws_iam_policy_document" "ecr_policy" {
     ]
   }
 }
+
+resource "aws_ecr_lifecycle_policy" "main" {
+  repository = aws_ecr_repository.this.name
+
+  policy = jsonencode({
+    rules = [{
+      rulePriority = 1
+      description  = "keep 1 latest tagged image"
+      action = {
+        type = "expire"
+      }
+      selection = {
+        "tagPrefixList" : [
+          "latest"
+        ],
+        tagStatus   = "tagged"
+        countType   = "imageCountMoreThan"
+        countNumber = 1
+      }
+      }, {
+      rulePriority = 2
+      description  = "keep last 5 images"
+      action = {
+        type = "expire"
+      }
+      selection = {
+        tagStatus   = "any"
+        countType   = "imageCountMoreThan"
+        countNumber = 5
+      }
+    }]
+  })
+}
