@@ -84,6 +84,7 @@ module "secrets" {
     "EPB_API_URL" : "https://${module.register_api_application.internal_alb_name}.${var.domain_name}:443"
     "EPB_AUTH_SERVER" : "https://${module.auth_application.internal_alb_name}.${var.domain_name}:443/auth"
     "EPB_DATA_FRONTEND_DELIVERY_SNS_ARN" : var.environment != "prod" ? module.data_frontend_delivery[0].sns_topic_arn : "test",
+    "EPB_DATA_FRONTEND_SESSION_SECRET" : var.environment != "prod" ? var.parameters["EPB_DATA_FRONTEND_SESSION_SECRET"] : "test",
     "EPB_DATA_WAREHOUSE_API_URL" : "https://${module.warehouse_api_application.internal_alb_name}.${var.domain_name}"
     "EPB_DATA_WAREHOUSE_QUEUES_URI" : module.warehouse_redis.redis_uri
     "EPB_UNLEASH_URI" : "https://${module.toggles_application.internal_alb_name}.${var.domain_name}:443/api"
@@ -663,6 +664,7 @@ module "data_frontend_application" {
   secrets = {
     "EPB_UNLEASH_URI" : module.secrets.secret_arns["EPB_UNLEASH_URI"]
     "SEND_DOWNLOAD_TOPIC_ARN" : module.secrets.secret_arns["EPB_DATA_FRONTEND_DELIVERY_SNS_ARN"]
+    "SESSION_SECRET" : module.secrets.secret_arns["EPB_DATA_FRONTEND_SESSION_SECRET"]
     "EPB_AUTH_SERVER" : module.secrets.secret_arns["EPB_AUTH_SERVER"],
     "EPB_DATA_WAREHOUSE_API_URL" : module.secrets.secret_arns["EPB_DATA_WAREHOUSE_API_URL"]
     "ONELOGIN_CLIENT_ID" : module.secrets.secret_arns["ONELOGIN_CLIENT_ID"]
