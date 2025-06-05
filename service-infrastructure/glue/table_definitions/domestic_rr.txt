@@ -1,0 +1,7 @@
+id long,
+rrn string,
+improvement_item int,
+improvement_id string,
+indicative_cost string,
+improvement_summary_text string,
+improvement_descr_text string

@@ -1,4 +1,8 @@
+locals {
+  prefix = replace(var.prefix, "-", "_")
+}
+
 resource "aws_glue_catalog_database" "this" {
-  name = "${var.prefix}-glue-catalog"
+  name = "${local.prefix}_glue_catalog"
 }
 

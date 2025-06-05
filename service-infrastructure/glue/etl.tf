@@ -4,7 +4,7 @@ module "create_domestic_etl" {
   glue_connector   = [aws_glue_connection.this.name]
   job_name         = "Create domestic catalog table"
   role_arn         = aws_iam_role.glueServiceRole.arn
-  script_file_name = "create_data_catalog.py"
+  script_file_name = "create_iceberg_catalog.py"
   scripts_module   = path.module
   arguments = {
     "--DATABASE_NAME"      = aws_glue_catalog_database.this.name
@@ -12,6 +12,7 @@ module "create_domestic_etl" {
     "--S3_BUCKET"          = aws_s3_bucket.this.bucket
     "--CONNECTION_NAME"    = aws_glue_connection.this.name
     "--DB_TABLE_NAME"      = "mvw_domestic_search"
+    "--COLUMNS"            = templatefile("${path.module}/table_definitions/domestic.txt", {})
   }
 }
 
@@ -21,7 +22,7 @@ module "create_domestic_rr_etl" {
   glue_connector   = [aws_glue_connection.this.name]
   job_name         = "Create domestic rr catalog table"
   role_arn         = aws_iam_role.glueServiceRole.arn
-  script_file_name = "create_data_catalog.py"
+  script_file_name = "create_iceberg_catalog.py"
   scripts_module   = path.module
   arguments = {
     "--DATABASE_NAME"      = aws_glue_catalog_database.this.name
@@ -29,6 +30,7 @@ module "create_domestic_rr_etl" {
     "--S3_BUCKET"          = aws_s3_bucket.this.bucket
     "--CONNECTION_NAME"    = aws_glue_connection.this.name
     "--DB_TABLE_NAME"      = "mvw_domestic_rr_search"
+    "--COLUMNS"            = templatefile("${path.module}/table_definitions/domestic_rr.txt", {})
   }
 }
 
