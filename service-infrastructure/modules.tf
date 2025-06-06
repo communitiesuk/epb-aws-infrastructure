@@ -8,6 +8,8 @@ locals {
 }
 
 
+
+
 module "account_security" {
   source = "./account_security"
 }
@@ -77,14 +79,23 @@ module "onelogin_keys" {
   count  = var.environment == "prod" ? 0 : 1
 }
 
+
+resource "random_string" "epb_data_frontend_session_secret" {
+  length  = 64
+  special = false
+
+  lifecycle {
+    prevent_destroy = true
+  }
+}
+
 module "secrets" {
   source = "./secrets"
-
   secrets = {
     "EPB_API_URL" : "https://${module.register_api_application.internal_alb_name}.${var.domain_name}:443"
     "EPB_AUTH_SERVER" : "https://${module.auth_application.internal_alb_name}.${var.domain_name}:443/auth"
     "EPB_DATA_FRONTEND_DELIVERY_SNS_ARN" : var.environment != "prod" ? module.data_frontend_delivery[0].sns_topic_arn : "test",
-    "EPB_DATA_FRONTEND_SESSION_SECRET" : var.environment != "prod" ? var.parameters["EPB_DATA_FRONTEND_SESSION_SECRET"] : "test",
+    "EPB_DATA_FRONTEND_SESSION_SECRET" : random_string.epb_data_frontend_session_secret.result
     "EPB_DATA_WAREHOUSE_API_URL" : "https://${module.warehouse_api_application.internal_alb_name}.${var.domain_name}"
     "EPB_DATA_WAREHOUSE_QUEUES_URI" : module.warehouse_redis.redis_uri
     "EPB_UNLEASH_URI" : "https://${module.toggles_application.internal_alb_name}.${var.domain_name}:443/api"
