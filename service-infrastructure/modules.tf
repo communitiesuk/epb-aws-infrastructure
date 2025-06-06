@@ -703,7 +703,7 @@ module "data_frontend_application" {
     path_based_routing_overrides   = []
     extra_lb_target_groups         = 0
     cdn_cache_cookie_behaviour     = "whitelist"
-    cdn_cache_cookie_items         = ["cookie_consent"]
+    cdn_cache_cookie_items         = ["cookie_consent", "epb_data.session", "state", "nonce"]
     cdn_include_static_error_pages = true
     error_pages_bucket_name        = module.error_pages.error_pages_bucket_name
   }
