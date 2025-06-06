@@ -9,6 +9,7 @@ from awsglue.utils import getResolvedOptions
 from boto3.s3.transfer import TransferConfig
 from pyspark.context import SparkContext
 from pyspark.sql import functions as F
+from pyspark.sql import SparkSession
 
 required_args = ["JOB_NAME", "TABLE_NAME", "S3_BUCKET", "DATABASE_NAME"]
 
@@ -35,15 +36,23 @@ S3_OUTPUT_PATH = f"s3://{S3_BUCKET}/{S3_PREFIX}"
 ZIP_FILE_KEY = f"{S3_PREFIX}{TABLE_NAME}.zip"
 TABLE_NAME_RR = args.get("TABLE_NAME_RR")
 
+sql_spark = (
+    SparkSession.builder
+    .config("spark.sql.catalog.glue_catalog", "org.apache.iceberg.spark.SparkCatalog")
+    .config("spark.sql.catalog.glue_catalog.catalog-impl", "org.apache.iceberg.aws.glue.GlueCatalog")
+    .config("spark.sql.catalog.glue_catalog.warehouse", S3_OUTPUT_PATH)
+    .config("spark.sql.catalog.glue_catalog.job-language", "python")
+    .getOrCreate()
+)
 
 s3_client = boto3.client("s3")
 
 # Read data from Glue Catalog
-dynamic_frame = glueContext.create_dynamic_frame.from_catalog(
+frame = glueContext.create_data_frame.from_catalog(
     database=DATABASE_NAME, table_name=TABLE_NAME
 )
 
-df = dynamic_frame.toDF().withColumn("year", F.year(F.col("lodgement_date")))
+df = frame.withColumn("year", F.year(F.col("lodgement_date")))
 
 # Get unique years
 years = [
@@ -55,9 +64,9 @@ years = [
 if TABLE_NAME_RR:
     logger.warn(f'Received table "{TABLE_NAME_RR}" for recommendations')
 
-    df_rr = glueContext.create_dynamic_frame.from_catalog(
+    df_rr = glueContext.create_data_frame.from_catalog(
         database=DATABASE_NAME, table_name=TABLE_NAME_RR
-    ).toDF()
+    )
 
     joined_df = (
         df.select("rrn", "year")
