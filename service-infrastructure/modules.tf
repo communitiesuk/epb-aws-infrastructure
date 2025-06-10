@@ -962,8 +962,10 @@ module "landmark_data" {
 }
 
 module "user_data" {
-  source = "./s3_bucket"
-  prefix = "${local.prefix}-user-data"
+  source           = "./s3_bucket"
+  prefix           = "${local.prefix}-user-data"
+  lifecycle_prefix = "/output"
+  expiration_days  = 7
 }
 
 module "parameter_groups" {
