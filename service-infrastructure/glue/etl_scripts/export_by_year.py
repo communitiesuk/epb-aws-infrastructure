@@ -36,8 +36,11 @@ S3_OUTPUT_PATH = f"s3://{S3_BUCKET}/{S3_PREFIX}"
 ZIP_FILE_KEY = f"{S3_PREFIX}{TABLE_NAME}.zip"
 TABLE_NAME_RR = args.get("TABLE_NAME_RR")
 
+
+
 sql_spark = (
     SparkSession.builder
+    .config("spark.sql.extensions", "org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions")
     .config("spark.sql.catalog.glue_catalog", "org.apache.iceberg.spark.SparkCatalog")
     .config("spark.sql.catalog.glue_catalog.catalog-impl", "org.apache.iceberg.aws.glue.GlueCatalog")
     .config("spark.sql.catalog.glue_catalog.warehouse", S3_OUTPUT_PATH)

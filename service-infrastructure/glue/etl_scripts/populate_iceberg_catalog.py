@@ -32,14 +32,14 @@ S3_BUCKET = args['S3_BUCKET']
 CONNECTION_NAME = args['CONNECTION_NAME']
 CATALOG_TABLE_NAME = args['CATALOG_TABLE_NAME']
 DB_TABLE_NAME = args['DB_TABLE_NAME']
-S3_OUTPUT_PATH=f"s3://{S3_BUCKET}/{CATALOG_TABLE_NAME}/"
+S3_PATH=f"s3://{S3_BUCKET}/{CATALOG_TABLE_NAME}/"
 COLUMNS =  args['COLUMNS']
 
 sql_spark = (
     SparkSession.builder
     .config("spark.sql.catalog.glue_catalog", "org.apache.iceberg.spark.SparkCatalog")
     .config("spark.sql.catalog.glue_catalog.catalog-impl", "org.apache.iceberg.aws.glue.GlueCatalog")
-    .config("spark.sql.catalog.glue_catalog.warehouse", S3_OUTPUT_PATH)
+    .config("spark.sql.catalog.glue_catalog.warehouse", S3_PATH)
     .config("spark.sql.catalog.glue_catalog.job-language", "python")
     .getOrCreate()
 )
@@ -49,10 +49,11 @@ sql_spark.sql(f"""
       {COLUMNS}
 )
 USING iceberg
-LOCATION '{S3_OUTPUT_PATH}'
+LOCATION '{S3_PATH}'
 TBLPROPERTIES (
   'write.format.default' = 'parquet',
-  'write.compression.codec' = 'zstd'
+  'write.compression.codec' = 'zstd',
+  'optimize_rewrite_delete_file_threshold'='5'
 )
 """);
 

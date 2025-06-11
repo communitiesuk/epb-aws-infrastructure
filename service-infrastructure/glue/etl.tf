@@ -1,10 +1,16 @@
-module "create_domestic_etl" {
+locals {
+  iceberg_conf = "spark.sql.extensions=org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions --conf spark.sql.catalog.glue_catalog=org.apache.iceberg.spark.SparkCatalog --conf spark.sql.catalog.glue_catalog.catalog-impl=org.apache.iceberg.aws.glue.GlueCatalog --conf spark.sql.catalog.glue_catalog.io-impl=org.apache.iceberg.aws.s3.S3FileIO --conf spark.sql.catalog.glue_catalog.warehouse=file:///tmp/spark-warehouse"
+}
+
+
+
+module "populate_domestic_etl" {
   source           = "./etl_job"
   bucket_name      = aws_s3_bucket.this.bucket
   glue_connector   = [aws_glue_connection.this.name]
-  job_name         = "Create domestic catalog table"
+  job_name         = "Populate domestic catalog"
   role_arn         = aws_iam_role.glueServiceRole.arn
-  script_file_name = "create_iceberg_catalog.py"
+  script_file_name = "populate_iceberg_catalog.py"
   scripts_module   = path.module
   arguments = {
     "--DATABASE_NAME"      = aws_glue_catalog_database.this.name
@@ -16,13 +22,13 @@ module "create_domestic_etl" {
   }
 }
 
-module "create_domestic_rr_etl" {
+module "populate_domestic_rr_etl" {
   source           = "./etl_job"
   bucket_name      = aws_s3_bucket.this.bucket
   glue_connector   = [aws_glue_connection.this.name]
-  job_name         = "Create domestic rr catalog table"
+  job_name         = "Populate domestic rr catalog"
   role_arn         = aws_iam_role.glueServiceRole.arn
-  script_file_name = "create_iceberg_catalog.py"
+  script_file_name = "populate_iceberg_catalog.py"
   scripts_module   = path.module
   arguments = {
     "--DATABASE_NAME"      = aws_glue_catalog_database.this.name
@@ -34,10 +40,27 @@ module "create_domestic_rr_etl" {
   }
 }
 
+
+module "delete_iceberg_data" {
+  source         = "./etl_job"
+  glue_connector = [aws_glue_connection.this.name]
+  arguments = {
+    "--CONNECTION_NAME"  = aws_glue_connection.this.name
+    "--DATABASE_NAME"    = aws_glue_catalog_database.this.name
+    "--datalake-formats" = "iceberg"
+    "--conf"             = local.iceberg_conf
+  }
+  bucket_name      = aws_s3_bucket.this.bucket
+  job_name         = "Delete Iceberg data"
+  role_arn         = aws_iam_role.glueServiceRole.arn
+  script_file_name = "delete_data.py"
+  scripts_module   = path.module
+}
+
 module "export_domestic_data_by_year" {
   source           = "./etl_job"
   bucket_name      = aws_s3_bucket.this.bucket
-  job_name         = "Export Domestic Data By Year"
+  job_name         = "Export domestic data by year to S3"
   role_arn         = aws_iam_role.glueServiceRole.arn
   script_file_name = "export_by_year.py"
   scripts_module   = path.module

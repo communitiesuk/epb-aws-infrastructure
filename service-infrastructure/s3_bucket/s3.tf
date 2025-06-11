@@ -13,7 +13,7 @@ resource "aws_s3_bucket_public_access_block" "this" {
 
 
 resource "aws_s3_bucket_lifecycle_configuration" "s3_bucket_lifecycle" {
-  count = var.lifecycle_prefix != null ? 1 : 0
+  count  = var.lifecycle_prefix != null ? 1 : 0
   bucket = aws_s3_bucket.this.id
 
   rule {

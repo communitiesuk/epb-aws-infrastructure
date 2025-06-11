@@ -3,11 +3,11 @@ variable "prefix" {
 }
 
 variable "lifecycle_prefix" {
-  type        = string
-  default     = null
+  type    = string
+  default = null
 }
 
 variable "expiration_days" {
-  type = number
+  type    = number
   default = 30
 }
