@@ -70,6 +70,21 @@ PostgreSQL_node1748526875522 = glueContext.create_dynamic_frame.from_options(
 )
 
 # Script generated for node AWS Glue Data Catalog
-AWSGlueDataCatalog_node1748526922140_df = PostgreSQL_node1748526875522.toDF()
-AWSGlueDataCatalog_node1748526922140 = glueContext.write_data_frame.from_catalog(frame=AWSGlueDataCatalog_node1748526922140_df, database=DATABASE_NAME, table_name=CATALOG_TABLE_NAME, additional_options={})
+AWSGlueDataCatalog_node1748526922140_df = glueContext.create_data_frame.from_catalog(database=DATABASE_NAME, table_name=CATALOG_TABLE_NAME)
+
+postgres_df = PostgreSQL_node1748526875522.toDF()
+postgres_df.createOrReplaceTempView(DB_TABLE_NAME)
+
+columns = [f.name for f in spark.table(DB_TABLE_NAME).schema.fields]
+column_list = ", ".join(columns)
+value_list = ", ".join([f"source.{col}" for col in columns])
+
+spark.sql(f"""
+MERGE INTO glue_catalog.{DATABASE_NAME}.{CATALOG_TABLE_NAME} AS target
+USING {DB_TABLE_NAME} AS source 
+ON target.rrn = source.rrn 
+WHEN NOT MATCHED THEN 
+    INSERT ({column_list}) VALUES ({value_list})
+""")
+
 job.commit()
