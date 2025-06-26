@@ -99,3 +99,21 @@ resource "aws_iam_role_policy" "secret_access" {
     ]
   })
 }
+
+resource "aws_iam_role_policy" "self_pass_role" {
+  name = "${var.prefix}-glue-role-self-pass-role"
+  role = aws_iam_role.glueServiceRole.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
+          "iam:PassRole"
+        ]
+        Effect   = "Allow"
+        Resource = aws_iam_role.glueServiceRole.arn
+      }
+    ]
+  })
+}
