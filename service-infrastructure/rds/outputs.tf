@@ -14,8 +14,12 @@ output "rds_db_username" {
   value = aws_db_instance.postgres_rds.username
 }
 
+locals {
+  connection_string = "postgresql://${aws_db_instance.postgres_rds.username == null ? "" : aws_db_instance.postgres_rds.username}:${aws_db_instance.postgres_rds.password == null ? "" : aws_db_instance.postgres_rds.password}@${aws_db_instance.postgres_rds.endpoint == null ? "" : aws_db_instance.postgres_rds.endpoint}/${aws_db_instance.postgres_rds.db_name == null ? "" : aws_db_instance.postgres_rds.db_name}"
+}
+
 output "rds_db_connection_string" {
   description = "A libpq (Postgresql) connection string for consuming this database, intended to be set as the environment variable DATABASE_URL"
-  value       = "postgresql://${aws_db_instance.postgres_rds.username}:${aws_db_instance.postgres_rds.password}@${aws_db_instance.postgres_rds.endpoint}/${aws_db_instance.postgres_rds.db_name}"
+  value       = local.connection_string
   sensitive   = true
 }

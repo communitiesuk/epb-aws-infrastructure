@@ -7,9 +7,6 @@ locals {
   }
 }
 
-
-
-
 module "account_security" {
   source = "./account_security"
 }
@@ -118,6 +115,9 @@ module "secrets" {
     "RDS_TOGGLES_CONNECTION_STRING" : module.toggles_database.rds_db_connection_string
     "RDS_TOGGLES_PASSWORD" : module.toggles_database.rds_db_password
     "RDS_TOGGLES_USERNAME" : module.toggles_database.rds_db_username
+    # "RDS_TOGGLES_V2_CONNECTION_STRING" : module.toggles_database_v2.rds_db_connection_string
+    # "RDS_TOGGLES_V2_PASSWORD" : module.toggles_database_v2.rds_db_password
+    # "RDS_TOGGLES_V2_USERNAME" : module.toggles_database_v2.rds_db_username
     "RDS_WAREHOUSE_CONNECTION_STRING" : module.warehouse_database.rds_db_connection_string
     "RDS_WAREHOUSE_READER_CONNECTION_STRING" : module.warehouse_database.rds_db_reader_connection_string
     "RDS_WAREHOUSE_PASSWORD" : module.warehouse_database.rds_db_password
@@ -322,6 +322,24 @@ module "toggles_database" {
   multi_az              = var.environment == "prod" ? true : false
 }
 
+module "toggles_database_v2" {
+  source = "./rds"
+
+  db_name               = "unleash"
+  instance_class        = var.environment == "intg" ? "db.t3.micro" : "db.m5.large"
+  parameter_group_name  = module.parameter_groups.rds_pg_param_group_name
+  prefix                = "${local.prefix}-toggles"
+  postgres_version      = var.postgres_rds_version
+  security_group_ids    = [module.toggles_application.ecs_security_group_id, module.bastion.security_group_id]
+  storage_backup_period = 1
+  storage_size          = 5
+  subnet_group_name     = local.db_subnet
+  vpc_id                = module.networking.vpc_id
+  multi_az              = var.environment == "prod" ? true : false
+  name_suffix           = "v2"
+  kms_key_id            = module.rds_kms_key.key_arn
+}
+
 module "toggles_application" {
   source                = "./application"
   ci_account_id         = var.ci_account_id
@@ -332,6 +350,7 @@ module "toggles_application" {
   environment_variables = {}
   secrets = {
     "DATABASE_URL" : module.secrets.secret_arns["RDS_TOGGLES_CONNECTION_STRING"],
+    # "DATABASE_URL" : module.secrets.secret_arns["RDS_TOGGLES_V2_CONNECTION_STRING"],
   }
   parameters                                 = module.parameter_store.parameter_arns
   vpc_id                                     = module.networking.vpc_id
@@ -855,6 +874,7 @@ module "bastion" {
     "Toggles" : module.toggles_database.rds_full_access_policy_arn
     "Warehouse" : module.warehouse_database.rds_full_access_policy_arn
     "API-v2" : module.register_api_database_v2.rds_full_access_policy_arn
+    "Toggles-v2" : module.toggles_database_v2.rds_full_access_policy_arn
   }
 }
 

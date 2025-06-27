@@ -43,3 +43,14 @@ variable "multi_az" {
   default = false
 }
 
+variable "kms_key_id" {
+  description = "Custom encryption key for db"
+  default     = null
+  type        = string
+}
+
+variable "name_suffix" {
+  description = "Suffix added to the instance name when we have 2 versions of the same db"
+  default     = null
+  type        = string
+}
