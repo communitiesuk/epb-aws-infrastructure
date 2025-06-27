@@ -57,40 +57,60 @@ TBLPROPERTIES (
 )
 """);
 
-sts = boto3.client('sts')
-iam = boto3.client('iam')
+sts = boto3.client("sts")
+iam = boto3.client("iam")
 glue = boto3.client("glue")
 
 identity = sts.get_caller_identity()
 
-role_name = identity['Arn'].split('/')[-2]
+role_name = identity["Arn"].split("/")[-2]
 role = iam.get_role(RoleName=role_name)
-role_arn = role['Role']['Arn']
+role_arn = role["Role"]["Arn"]
 
 
 def get_catalog_id(catalog_name):
     response = glue.get_databases()
 
-    for db in response['DatabaseList']:
+    for db in response["DatabaseList"]:
         if db["Name"] == catalog_name:
             return db["CatalogId"]
 
 
-optimizers = ['compaction', 'retention', 'orphan_file_deletion']
+optimizer_configurations = {
+    "compaction": {},
+    "retention": {
+        "retentionConfiguration": {
+            "icebergConfiguration": {
+                "snapshotRetentionPeriodInDays": 3,
+                "numberOfSnapshotsToRetain": 1,
+                "cleanExpiredFiles": True,
+            }
+        }
+    },
+    "orphan_file_deletion": {},
+}
 
-for optimizer_type in optimizers:
+
+for optimizer_type in optimizer_configurations.keys():
+
     try:
+        logger.warn(f"Trying to create optimizer for {optimizer_type}")
+
         glue.create_table_optimizer(
             CatalogId=get_catalog_id(DATABASE_NAME),
             DatabaseName=DATABASE_NAME,
             TableName=CATALOG_TABLE_NAME,
             Type=optimizer_type,
             TableOptimizerConfiguration={
-                'roleArn': role_arn,
-                'enabled': True,
-                })
+                "roleArn": role_arn,
+                "enabled": True,
+                **optimizer_configurations[optimizer_type],
+            },
+        )
+        logger.warn(f"Optimizer {optimizer_type} configured")
     except glue.exceptions.AlreadyExistsException:
-        logger.warn(f"Table optimizer {optimizer_type} already present")
+        logger.warn(f"Table optimizer of type {optimizer_type} already present")
+
 
 # Script generated for node PostgreSQL
 PostgreSQL_node1748526875522 = glueContext.create_dynamic_frame.from_options(
@@ -115,9 +135,9 @@ value_list = ", ".join([f"source.{col}" for col in columns])
 
 spark.sql(f"""
 MERGE INTO glue_catalog.{DATABASE_NAME}.{CATALOG_TABLE_NAME} AS target
-USING {DB_TABLE_NAME} AS source 
-ON target.rrn = source.rrn 
-WHEN NOT MATCHED THEN 
+USING {DB_TABLE_NAME} AS source
+ON target.rrn = source.rrn
+WHEN NOT MATCHED THEN
     INSERT ({column_list}) VALUES ({value_list})
 """)
 

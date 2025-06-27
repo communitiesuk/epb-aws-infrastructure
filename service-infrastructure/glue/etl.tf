@@ -13,12 +13,13 @@ module "populate_domestic_etl" {
   script_file_name = "populate_iceberg_catalog.py"
   scripts_module   = path.module
   arguments = {
-    "--DATABASE_NAME"      = aws_glue_catalog_database.this.name
-    "--CATALOG_TABLE_NAME" = "domestic"
-    "--S3_BUCKET"          = aws_s3_bucket.this.bucket
-    "--CONNECTION_NAME"    = aws_glue_connection.this.name
-    "--DB_TABLE_NAME"      = "mvw_domestic_search"
-    "--COLUMNS"            = templatefile("${path.module}/table_definitions/domestic.txt", {})
+    "--DATABASE_NAME"             = aws_glue_catalog_database.this.name
+    "--CATALOG_TABLE_NAME"        = "domestic"
+    "--S3_BUCKET"                 = aws_s3_bucket.this.bucket
+    "--CONNECTION_NAME"           = aws_glue_connection.this.name
+    "--DB_TABLE_NAME"             = "mvw_domestic_search"
+    "--COLUMNS"                   = templatefile("${path.module}/table_definitions/domestic.txt", {})
+    "--additional-python-modules" = "boto3==1.38.43"
   }
 }
 
@@ -31,12 +32,14 @@ module "populate_domestic_rr_etl" {
   script_file_name = "populate_iceberg_catalog.py"
   scripts_module   = path.module
   arguments = {
-    "--DATABASE_NAME"      = aws_glue_catalog_database.this.name
-    "--CATALOG_TABLE_NAME" = "domestic_rr"
-    "--S3_BUCKET"          = aws_s3_bucket.this.bucket
-    "--CONNECTION_NAME"    = aws_glue_connection.this.name
-    "--DB_TABLE_NAME"      = "mvw_domestic_rr_search"
-    "--COLUMNS"            = templatefile("${path.module}/table_definitions/domestic_rr.txt", {})
+    "--DATABASE_NAME"             = aws_glue_catalog_database.this.name
+    "--CATALOG_TABLE_NAME"        = "domestic_rr"
+    "--S3_BUCKET"                 = aws_s3_bucket.this.bucket
+    "--CONNECTION_NAME"           = aws_glue_connection.this.name
+    "--DB_TABLE_NAME"             = "mvw_domestic_rr_search"
+    "--COLUMNS"                   = templatefile("${path.module}/table_definitions/domestic_rr.txt", {})
+    "--additional-python-modules" = "boto3==1.38.43"
+
   }
 }
 
