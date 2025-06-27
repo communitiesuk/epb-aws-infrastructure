@@ -1,5 +1,9 @@
+locals {
+  instance_name = var.name_suffix == null ? "${var.prefix}-postgres-db" : "${var.prefix}-postgres-db-${var.name_suffix}"
+}
+
 resource "aws_db_instance" "postgres_rds" {
-  identifier              = "${var.prefix}-postgres-db"
+  identifier              = local.instance_name
   db_name                 = var.db_name
   engine                  = "postgres"
   multi_az                = var.multi_az
@@ -15,6 +19,7 @@ resource "aws_db_instance" "postgres_rds" {
   username                = "postgres"
   password                = random_password.password.result
   parameter_group_name    = var.parameter_group_name
+  kms_key_id              = var.kms_key_id
 
   lifecycle {
     prevent_destroy = true
