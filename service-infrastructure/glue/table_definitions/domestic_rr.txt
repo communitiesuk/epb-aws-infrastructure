@@ -1,4 +1,3 @@
-id long,
 rrn string,
 improvement_item int,
 improvement_id string,
