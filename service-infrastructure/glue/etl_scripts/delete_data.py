@@ -15,9 +15,8 @@ job.init(args['JOB_NAME'], args)
 
 DATABASE_NAME =  args['DATABASE_NAME']
 CONNECTION_NAME = args['CONNECTION_NAME']
-CATALOGS = ['domestic', 'domestic_rr']
+CATALOG_TABLE_NAME = 'domestic'
 SOURCE_TABLE_NAME = 'audit_logs'
-
 
 # Script generated for node PostgreSQL
 PostgreSQL_node1749632960903 = glueContext.create_dynamic_frame.from_options(
@@ -30,17 +29,16 @@ PostgreSQL_node1749632960903 = glueContext.create_dynamic_frame.from_options(
     transformation_ctx = "PostgreSQL_node1749632960903"
 )
 
-# Script generated for node AWS Glue Data Catalog
-
-
 postgres_df = PostgreSQL_node1749632960903.toDF()
 postgres_df.createOrReplaceTempView(SOURCE_TABLE_NAME)
 
-for catalog in CATALOGS:
-    AWSGlueDataCatalog_node1749633070809_df = glueContext.create_data_frame.from_catalog(database=DATABASE_NAME, table_name=catalog)
 
-    spark.sql(f""" 
-    DELETE FROM glue_catalog.{DATABASE_NAME}.{catalog} WHERE rrn IN (SELECT assessment_id FROM {SOURCE_TABLE_NAME} WHERE event_type IN ('cancelled', 'opt_out'))
-    """)
+# Script generated for node AWS Glue Data Catalog
+AWSGlueDataCatalog_node1749633070809_df = glueContext.create_data_frame.from_catalog(database=DATABASE_NAME, table_name=CATALOG_TABLE_NAME)
+
+
+spark.sql(f""" 
+DELETE FROM glue_catalog.{DATABASE_NAME}.{CATALOG_TABLE_NAME} WHERE rrn IN (SELECT assessment_id FROM {SOURCE_TABLE_NAME} WHERE event_type IN ('cancelled', 'opt_out'))
+""")
 
 job.commit()
