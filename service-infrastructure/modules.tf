@@ -972,12 +972,16 @@ module "parameter_groups" {
   source = "./database_parameter_groups"
 }
 
+locals {
+  register_origins = ["https://${var.get_service_url}", "https://${var.find_service_url}"]
+  allowed_origins  = var.environment == "prod" ? local.register_origins : concat(local.register_origins, ["https://${var.data_service_url}"])
+}
+
 module "error_pages" {
-  source           = "./error_pages"
-  prefix           = "${local.prefix}-error-pages"
-  get_service_url  = var.get_service_url
-  find_service_url = var.find_service_url
-  oai_iam_arn      = module.frontend_application.oai_iam_arn
+  source          = "./error_pages"
+  prefix          = "${local.prefix}-error-pages"
+  oai_iam_arn     = module.frontend_application.oai_iam_arn
+  allowed_origins = local.allowed_origins
 }
 
 module "legacy_domain_redirect" {

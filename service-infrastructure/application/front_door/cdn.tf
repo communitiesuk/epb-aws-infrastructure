@@ -41,7 +41,7 @@ resource "aws_cloudfront_distribution" "cdn" {
 
     content {
       domain_name = var.error_pages_bucket_name
-      origin_path = strcontains(each.value, "find") ? "/find" : "/get"
+      origin_path = strcontains(each.value, "find") ? "/find" : strcontains(each.value, "data") ? "/get_data" : "/get"
       origin_id   = "service-unavailable-page"
       s3_origin_config {
         origin_access_identity = aws_cloudfront_origin_access_identity.error_pages[0].cloudfront_access_identity_path

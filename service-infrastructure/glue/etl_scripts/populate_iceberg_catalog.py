@@ -112,6 +112,7 @@ for optimizer_type in optimizer_configurations.keys():
         logger.warn(f"Table optimizer of type {optimizer_type} already present")
 
 
+
 # Script generated for node PostgreSQL
 PostgreSQL_node1748526875522 = glueContext.create_dynamic_frame.from_options(
     connection_type = "postgresql",
