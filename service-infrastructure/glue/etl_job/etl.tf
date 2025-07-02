@@ -12,3 +12,16 @@ resource "aws_glue_job" "this" {
 
 }
 
+resource "aws_glue_trigger" "scheduled_trigger" {
+  count  = var.trigger_name != null ? 1 : 0
+  name = var.trigger_name
+  schedule = var.schedule
+  type = "SCHEDULED"
+  description = var.trigger_description
+  actions {
+    job_name = aws_glue_job.this.name
+  }
+  enabled = true
+  start_on_creation = true
+}
+

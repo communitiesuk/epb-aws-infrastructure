@@ -44,3 +44,18 @@ variable "glue_version" {
   type    = string
   default = "5.0"
 }
+
+variable "trigger_name" {
+  type = string
+  default = null
+}
+
+variable "schedule" {
+  type = string
+  default = null
+}
+
+variable "trigger_description" {
+  type = string
+  default = null
+}

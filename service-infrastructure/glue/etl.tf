@@ -107,4 +107,8 @@ module "export_domestic_data_by_year" {
     "--TABLE_NAME_RR" = "domestic_rr"
     "--S3_BUCKET"     = var.output_bucket_name
   }
+
+  trigger_name = "Monthly domestic data export"
+  schedule = "cron(30 0 1 * ? *)" # Runs at 00:30 UTC on the 1st day of every month
+  trigger_description = "Runs the domestic data export Glue job once a month at 12:30 AM UTC on the first day of each month." 
 }
