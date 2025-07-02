@@ -836,6 +836,22 @@ module "warehouse_database" {
   scaling_configuration         = var.environment == "prod" ? { max_capacity = 64, min_capacity = 2 } : { max_capacity = 16, min_capacity = 0.5 }
 }
 
+module "warehouse_database_v2" {
+  source = "./aurora_rds"
+
+  cluster_parameter_group_name  = var.data_warehouse_postgres_aurora_version == "17.4" ? module.parameter_groups.aurora_pg_17_serverless_param_group_name : module.parameter_groups.aurora_pg_serverless_param_group_name
+  db_name                       = "epb"
+  instance_class                = "db.serverless"
+  instance_parameter_group_name = module.parameter_groups.aurora_pg_param_group_name
+  postgres_version              = var.data_warehouse_postgres_aurora_version
+  prefix                        = "${local.prefix}-warehouse"
+  security_group_ids            = [module.warehouse_application.ecs_security_group_id, module.bastion.security_group_id, module.warehouse_scheduled_tasks_application.ecs_security_group_id, module.warehouse_api_application.ecs_security_group_id, module.data_warehouse_glue.glue_security_group_id]
+  storage_backup_period         = var.storage_backup_period
+  subnet_group_name             = local.db_subnet
+  vpc_id                        = module.networking.vpc_id
+  scaling_configuration         = var.environment == "prod" ? { max_capacity = 64, min_capacity = 2 } : { max_capacity = 16, min_capacity = 0.5 }
+}
+
 module "warehouse_redis" {
   source = "./elasticache"
 
