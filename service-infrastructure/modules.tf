@@ -822,7 +822,7 @@ module "warehouse_api_application" {
 module "warehouse_database" {
   source = "./aurora_rds"
 
-  cluster_parameter_group_name  = var.data_warehouse_postgres_aurora_version == "17.4" ? module.parameter_groups.aurora_pg_17_serverless_param_group_name : module.parameter_groups.aurora_pg_serverless_param_group_name
+  cluster_parameter_group_name  = startswith(var.data_warehouse_postgres_aurora_version, "17") ? module.parameter_groups.aurora_pg_17_serverless_param_group_name : module.parameter_groups.aurora_pg_serverless_param_group_name
   db_name                       = "epb"
   instance_class                = "db.serverless"
   instance_parameter_group_name = module.parameter_groups.aurora_pg_param_group_name
