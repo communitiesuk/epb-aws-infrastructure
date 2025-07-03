@@ -115,9 +115,9 @@ module "secrets" {
     "RDS_TOGGLES_CONNECTION_STRING" : module.toggles_database.rds_db_connection_string
     "RDS_TOGGLES_PASSWORD" : module.toggles_database.rds_db_password
     "RDS_TOGGLES_USERNAME" : module.toggles_database.rds_db_username
-    # "RDS_TOGGLES_V2_CONNECTION_STRING" : module.toggles_database_v2.rds_db_connection_string
-    # "RDS_TOGGLES_V2_PASSWORD" : module.toggles_database_v2.rds_db_password
-    # "RDS_TOGGLES_V2_USERNAME" : module.toggles_database_v2.rds_db_username
+    "RDS_TOGGLES_V2_CONNECTION_STRING" : module.toggles_database_v2.rds_db_connection_string
+    "RDS_TOGGLES_V2_PASSWORD" : module.toggles_database_v2.rds_db_password
+    "RDS_TOGGLES_V2_USERNAME" : module.toggles_database_v2.rds_db_username
     "RDS_WAREHOUSE_CONNECTION_STRING" : module.warehouse_database.rds_db_connection_string
     "RDS_WAREHOUSE_READER_CONNECTION_STRING" : module.warehouse_database.rds_db_reader_connection_string
     "RDS_WAREHOUSE_PASSWORD" : module.warehouse_database.rds_db_password
@@ -349,8 +349,7 @@ module "toggles_application" {
   egress_ports          = [80, 443, 5432, var.parameters["LOGSTASH_PORT"]]
   environment_variables = {}
   secrets = {
-    "DATABASE_URL" : module.secrets.secret_arns["RDS_TOGGLES_CONNECTION_STRING"],
-    # "DATABASE_URL" : module.secrets.secret_arns["RDS_TOGGLES_V2_CONNECTION_STRING"],
+    "DATABASE_URL" : module.secrets.secret_arns["RDS_TOGGLES_V2_CONNECTION_STRING"],
   }
   parameters                                 = module.parameter_store.parameter_arns
   vpc_id                                     = module.networking.vpc_id
