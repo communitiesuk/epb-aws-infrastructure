@@ -109,15 +109,15 @@ module "secrets" {
     "RDS_API_V2_SERVICE_READER_CONNECTION_STRING" : module.register_api_database_v2.rds_db_reader_connection_string
     "RDS_API_V2_SERVICE_PASSWORD" : module.register_api_database_v2.rds_db_password
     "RDS_API_V2_SERVICE_USERNAME" : module.register_api_database_v2.rds_db_username
-    "RDS_AUTH_SERVICE_CONNECTION_STRING" : module.auth_database.rds_db_connection_string
-    "RDS_AUTH_SERVICE_PASSWORD" : module.auth_database.rds_db_password
-    "RDS_AUTH_SERVICE_USERNAME" : module.auth_database.rds_db_username
+    # "RDS_AUTH_SERVICE_CONNECTION_STRING" : module.auth_database.rds_db_connection_string
+    # "RDS_AUTH_SERVICE_PASSWORD" : module.auth_database.rds_db_password
+    # "RDS_AUTH_SERVICE_USERNAME" : module.auth_database.rds_db_username
     "RDS_AUTH_V2_SERVICE_CONNECTION_STRING" : module.auth_database_v2.rds_db_connection_string
     "RDS_AUTH_V2_SERVICE_PASSWORD" : module.auth_database_v2.rds_db_password
     "RDS_AUTH_V2_SERVICE_USERNAME" : module.auth_database_v2.rds_db_username
-    "RDS_TOGGLES_CONNECTION_STRING" : module.toggles_database.rds_db_connection_string
-    "RDS_TOGGLES_PASSWORD" : module.toggles_database.rds_db_password
-    "RDS_TOGGLES_USERNAME" : module.toggles_database.rds_db_username
+    # "RDS_TOGGLES_CONNECTION_STRING" : module.toggles_database.rds_db_connection_string
+    # "RDS_TOGGLES_PASSWORD" : module.toggles_database.rds_db_password
+    # "RDS_TOGGLES_USERNAME" : module.toggles_database.rds_db_username
     "RDS_TOGGLES_V2_CONNECTION_STRING" : module.toggles_database_v2.rds_db_connection_string
     "RDS_TOGGLES_V2_PASSWORD" : module.toggles_database_v2.rds_db_password
     "RDS_TOGGLES_V2_USERNAME" : module.toggles_database_v2.rds_db_username
@@ -309,21 +309,21 @@ module "parameter_store" {
 
 # applications and backing services
 
-module "toggles_database" {
-  source = "./rds"
-
-  db_name               = "unleash"
-  instance_class        = var.environment == "intg" ? "db.t3.micro" : "db.m5.large"
-  parameter_group_name  = module.parameter_groups.rds_pg_param_group_name
-  prefix                = "${local.prefix}-toggles"
-  postgres_version      = var.postgres_rds_version
-  security_group_ids    = [module.toggles_application.ecs_security_group_id, module.bastion.security_group_id]
-  storage_backup_period = 1
-  storage_size          = 5
-  subnet_group_name     = local.db_subnet
-  vpc_id                = module.networking.vpc_id
-  multi_az              = var.environment == "prod" ? true : false
-}
+# module "toggles_database" {
+#   source = "./rds"
+#
+#   db_name               = "unleash"
+#   instance_class        = var.environment == "intg" ? "db.t3.micro" : "db.m5.large"
+#   parameter_group_name  = module.parameter_groups.rds_pg_param_group_name
+#   prefix                = "${local.prefix}-toggles"
+#   postgres_version      = var.postgres_rds_version
+#   security_group_ids    = [module.toggles_application.ecs_security_group_id, module.bastion.security_group_id]
+#   storage_backup_period = 1
+#   storage_size          = 5
+#   subnet_group_name     = local.db_subnet
+#   vpc_id                = module.networking.vpc_id
+#   multi_az              = var.environment == "prod" ? true : false
+# }
 
 module "toggles_database_v2" {
   source = "./rds"
@@ -359,7 +359,7 @@ module "toggles_application" {
   fluentbit_ecr_url                          = module.fluentbit_ecr.ecr_url
   private_subnet_ids                         = module.networking.private_subnet_ids
   health_check_path                          = "/health"
-  additional_task_execution_role_policy_arns = { "RDS_access" : module.toggles_database.rds_full_access_policy_arn }
+  additional_task_execution_role_policy_arns = { "RDS_access" : module.toggles_database_v2.rds_full_access_policy_arn }
   aws_cloudwatch_log_group_id                = module.logging.cloudwatch_log_group_id
   aws_cloudwatch_log_group_name              = module.logging.cloudwatch_log_group_name
   logs_bucket_name                           = module.logging.logs_bucket_name
@@ -404,7 +404,7 @@ module "auth_application" {
   fluentbit_ecr_url                          = module.fluentbit_ecr.ecr_url
   private_subnet_ids                         = module.networking.private_subnet_ids
   health_check_path                          = "/auth/healthcheck"
-  additional_task_execution_role_policy_arns = { "RDS_access" : module.auth_database.rds_full_access_policy_arn }
+  additional_task_execution_role_policy_arns = { "RDS_access" : module.auth_database_v2.rds_full_access_policy_arn }
   aws_cloudwatch_log_group_id                = module.logging.cloudwatch_log_group_id
   aws_cloudwatch_log_group_name              = module.logging.cloudwatch_log_group_name
   logs_bucket_name                           = module.logging.logs_bucket_name
@@ -429,21 +429,21 @@ module "auth_application" {
   cloudwatch_ecs_events_arn = module.logging.cloudwatch_ecs_events_arn
 }
 
-module "auth_database" {
-  source = "./rds"
-
-  db_name               = "epb"
-  instance_class        = var.environment == "intg" ? "db.t3.micro" : "db.m5.large"
-  parameter_group_name  = module.parameter_groups.rds_pg_param_group_name
-  postgres_version      = var.postgres_rds_version
-  prefix                = "${local.prefix}-auth"
-  security_group_ids    = [module.auth_application.ecs_security_group_id, module.bastion.security_group_id]
-  storage_backup_period = 1 # to prevent weird behaviour when the backup window is set to 0
-  storage_size          = 5
-  subnet_group_name     = local.db_subnet
-  vpc_id                = module.networking.vpc_id
-  multi_az              = var.environment == "prod" ? true : false
-}
+# module "auth_database" {
+#   source = "./rds"
+#
+#   db_name               = "epb"
+#   instance_class        = var.environment == "intg" ? "db.t3.micro" : "db.m5.large"
+#   parameter_group_name  = module.parameter_groups.rds_pg_param_group_name
+#   postgres_version      = var.postgres_rds_version
+#   prefix                = "${local.prefix}-auth"
+#   security_group_ids    = [module.auth_application.ecs_security_group_id, module.bastion.security_group_id]
+#   storage_backup_period = 1 # to prevent weird behaviour when the backup window is set to 0
+#   storage_size          = 5
+#   subnet_group_name     = local.db_subnet
+#   vpc_id                = module.networking.vpc_id
+#   multi_az              = var.environment == "prod" ? true : false
+# }
 
 module "auth_database_v2" {
   source = "./rds"
@@ -890,12 +890,10 @@ module "bastion" {
   subnet_id = module.networking.private_subnet_ids[0]
   vpc_id    = module.networking.vpc_id
   rds_access_policy_arns = {
-    "Auth" : module.auth_database.rds_full_access_policy_arn
-    "Toggles" : module.toggles_database.rds_full_access_policy_arn
+    "API" : module.register_api_database_v2.rds_full_access_policy_arn
+    "Auth" : module.auth_database_v2.rds_full_access_policy_arn
+    "Toggles" : module.toggles_database_v2.rds_full_access_policy_arn
     "Warehouse" : module.warehouse_database.rds_full_access_policy_arn
-    "API-v2" : module.register_api_database_v2.rds_full_access_policy_arn
-    "Toggles-v2" : module.toggles_database_v2.rds_full_access_policy_arn
-    "Auth-v2" : module.auth_database_v2.rds_full_access_policy_arn
   }
 }
 
@@ -962,8 +960,8 @@ module "alerts" {
   }
 
   rds_instances = {
-    auth_service = module.auth_database.rds_instance_identifier
-    toggles      = module.toggles_database.rds_instance_identifier
+    auth_service = module.auth_database_v2.rds_instance_identifier
+    toggles      = module.toggles_database_v2.rds_instance_identifier
   }
 
   rds_clusters = {
