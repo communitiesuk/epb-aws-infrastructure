@@ -112,9 +112,9 @@ module "secrets" {
     "RDS_AUTH_SERVICE_CONNECTION_STRING" : module.auth_database.rds_db_connection_string
     "RDS_AUTH_SERVICE_PASSWORD" : module.auth_database.rds_db_password
     "RDS_AUTH_SERVICE_USERNAME" : module.auth_database.rds_db_username
-    # "RDS_AUTH_V2_SERVICE_CONNECTION_STRING" : module.auth_database_v2.rds_db_connection_string
-    # "RDS_AUTH_V2_SERVICE_PASSWORD" : module.auth_database_v2.rds_db_password
-    # "RDS_AUTH_V2_SERVICE_USERNAME" : module.auth_database_v2.rds_db_username
+    "RDS_AUTH_V2_SERVICE_CONNECTION_STRING" : module.auth_database_v2.rds_db_connection_string
+    "RDS_AUTH_V2_SERVICE_PASSWORD" : module.auth_database_v2.rds_db_password
+    "RDS_AUTH_V2_SERVICE_USERNAME" : module.auth_database_v2.rds_db_username
     "RDS_TOGGLES_CONNECTION_STRING" : module.toggles_database.rds_db_connection_string
     "RDS_TOGGLES_PASSWORD" : module.toggles_database.rds_db_password
     "RDS_TOGGLES_USERNAME" : module.toggles_database.rds_db_username
@@ -393,8 +393,7 @@ module "auth_application" {
   egress_ports          = [80, 443, 5432, var.parameters["LOGSTASH_PORT"]]
   environment_variables = {}
   secrets = {
-    "DATABASE_URL" : module.secrets.secret_arns["RDS_AUTH_SERVICE_CONNECTION_STRING"],
-    # "DATABASE_URL" : module.secrets.secret_arns["RDS_AUTH_V2_SERVICE_CONNECTION_STRING"],
+    "DATABASE_URL" : module.secrets.secret_arns["RDS_AUTH_V2_SERVICE_CONNECTION_STRING"],
     "EPB_UNLEASH_URI" : module.secrets.secret_arns["EPB_UNLEASH_URI"]
   }
   parameters = merge(module.parameter_store.parameter_arns, {
@@ -460,8 +459,8 @@ module "auth_database_v2" {
   subnet_group_name     = local.db_subnet
   vpc_id                = module.networking.vpc_id
   multi_az              = var.environment == "prod" ? true : false
-  # name_suffix           = "v2"
-  # kms_key_id            = module.rds_kms_key.key_arn
+  name_suffix           = "v2"
+  kms_key_id            = module.rds_kms_key.key_arn
 }
 
 module "register_api_application" {
