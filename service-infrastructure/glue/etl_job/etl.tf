@@ -9,6 +9,5 @@ resource "aws_glue_job" "this" {
     script_location = "s3://${var.bucket_name}/${aws_s3_object.this.key}"
   }
   default_arguments = var.arguments
-
 }
 
