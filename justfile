@@ -222,7 +222,7 @@ tf-init path="." backend="" profile="$AWS_PROFILE": _ensure_aws_profile
         cd {{path}} && aws-vault exec {{profile}} -- terraform init -backend-config={{backend}} -reconfigure
     else
         echo "initialising terraform with profile {{profile}}"
-        cd {{path}} && pwd && aws-vault exec {{profile}} -- terraform init
+        cd {{path}} && aws-vault exec {{profile}} -- terraform init
     fi
 
 # does few things for convenience to start working with terraform against different environment. profile = environment unless specified. Profile must be one of 'integration', 'staging' or 'production' 
