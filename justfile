@@ -214,15 +214,15 @@ tf-destroy path="." force="false": _ensure_aws_profile
        - && aws-vault exec $AWS_PROFILE -- terraform destroy
     fi
 
-tf-init path="." backend="": _ensure_aws_profile
+tf-init path="." backend="" profile="$AWS_PROFILE": _ensure_aws_profile
     #!/usr/bin/env bash
 
     if [ "{{backend}}" != "" ]; then
-        echo "initialising terraform with backend {{backend}}"
-        cd {{path}} && aws-vault exec $AWS_PROFILE -- terraform init -backend-config={{backend}} -reconfigure
+        echo "initialising terraform with backend {{backend}} and profile {{profile}}"
+        cd {{path}} && aws-vault exec {{profile}} -- terraform init -backend-config={{backend}} -reconfigure
     else
-        echo "initialising terraform"
-        cd {{path}} && aws-vault exec $AWS_PROFILE -- terraform init
+        echo "initialising terraform with profile {{profile}}"
+        cd {{path}} && pwd && aws-vault exec {{profile}} -- terraform init
     fi
 
 # does few things for convenience to start working with terraform against different environment. profile = environment unless specified. Profile must be one of 'integration', 'staging' or 'production' 
@@ -237,8 +237,8 @@ tf-env environment profile="": _ensure_aws_profile
 
     echo "setting terraform workspace {{environment}} with profile $PROFILE and backend config $BACKEND_CONFIG"
     just set-profile $PROFILE
-    just tfvars-get service-infrastructure {{environment}}
-    just tf-init service-infrastructure $BACKEND_CONFIG
+    just tfvars-get service-infrastructure {{environment}} $PROFILE
+    just tf-init service-infrastructure $BACKEND_CONFIG $PROFILE
 
 # Updates tfvars file in S3 with values from local file. environment should be one of 'integration', 'staging' or 'production'
 tfvars-put path="." environment="integration": _ensure_aws_profile
@@ -265,11 +265,11 @@ tfvars-put-for-ci path="./ci": _ensure_aws_profile
     printf "${bg_red}KEEP MUM - THE WORLD HAS EARS!${clear}\n${green}Always run '${cyan}rm -f {*.tfvars,.*.tfvars}${green}' once you've applied your changes!\n\n"
 
 # Updates local tfvars file with values stored in S3 bucket. environment should be one of 'integration', 'staging' or 'production'
-tfvars-get path="." environment="integration": _ensure_aws_profile
+tfvars-get path="." environment="integration" profile="$AWS_PROFILE": _ensure_aws_profile
     #!/usr/bin/env bash
 
     cd {{path}}
-    aws-vault exec $AWS_PROFILE -- aws s3api get-object --bucket epbr-{{environment}}-terraform-state --key .tfvars {{environment}}.tfvars
+    aws-vault exec {{profile}} -- aws s3api get-object --bucket epbr-{{environment}}-terraform-state --key .tfvars {{environment}}.tfvars
     cp {{environment}}.tfvars .auto.tfvars
 
     bg_red='\033[0;41m'
