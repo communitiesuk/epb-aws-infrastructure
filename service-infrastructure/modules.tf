@@ -119,6 +119,10 @@ module "secrets" {
     "RDS_WAREHOUSE_READER_CONNECTION_STRING" : module.warehouse_database.rds_db_reader_connection_string
     "RDS_WAREHOUSE_PASSWORD" : module.warehouse_database.rds_db_password
     "RDS_WAREHOUSE_USERNAME" : module.warehouse_database.rds_db_username
+    # "RDS_WAREHOUSE_V2_CONNECTION_STRING" : module.warehouse_database_v2.rds_db_connection_string
+    # "RDS_WAREHOUSE_V2_READER_CONNECTION_STRING" : module.warehouse_database_v2.rds_db_reader_connection_string
+    # "RDS_WAREHOUSE_V2_PASSWORD" : module.warehouse_database_v2.rds_db_password
+    # "RDS_WAREHOUSE_V2_USERNAME" : module.warehouse_database_v2.rds_db_username
     "UD_BUCKET_NAME" : module.user_data.bucket_name
     "WAREHOUSE_EXPORT_BUCKET_NAME" : module.warehouse_document_export.bucket_name
     "WAREHOUSE_EXPORT_BUCKET_ACCESS_KEY" : module.warehouse_document_export.s3_access_key
@@ -567,6 +571,7 @@ module "warehouse_scheduled_tasks_application" {
   environment_variables = {}
   secrets = {
     "DATABASE_URL" : module.secrets.secret_arns["RDS_WAREHOUSE_CONNECTION_STRING"],
+    # "DATABASE_URL" : module.secrets.secret_arns["RDS_WAREHOUSE_V2_CONNECTION_STRING"],
     "UD_BUCKET_NAME" : module.secrets.secret_arns["UD_BUCKET_NAME"],
   }
   parameters = merge(module.parameter_store.parameter_arns, {
@@ -578,6 +583,7 @@ module "warehouse_scheduled_tasks_application" {
   health_check_path  = "/healthcheck"
   additional_task_execution_role_policy_arns = {
     "RDS_access" : module.warehouse_database.rds_full_access_policy_arn,
+    # "RDS_access" : module.warehouse_database_v2.rds_full_access_policy_arn,
   }
   additional_task_role_policy_arns = {
     "UserData_S3_access" : module.user_data.s3_write_access_policy_arn
@@ -741,6 +747,7 @@ module "warehouse_application" {
   has_exec_cmd_task     = true
   secrets = {
     "DATABASE_URL" : module.secrets.secret_arns["RDS_WAREHOUSE_CONNECTION_STRING"],
+    # "DATABASE_URL" : module.secrets.secret_arns["RDS_WAREHOUSE_V2_CONNECTION_STRING"],
     "EPB_API_URL" : module.secrets.secret_arns["EPB_API_URL"],
     "EPB_AUTH_SERVER" : module.secrets.secret_arns["EPB_AUTH_SERVER"],
     "EPB_QUEUES_URI" : module.secrets.secret_arns["EPB_QUEUES_URI"],
@@ -763,6 +770,7 @@ module "warehouse_application" {
   }
   additional_task_execution_role_policy_arns = {
     "RDS_access" : module.warehouse_database.rds_full_access_policy_arn
+    # "RDS_access" : module.warehouse_database_v2.rds_full_access_policy_arn
     "Redis_access" : data.aws_iam_policy.elasticache_full_access.arn
   }
   aws_cloudwatch_log_group_id   = module.logging.cloudwatch_log_group_id
@@ -785,6 +793,7 @@ module "warehouse_api_application" {
   environment_variables = {}
   secrets = {
     "DATABASE_URL" : module.secrets.secret_arns["RDS_WAREHOUSE_READER_CONNECTION_STRING"],
+    # "DATABASE_URL" : module.secrets.secret_arns["RDS_WAREHOUSE_V2_READER_CONNECTION_STRING"],
     "EPB_AUTH_CLIENT_ID" : module.parameter_store.parameter_arns["WAREHOUSE_EPB_AUTH_CLIENT_ID"],
     "EPB_AUTH_CLIENT_SECRET" : module.parameter_store.parameter_arns["WAREHOUSE_EPB_AUTH_CLIENT_SECRET"]
     "EPB_AUTH_SERVER" : module.secrets.secret_arns["EPB_AUTH_SERVER"],
@@ -801,6 +810,7 @@ module "warehouse_api_application" {
   health_check_path  = "/healthcheck"
   additional_task_execution_role_policy_arns = {
     "RDS_access" : module.warehouse_database.rds_full_access_policy_arn
+    # "RDS_access" : module.warehouse_database_v2.rds_full_access_policy_arn
   }
   aws_cloudwatch_log_group_id   = module.logging.cloudwatch_log_group_id
   aws_cloudwatch_log_group_name = module.logging.cloudwatch_log_group_name
@@ -835,6 +845,7 @@ module "warehouse_database" {
   vpc_id                        = module.networking.vpc_id
   scaling_configuration         = var.environment == "prod" ? { max_capacity = 64, min_capacity = 2 } : { max_capacity = 16, min_capacity = 0.5 }
 }
+
 
 module "warehouse_database_v2" {
   source = "./aurora_rds"
@@ -872,6 +883,7 @@ module "bastion" {
     "Auth" : module.auth_database_v2.rds_full_access_policy_arn
     "Toggles" : module.toggles_database_v2.rds_full_access_policy_arn
     "Warehouse" : module.warehouse_database.rds_full_access_policy_arn
+    # "Warehouse" : module.warehouse_database_v2.rds_full_access_policy_arn
   }
 }
 
@@ -943,7 +955,8 @@ module "alerts" {
   }
 
   rds_clusters = {
-    warehouse      = module.warehouse_database.rds_cluster_identifier
+    warehouse = module.warehouse_database.rds_cluster_identifier
+    # warehouse      = module.warehouse_database_v2.rds_cluster_identifier
     api_service_v2 = module.register_api_database_v2.rds_cluster_identifier
   }
 
@@ -1038,9 +1051,10 @@ module "dashboard" {
 # The "rds_export_to_s3" module code is based on:
 # https://github.com/binbashar/terraform-aws-rds-export-to-s3/tree/master
 module "rds_export_to_s3" {
-  source                     = "./rds_export_to_s3"
-  prefix                     = local.prefix
-  database_names             = module.warehouse_database.rds_cluster_identifier
+  source         = "./rds_export_to_s3"
+  prefix         = local.prefix
+  database_names = module.warehouse_database.rds_cluster_identifier
+  # database_names             = module.warehouse_database_v2.rds_cluster_identifier
   snapshots_bucket_name      = local.rds_snapshot_backup_bucket
   snapshots_bucket_prefix    = "rds_snapshots/"
   create_customer_kms_key    = true
@@ -1109,12 +1123,15 @@ module "backup-vault" {
 }
 
 module "data_warehouse_glue" {
-  source                     = "./glue"
-  prefix                     = local.prefix
-  subnet_group_id            = module.networking.private_db_subnet_first_id
-  db_instance                = module.warehouse_database.rds_db_reader_endpoint
-  db_user                    = module.warehouse_database.rds_db_username
-  db_password                = module.warehouse_database.rds_db_password
+  source          = "./glue"
+  prefix          = local.prefix
+  subnet_group_id = module.networking.private_db_subnet_first_id
+  db_instance     = module.warehouse_database.rds_db_reader_endpoint
+  db_user         = module.warehouse_database.rds_db_username
+  db_password     = module.warehouse_database.rds_db_password
+  # db_instance                = module.warehouse_database_v2.rds_db_reader_endpoint
+  # db_user                    = module.warehouse_database_v2.rds_db_username
+  # db_password                = module.warehouse_database_v2.rds_db_password
   subnet_group_az            = module.networking.private_db_subnet_first_az
   vpc_id                     = module.networking.vpc_id
   output_bucket_name         = module.user_data.bucket_name
