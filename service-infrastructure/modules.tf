@@ -583,7 +583,7 @@ module "warehouse_scheduled_tasks_application" {
   health_check_path  = "/healthcheck"
   additional_task_execution_role_policy_arns = {
     "RDS_access" : module.warehouse_database.rds_full_access_policy_arn,
-    # "RDS_access" : module.warehouse_database_v2.rds_full_access_policy_arn,
+    # "RDS_v2_access" : module.warehouse_database_v2.rds_full_access_policy_arn,
   }
   additional_task_role_policy_arns = {
     "UserData_S3_access" : module.user_data.s3_write_access_policy_arn
@@ -770,7 +770,7 @@ module "warehouse_application" {
   }
   additional_task_execution_role_policy_arns = {
     "RDS_access" : module.warehouse_database.rds_full_access_policy_arn
-    # "RDS_access" : module.warehouse_database_v2.rds_full_access_policy_arn
+    # "RDS_v2_access" : module.warehouse_database_v2.rds_full_access_policy_arn
     "Redis_access" : data.aws_iam_policy.elasticache_full_access.arn
   }
   aws_cloudwatch_log_group_id   = module.logging.cloudwatch_log_group_id
@@ -810,7 +810,7 @@ module "warehouse_api_application" {
   health_check_path  = "/healthcheck"
   additional_task_execution_role_policy_arns = {
     "RDS_access" : module.warehouse_database.rds_full_access_policy_arn
-    # "RDS_access" : module.warehouse_database_v2.rds_full_access_policy_arn
+    # "RDS_access_v2" : module.warehouse_database_v2.rds_full_access_policy_arn
   }
   aws_cloudwatch_log_group_id   = module.logging.cloudwatch_log_group_id
   aws_cloudwatch_log_group_name = module.logging.cloudwatch_log_group_name
@@ -850,7 +850,7 @@ module "warehouse_database" {
 module "warehouse_database_v2" {
   source = "./aurora_rds"
 
-  cluster_parameter_group_name  = var.data_warehouse_postgres_aurora_version == "17.4" ? module.parameter_groups.aurora_pg_17_serverless_param_group_name : module.parameter_groups.aurora_pg_serverless_param_group_name
+  cluster_parameter_group_name  = startswith(var.data_warehouse_postgres_aurora_version, "17") ? module.parameter_groups.aurora_pg_17_serverless_param_group_name : module.parameter_groups.aurora_pg_serverless_param_group_name
   db_name                       = "epb"
   instance_class                = "db.serverless"
   instance_parameter_group_name = module.parameter_groups.aurora_pg_param_group_name
@@ -861,6 +861,8 @@ module "warehouse_database_v2" {
   subnet_group_name             = local.db_subnet
   vpc_id                        = module.networking.vpc_id
   scaling_configuration         = var.environment == "prod" ? { max_capacity = 64, min_capacity = 2 } : { max_capacity = 16, min_capacity = 0.5 }
+  name_suffix                   = "v2"
+  kms_key_id                    = module.rds_kms_key.key_arn
 }
 
 module "warehouse_redis" {
@@ -883,7 +885,7 @@ module "bastion" {
     "Auth" : module.auth_database_v2.rds_full_access_policy_arn
     "Toggles" : module.toggles_database_v2.rds_full_access_policy_arn
     "Warehouse" : module.warehouse_database.rds_full_access_policy_arn
-    # "Warehouse" : module.warehouse_database_v2.rds_full_access_policy_arn
+    # "Warehouse-v2" : module.warehouse_database_v2.rds_full_access_policy_arn
   }
 }
 
