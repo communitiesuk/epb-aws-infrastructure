@@ -23,3 +23,7 @@ output "rds_db_connection_string" {
   value       = local.connection_string
   sensitive   = true
 }
+
+output "rds_db_arn" {
+  value = aws_db_instance.postgres_rds.arn
+}

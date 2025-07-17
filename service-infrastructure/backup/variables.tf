@@ -11,8 +11,8 @@ variable "backup_account_vault_name" {
   type    = string
 }
 
-variable "database_to_backup_arn" {
-  type = string
+variable "databases_to_backup_arn" {
+  type = list(string)
 }
 
 variable "backup_frequency" {

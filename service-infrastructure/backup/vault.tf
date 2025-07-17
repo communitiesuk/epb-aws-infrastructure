@@ -51,9 +51,7 @@ resource "aws_backup_selection" "this" {
   name         = "resource_assignment"
   plan_id      = aws_backup_plan.this.id
 
-  resources = [
-    var.database_to_backup_arn
-  ]
+  resources = var.databases_to_backup_arn
 }
 
 resource "aws_iam_role" "this" {

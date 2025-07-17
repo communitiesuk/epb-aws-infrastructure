@@ -1080,12 +1080,16 @@ module "rds_kms_key" {
 }
 
 module "backup-vault" {
-  source                 = "./backup"
-  prefix                 = local.prefix
-  backup_account_id      = var.backup_account_id
-  database_to_backup_arn = module.register_api_database_v2.rds_db_arn
-  kms_key_arn            = module.rds_kms_key.key_arn
-  backup_frequency       = var.environment == "prod" ? "cron(45 1 * * ? *)" : "cron(45 1 ? * wed *)"
+  source            = "./backup"
+  prefix            = local.prefix
+  backup_account_id = var.backup_account_id
+  databases_to_backup_arn = [
+    module.register_api_database_v2.rds_db_arn,
+    module.auth_database_v2.rds_db_arn,
+    module.toggles_database_v2.rds_db_arn
+  ]
+  kms_key_arn      = module.rds_kms_key.key_arn
+  backup_frequency = var.environment == "prod" ? "cron(45 1 * * ? *)" : "cron(45 1 ? * wed *)"
 }
 
 module "data_warehouse_glue" {
