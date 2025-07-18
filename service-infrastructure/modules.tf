@@ -1110,7 +1110,8 @@ module "backup-vault" {
   databases_to_backup_arn = [
     module.register_api_database_v2.rds_db_arn,
     module.auth_database_v2.rds_db_arn,
-    module.toggles_database_v2.rds_db_arn
+    module.toggles_database_v2.rds_db_arn,
+    module.warehouse_database_v2.rds_db_arn
   ]
   kms_key_arn      = module.rds_kms_key.key_arn
   backup_frequency = var.environment == "prod" ? "cron(45 1 * * ? *)" : "cron(45 1 ? * wed *)"
