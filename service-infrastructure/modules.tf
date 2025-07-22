@@ -115,10 +115,6 @@ module "secrets" {
     "RDS_TOGGLES_V2_CONNECTION_STRING" : module.toggles_database_v2.rds_db_connection_string
     "RDS_TOGGLES_V2_PASSWORD" : module.toggles_database_v2.rds_db_password
     "RDS_TOGGLES_V2_USERNAME" : module.toggles_database_v2.rds_db_username
-    "RDS_WAREHOUSE_CONNECTION_STRING" : module.warehouse_database.rds_db_connection_string
-    "RDS_WAREHOUSE_READER_CONNECTION_STRING" : module.warehouse_database.rds_db_reader_connection_string
-    "RDS_WAREHOUSE_PASSWORD" : module.warehouse_database.rds_db_password
-    "RDS_WAREHOUSE_USERNAME" : module.warehouse_database.rds_db_username
     "RDS_WAREHOUSE_V2_CONNECTION_STRING" : module.warehouse_database_v2.rds_db_connection_string
     "RDS_WAREHOUSE_V2_READER_CONNECTION_STRING" : module.warehouse_database_v2.rds_db_reader_connection_string
     "RDS_WAREHOUSE_V2_PASSWORD" : module.warehouse_database_v2.rds_db_password
@@ -824,23 +820,6 @@ module "warehouse_api_application" {
   cloudwatch_ecs_events_arn = module.logging.cloudwatch_ecs_events_arn
 }
 
-module "warehouse_database" {
-  source = "./aurora_rds"
-
-  cluster_parameter_group_name  = startswith(var.data_warehouse_postgres_aurora_version, "17") ? module.parameter_groups.aurora_pg_17_serverless_param_group_name : module.parameter_groups.aurora_pg_serverless_param_group_name
-  db_name                       = "epb"
-  instance_class                = "db.serverless"
-  instance_parameter_group_name = module.parameter_groups.aurora_pg_param_group_name
-  postgres_version              = var.data_warehouse_postgres_aurora_version
-  prefix                        = "${local.prefix}-warehouse"
-  security_group_ids            = [module.warehouse_application.ecs_security_group_id, module.bastion.security_group_id, module.warehouse_scheduled_tasks_application.ecs_security_group_id, module.warehouse_api_application.ecs_security_group_id, module.data_warehouse_glue.glue_security_group_id]
-  storage_backup_period         = var.storage_backup_period
-  subnet_group_name             = local.db_subnet
-  vpc_id                        = module.networking.vpc_id
-  scaling_configuration         = var.environment == "prod" ? { max_capacity = 64, min_capacity = 2 } : { max_capacity = 16, min_capacity = 0.5 }
-}
-
-
 module "warehouse_database_v2" {
   source = "./aurora_rds"
 
@@ -878,8 +857,7 @@ module "bastion" {
     "API" : module.register_api_database_v2.rds_full_access_policy_arn
     "Auth" : module.auth_database_v2.rds_full_access_policy_arn
     "Toggles" : module.toggles_database_v2.rds_full_access_policy_arn
-    "Warehouse" : module.warehouse_database.rds_full_access_policy_arn
-    "Warehouse-v2" : module.warehouse_database_v2.rds_full_access_policy_arn
+    "Warehouse" : module.warehouse_database_v2.rds_full_access_policy_arn
   }
 }
 
@@ -1114,7 +1092,7 @@ module "backup-vault" {
     module.warehouse_database_v2.rds_db_arn
   ]
   kms_key_arn      = module.rds_kms_key.key_arn
-  backup_frequency = var.environment == "prod" ? "cron(45 1 * * ? *)" : "cron(45 1 ? * wed *)"
+  backup_frequency = var.environment == "prod" ? "cron(01 4 * * ? *)" : "cron(01 4 * * ? *)"
 }
 
 module "data_warehouse_glue" {
