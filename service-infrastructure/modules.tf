@@ -1095,7 +1095,7 @@ module "backup-vault" {
     module.warehouse_database_v2.rds_db_arn
   ]
   kms_key_arn      = module.rds_kms_key.key_arn
-  backup_frequency = var.environment == "prod" ? "cron(01 4 * * ? *)" : "cron(01 4 * * ? *)"
+  backup_frequency = var.environment == "prod" ? "cron(01 4 * * ? *)" : "cron(01 4 ? * wed *)"
 }
 
 module "data_warehouse_glue" {
