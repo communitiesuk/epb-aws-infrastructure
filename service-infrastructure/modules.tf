@@ -5,6 +5,8 @@ locals {
     Name      = "${local.prefix}-${local.rds_snapshot_backup_bucket}"
     Terraform = "true"
   }
+  security_groups     = [module.warehouse_application.ecs_security_group_id, module.bastion.security_group_id, module.warehouse_scheduled_tasks_application.ecs_security_group_id, module.warehouse_api_application.ecs_security_group_id]
+  dwh_security_groups = var.environment == "prod" ? local.security_groups : concat(local.security_groups, [module.data_warehouse_glue[0].glue_security_group_id])
 }
 
 module "account_security" {
@@ -15,10 +17,10 @@ module "data_frontend_delivery" {
   count                          = var.environment == "prod" ? 0 : 1
   source                         = "./data_frontend_delivery"
   prefix                         = local.prefix
-  athena_workgroup_arn           = module.data_warehouse_glue.athena_workgroup_arn
-  glue_s3_bucket_read_policy_arn = module.data_warehouse_glue.glue_s3_bucket_read_policy_arn
+  athena_workgroup_arn           = module.data_warehouse_glue[0].athena_workgroup_arn
+  glue_s3_bucket_read_policy_arn = module.data_warehouse_glue[0].glue_s3_bucket_read_policy_arn
   output_bucket_write_policy_arn = module.user_data.s3_write_access_policy_arn
-  glue_catalog_name              = module.data_warehouse_glue.glue_catalog_name
+  glue_catalog_name              = module.data_warehouse_glue[0].glue_catalog_name
   output_bucket_arn              = module.user_data.bucket_arn
   output_bucket_name             = module.user_data.bucket_name
   notify_environment = {
@@ -820,6 +822,7 @@ module "warehouse_api_application" {
   cloudwatch_ecs_events_arn = module.logging.cloudwatch_ecs_events_arn
 }
 
+
 module "warehouse_database_v2" {
   source = "./aurora_rds"
 
@@ -829,7 +832,7 @@ module "warehouse_database_v2" {
   instance_parameter_group_name = module.parameter_groups.aurora_pg_param_group_name
   postgres_version              = var.data_warehouse_postgres_aurora_version
   prefix                        = "${local.prefix}-warehouse"
-  security_group_ids            = [module.warehouse_application.ecs_security_group_id, module.bastion.security_group_id, module.warehouse_scheduled_tasks_application.ecs_security_group_id, module.warehouse_api_application.ecs_security_group_id, module.data_warehouse_glue.glue_security_group_id]
+  security_group_ids            = local.dwh_security_groups
   storage_backup_period         = var.storage_backup_period
   subnet_group_name             = local.db_subnet
   vpc_id                        = module.networking.vpc_id
@@ -1096,6 +1099,7 @@ module "backup-vault" {
 }
 
 module "data_warehouse_glue" {
+  count                      = var.environment == "prod" ? 0 : 1
   source                     = "./glue"
   prefix                     = local.prefix
   subnet_group_id            = module.networking.private_db_subnet_first_id
