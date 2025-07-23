@@ -7,6 +7,13 @@ resource "aws_cloudfront_origin_access_control" "this" {
 }
 
 resource "aws_cloudfront_distribution" "tech_docs_s3_distribution" {
+
+  comment         = "EPB tech docs CDN"
+  enabled         = true
+  is_ipv6_enabled = true
+  price_class     = "PriceClass_100" # Affects CDN distribution https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/PriceClass.html
+  aliases         = [aws_acm_certificate.cert-cdn.domain_name]
+
   origin {
     domain_name              = aws_s3_bucket.this.bucket_domain_name
     origin_id                = "S3-${var.bucket_name}"
@@ -14,11 +21,6 @@ resource "aws_cloudfront_distribution" "tech_docs_s3_distribution" {
   }
   # By default, show index.html file
   default_root_object = "index.html"
-  enabled             = true
-  is_ipv6_enabled     = true
-  price_class         = "PriceClass_100" # Affects CDN distribution https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/PriceClass.html
-  aliases             = [aws_acm_certificate.cert-cdn.domain_name]
-
 
   default_cache_behavior {
     allowed_methods  = ["GET", "HEAD"]
