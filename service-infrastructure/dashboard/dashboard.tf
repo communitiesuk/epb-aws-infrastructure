@@ -110,14 +110,14 @@ resource "aws_cloudwatch_dashboard" "main" {
         properties : {
           metrics : [
             [
-              "AWS/RDS", "CPUUtilization", "DBInstanceIdentifier", "epb-${var.environment}-toggles-postgres-db",
+              "AWS/RDS", "CPUUtilization", "DBInstanceIdentifier", "epb-${var.environment}-toggles-postgres-db-v2",
               { stat : "Average", region : var.region }
             ],
-            ["...", "epb-${var.environment}-auth-postgres-db", { stat : "Average", region : var.region }],
-            ["...", "epb-${var.environment}-warehouse-aurora-db-1", { stat : "Average", region : var.region }],
-            ["...", "epb-${var.environment}-reg-api-aurora-db-1", { stat : "Average", region : var.region }],
-            ["...", "epb-${var.environment}-reg-api-aurora-db-0", { stat : "Average", region : var.region }],
-            ["...", "epb-${var.environment}-warehouse-aurora-db-0", { stat : "Average", region : var.region }]
+            ["...", "epb-${var.environment}-auth-postgres-db-v2", { stat : "Average", region : var.region }],
+            ["...", "epb-${var.environment}-reg-api-aurora-db-v2-0", { stat : "Average", region : var.region }],
+            ["...", "epb-${var.environment}-reg-api-aurora-db-v2-1", { stat : "Average", region : var.region }],
+            ["...", "epb-${var.environment}-warehouse-aurora-db-v2-0", { stat : "Average", region : var.region }],
+            ["...", "epb-${var.environment}-warehouse-aurora-db-v2-1", { stat : "Average", region : var.region }]
           ],
           legend : {
             position : "right"
@@ -140,14 +140,14 @@ resource "aws_cloudwatch_dashboard" "main" {
         properties : {
           metrics : [
             [
-              "AWS/RDS", "DatabaseConnections", "DBInstanceIdentifier", "epb-${var.environment}-reg-api-aurora-db-1",
+              "AWS/RDS", "DatabaseConnections", "DBInstanceIdentifier", "epb-${var.environment}-toggles-postgres-db-v2",
               { region : var.region }
             ],
-            ["...", "epb-${var.environment}-warehouse-aurora-db-1", { region : var.region }],
-            ["...", "epb-${var.environment}-auth-postgres-db", { region : var.region }],
-            ["...", "epb-${var.environment}-toggles-postgres-db", { region : var.region }],
-            ["...", "epb-${var.environment}-warehouse-aurora-db-0", { region : var.region }],
-            ["...", "epb-${var.environment}-reg-api-aurora-db-0", { region : var.region }]
+            ["...", "epb-${var.environment}-auth-postgres-db-v2", { region : var.region }],
+            ["...", "epb-${var.environment}-reg-api-aurora-db-v2-0", { region : var.region }],
+            ["...", "epb-${var.environment}-reg-api-aurora-db-v2-1", { region : var.region }],
+            ["...", "epb-${var.environment}-warehouse-aurora-db-v2-0", { region : var.region }],
+            ["...", "epb-${var.environment}-warehouse-aurora-db-v2-1", { region : var.region }]
           ],
           legend : {
             position : "right"
