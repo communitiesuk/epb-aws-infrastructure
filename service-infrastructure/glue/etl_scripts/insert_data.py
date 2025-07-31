@@ -41,6 +41,8 @@ spark.sql(f"""
 MERGE INTO glue_catalog.{DATABASE_NAME}.{CATALOG_TABLE_NAME} AS target
 USING {SOURCE_VIEW_TABLE_NAME} AS source 
 ON target.rrn = source.rrn 
+WHEN MATCHED 
+            THEN UPDATE SET *
 WHEN NOT MATCHED THEN 
     INSERT ({column_list}) VALUES ({value_list})
 """)
