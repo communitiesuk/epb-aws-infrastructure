@@ -59,6 +59,12 @@ module "cdn_certificate" {
   subject_alternative_names = var.subject_alternative_names
 }
 
+module "ssl_certificate_data" {
+  source                    = "./ssl"
+  domain_name               = var.data_service_url
+  subject_alternative_names = var.subject_alternative_names
+}
+
 # This being on us-east-1 is a requirement for CloudFront to use the WAF
 module "waf" {
   source = "./waf"
@@ -812,6 +818,20 @@ module "warehouse_api_application" {
   has_target_tracking           = false
   internal_alb_config = {
     ssl_certificate_arn = module.ssl_certificate.certificate_arn
+  }
+  front_door_config = {
+    ssl_certificate_arn = module.ssl_certificate.certificate_arn
+    cdn_certificate_arn = module.cdn_certificate.certificate_arn
+    cdn_allowed_methods = ["GET", "HEAD", "OPTIONS"]
+    cdn_cached_methods  = ["GET", "HEAD", "OPTIONS"]
+    cdn_cache_ttl       = 0
+    cdn_aliases = toset(["api.${var.data_service_url}"])
+    waf_acl_arn                    = module.waf.waf_acl_arn
+    public_subnet_ids              = module.networking.public_subnet_ids
+    path_based_routing_overrides   = []
+    extra_lb_target_groups         = 0
+    cdn_include_static_error_pages = true
+    error_pages_bucket_name        = module.error_pages.error_pages_bucket_name
   }
   task_max_capacity         = var.task_max_capacity
   task_desired_capacity     = var.task_desired_capacity
