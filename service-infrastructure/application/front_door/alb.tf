@@ -89,7 +89,7 @@ resource "aws_lb_listener" "public_https" {
   ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"
 
   # When trying to associate certificate with the listener, you may see terraform errors if the certificate hasn't been validated yet
-  # See "Setting up SSL Certificates" in README for more info
+  # See "Setting up SSL Certificates" in README for more info›
   certificate_arn = var.ssl_certificate_arn
 
   default_action {

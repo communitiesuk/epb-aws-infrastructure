@@ -60,10 +60,19 @@ module "cdn_certificate" {
   subject_alternative_names = var.subject_alternative_names
 }
 
-module "ssl_certificate_data" {
+module "ssl_certificate_epb_data" {
   source                    = "./ssl"
-  domain_name               = var.data_service_url
-  subject_alternative_names = var.subject_alternative_names
+  domain_name               = local.data_service_url
+  subject_alternative_names = []
+}
+
+module "cdn_certificate_epb_data" {
+  source                    = "./ssl"
+  providers = {
+    aws = aws.us-east
+  }
+  domain_name               = local.data_service_url
+  subject_alternative_names = []
 }
 
 # This being on us-east-1 is a requirement for CloudFront to use the WAF
@@ -821,12 +830,12 @@ module "warehouse_api_application" {
     ssl_certificate_arn = module.ssl_certificate.certificate_arn
   }
   front_door_config = {
-    ssl_certificate_arn = module.ssl_certificate.certificate_arn
-    cdn_certificate_arn = module.cdn_certificate.certificate_arn
+    ssl_certificate_arn = module.ssl_certificate_epb_data.certificate_arn
+    cdn_certificate_arn = module.cdn_certificate_epb_data.certificate_arn
     cdn_allowed_methods = ["GET", "HEAD", "OPTIONS"]
     cdn_cached_methods  = ["GET", "HEAD", "OPTIONS"]
     cdn_cache_ttl       = 0
-    cdn_aliases = toset(["api.${var.data_service_url}"])
+    cdn_aliases = []
     waf_acl_arn                    = module.waf.waf_acl_arn
     public_subnet_ids              = module.networking.public_subnet_ids
     path_based_routing_overrides   = []
