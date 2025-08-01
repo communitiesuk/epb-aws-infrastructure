@@ -7,6 +7,7 @@ locals {
   }
   security_groups     = [module.warehouse_application.ecs_security_group_id, module.bastion.security_group_id, module.warehouse_scheduled_tasks_application.ecs_security_group_id, module.warehouse_api_application.ecs_security_group_id]
   dwh_security_groups = var.environment == "prod" ? local.security_groups : concat(local.security_groups, [module.data_warehouse_glue[0].glue_security_group_id])
+  data_service_url = replace(var.data_service_url, ".digital", "")
 }
 
 module "account_security" {
@@ -57,6 +58,21 @@ module "cdn_certificate" {
   }
   domain_name               = var.domain_name
   subject_alternative_names = var.subject_alternative_names
+}
+
+module "ssl_certificate_epb_data" {
+  source                    = "./ssl"
+  domain_name               = local.data_service_url
+  subject_alternative_names = []
+}
+
+module "cdn_certificate_epb_data" {
+  source                    = "./ssl"
+  providers = {
+    aws = aws.us-east
+  }
+  domain_name               = local.data_service_url
+  subject_alternative_names = []
 }
 
 # This being on us-east-1 is a requirement for CloudFront to use the WAF
