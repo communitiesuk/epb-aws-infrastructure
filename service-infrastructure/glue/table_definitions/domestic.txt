@@ -1,4 +1,4 @@
-rrn string,
+certificate_number string,
 address1 string,
 address2 string,
 address3 string,

@@ -38,7 +38,7 @@ AWSGlueDataCatalog_node1749633070809_df = glueContext.create_data_frame.from_cat
 
 
 spark.sql(f""" 
-DELETE FROM glue_catalog.{DATABASE_NAME}.{CATALOG_TABLE_NAME} WHERE rrn IN (SELECT assessment_id FROM {SOURCE_TABLE_NAME} WHERE event_type IN ('cancelled', 'opt_out'))
+DELETE FROM glue_catalog.{DATABASE_NAME}.{CATALOG_TABLE_NAME} WHERE certificate_number IN (SELECT assessment_id FROM {SOURCE_TABLE_NAME} WHERE event_type IN ('cancelled', 'opt_out'))
 """)
 
 job.commit()

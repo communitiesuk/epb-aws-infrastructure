@@ -72,9 +72,9 @@ if TABLE_NAME_RR:
     )
 
     joined_df = (
-        df.select("rrn", "year")
-        .dropDuplicates(["rrn"])
-        .join(df_rr, on="rrn", how="inner")
+        df.select("certificate_number", "year")
+        .dropDuplicates(["certificate_number"])
+        .join(df_rr, on="certificate_number", how="inner")
     )
 
 

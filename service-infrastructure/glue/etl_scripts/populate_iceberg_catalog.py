@@ -137,7 +137,7 @@ value_list = ", ".join([f"source.{col}" for col in columns])
 spark.sql(f"""
 MERGE INTO glue_catalog.{DATABASE_NAME}.{CATALOG_TABLE_NAME} AS target
 USING {DB_TABLE_NAME} AS source
-ON target.rrn = source.rrn
+ON target.certificate_number = source.certificate_number
 WHEN MATCHED 
             THEN UPDATE SET *
 WHEN NOT MATCHED THEN
