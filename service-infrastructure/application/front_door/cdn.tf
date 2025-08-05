@@ -14,7 +14,7 @@ resource "aws_cloudfront_distribution" "cdn" {
   is_ipv6_enabled = true
   comment         = "${var.prefix} entrypoint"
   price_class     = "PriceClass_100" # Affects CDN distribution https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/PriceClass.html
-  aliases         = [each.value]
+  aliases         = var.cdn_certificate_arn != null ? [each.value] : null
   web_acl_id      = var.waf_acl_arn
 
   origin {
@@ -83,9 +83,10 @@ resource "aws_cloudfront_distribution" "cdn" {
   }
 
   viewer_certificate {
-    acm_certificate_arn      = var.cdn_certificate_arn
-    minimum_protocol_version = "TLSv1.2_2021"
-    ssl_support_method       = "sni-only"
+    acm_certificate_arn            = var.cdn_certificate_arn
+    minimum_protocol_version       = var.cdn_certificate_arn != null ? "TLSv1.2_2021" : null
+    ssl_support_method             = var.cdn_certificate_arn != null ? "sni-only" : null
+    cloudfront_default_certificate = var.cdn_certificate_arn == null ? true : false
   }
 
   restrictions {

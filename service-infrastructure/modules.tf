@@ -7,7 +7,7 @@ locals {
   }
   security_groups     = [module.warehouse_application.ecs_security_group_id, module.bastion.security_group_id, module.warehouse_scheduled_tasks_application.ecs_security_group_id, module.warehouse_api_application.ecs_security_group_id]
   dwh_security_groups = var.environment == "prod" ? local.security_groups : concat(local.security_groups, [module.data_warehouse_glue[0].glue_security_group_id])
-  data_service_url = replace(var.data_service_url, ".digital", "")
+  data_service_url    = replace(var.data_service_url, ".digital", "")
 }
 
 module "account_security" {
@@ -63,16 +63,16 @@ module "cdn_certificate" {
 module "ssl_certificate_epb_data" {
   source                    = "./ssl"
   domain_name               = local.data_service_url
-  subject_alternative_names = []
+  subject_alternative_names = [local.data_service_url, var.data_service_url, "api.${local.data_service_url}"]
 }
 
 module "cdn_certificate_epb_data" {
-  source                    = "./ssl"
+  source = "./ssl"
   providers = {
     aws = aws.us-east
   }
   domain_name               = local.data_service_url
-  subject_alternative_names = []
+  subject_alternative_names = [local.data_service_url, var.data_service_url, "api.${local.data_service_url}"]
 }
 
 # This being on us-east-1 is a requirement for CloudFront to use the WAF
@@ -319,7 +319,7 @@ module "parameter_store" {
   }
 }
 
-# applications and backing services
+# applications and backing services—
 
 module "toggles_database_v2" {
   source = "./rds"
@@ -830,12 +830,14 @@ module "warehouse_api_application" {
     ssl_certificate_arn = module.ssl_certificate.certificate_arn
   }
   front_door_config = {
-    ssl_certificate_arn = module.ssl_certificate_epb_data.certificate_arn
-    cdn_certificate_arn = module.cdn_certificate_epb_data.certificate_arn
-    cdn_allowed_methods = ["GET", "HEAD", "OPTIONS"]
-    cdn_cached_methods  = ["GET", "HEAD", "OPTIONS"]
-    cdn_cache_ttl       = 0
-    cdn_aliases = []
+    #enble the public ALB to be created with the original ssl -- to be updated once the SSL has been verified
+    ssl_certificate_arn = module.ssl_certificate.certificate_arn
+    #created the CDN with no ssl -- to be updated once the SSL has been verified
+    cdn_certificate_arn            = null
+    cdn_allowed_methods            = ["GET", "HEAD", "OPTIONS"]
+    cdn_cached_methods             = ["GET", "HEAD", "OPTIONS"]
+    cdn_cache_ttl                  = 0
+    cdn_aliases                    = toset(["api.${local.data_service_url}"])
     waf_acl_arn                    = module.waf.waf_acl_arn
     public_subnet_ids              = module.networking.public_subnet_ids
     path_based_routing_overrides   = []
