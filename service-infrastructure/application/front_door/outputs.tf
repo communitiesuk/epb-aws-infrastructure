@@ -16,7 +16,7 @@ output "tg_arn_suffix" {
 }
 
 output "cloudfront_distribution_ids" {
-  value = [for cdn in aws_cloudfront_distribution.cdn : { id = cdn.id, name = flatten(cdn.aliases)[0] }]
+  value = try([for cdn in aws_cloudfront_distribution.cdn : { id = cdn.id, name = flatten(cdn.aliases)[0] }], [])
 }
 
 output "oai_iam_arn" {

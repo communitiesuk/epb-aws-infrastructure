@@ -67,6 +67,7 @@ resource "aws_lb_listener" "public_http" {
   port              = 80
   protocol          = "HTTP"
 
+
   default_action {
     type = "redirect"
 
