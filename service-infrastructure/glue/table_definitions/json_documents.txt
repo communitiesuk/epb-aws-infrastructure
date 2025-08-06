@@ -1,0 +1,5 @@
+certificate_number string,
+document string,
+warehouse_created_at timestamp,
+updated_at timestamp,
+assessment_type string
