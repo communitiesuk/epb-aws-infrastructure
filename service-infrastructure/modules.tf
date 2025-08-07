@@ -794,13 +794,15 @@ module "warehouse_application" {
 }
 
 module "warehouse_api_application" {
-  source                = "./application"
-  ci_account_id         = var.ci_account_id
-  prefix                = "${local.prefix}-warehouse-api"
-  region                = var.region
-  container_port        = 3001
-  egress_ports          = [80, 443, 5432, var.parameters["LOGSTASH_PORT"]]
-  environment_variables = {}
+  source         = "./application"
+  ci_account_id  = var.ci_account_id
+  prefix         = "${local.prefix}-warehouse-api"
+  region         = var.region
+  container_port = 3001
+  egress_ports   = [80, 443, 5432, var.parameters["LOGSTASH_PORT"]]
+  environment_variables = {
+    "AWS_S3_USER_DATA_BUCKET_NAME" : module.user_data.bucket_name
+  }
   secrets = {
     "DATABASE_URL" : module.secrets.secret_arns["RDS_WAREHOUSE_V2_READER_CONNECTION_STRING"],
     "EPB_AUTH_CLIENT_ID" : module.parameter_store.parameter_arns["WAREHOUSE_EPB_AUTH_CLIENT_ID"],
@@ -819,6 +821,9 @@ module "warehouse_api_application" {
   health_check_path  = "/healthcheck"
   additional_task_execution_role_policy_arns = {
     "RDS_access" : module.warehouse_database_v2.rds_full_access_policy_arn
+  }
+  additional_task_role_policy_arns = {
+    "UserData_S3_access" : module.user_data.s3_read_access_policy_arn
   }
   aws_cloudwatch_log_group_id   = module.logging.cloudwatch_log_group_id
   aws_cloudwatch_log_group_name = module.logging.cloudwatch_log_group_name
