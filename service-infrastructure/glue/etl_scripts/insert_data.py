@@ -37,14 +37,23 @@ columns = [f.name for f in spark.table(SOURCE_VIEW_TABLE_NAME).schema.fields]
 column_list = ", ".join(columns)
 value_list = ", ".join([f"source.{col}" for col in columns])
 
-spark.sql(f"""
-MERGE INTO glue_catalog.{DATABASE_NAME}.{CATALOG_TABLE_NAME} AS target
-USING {SOURCE_VIEW_TABLE_NAME} AS source 
-ON target.certificate_number = source.certificate_number 
-WHEN MATCHED 
-            THEN UPDATE SET *
-WHEN NOT MATCHED THEN 
-    INSERT ({column_list}) VALUES ({value_list})
-""")
+if "_rr" in CATALOG_TABLE_NAME:
+    spark.sql(f"""
+    MERGE INTO glue_catalog.{DATABASE_NAME}.{CATALOG_TABLE_NAME} AS target
+    USING {SOURCE_VIEW_TABLE_NAME} AS source 
+    ON target.certificate_number = source.certificate_number 
+    WHEN NOT MATCHED THEN 
+        INSERT ({column_list}) VALUES ({value_list})
+    """)
+else:
+    spark.sql(f"""
+    MERGE INTO glue_catalog.{DATABASE_NAME}.{CATALOG_TABLE_NAME} AS target
+    USING {SOURCE_VIEW_TABLE_NAME} AS source 
+    ON target.certificate_number = source.certificate_number 
+    WHEN MATCHED 
+                THEN UPDATE SET *
+    WHEN NOT MATCHED THEN 
+        INSERT ({column_list}) VALUES ({value_list})
+    """)
 
 job.commit()
