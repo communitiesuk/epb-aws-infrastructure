@@ -835,10 +835,8 @@ module "warehouse_api_application" {
     ssl_certificate_arn = module.ssl_certificate.certificate_arn
   }
   front_door_config = {
-    #enble the public ALB to be created with the original ssl -- to be updated once the SSL has been verified
-    ssl_certificate_arn = module.ssl_certificate.certificate_arn
-    #created the CDN with no ssl -- to be updated once the SSL has been verified
-    cdn_certificate_arn            = null
+    ssl_certificate_arn            = module.ssl_certificate_epb_data.certificate_arn
+    cdn_certificate_arn            = module.cdn_certificate_epb_data.certificate_arn
     cdn_allowed_methods            = ["GET", "HEAD", "OPTIONS"]
     cdn_cached_methods             = ["GET", "HEAD", "OPTIONS"]
     cdn_cache_ttl                  = 0
