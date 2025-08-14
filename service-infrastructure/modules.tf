@@ -1146,3 +1146,11 @@ module "data_warehouse_glue" {
   output_bucket_read_policy  = module.user_data.s3_read_access_policy_arn
   output_bucket_write_policy = module.user_data.s3_write_access_policy_arn
 }
+
+module "dynamo_db" {
+  source = "./dynamo_db"
+  prefix = local.prefix
+  environment = var.environment
+  region = var.region
+  kms_key_arn = module.rds_kms_key.key_arn
+}

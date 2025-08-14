@@ -478,3 +478,21 @@ tf-switch-to profile repo:
      echo "performing tf init for {{profile}}"
      aws-vault exec {{profile}} -- terraform init -backend-config=backend_{{profile}}.hcl -reconfigure
 
+# List DynamoDB tables
+ddb-list-tables profile="$AWS_PROFILE": _ensure_aws_profile
+    #!/usr/bin/env bash
+
+    echo "Listing DynamoDB tables with profile {{profile}}"
+    aws-vault exec {{profile}} -- aws dynamodb list-tables
+
+check-vpc-endpoints profile="$AWS_PROFILE": _ensure_aws_profile
+    #!/usr/bin/env bash
+
+    echo "Verifying if DynamoDB is an available service for VPC endpoints with profile {{profile}}"
+    aws-vault exec {{profile}} -- aws ec2 describe-vpc-endpoint-services --query 'ServiceDetails[*].[ServiceName]' --output table
+
+determine-vpc-identifier profile="$AWS_PROFILE": _ensure_aws_profile
+    #!/usr/bin/env bash
+
+    echo "Determining VPC identifier with profile {{profile}}"
+    aws-vault exec {{profile}} -- aws ec2 describe-vpcs --query 'Vpcs[*].VpcId' --output text
