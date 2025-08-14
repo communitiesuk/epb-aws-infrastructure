@@ -53,7 +53,7 @@ module "populate_json_documents_etl" {
   suffix           = ".json_documents_${2012 + count.index}"
   arguments = {
     "--DATABASE_NAME"             = aws_glue_catalog_database.this.name
-    "--CATALOG_TABLE_NAME"        = "json_documents"
+    "--CATALOG_TABLE_NAME"        = "domestic_json_documents"
     "--S3_BUCKET"                 = aws_s3_bucket.this.bucket
     "--CONNECTION_NAME"           = aws_glue_connection.this.name
     "--DB_TABLE_NAME"             = "vw_domestic_documents_${2012 + count.index}"
@@ -127,3 +127,16 @@ module "export_domestic_data_by_year" {
   }
 }
 
+module "export_json_domestic_data_by_year" {
+  source           = "./etl_job"
+  bucket_name      = aws_s3_bucket.this.bucket
+  job_name         = "Export JSON domestic data by year to S3"
+  role_arn         = aws_iam_role.glueServiceRole.arn
+  script_file_name = "export_json_by_year.py"
+  scripts_module   = path.module
+  arguments = {
+    "--DATABASE_NAME" = aws_glue_catalog_database.this.name
+    "--TABLE_NAME"    = "domestic_json_documents"
+    "--S3_BUCKET"     = var.output_bucket_name
+  }
+}
