@@ -44,3 +44,8 @@ variable "glue_version" {
   type    = string
   default = "5.0"
 }
+
+variable "suffix" {
+  type    = string
+  default = ""
+}
