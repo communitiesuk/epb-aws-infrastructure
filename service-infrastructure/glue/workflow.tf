@@ -48,3 +48,37 @@ resource "aws_glue_trigger" "trigger_domestic_monthly_export" {
     job_name = module.export_domestic_data_by_year.etl_job_name
   }
 }
+
+# Chain populate domestic_json_document jobs:
+resource "aws_glue_workflow" "populate_json_documents" {
+  name = "${local.prefix}-populate_json_documents"
+}
+
+resource "aws_glue_trigger" "populate_json_documents_trigger" {
+  name          = "populate_json_documents_trigger_0"
+  type          = "ON_DEMAND"
+  workflow_name = aws_glue_workflow.populate_json_documents.name
+
+  actions {
+    job_name = module.populate_json_documents_etl[0].etl_job_name
+  }
+}
+
+resource "aws_glue_trigger" "populate_json_documents_chain" {
+  count         = 13
+  name          = "populate_json_documents_trigger_${count.index + 1}"
+  type          = "CONDITIONAL"
+  workflow_name = aws_glue_workflow.populate_json_documents.name
+
+  predicate {
+    conditions {
+      logical_operator = "EQUALS"
+      job_name         = module.populate_json_documents_etl[count.index].etl_job_name
+      state            = "SUCCEEDED"
+    }
+  }
+
+  actions {
+    job_name = module.populate_json_documents_etl[count.index + 1].etl_job_name
+  }
+}
