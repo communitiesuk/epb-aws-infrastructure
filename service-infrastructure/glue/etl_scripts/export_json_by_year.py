@@ -151,5 +151,7 @@ with S3MultipartWriter(s3_client, S3_BUCKET, ZIP_FILE_KEY, chunk_size=chunk_size
                             body = s3_client.get_object(Bucket=S3_BUCKET, Key=obj["Key"])["Body"]
                             for chunk in iter(lambda: body.read(10 * 1024 * 1024), b""):  # 10 MB
                                 zf_entry.write(chunk)
+                        s3_client.delete_object(Bucket=S3_BUCKET, Key=obj["Key"])
+
                         break
 job.commit()
