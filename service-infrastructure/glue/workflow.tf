@@ -54,9 +54,12 @@ resource "aws_glue_workflow" "populate_json_documents" {
   name = "${local.prefix}-populate_json_documents"
 }
 
+# First job to be triggered manually. If 'enabled' it will be triggered
+# automatically before terraform finishes creating all the triggers
 resource "aws_glue_trigger" "populate_json_documents_trigger" {
   name          = "populate_json_documents_trigger_0"
   type          = "ON_DEMAND"
+  enabled       = false
   workflow_name = aws_glue_workflow.populate_json_documents.name
 
   actions {
