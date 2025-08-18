@@ -857,7 +857,6 @@ module "warehouse_api_application" {
   cloudwatch_ecs_events_arn = module.logging.cloudwatch_ecs_events_arn
 }
 
-
 module "warehouse_database_v2" {
   source = "./aurora_rds"
 

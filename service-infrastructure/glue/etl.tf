@@ -41,22 +41,24 @@ module "populate_domestic_rr_etl" {
   }
 }
 
+
+
 module "populate_json_documents_etl" {
-  count            = 14
+  count            = local.number_of_jobs
   source           = "./etl_job"
   bucket_name      = aws_s3_bucket.this.bucket
   glue_connector   = [aws_glue_connection.this.name]
-  job_name         = "Populate json documents catalog ${2012 + count.index}"
+  job_name         = "Populate json documents catalog ${local.catalog_start_year + count.index}"
   role_arn         = aws_iam_role.glueServiceRole.arn
   script_file_name = "populate_iceberg_catalog.py"
   scripts_module   = path.module
-  suffix           = ".json_documents_${2012 + count.index}"
+  suffix           = ".json_documents_${local.catalog_start_year + count.index}"
   arguments = {
     "--DATABASE_NAME"             = aws_glue_catalog_database.this.name
     "--CATALOG_TABLE_NAME"        = "domestic_json_documents"
     "--S3_BUCKET"                 = aws_s3_bucket.this.bucket
     "--CONNECTION_NAME"           = aws_glue_connection.this.name
-    "--DB_TABLE_NAME"             = "vw_domestic_documents_${2012 + count.index}"
+    "--DB_TABLE_NAME"             = "vw_domestic_documents_${local.catalog_start_year + count.index}"
     "--COLUMNS"                   = templatefile("${path.module}/table_definitions/json_documents.txt", {})
     "--additional-python-modules" = "boto3==1.38.43"
   }

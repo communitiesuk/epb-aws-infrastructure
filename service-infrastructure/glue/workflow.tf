@@ -72,7 +72,7 @@ resource "aws_glue_trigger" "populate_json_documents_trigger" {
 }
 
 resource "aws_glue_trigger" "populate_json_documents_chain" {
-  count         = 13
+  count         = local.number_years
   name          = "populate_json_documents_trigger_${count.index + 1}"
   type          = "CONDITIONAL"
   workflow_name = aws_glue_workflow.populate_json_documents.name
