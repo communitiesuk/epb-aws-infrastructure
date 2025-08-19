@@ -81,3 +81,7 @@ output "address_base_updater_container_name" {
 output "address_base_ecs_task_exec_arn" {
   value = try(aws_ecs_task_definition.address_base_updater_task[0].arn, "")
 }
+
+output "ecs_role" {
+  value = aws_iam_role.ecs_task_role.arn
+}

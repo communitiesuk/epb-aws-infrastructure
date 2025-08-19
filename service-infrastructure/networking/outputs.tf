@@ -41,3 +41,7 @@ output "private_db_subnet_first_id" {
 output "private_db_subnet_first_az" {
   value = aws_subnet.private_db[0].availability_zone
 }
+
+output "route_table_ids" {
+  value = aws_route_table.private[*].id
+}

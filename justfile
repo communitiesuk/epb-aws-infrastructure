@@ -485,13 +485,13 @@ ddb-list-tables profile="$AWS_PROFILE": _ensure_aws_profile
     echo "Listing DynamoDB tables with profile {{profile}}"
     aws-vault exec {{profile}} -- aws dynamodb list-tables
 
-check-vpc-endpoints profile="$AWS_PROFILE": _ensure_aws_profile
+list-vpc-endpoints profile="$AWS_PROFILE": _ensure_aws_profile
     #!/usr/bin/env bash
 
     echo "Verifying if DynamoDB is an available service for VPC endpoints with profile {{profile}}"
     aws-vault exec {{profile}} -- aws ec2 describe-vpc-endpoint-services --query 'ServiceDetails[*].[ServiceName]' --output table
 
-determine-vpc-identifier profile="$AWS_PROFILE": _ensure_aws_profile
+list-vpc-identifiers profile="$AWS_PROFILE": _ensure_aws_profile
     #!/usr/bin/env bash
 
     echo "Determining VPC identifier with profile {{profile}}"

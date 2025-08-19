@@ -1147,10 +1147,18 @@ module "data_warehouse_glue" {
   output_bucket_write_policy = module.user_data.s3_write_access_policy_arn
 }
 
-module "dynamo_db" {
-  source = "./dynamo_db"
-  prefix = local.prefix
-  environment = var.environment
-  region = var.region
-  kms_key_arn = module.rds_kms_key.key_arn
+module "epb_data_user_credentials" {
+  count                 = var.environment == "prod" ? 0 : 1
+
+  source                = "./dynamo_db"
+  prefix                = local.prefix
+  environment           = var.environment
+  region                = var.region
+  kms_key_arn           = module.rds_kms_key.key_arn
+  vpc_id                = module.networking.vpc_id
+  ecs_roles             = [
+                            module.warehouse_api_application.ecs_role,
+                            module.data_frontend_application[0].ecs_role
+                          ]
+  route_table_ids = module.networking.route_table_ids
 }
