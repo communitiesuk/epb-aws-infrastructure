@@ -23,6 +23,11 @@ resource "aws_dynamodb_table" "this" {
     Name        = var.table_name
     Environment = var.environment
   }
+
+  lifecycle {
+    prevent_destroy = true
+  }
+
 }
 
 resource "aws_vpc_endpoint" "this" {
