@@ -11,7 +11,7 @@ resource "aws_iam_policy" "dynamodb_write_access" {
           "dynamodb:PutItem",
           "dynamodb:UpdateItem"
         ]
-        Resource = aws_dynamodb_table.epb_data_credentials.arn
+        Resource = aws_dynamodb_table.this.arn
         Condition = {
           StringEquals = {
             "aws:sourceVpce" = aws_vpc_endpoint.this.id
@@ -34,7 +34,7 @@ resource "aws_iam_policy" "dynamodb_read_access" {
         Action = [
           "dynamodb:Scan",
         ]
-        Resource = aws_dynamodb_table.epb_data_credentials.arn
+        Resource = aws_dynamodb_table.this.arn
         Condition = {
           StringEquals = {
             "aws:sourceVpce" = aws_vpc_endpoint.this.id

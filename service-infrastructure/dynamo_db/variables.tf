@@ -11,11 +11,6 @@ variable "environment" {
   type = string
 }
 
-variable "dynamodb_service_name" {
-  default = "dynamodb"
-  type    = string
-}
-
 variable "kms_key_arn" {
   description = "The ARN of the KMS key to use for DynamoDB encryption"
   type        = string
@@ -33,4 +28,8 @@ variable "ecs_roles" {
 variable "route_table_ids" {
   type        = list(string)
   description = "List of route table IDs for the VPC endpoint"
+}
+
+variable "table_name" {
+  type = string
 }

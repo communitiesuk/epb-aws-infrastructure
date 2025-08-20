@@ -14,7 +14,7 @@ resource "aws_vpc_endpoint_policy" "dynamodb_access" {
           "dynamodb:Scan",
         ],
 
-        "Resource" = aws_dynamodb_table.epb_data_credentials.arn
+        "Resource" = aws_dynamodb_table.this.arn
       }
     ]
   })

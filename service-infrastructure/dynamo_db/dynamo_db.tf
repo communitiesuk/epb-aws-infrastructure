@@ -1,5 +1,5 @@
-resource "aws_dynamodb_table" "epb_data_credentials" {
-  name           = "${var.prefix}-data-credentials"
+resource "aws_dynamodb_table" "this" {
+  name           = var.table_name
   billing_mode   = "PROVISIONED"
   read_capacity  = 20
   write_capacity = 20
@@ -20,14 +20,14 @@ resource "aws_dynamodb_table" "epb_data_credentials" {
   }
 
   tags = {
-    Name        = "${var.prefix}-data-credentials"
+    Name        = var.table_name
     Environment = var.environment
   }
 }
 
 resource "aws_vpc_endpoint" "this" {
   vpc_id       = var.vpc_id
-  service_name = "com.amazonaws.${var.region}.${var.dynamodb_service_name}"
+  service_name = "com.amazonaws.${var.region}.dynamodb"
 
   tags = {
     Environment = var.environment

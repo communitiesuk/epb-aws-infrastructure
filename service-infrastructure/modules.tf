@@ -689,7 +689,8 @@ module "data_frontend_application" {
   deployment_minimum_healthy_percent = var.environment == "intg" ? 0 : 100
   egress_ports                       = [80, 443, 5432, var.parameters["LOGSTASH_PORT"]]
   environment_variables = {
-    "AWS_S3_USER_DATA_BUCKET_NAME" : module.user_data.bucket_name
+    "AWS_S3_USER_DATA_BUCKET_NAME" : module.user_data.bucket_name,
+    "EPB_DATA_USER_CREDENTIAL_TABLE_NAME" : module.epb_data_user_credentials[0].table_name,
   }
   secrets = {
     "EPB_UNLEASH_URI" : module.secrets.secret_arns["EPB_UNLEASH_URI"]
@@ -713,7 +714,9 @@ module "data_frontend_application" {
   additional_task_execution_role_policy_arns = {}
   additional_task_role_policy_arns = {
     "DataFrontendDelivery_SNS_access" : module.data_frontend_delivery[0].sns_write_access_policy_arn,
-    "UseData_S3_access" : module.user_data.s3_read_access_policy_arn
+    "UseData_S3_access" : module.user_data.s3_read_access_policy_arn,
+    "DynamoDB_User_Credentials_write_access" : module.epb_data_user_credentials[0].dynamodb_write_policy_arn,
+    "DynamoDB_User_Credentials_read_access" : module.epb_data_user_credentials[0].dynamodb_read_policy_arn
   }
   aws_cloudwatch_log_group_id   = module.logging.cloudwatch_log_group_id
   aws_cloudwatch_log_group_name = module.logging.cloudwatch_log_group_name
@@ -801,7 +804,8 @@ module "warehouse_api_application" {
   container_port = 3001
   egress_ports   = [80, 443, 5432, var.parameters["LOGSTASH_PORT"]]
   environment_variables = {
-    "AWS_S3_USER_DATA_BUCKET_NAME" : module.user_data.bucket_name
+    "AWS_S3_USER_DATA_BUCKET_NAME" : module.user_data.bucket_name,
+    "EPB_DATA_USER_CREDENTIAL_TABLE_NAME" : module.epb_data_user_credentials[0].table_name,
   }
   secrets = {
     "DATABASE_URL" : module.secrets.secret_arns["RDS_WAREHOUSE_V2_READER_CONNECTION_STRING"],
@@ -823,7 +827,8 @@ module "warehouse_api_application" {
     "RDS_access" : module.warehouse_database_v2.rds_full_access_policy_arn
   }
   additional_task_role_policy_arns = {
-    "UserData_S3_access" : module.user_data.s3_read_access_policy_arn
+    "UserData_S3_access" : module.user_data.s3_read_access_policy_arn,
+    "DynamoDB_User_Credentials_read_access" : module.epb_data_user_credentials[0].dynamodb_read_policy_arn
   }
   aws_cloudwatch_log_group_id   = module.logging.cloudwatch_log_group_id
   aws_cloudwatch_log_group_name = module.logging.cloudwatch_log_group_name
@@ -1150,15 +1155,16 @@ module "data_warehouse_glue" {
 module "epb_data_user_credentials" {
   count = var.environment == "prod" ? 0 : 1
 
-  source      = "./dynamo_db"
-  prefix      = local.prefix
-  environment = var.environment
-  region      = var.region
-  kms_key_arn = module.rds_kms_key.key_arn
-  vpc_id      = module.networking.vpc_id
+  source          = "./dynamo_db"
+  prefix          = local.prefix
+  environment     = var.environment
+  table_name      = "${local.prefix}-user-credentials"
+  region          = var.region
+  kms_key_arn     = module.rds_kms_key.key_arn
+  vpc_id          = module.networking.vpc_id
+  route_table_ids = module.networking.route_table_ids
   ecs_roles = [
     module.warehouse_api_application.ecs_role,
     module.data_frontend_application[0].ecs_role
   ]
-  route_table_ids = module.networking.route_table_ids
 }
