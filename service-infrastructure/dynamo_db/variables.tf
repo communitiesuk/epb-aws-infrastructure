@@ -4,7 +4,7 @@ variable "prefix" {
 
 variable "region" {
   default = "eu-west-2"
-  type = string
+  type    = string
 }
 
 variable "environment" {
@@ -26,11 +26,11 @@ variable "vpc_id" {
 }
 
 variable "ecs_roles" {
-  type = list(string)
+  type        = list(string)
   description = "List of IAM role ARNs that will be granted access to the DynamoDB table"
 }
 
 variable "route_table_ids" {
-  type = list(string)
+  type        = list(string)
   description = "List of route table IDs for the VPC endpoint"
 }
