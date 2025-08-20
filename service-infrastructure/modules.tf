@@ -1148,17 +1148,17 @@ module "data_warehouse_glue" {
 }
 
 module "epb_data_user_credentials" {
-  count                 = var.environment == "prod" ? 0 : 1
+  count = var.environment == "prod" ? 0 : 1
 
-  source                = "./dynamo_db"
-  prefix                = local.prefix
-  environment           = var.environment
-  region                = var.region
-  kms_key_arn           = module.rds_kms_key.key_arn
-  vpc_id                = module.networking.vpc_id
-  ecs_roles             = [
-                            module.warehouse_api_application.ecs_role,
-                            module.data_frontend_application[0].ecs_role
-                          ]
+  source      = "./dynamo_db"
+  prefix      = local.prefix
+  environment = var.environment
+  region      = var.region
+  kms_key_arn = module.rds_kms_key.key_arn
+  vpc_id      = module.networking.vpc_id
+  ecs_roles = [
+    module.warehouse_api_application.ecs_role,
+    module.data_frontend_application[0].ecs_role
+  ]
   route_table_ids = module.networking.route_table_ids
 }

@@ -55,7 +55,7 @@ resource "aws_glue_trigger" "trigger_domestic_monthly_export" {
 
 # Chain populate domestic_json_document jobs:
 resource "aws_glue_workflow" "populate_json_documents" {
-  name = "${local.prefix}-populate_json_documents"
+  name = "${local.prefix}_populate_json_documents"
 }
 
 # First job to be triggered manually. If 'enabled' it will be triggered

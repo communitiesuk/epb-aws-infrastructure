@@ -12,6 +12,6 @@ terraform {
 locals {
   catalog_start_year = 2012
   catalog_end_year   = 2025
-  number_years       = (local.catalog_end_year - local.catalog_start_year) + 1
-  number_of_jobs     = number_years + 1
+  number_years       = (local.catalog_end_year - local.catalog_start_year)
+  number_of_jobs     = local.number_years + 1
 }
