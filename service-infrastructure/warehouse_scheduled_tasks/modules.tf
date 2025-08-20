@@ -98,3 +98,13 @@ module "refresh_average_co2_emissions" {
     },
   ]
 }
+
+module "create_assessment_search_partition_month" {
+  source              = "../scheduled_tasks/event_rule"
+  prefix              = var.prefix
+  rule_name           = "create-assessment-search-partition-month"
+  task_config         = local.task_config
+  schedule_expression = "cron(47 02 20 * ? *)"
+  command             = ["bundle", "exec", "rake", "create_table_partition_month"]
+}
+
