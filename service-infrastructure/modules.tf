@@ -8,6 +8,8 @@ locals {
   security_groups     = [module.warehouse_application.ecs_security_group_id, module.bastion.security_group_id, module.warehouse_scheduled_tasks_application.ecs_security_group_id, module.warehouse_api_application.ecs_security_group_id]
   dwh_security_groups = var.environment == "prod" ? local.security_groups : concat(local.security_groups, [module.data_warehouse_glue[0].glue_security_group_id])
   data_service_url    = replace(var.data_service_url, ".digital", "")
+  dwh_api_polciies    = var.environment == "prod" ? { "UserData_S3_access" : module.user_data.s3_read_access_policy_arn } : { "UserData_S3_access" : module.user_data.s3_read_access_policy_arn, "DynamoDB_User_Credentials_read_access" : module.epb_data_user_credentials[0].dynamodb_read_policy_arn }
+
 }
 
 module "account_security" {
@@ -805,7 +807,7 @@ module "warehouse_api_application" {
   egress_ports   = [80, 443, 5432, var.parameters["LOGSTASH_PORT"]]
   environment_variables = {
     "AWS_S3_USER_DATA_BUCKET_NAME" : module.user_data.bucket_name,
-    "EPB_DATA_USER_CREDENTIAL_TABLE_NAME" : module.epb_data_user_credentials[0].table_name,
+    "EPB_DATA_USER_CREDENTIAL_TABLE_NAME" : try(module.epb_data_user_credentials[0].table_name, "none"),
   }
   secrets = {
     "DATABASE_URL" : module.secrets.secret_arns["RDS_WAREHOUSE_V2_READER_CONNECTION_STRING"],
@@ -826,16 +828,13 @@ module "warehouse_api_application" {
   additional_task_execution_role_policy_arns = {
     "RDS_access" : module.warehouse_database_v2.rds_full_access_policy_arn
   }
-  additional_task_role_policy_arns = {
-    "UserData_S3_access" : module.user_data.s3_read_access_policy_arn,
-    "DynamoDB_User_Credentials_read_access" : module.epb_data_user_credentials[0].dynamodb_read_policy_arn
-  }
-  aws_cloudwatch_log_group_id   = module.logging.cloudwatch_log_group_id
-  aws_cloudwatch_log_group_name = module.logging.cloudwatch_log_group_name
-  logs_bucket_name              = module.logging.logs_bucket_name
-  logs_bucket_url               = module.logging.logs_bucket_url
-  enable_execute_command        = true
-  has_target_tracking           = false
+  additional_task_role_policy_arns = local.dwh_api_polciies
+  aws_cloudwatch_log_group_id      = module.logging.cloudwatch_log_group_id
+  aws_cloudwatch_log_group_name    = module.logging.cloudwatch_log_group_name
+  logs_bucket_name                 = module.logging.logs_bucket_name
+  logs_bucket_url                  = module.logging.logs_bucket_url
+  enable_execute_command           = true
+  has_target_tracking              = false
   internal_alb_config = {
     ssl_certificate_arn = module.ssl_certificate.certificate_arn
   }
