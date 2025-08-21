@@ -40,6 +40,11 @@ resource "aws_iam_policy" "dynamodb_read_access" {
             "aws:sourceVpce" = aws_vpc_endpoint.this.id
           }
         }
+      },
+      {
+        "Effect" : "Allow",
+        "Action" : "kms:Decrypt",
+        "Resource" : var.kms_key_arn
       }
     ]
   })
