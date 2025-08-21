@@ -53,15 +53,19 @@ resource "aws_vpc_endpoint_policy" "dynamodb_access" {
       {
         "Effect" = "Allow",
         "Principal" = {
-          "AWS" : var.ecs_roles
+          "AWS" : "*"
         },
         "Action" = [
           "dynamodb:PutItem",
           "dynamodb:UpdateItem",
           "dynamodb:Scan",
         ],
-
-        "Resource" = aws_dynamodb_table.this.arn
+        "Resource" = aws_dynamodb_table.this.arn,
+        "Condition" = {
+          "StringEquals" = {
+            "aws:PrincipalArn" = var.ecs_roles
+          }
+        }
       }
     ]
   })
