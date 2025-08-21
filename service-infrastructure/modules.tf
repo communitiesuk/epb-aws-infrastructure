@@ -843,7 +843,8 @@ module "warehouse_api_application" {
     cdn_certificate_arn            = module.cdn_certificate_epb_data.certificate_arn
     cdn_allowed_methods            = ["GET", "HEAD", "OPTIONS"]
     cdn_cached_methods             = ["GET", "HEAD", "OPTIONS"]
-    cdn_cache_ttl                  = 0
+    cdn_cache_ttl                  = 60 # 1 minute
+    cdn_cache_cookie_behaviour     = "none"
     cdn_aliases                    = toset(["api.${local.data_service_url}"])
     waf_acl_arn                    = module.waf.waf_acl_arn
     public_subnet_ids              = module.networking.public_subnet_ids
