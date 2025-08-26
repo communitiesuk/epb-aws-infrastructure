@@ -840,6 +840,7 @@ module "warehouse_api_application" {
   }
   front_door_config = {
     ssl_certificate_arn            = module.ssl_certificate_epb_data.certificate_arn
+    cdn_cache_headers              = ["Authorization"]
     cdn_certificate_arn            = module.cdn_certificate_epb_data.certificate_arn
     cdn_allowed_methods            = ["GET", "HEAD", "OPTIONS"]
     cdn_cached_methods             = ["GET", "HEAD", "OPTIONS"]

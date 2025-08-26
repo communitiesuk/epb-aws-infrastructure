@@ -103,3 +103,8 @@ variable "error_pages_bucket_name" {
   type = string
 }
 
+variable "cdn_cache_headers" {
+  description = "Options to handle http cache headers"
+  type        = list(string)
+  default     = []
+}

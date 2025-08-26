@@ -86,6 +86,7 @@ variable "front_door_config" {
   type = object({
     ssl_certificate_arn            = string
     cdn_certificate_arn            = string
+    cdn_cache_headers              = optional(list(string))
     cdn_allowed_methods            = list(string)
     cdn_cached_methods             = list(string)
     cdn_cache_ttl                  = number
@@ -191,3 +192,4 @@ variable "is_fluentbit_container_essential" {
   type    = bool
   default = false
 }
+

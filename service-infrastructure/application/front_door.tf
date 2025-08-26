@@ -15,6 +15,7 @@ module "front_door" {
   cdn_cached_methods             = var.front_door_config.cdn_cached_methods
   cdn_cache_ttl                  = var.front_door_config.cdn_cache_ttl
   cdn_aliases                    = var.front_door_config.cdn_aliases
+  cdn_cache_headers              = var.front_door_config.cdn_cache_headers
   waf_acl_arn                    = var.front_door_config.waf_acl_arn
   public_subnet_ids              = var.front_door_config.public_subnet_ids
   path_based_routing_overrides   = var.front_door_config.path_based_routing_overrides

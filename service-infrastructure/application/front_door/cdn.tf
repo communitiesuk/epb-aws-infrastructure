@@ -195,7 +195,15 @@ resource "aws_cloudfront_cache_policy" "ttl_based" {
     }
 
     headers_config {
-      header_behavior = "none"
+      header_behavior = var.cdn_cache_headers == null ? "none" : "whitelist"
+
+      dynamic "headers" {
+        for_each = var.cdn_cache_headers == null ? [] : [1]
+        content {
+          items = var.cdn_cache_headers
+        }
+      }
+
     }
 
     enable_accept_encoding_gzip   = true
