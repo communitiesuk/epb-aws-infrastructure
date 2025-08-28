@@ -33,6 +33,7 @@ resource "aws_iam_policy" "dynamodb_read_access" {
         Effect = "Allow"
         Action = [
           "dynamodb:Scan",
+          "dynamodb:GetItem",
         ]
         Resource = aws_dynamodb_table.this.arn
         Condition = {
