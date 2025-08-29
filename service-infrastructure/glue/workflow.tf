@@ -26,6 +26,10 @@ resource "aws_glue_trigger" "trigger_insert" {
     job_name = module.insert_domestic_rr_iceberg_data.etl_job_name
   }
 
+  actions {
+    job_name = module.insert_json_document_iceberg_data.etl_job_name
+  }
+
   predicate {
     conditions {
       job_name = module.delete_iceberg_data.etl_job_name

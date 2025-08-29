@@ -55,7 +55,7 @@ module "populate_json_documents_etl" {
   suffix           = ".json_documents_${local.catalog_start_year + count.index}"
   arguments = {
     "--DATABASE_NAME"             = aws_glue_catalog_database.this.name
-    "--CATALOG_TABLE_NAME"        = "domestic_json_documents"
+    "--CATALOG_TABLE_NAME"        = "json_documents"
     "--S3_BUCKET"                 = aws_s3_bucket.this.bucket
     "--CONNECTION_NAME"           = aws_glue_connection.this.name
     "--DB_TABLE_NAME"             = "vw_domestic_documents_${local.catalog_start_year + count.index}"
@@ -114,6 +114,23 @@ module "insert_domestic_rr_iceberg_data" {
   scripts_module   = path.module
 }
 
+module "insert_json_document_iceberg_data" {
+  source         = "./etl_job"
+  glue_connector = [aws_glue_connection.this.name]
+  arguments = {
+    "--CONNECTION_NAME"        = aws_glue_connection.this.name
+    "--DATABASE_NAME"          = aws_glue_catalog_database.this.name
+    "--CATALOG_TABLE_NAME"     = "json_documents"
+    "--SOURCE_VIEW_TABLE_NAME" = "vw_json_documents_yesterday"
+    "--conf"                   = local.iceberg_conf
+  }
+  bucket_name      = aws_s3_bucket.this.bucket
+  job_name         = "Insert json documents iceberg data"
+  role_arn         = aws_iam_role.glueServiceRole.arn
+  script_file_name = "insert_data.py"
+  scripts_module   = path.module
+}
+
 module "export_domestic_data_by_year" {
   source           = "./etl_job"
   bucket_name      = aws_s3_bucket.this.bucket
@@ -138,7 +155,7 @@ module "export_json_domestic_data_by_year" {
   scripts_module   = path.module
   arguments = {
     "--DATABASE_NAME" = aws_glue_catalog_database.this.name
-    "--TABLE_NAME"    = "domestic_json_documents"
+    "--TABLE_NAME"    = "json_documents"
     "--S3_BUCKET"     = var.output_bucket_name
   }
 }
