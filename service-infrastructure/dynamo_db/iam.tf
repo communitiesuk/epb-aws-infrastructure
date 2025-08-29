@@ -65,6 +65,7 @@ resource "aws_vpc_endpoint_policy" "dynamodb_access" {
           "dynamodb:PutItem",
           "dynamodb:UpdateItem",
           "dynamodb:Scan",
+          "dynamodb:GetItem",
         ],
         "Resource" = aws_dynamodb_table.this.arn,
         "Condition" = {
