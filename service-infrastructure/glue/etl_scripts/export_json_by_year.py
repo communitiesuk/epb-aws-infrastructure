@@ -66,7 +66,7 @@ class S3MultipartWriter(io.RawIOBase):
             self.abort()
 
 
-required_args = ["JOB_NAME", "TABLE_NAME", "S3_BUCKET", "DATABASE_NAME"]
+required_args = ["JOB_NAME", "TABLE_NAME", "S3_BUCKET", "DATABASE_NAME", "ASSESSMENT_TYPES"]
 
 
 # Get job arguments
@@ -83,6 +83,7 @@ job.init(args["JOB_NAME"], args)
 DATABASE_NAME = args["DATABASE_NAME"]
 TABLE_NAME = args["TABLE_NAME"]
 S3_BUCKET = args["S3_BUCKET"]
+ASSESSMENT_TYPES = args.get("ASSESSMENT_TYPES")
 S3_PREFIX = f"{TABLE_NAME}/full-load/"
 S3_OUTPUT_PATH = f"s3://{S3_BUCKET}/{S3_PREFIX}"
 ZIP_FILE_KEY = f"{S3_PREFIX}{TABLE_NAME}.zip"
@@ -111,10 +112,14 @@ years = [
     for row in df.select("year").filter(df["year"].isNotNull()).distinct().collect()
 ]
 
-def generate_json_per_year(df, table_name, years):
+assessment_types = [t for t in ASSESSMENT_TYPES.split(",")]
+
+def generate_json_per_year(df, table_name, years, assessment_types):
     for year in years:
         logger.warn(f'Processing table "{table_name}" year: {year}')
-        year_df = df.filter(F.col("year") == year).drop("year").repartition(1)
+
+        assessment_types_df = df.filter(F.col("assessment_type").isin(assessment_types))
+        year_df = assessment_types_df.filter(F.col("year") == year).drop("year").repartition(1)
 
         output_folder = f"{S3_OUTPUT_PATH}{table_name}-{year}/"
         year_df.write.mode("overwrite").json(output_folder)
@@ -122,7 +127,7 @@ def generate_json_per_year(df, table_name, years):
 
 logger.warn(f'Will start processing "{TABLE_NAME}"')
 
-generate_json_per_year(df, TABLE_NAME, years)
+generate_json_per_year(df, TABLE_NAME, years, assessment_types)
 
 logger.warn(f'Starting ZIP file stream to S3"')
 chunk_size_bytes = 1024 * 1024 * 50

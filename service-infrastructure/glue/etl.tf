@@ -154,8 +154,9 @@ module "export_json_domestic_data_by_year" {
   script_file_name = "export_json_by_year.py"
   scripts_module   = path.module
   arguments = {
-    "--DATABASE_NAME" = aws_glue_catalog_database.this.name
-    "--TABLE_NAME"    = "json_documents"
-    "--S3_BUCKET"     = var.output_bucket_name
+    "--DATABASE_NAME"    = aws_glue_catalog_database.this.name
+    "--TABLE_NAME"       = "json_documents"
+    "--S3_BUCKET"        = var.output_bucket_name
+    "--ASSESSMENT_TYPES" = "SAP,RdSAP"
   }
 }
