@@ -1140,7 +1140,7 @@ module "backup-vault" {
 
 module "data_warehouse_glue" {
   count                      = var.environment == "prod" ? 0 : 1
-  source                     = "./glue"
+  source                     = "./glue_data_warehouse"
   prefix                     = local.prefix
   subnet_group_id            = module.networking.private_db_subnet_first_id
   db_instance                = module.warehouse_database_v2.rds_db_reader_endpoint
