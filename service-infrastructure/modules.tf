@@ -139,6 +139,10 @@ module "secrets" {
     "RDS_WAREHOUSE_V2_READER_CONNECTION_STRING" : module.warehouse_database_v2.rds_db_reader_connection_string
     "RDS_WAREHOUSE_V2_PASSWORD" : module.warehouse_database_v2.rds_db_password
     "RDS_WAREHOUSE_V2_USERNAME" : module.warehouse_database_v2.rds_db_username
+    "RDS_ADDRESSING_CONNECTION_STRING" : var.environment == "intg" ? module.addressing_database[0].rds_db_connection_string : "test"
+    "RDS_ADDRESSING_READER_CONNECTION_STRING" : var.environment == "intg" ? module.addressing_database[0].rds_db_reader_connection_string : "test"
+    "RDS_ADDRESSING_PASSWORD" : var.environment == "intg" ? module.addressing_database[0].rds_db_password : "test"
+    "RDS_ADDRESSING_USERNAME" : var.environment == "intg" ? module.addressing_database[0].rds_db_username : "test"
     "UD_BUCKET_NAME" : module.user_data.bucket_name
     "WAREHOUSE_EXPORT_BUCKET_NAME" : module.warehouse_document_export.bucket_name
     "WAREHOUSE_EXPORT_BUCKET_ACCESS_KEY" : module.warehouse_document_export.s3_access_key
@@ -892,16 +896,37 @@ module "warehouse_redis" {
   vpc_id                        = module.networking.vpc_id
 }
 
+module "addressing_database" {
+  count                         = var.environment == "intg" ? 1 : 0
+  source                        = "./aurora_rds"
+  cluster_parameter_group_name  = module.parameter_groups.aurora_pg_param_group_name
+  db_name                       = "epb"
+  instance_class                = "db.t3.medium"
+  instance_parameter_group_name = module.parameter_groups.rds_pg_param_group_name
+  prefix                        = "${local.prefix}-addressing"
+  postgres_version              = var.postgres_aurora_version
+  security_group_ids            = [module.addressing_glue[0].glue_security_group_id, module.bastion.security_group_id]
+  storage_backup_period         = var.storage_backup_period
+  subnet_group_name             = local.db_subnet
+  vpc_id                        = module.networking.vpc_id
+  kms_key_id                    = module.rds_kms_key.key_arn
+}
+
 module "bastion" {
   source    = "./bastion"
   subnet_id = module.networking.private_subnet_ids[0]
   vpc_id    = module.networking.vpc_id
-  rds_access_policy_arns = {
-    "API" : module.register_api_database_v2.rds_full_access_policy_arn
-    "Auth" : module.auth_database_v2.rds_full_access_policy_arn
-    "Toggles" : module.toggles_database_v2.rds_full_access_policy_arn
-    "Warehouse" : module.warehouse_database_v2.rds_full_access_policy_arn
-  }
+  rds_access_policy_arns = merge(
+    var.environment == "intg" ? {
+      "Addressing" = module.addressing_database[0].rds_full_access_policy_arn
+    } : {},
+    {
+      "API"       = module.register_api_database_v2.rds_full_access_policy_arn
+      "Auth"      = module.auth_database_v2.rds_full_access_policy_arn
+      "Toggles"   = module.toggles_database_v2.rds_full_access_policy_arn
+      "Warehouse" = module.warehouse_database_v2.rds_full_access_policy_arn
+    }
+  )
 }
 
 # logging and alerts
@@ -1012,6 +1037,12 @@ module "user_data" {
   prefix           = "${local.prefix}-user-data"
   lifecycle_prefix = "/output"
   expiration_days  = 7
+}
+
+module "ngd_data" {
+  count  = var.environment == "intg" ? 1 : 0
+  source = "./s3_bucket"
+  prefix = "${local.prefix}-ngd-data"
 }
 
 module "parameter_groups" {
@@ -1151,6 +1182,21 @@ module "data_warehouse_glue" {
   output_bucket_name         = module.user_data.bucket_name
   output_bucket_read_policy  = module.user_data.s3_read_access_policy_arn
   output_bucket_write_policy = module.user_data.s3_write_access_policy_arn
+}
+
+module "addressing_glue" {
+  count                      = var.environment == "intg" ? 1 : 0
+  source                     = "./glue_addressing"
+  prefix                     = local.prefix
+  module_prefix              = "addressing"
+  subnet_group_id            = module.networking.private_db_subnet_first_id
+  db_instance                = module.addressing_database[0].rds_db_reader_endpoint
+  db_user                    = module.addressing_database[0].rds_db_username
+  db_password                = module.addressing_database[0].rds_db_password
+  subnet_group_az            = module.networking.private_db_subnet_first_az
+  vpc_id                     = module.networking.vpc_id
+  output_bucket_read_policy  = module.ngd_data[0].s3_read_access_policy_arn
+  output_bucket_write_policy = module.ngd_data[0].s3_write_access_policy_arn
 }
 
 module "epb_data_user_credentials" {
