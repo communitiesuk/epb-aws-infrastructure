@@ -66,7 +66,7 @@ class S3MultipartWriter(io.RawIOBase):
             self.abort()
 
 
-required_args = ["JOB_NAME", "TABLE_NAME", "S3_BUCKET", "DATABASE_NAME", "ASSESSMENT_TYPES"]
+required_args = ["JOB_NAME", "TABLE_NAME", "S3_BUCKET", "DATABASE_NAME", "ASSESSMENT_TYPES", "EPC_TYPE"]
 
 
 # Get job arguments
@@ -83,8 +83,9 @@ job.init(args["JOB_NAME"], args)
 DATABASE_NAME = args["DATABASE_NAME"]
 TABLE_NAME = args["TABLE_NAME"]
 S3_BUCKET = args["S3_BUCKET"]
+EPC_TYPE = args["EPC_TYPE"]
 ASSESSMENT_TYPES = args.get("ASSESSMENT_TYPES")
-S3_PREFIX = f"{TABLE_NAME}/full-load/"
+S3_PREFIX = f"{EPC_TYPE}/{TABLE_NAME}/full-load/"
 S3_OUTPUT_PATH = f"s3://{S3_BUCKET}/{S3_PREFIX}"
 ZIP_FILE_KEY = f"{S3_PREFIX}{TABLE_NAME}.zip"
 
