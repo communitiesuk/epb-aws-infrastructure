@@ -177,5 +177,6 @@ module "export_json_domestic_data_by_year" {
     "--TABLE_NAME"       = "json_documents"
     "--S3_BUCKET"        = var.output_bucket_name
     "--ASSESSMENT_TYPES" = "SAP,RdSAP"
+    "--EPC_TYPE"         = "domestic"
   }
 }
