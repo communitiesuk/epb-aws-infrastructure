@@ -30,6 +30,10 @@ variable "db_password" {
   type = string
 }
 
+variable "db_name" {
+  type = string
+}
+
 variable "secrets" {
   default = {}
   type    = map(string)
@@ -43,4 +47,14 @@ variable "output_bucket_write_policy" {
   type = string
 }
 
+variable "storage_bucket" {
+  type = string
+}
 
+variable "os_data_hub_api_key" {
+  type = string
+}
+
+variable "os_data_package_id" {
+  type = string
+}

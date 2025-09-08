@@ -19,6 +19,10 @@ output "rds_db_arn" {
   value = aws_rds_cluster.this.arn
 }
 
+output "rds_db_name" {
+  value = aws_rds_cluster.this.database_name
+}
+
 locals {
   connection_string        = "postgresql://${aws_rds_cluster.this.master_username == null ? "" : aws_rds_cluster.this.master_username}:${aws_rds_cluster.this.master_password == null ? "" : aws_rds_cluster.this.master_password}@${aws_rds_cluster.this.endpoint == null ? "" : aws_rds_cluster.this.endpoint}/${aws_rds_cluster.this.database_name == null ? "" : aws_rds_cluster.this.database_name}"
   reader_connection_string = replace(local.connection_string, aws_rds_cluster.this.endpoint, aws_rds_cluster.this.reader_endpoint)
@@ -40,5 +44,10 @@ output "rds_db_reader_connection_string" {
 
 output "rds_db_reader_endpoint" {
   value     = aws_rds_cluster.this.reader_endpoint
+  sensitive = true
+}
+
+output "rds_db_writer_endpoint" {
+  value     = aws_rds_cluster.this.endpoint
   sensitive = true
 }

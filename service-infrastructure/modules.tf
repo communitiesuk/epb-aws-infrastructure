@@ -1190,13 +1190,17 @@ module "addressing_glue" {
   prefix                     = local.prefix
   module_prefix              = "addressing"
   subnet_group_id            = module.networking.private_db_subnet_first_id
-  db_instance                = module.addressing_database[0].rds_db_reader_endpoint
+  db_instance                = module.addressing_database[0].rds_db_writer_endpoint
   db_user                    = module.addressing_database[0].rds_db_username
   db_password                = module.addressing_database[0].rds_db_password
+  db_name                    = module.addressing_database[0].rds_db_name
   subnet_group_az            = module.networking.private_db_subnet_first_az
   vpc_id                     = module.networking.vpc_id
   output_bucket_read_policy  = module.ngd_data[0].s3_read_access_policy_arn
   output_bucket_write_policy = module.ngd_data[0].s3_write_access_policy_arn
+  storage_bucket             = module.ngd_data[0].bucket_name
+  os_data_hub_api_key        = var.parameters["OS_DATA_HUB_API_KEY"]
+  os_data_package_id         = var.parameters["OS_NGD_MONTHLY_DATA_PACKAGE_ID"]
 }
 
 module "epb_data_user_credentials" {
