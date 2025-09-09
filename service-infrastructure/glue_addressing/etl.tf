@@ -7,9 +7,9 @@ module "load_ngd_csvs_into_s3_etl" {
   script_file_name = "load-ngd-csvs-into-s3.py"
   scripts_module   = path.module
   arguments = {
-    "--S3_BUCKET"       = var.storage_bucket
-    "--OS_API_KEY"      = var.os_data_hub_api_key
-    "--DATA_PACKAGE_ID" = var.os_data_package_id
+    "--S3_BUCKET"                 = var.storage_bucket
+    "--OS_API_KEY"                = var.os_data_hub_api_key
+    "--DATA_PACKAGE_ID"           = var.os_data_package_id
     "--additional-python-modules" = "stream-unzip==0.0.99"
   }
 }

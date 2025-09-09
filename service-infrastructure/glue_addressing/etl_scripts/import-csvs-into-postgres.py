@@ -2,6 +2,7 @@ import sys
 from awsglue.transforms import *
 from awsglue.utils import getResolvedOptions
 from pyspark.context import SparkContext
+from awsglue.dynamicframe import DynamicFrame
 from awsglue.context import GlueContext
 from awsglue.job import Job
 
@@ -21,8 +22,30 @@ DB_TABLE_NAME = args['DB_TABLE_NAME']
 # Script generated for node Amazon S3
 AmazonS3_node1757327398684 = glueContext.create_dynamic_frame.from_options(format_options={"quoteChar": "\"", "withHeader": True, "separator": ",", "optimizePerformance": False}, connection_type="s3", format="csv", connection_options={"paths": ["s3://epb-intg-ngd-data/ngd/"], "recurse": True}, transformation_ctx="AmazonS3_node1757327398684")
 
-df = AmazonS3_node1757327398684.toDF()
+columns_to_keep = [
+    "uprn",
+    "parentuprn",
+    "organisationname",
+    "poboxnumber",
+    "subname",
+    "name",
+    "number",
+    "streetname",
+    "locality",
+    "townname",
+    "postcode",
+    "fulladdress",
+    "country",
+    "classificationcode"
+]
+
+
+df = AmazonS3_node1757327398684.toDF().select(*columns_to_keep)
 schema = df.schema
+
+filtered_frame = DynamicFrame.fromDF(df, glueContext, "filtered_frame")
+
+# Temporary Build CREATE TABLE DDL
 
 # Map Spark types -> Postgres types
 type_mapping = {
@@ -36,7 +59,6 @@ type_mapping = {
     "DateType": "DATE"
 }
 
-# Temporary Build CREATE TABLE DDL
 columns = []
 for field in schema.fields:
     col_type = type_mapping.get(field.dataType.simpleString().capitalize() + "Type", "TEXT")
@@ -47,7 +69,7 @@ ddl = f"CREATE TABLE IF NOT EXISTS {DB_TABLE_NAME} (\n  {', '.join(columns)}\n);
 print("DDL to run:\n", ddl)
 
 glueContext.write_dynamic_frame.from_jdbc_conf(
-    frame=AmazonS3_node1757327398684,
+    frame=filtered_frame,
     catalog_connection=CONNECTION_NAME,
     connection_options={
         "dbtable": DB_TABLE_NAME,     # target table in Postgres
