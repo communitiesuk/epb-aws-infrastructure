@@ -1,0 +1,6 @@
+certificate_number string,
+payback_type string,
+recommendation_item string,
+related_certificate_number string,
+recommendation_code string,
+recommendation string
