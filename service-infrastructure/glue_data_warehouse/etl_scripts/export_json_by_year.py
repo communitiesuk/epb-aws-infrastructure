@@ -85,9 +85,9 @@ TABLE_NAME = args["TABLE_NAME"]
 S3_BUCKET = args["S3_BUCKET"]
 EPC_TYPE = args["EPC_TYPE"]
 ASSESSMENT_TYPES = args.get("ASSESSMENT_TYPES")
-S3_PREFIX = f"{EPC_TYPE}/{TABLE_NAME}/full-load/"
+S3_PREFIX = f"full-load/"
 S3_OUTPUT_PATH = f"s3://{S3_BUCKET}/{S3_PREFIX}"
-ZIP_FILE_KEY = f"{S3_PREFIX}{TABLE_NAME}.zip"
+ZIP_FILE_KEY = f"{S3_PREFIX}{EPC_TYPE}-json.zip"
 
 
 sql_spark = (
