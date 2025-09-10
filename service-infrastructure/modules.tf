@@ -896,6 +896,57 @@ module "warehouse_redis" {
   vpc_id                        = module.networking.vpc_id
 }
 
+module "addressing_application" {
+  count                 = var.environment == "intg" ? 1 : 0
+  source                = "./application"
+  ci_account_id         = var.ci_account_id
+  prefix                = "${local.prefix}-addressing"
+  region                = var.region
+  container_port        = 3001
+  egress_ports          = [80, 443, 5432]
+  environment_variables = {}
+  secrets = {
+    "DATABASE_URL" : module.secrets.secret_arns["RDS_ADDRESSING_CONNECTION_STRING"],
+    "DATABASE_READER_URL" : module.secrets.secret_arns["RDS_ADDRESSING_READER_CONNECTION_STRING"],
+  }
+  parameters                         = module.parameter_store.parameter_arns
+  has_exec_cmd_task                  = false
+  deployment_minimum_healthy_percent = var.environment == "intg" ? 0 : 100
+  vpc_id                             = module.networking.vpc_id
+  fluentbit_ecr_url                  = module.fluentbit_ecr.ecr_url
+  private_subnet_ids                 = module.networking.private_subnet_ids
+  health_check_path                  = "/healthcheck"
+  additional_task_execution_role_policy_arns = {
+    "RDS_access" : module.addressing_database[0].rds_full_access_policy_arn
+  }
+  aws_cloudwatch_log_group_id   = module.logging.cloudwatch_log_group_id
+  aws_cloudwatch_log_group_name = module.logging.cloudwatch_log_group_name
+  logs_bucket_name              = module.logging.logs_bucket_name
+  logs_bucket_url               = module.logging.logs_bucket_url
+  internal_alb_config = {
+    ssl_certificate_arn = module.ssl_certificate.certificate_arn
+  }
+  front_door_config = {
+    ssl_certificate_arn          = module.ssl_certificate.certificate_arn
+    cdn_certificate_arn          = module.cdn_certificate.certificate_arn
+    cdn_allowed_methods          = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
+    cdn_cached_methods           = ["GET", "HEAD", "OPTIONS"]
+    cdn_cache_ttl                = 0
+    cdn_aliases                  = toset([var.addressing_service_url])
+    waf_acl_arn                  = module.waf.waf_acl_arn
+    public_subnet_ids            = module.networking.public_subnet_ids
+    extra_lb_target_groups       = 0
+    path_based_routing_overrides = []
+  }
+  task_max_capacity         = var.task_max_capacity
+  task_desired_capacity     = var.task_desired_capacity
+  task_min_capacity         = var.task_min_capacity
+  task_cpu                  = var.task_cpu
+  task_memory               = var.task_memory
+  fargate_weighting         = var.environment == "prod" ? { standard : 10, spot : 0 } : { standard : 0, spot : 10 }
+  cloudwatch_ecs_events_arn = module.logging.cloudwatch_ecs_events_arn
+}
+
 module "addressing_database" {
   count                         = var.environment == "intg" ? 1 : 0
   source                        = "./aurora_rds"

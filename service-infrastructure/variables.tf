@@ -69,6 +69,11 @@ variable "data_service_url" {
   default = null
 }
 
+variable "addressing_service_url" {
+  type    = string
+  default = null
+}
+
 variable "task_desired_capacity" {
   type    = number
   default = 2
