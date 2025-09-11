@@ -903,14 +903,14 @@ module "addressing_application" {
   prefix                = "${local.prefix}-addressing"
   region                = var.region
   container_port        = 3001
-  egress_ports          = [80, 443, 5432]
+  egress_ports          = [80, 443, 5432, var.parameters["LOGSTASH_PORT"]]
   environment_variables = {}
   secrets = {
     "DATABASE_URL" : module.secrets.secret_arns["RDS_ADDRESSING_CONNECTION_STRING"],
     "DATABASE_READER_URL" : module.secrets.secret_arns["RDS_ADDRESSING_READER_CONNECTION_STRING"],
   }
   parameters                         = module.parameter_store.parameter_arns
-  has_exec_cmd_task                  = false
+  has_exec_cmd_task                  = true
   deployment_minimum_healthy_percent = var.environment == "intg" ? 0 : 100
   vpc_id                             = module.networking.vpc_id
   fluentbit_ecr_url                  = module.fluentbit_ecr.ecr_url
