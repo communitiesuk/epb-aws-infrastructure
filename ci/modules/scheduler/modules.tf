@@ -3,6 +3,15 @@ locals {
   scheduler_role_arn = aws_iam_role.scheduler.arn
 }
 
+module "addressing_pipeline" {
+  source              = "./schedule"
+  name                = "addressing-pipeline"
+  group_name          = local.group_name
+  schedule_expression = "cron(33 13 19 * ? *)"
+  pipeline_arn        = var.addressing_codepipeline_arn
+  iam_role_arn        = local.scheduler_role_arn
+}
+
 module "aws_ruby_node_pipeline" {
   source              = "./schedule"
   name                = "start-aws-ruby-node-pipeline"

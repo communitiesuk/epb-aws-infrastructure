@@ -1,3 +1,6 @@
+variable "addressing_codepipeline_arn" {
+  type = string
+}
 
 variable "aws_ruby_node_codepipeline_arn" {
   type = string

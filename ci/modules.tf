@@ -195,6 +195,28 @@ module "data_frontend-pipeline" {
 
 }
 
+module "addressing-pipeline" {
+  source                  = "./modules/addressing_pipeline"
+  codepipeline_bucket     = module.artefact.codepipeline_bucket
+  codepipeline_role_arn   = module.codepipeline_role.aws_codepipeline_role_arn
+  codebuild_role_arn      = module.codebuild_role.aws_codebuild_role_arn
+  pipeline_name           = "epbr-addressing-pipeline"
+  github_repository       = "epb-addressing"
+  github_branch           = "main"
+  github_organisation     = var.github_organisation
+  integration_prefix      = var.integration_prefix
+  codestar_connection_arn = module.codestar_connection.codestar_connection_arn
+  account_ids             = var.account_ids
+  ecs_cluster_name        = "addressing-cluster"
+  ecs_service_name        = "addressing"
+  app_ecr_name            = "addressing-ecr"
+  project_name            = "epbr-addressing"
+  codebuild_image_ecr_url = module.app_test_image_pipeline.image_repository_url
+  region                  = var.region
+  aws_codebuild_image     = var.aws_amd_codebuild_image
+  postgres_image_ecr_url  = module.postgres_test_image_pipeline.image_repository_url
+}
+
 module "data_warehouse-pipeline" {
   source                  = "./modules/data_warehouse_pipeline"
   codepipeline_bucket     = module.artefact.codepipeline_bucket
@@ -392,6 +414,7 @@ module "parameters" {
 
 module "scheduler" {
   source                         = "./modules/scheduler"
+  addressing_codepipeline_arn    = module.addressing-pipeline.addressing_codepipeline_arn
   aws_ruby_node_codepipeline_arn = module.app_test_image_pipeline.aws_ruby_node_codepipeline_arn
   auth_server_codepipeline_arn   = module.auth-server-pipeline.auth_server_codepipeline_arn
   data_frontend_codepipeline_arn = module.data_frontend-pipeline.data_frontend_codepipeline_arn
