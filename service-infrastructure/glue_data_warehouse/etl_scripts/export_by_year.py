@@ -71,12 +71,22 @@ if TABLE_NAME_RR:
         database=DATABASE_NAME, table_name=TABLE_NAME_RR
     )
 
-    joined_df = (
-        df.select("certificate_number", "year")
-        .dropDuplicates(["certificate_number"])
-        .join(df_rr, on="certificate_number", how="inner")
-    )
+    if TABLE_NAME == "domestic":
+        joined_df = (
+            df.select("certificate_number", "year")
+            .dropDuplicates(["certificate_number"])
+            .join(df_rr, on="certificate_number", how="inner")
+        )
+    else:
+        df_rr_selected = df_rr.select(
+            *[col for col in df_rr.columns if col != 'certificate_number']
+        )
 
+        joined_df = (
+            df.select("certificate_number", "year")
+            .dropDuplicates(["certificate_number"])
+            .join(df_rr_selected, df.certificate_number == df_rr_selected.related_certificate_number, "inner")
+        )
 
 def process_and_zip(df, table_name, years, zipf, csv_filename=None):
     if not csv_filename:
