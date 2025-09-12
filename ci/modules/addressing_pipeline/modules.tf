@@ -36,6 +36,7 @@ module "codebuild_deploy_integration" {
   buildspec_file     = "buildspec/deploy_to_cluster.yml"
   environment_variables = [
     { name = "AWS_DEFAULT_REGION", value = var.region },
+    { name = "PREFIX", value = var.integration_prefix },
     { name = "AWS_ACCOUNT_ID", value = var.account_ids["integration"] },
     { name = "DOCKER_IMAGE_URI", value = "${var.account_ids["integration"]}.dkr.ecr.${var.region}.amazonaws.com/${var.integration_prefix}-${var.app_ecr_name}" },
     { name = "CLUSTER_NAME", value = "${var.integration_prefix}-${var.ecs_cluster_name}" },
