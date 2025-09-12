@@ -951,7 +951,7 @@ module "addressing_database" {
   instance_parameter_group_name = module.parameter_groups.rds_pg_param_group_name
   prefix                        = "${local.prefix}-addressing"
   postgres_version              = var.postgres_aurora_version
-  security_group_ids            = [module.addressing_glue[0].glue_security_group_id, module.bastion.security_group_id]
+  security_group_ids            = [module.addressing_glue[0].glue_security_group_id, module.bastion.security_group_id, module.addressing_application[0].ecs_security_group_id]
   storage_backup_period         = var.storage_backup_period
   subnet_group_name             = local.db_subnet
   vpc_id                        = module.networking.vpc_id
