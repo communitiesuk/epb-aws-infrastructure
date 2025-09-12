@@ -29,7 +29,6 @@ module "data_frontend_delivery" {
   notify_environment = {
     "NOTIFY_DATA_API_KEY"              = var.parameters["NOTIFY_DATA_API_KEY"],
     "NOTIFY_DATA_DOWNLOAD_TEMPLATE_ID" = var.parameters["NOTIFY_DATA_TEMPLATE_ID"],
-    "NOTIFY_DATA_EMAIL_RECIPIENT"      = var.parameters["NOTIFY_DATA_EMAIL_RECIPIENT"],
     "FRONTEND_URL"                     = "https://${var.data_service_url}",
   }
 }
@@ -233,10 +232,6 @@ module "parameter_store" {
     "NOTIFY_DATA_API_KEY" : {
       type  = "String"
       value = var.parameters["NOTIFY_DATA_API_KEY"]
-    }
-    "NOTIFY_DATA_EMAIL_RECIPIENT" : {
-      type  = "String"
-      value = var.parameters["NOTIFY_DATA_EMAIL_RECIPIENT"]
     }
     "NOTIFY_DATA_DOWNLOAD_TEMPLATE_ID" : {
       type  = "String"

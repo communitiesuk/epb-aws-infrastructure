@@ -19,7 +19,6 @@ logger.setLevel(os.getenv("LOG_LEVEL", logging.INFO))
 
 NOTIFY_API_KEY = os.getenv("NOTIFY_DATA_API_KEY")
 NOTIFY_TEMPLATE_ID = os.getenv("NOTIFY_DATA_DOWNLOAD_TEMPLATE_ID")
-NOTIFY_DATA_EMAIL_RECIPIENT = os.getenv("NOTIFY_DATA_EMAIL_RECIPIENT")
 FRONTEND_URL = os.getenv("FRONTEND_URL")
 
 def send_notify_email(email_address, urls):
@@ -46,7 +45,7 @@ def lambda_handler(event, context):
     for record in event["Records"]:
         try:
             sns_message = json.loads(record["body"])
-            email_address = NOTIFY_DATA_EMAIL_RECIPIENT
+            email_address = sns_message.get("email")
             s3_keys = sns_message.get("s3_keys")
             urls = []
             
