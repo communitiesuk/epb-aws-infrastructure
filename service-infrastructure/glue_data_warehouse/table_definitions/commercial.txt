@@ -37,5 +37,4 @@ lodgement_datetime string,
 primary_energy_value string,
 uprn string,
 uprn_source string,
-county string,
 report_type string

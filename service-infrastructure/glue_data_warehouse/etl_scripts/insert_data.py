@@ -4,8 +4,9 @@ from awsglue.utils import getResolvedOptions
 from pyspark.context import SparkContext
 from awsglue.context import GlueContext
 from awsglue.job import Job
+from pyspark.sql import SparkSession
 
-args = getResolvedOptions(sys.argv, ['JOB_NAME', 'CONNECTION_NAME', 'DATABASE_NAME', 'CATALOG_TABLE_NAME', 'SOURCE_VIEW_TABLE_NAME'])
+args = getResolvedOptions(sys.argv, ['JOB_NAME', 'CONNECTION_NAME', 'DATABASE_NAME', 'CATALOG_TABLE_NAME', 'SOURCE_VIEW_TABLE_NAME', 'S3_BUCKET', 'COLUMNS'])
 sc = SparkContext()
 glueContext = GlueContext(sc)
 spark = glueContext.spark_session
@@ -15,7 +16,32 @@ job.init(args['JOB_NAME'], args)
 DATABASE_NAME = args['DATABASE_NAME']
 CONNECTION_NAME = args['CONNECTION_NAME']
 CATALOG_TABLE_NAME =  args['CATALOG_TABLE_NAME']
+S3_BUCKET = args['S3_BUCKET']
+S3_PATH=f"s3://{S3_BUCKET}/{CATALOG_TABLE_NAME}/"
 SOURCE_VIEW_TABLE_NAME = args['SOURCE_VIEW_TABLE_NAME']
+COLUMNS =  args['COLUMNS']
+
+sql_spark = (
+    SparkSession.builder
+    .config("spark.sql.catalog.glue_catalog", "org.apache.iceberg.spark.SparkCatalog")
+    .config("spark.sql.catalog.glue_catalog.catalog-impl", "org.apache.iceberg.aws.glue.GlueCatalog")
+    .config("spark.sql.catalog.glue_catalog.warehouse", S3_PATH)
+    .config("spark.sql.catalog.glue_catalog.job-language", "python")
+    .getOrCreate()
+)
+
+sql_spark.sql(f"""
+  CREATE TABLE IF NOT EXISTS glue_catalog.{DATABASE_NAME}.{CATALOG_TABLE_NAME}(
+      {COLUMNS}
+)
+USING iceberg
+LOCATION '{S3_PATH}'
+TBLPROPERTIES (
+  'write.format.default' = 'parquet',
+  'write.compression.codec' = 'zstd',
+  'optimize_rewrite_delete_file_threshold'='5'
+)
+""")
 
 # Script generated for node PostgreSQL
 PostgreSQL_node1749737305383 = glueContext.create_dynamic_frame.from_options(
@@ -27,6 +53,7 @@ PostgreSQL_node1749737305383 = glueContext.create_dynamic_frame.from_options(
     },
     transformation_ctx = "PostgreSQL_node1749737305383"
 )
+
 # Script generated for node AWS Glue Data Catalog
 AWSGlueDataCatalog_node1749633070809_df = glueContext.create_data_frame.from_catalog(database=DATABASE_NAME, table_name=CATALOG_TABLE_NAME)
 

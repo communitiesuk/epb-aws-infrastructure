@@ -126,6 +126,8 @@ module "insert_domestic_iceberg_data" {
     "--CONNECTION_NAME"        = aws_glue_connection.this.name
     "--DATABASE_NAME"          = aws_glue_catalog_database.this.name
     "--CATALOG_TABLE_NAME"     = "domestic"
+    "--COLUMNS"                = templatefile("${path.module}/table_definitions/domestic.txt", {})
+    "--S3_BUCKET"              = aws_s3_bucket.this.bucket
     "--SOURCE_VIEW_TABLE_NAME" = "vw_domestic_yesterday"
     "--conf"                   = local.iceberg_conf
   }
@@ -143,11 +145,51 @@ module "insert_domestic_rr_iceberg_data" {
     "--CONNECTION_NAME"        = aws_glue_connection.this.name
     "--DATABASE_NAME"          = aws_glue_catalog_database.this.name
     "--CATALOG_TABLE_NAME"     = "domestic_rr"
+    "--COLUMNS"                = templatefile("${path.module}/table_definitions/domestic_rr.txt", {})
+    "--S3_BUCKET"              = aws_s3_bucket.this.bucket
     "--SOURCE_VIEW_TABLE_NAME" = "vw_domestic_rr_yesterday"
     "--conf"                   = local.iceberg_conf
   }
   bucket_name      = aws_s3_bucket.this.bucket
   job_name         = "Insert domestic rr iceberg data"
+  role_arn         = aws_iam_role.glueServiceRole.arn
+  script_file_name = "insert_data.py"
+  scripts_module   = path.module
+}
+
+module "insert_commercial_iceberg_data" {
+  source         = "./etl_job"
+  glue_connector = [aws_glue_connection.this.name]
+  arguments = {
+    "--CONNECTION_NAME"        = aws_glue_connection.this.name
+    "--DATABASE_NAME"          = aws_glue_catalog_database.this.name
+    "--CATALOG_TABLE_NAME"     = "commercial"
+    "--COLUMNS"                = templatefile("${path.module}/table_definitions/commercial.txt", {})
+    "--S3_BUCKET"              = aws_s3_bucket.this.bucket
+    "--SOURCE_VIEW_TABLE_NAME" = "vw_commercial_yesterday"
+    "--conf"                   = local.iceberg_conf
+  }
+  bucket_name      = aws_s3_bucket.this.bucket
+  job_name         = "Insert commercial iceberg data"
+  role_arn         = aws_iam_role.glueServiceRole.arn
+  script_file_name = "insert_data.py"
+  scripts_module   = path.module
+}
+
+module "insert_commercial_rr_iceberg_data" {
+  source         = "./etl_job"
+  glue_connector = [aws_glue_connection.this.name]
+  arguments = {
+    "--CONNECTION_NAME"        = aws_glue_connection.this.name
+    "--DATABASE_NAME"          = aws_glue_catalog_database.this.name
+    "--CATALOG_TABLE_NAME"     = "commercial_rr"
+    "--COLUMNS"                = templatefile("${path.module}/table_definitions/commercial_rr.txt", {})
+    "--S3_BUCKET"              = aws_s3_bucket.this.bucket
+    "--SOURCE_VIEW_TABLE_NAME" = "vw_commercial_rr_yesterday"
+    "--conf"                   = local.iceberg_conf
+  }
+  bucket_name      = aws_s3_bucket.this.bucket
+  job_name         = "Insert commercial rr iceberg data"
   role_arn         = aws_iam_role.glueServiceRole.arn
   script_file_name = "insert_data.py"
   scripts_module   = path.module
@@ -160,6 +202,8 @@ module "insert_json_document_iceberg_data" {
     "--CONNECTION_NAME"        = aws_glue_connection.this.name
     "--DATABASE_NAME"          = aws_glue_catalog_database.this.name
     "--CATALOG_TABLE_NAME"     = "json_documents"
+    "--COLUMNS"                = templatefile("${path.module}/table_definitions/json_documents.txt", {})
+    "--S3_BUCKET"              = aws_s3_bucket.this.bucket
     "--SOURCE_VIEW_TABLE_NAME" = "vw_json_documents_yesterday"
     "--conf"                   = local.iceberg_conf
   }
