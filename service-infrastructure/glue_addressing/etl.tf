@@ -23,9 +23,14 @@ module "import_ngd_csv_into_postgres_etl" {
   script_file_name = "import-csvs-into-postgres.py"
   scripts_module   = path.module
   arguments = {
-    "--DATABASE_NAME"   = var.db_name
-    "--S3_BUCKET"       = var.storage_bucket
-    "--CONNECTION_NAME" = aws_glue_connection.this.name
-    "--DB_TABLE_NAME"   = "addressing_temp"
+    "--DATABASE_NAME"             = var.db_name
+    "--SECRETS_REGION"            = var.secrets_region
+    "--DATABASE_HOST"             = var.db_instance
+    "--DATABASE_CREDS_SECRET"     = aws_secretsmanager_secret.glue_db_creds.name
+    "--S3_BUCKET"                 = var.storage_bucket
+    "--CONNECTION_NAME"           = aws_glue_connection.this.name
+    "--DB_TABLE_NAME"             = "addresses"
+    "--DB_TABLE_NAME_STAGING"     = "addresses_temp"
+    "--additional-python-modules" = "psycopg2-binary==2.9.9"
   }
 }

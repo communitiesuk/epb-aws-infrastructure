@@ -39,6 +39,11 @@ variable "secrets" {
   type    = map(string)
 }
 
+variable "secrets_region" {
+  default = "eu-west-2"
+  type    = string
+}
+
 variable "output_bucket_read_policy" {
   type = string
 }
