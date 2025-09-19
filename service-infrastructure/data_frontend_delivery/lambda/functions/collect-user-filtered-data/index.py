@@ -83,20 +83,36 @@ def construct_athena_query(filters):
     return query
 
 
-def construct_rr_athena_query(filters):
+def construct_domestic_rr_athena_query(filters):
     clauses = query_search_filter_setup(filters)
-    base_rr_query = f'SELECT rr.rrn, \
+    base_rr_query = f'SELECT rr.certificate_number, \
                       improvement_item, \
                       improvement_id, \
                       indicative_cost, \
                       improvement_summary_text, \
                       improvement_descr_text \
                       FROM "{ATHENA_DATABASE}"."{rr_table(filters)}" rr \
-                      JOIN "{ATHENA_DATABASE}"."{table(filters)}" m ON m.rrn=rr.rrn'
+                      JOIN "{ATHENA_DATABASE}"."{table(filters)}" m ON m.certificate_number=rr.certificate_number'
 
     query = f"{base_rr_query} WHERE {' AND '.join(clauses)}"
     logger.info(f"Athena Recommendations Query: {query}")
     return query
+
+
+def construct_commercial_rr_athena_query(filters):
+     clauses = query_search_filter_setup(filters)
+     base_rr_query = f'SELECT rr.certificate_number, \
+                       payback_type, \
+                       recommendation_item, \
+                       related_certificate_number, \
+                       recommendation_code, \
+                       recommendation \
+                       FROM "{ATHENA_DATABASE}"."{rr_table(filters)}" rr \
+                       JOIN "{ATHENA_DATABASE}"."{table(filters)}" m ON m.certificate_number=rr.related_certificate_number'
+
+     query = f"{base_rr_query} WHERE {' AND '.join(clauses)}"
+     logger.info(f"Athena Recommendations Query: {query}")
+     return query
 
 
 def execute_athena_query(query):
@@ -227,8 +243,12 @@ def build_certificates(filters):
 
 def build_recommendations(filters):
     filters_copy = filters.copy()
+
     # Construct Athena rr query
-    athena_rr_query = construct_rr_athena_query(filters_copy)
+    if table(filters) == "domestic":
+        athena_rr_query = construct_domestic_rr_athena_query(filters_copy)
+    else:
+        athena_rr_query = construct_commercial_rr_athena_query(filters_copy)
 
     # Execute Athena rr query
     query_execution_rr_id = execute_athena_query(athena_rr_query)
