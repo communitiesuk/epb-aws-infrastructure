@@ -875,7 +875,7 @@ module "warehouse_database_v2" {
   storage_backup_period         = var.storage_backup_period
   subnet_group_name             = local.db_subnet
   vpc_id                        = module.networking.vpc_id
-  scaling_configuration         = var.environment == "prod" ? { max_capacity = 64, min_capacity = 2 } : { max_capacity = 16, min_capacity = 0.5 }
+  scaling_configuration         = var.environment == "intg" ? { max_capacity = 16, min_capacity = 0.5 } : { max_capacity = 64, min_capacity = 8 }
   name_suffix                   = "v2"
   kms_key_id                    = module.rds_kms_key.key_arn
 }
