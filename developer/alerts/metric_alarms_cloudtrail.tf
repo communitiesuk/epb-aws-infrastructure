@@ -13,6 +13,7 @@ resource "aws_cloudwatch_metric_alarm" "unauthorized_api_calls_alarm" {
   alarm_actions = [
     aws_sns_topic.cloudwatch_to_main_slack_alerts.arn,
   ]
+  actions_enabled = false
 }
 
 resource "aws_cloudwatch_metric_alarm" "no_mfa_console_signin_alarm" {
