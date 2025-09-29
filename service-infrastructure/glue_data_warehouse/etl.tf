@@ -97,7 +97,7 @@ module "populate_json_documents_etl" {
     "--CATALOG_TABLE_NAME"        = "json_documents"
     "--S3_BUCKET"                 = aws_s3_bucket.this.bucket
     "--CONNECTION_NAME"           = aws_glue_connection.this.name
-    "--DB_TABLE_NAME"             = "vw_domestic_documents_${local.catalog_start_year + count.index}"
+    "--DB_TABLE_NAME"             = "vw_export_documents_${local.catalog_start_year + count.index}"
     "--COLUMNS"                   = templatefile("${path.module}/table_definitions/json_documents.txt", {})
     "--additional-python-modules" = "boto3==1.38.43"
   }
