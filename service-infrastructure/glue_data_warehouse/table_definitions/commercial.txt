@@ -35,5 +35,4 @@ constituency_label string,
 posttown string,
 lodgement_datetime string,
 primary_energy_value string,
-county string,
 report_type string
