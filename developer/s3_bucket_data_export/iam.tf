@@ -67,3 +67,19 @@ resource "aws_iam_user_policy_attachment" "write" {
   policy_arn = aws_iam_policy.s3_write.arn
   user       = aws_iam_user.user.name
 }
+
+resource "aws_iam_user" "readonly_user" {
+  count = var.allow_write ? 1 : 0
+  name  = "${var.bucket_name}-readonly-team-user"
+}
+
+resource "aws_iam_access_key" "readonly_access_key" {
+  count = var.allow_write ? 1 : 0
+  user  = aws_iam_user.readonly_user[0].name
+}
+
+resource "aws_iam_user_policy_attachment" "readonly_read" {
+  count      = var.allow_write ? 1 : 0
+  policy_arn = aws_iam_policy.s3_read.arn
+  user       = aws_iam_user.readonly_user[0].name
+}

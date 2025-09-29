@@ -24,6 +24,8 @@ module "secrets" {
     "SCOTLAND_BUCKET_NAME" : module.scotland_data.bucket_name
     "SCOTLAND_BUCKET_ACCESS_KEY" : module.scotland_data.s3_access_key
     "SCOTLAND_BUCKET_SECRET" : module.scotland_data.s3_secret
+    "SCOTLAND_BUCKET_READONLY_ACCESS_KEY" : module.scotland_data.s3_readonly_access_key
+    "SCOTLAND_BUCKET_READONLY_SECRET" : module.scotland_data.s3_readonly_secret
   }
 }
 
