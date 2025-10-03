@@ -27,6 +27,7 @@ args = getResolvedOptions(
 
 sc = SparkContext()
 glueContext = GlueContext(sc)
+logger = glueContext.get_logger()
 spark = glueContext.spark_session
 job = Job(glueContext)
 job.init(args['JOB_NAME'], args)
@@ -39,6 +40,10 @@ S3_BUCKET = args['S3_BUCKET']
 CONNECTION_NAME = args['CONNECTION_NAME']
 DB_TABLE_NAME = args['DB_TABLE_NAME']
 DB_TABLE_NAME_STAGING = args['DB_TABLE_NAME_STAGING']
+DB_IMPORT_VERSION_KEY = "database.version"
+NGD_IMPORT_VERSION_KEY = "ngd.version"
+
+s3_client = boto3.client("s3")
 
 def get_connection_info():
     client = boto3.client("secretsmanager", region_name=SECRETS_REGION)
@@ -95,6 +100,12 @@ def swap_tables(conn_info):
     conn.close()
 
 
+
+ngd_version_s3_obj = s3_client.get_object(Bucket=S3_BUCKET, Key=NGD_IMPORT_VERSION_KEY)
+ngd_data_version = ngd_version_s3_obj['Body'].read().decode().strip()
+
+logger.warn(f"Importing NGD version: {ngd_data_version}. Proceeding with ETL.")
+
 conn_info = get_connection_info()
 create_staging_table(conn_info)
 
@@ -134,5 +145,13 @@ glueContext.write_dynamic_frame.from_jdbc_conf(
 )
 
 swap_tables(conn_info)
+
+logger.warn(f"NGD data version imported successfully: {ngd_data_version}.")
+
+s3_client.put_object(
+    Bucket=S3_BUCKET,
+    Key=DB_IMPORT_VERSION_KEY,
+    Body=ngd_data_version.encode("utf-8")
+)
 
 job.commit()
