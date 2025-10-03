@@ -58,6 +58,26 @@ def get_connection_info():
         "password": secret["password"]
     }
 
+def get_table_columns(conn_info, table_name):
+    conn = psycopg2.connect(
+        dbname=conn_info["database"],
+        user=conn_info["user"],
+        password=conn_info["password"],
+        host=conn_info["host"],
+        port=conn_info["port"]
+    )
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT column_name
+        FROM information_schema.columns
+        WHERE table_schema = 'public' AND table_name = %s
+        ORDER BY ordinal_position
+    """, (table_name,))
+    columns = [row[0] for row in cur.fetchall()]
+    cur.close()
+    conn.close()
+    return columns
+
 def create_staging_table(conn_info):
     conn = psycopg2.connect(
         dbname=conn_info["database"],
@@ -112,22 +132,7 @@ create_staging_table(conn_info)
 # Script generated for node Amazon S3
 AmazonS3_node1757327398684 = glueContext.create_dynamic_frame.from_options(format_options={"quoteChar": "\"", "withHeader": True, "separator": ",", "optimizePerformance": False}, connection_type="s3", format="csv", connection_options={"paths": ["s3://epb-intg-ngd-data/ngd/"], "recurse": True}, transformation_ctx="AmazonS3_node1757327398684")
 
-columns_to_keep = [
-    "uprn",
-    "parentuprn",
-    "organisationname",
-    "poboxnumber",
-    "subname",
-    "name",
-    "number",
-    "streetname",
-    "locality",
-    "townname",
-    "postcode",
-    "fulladdress",
-    "country",
-    "classificationcode"
-]
+columns_to_keep = get_table_columns(conn_info, DB_TABLE_NAME)
 
 df = AmazonS3_node1757327398684.toDF().select(*columns_to_keep)
 schema = df.schema
