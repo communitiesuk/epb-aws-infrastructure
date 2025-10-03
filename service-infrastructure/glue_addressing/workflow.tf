@@ -12,3 +12,20 @@ resource "aws_glue_trigger" "load_csv_to_s3_trigger" {
     job_name = module.load_ngd_csvs_into_s3_etl.etl_job_name
   }
 }
+
+resource "aws_glue_trigger" "import_ngd_csv_into_postgres" {
+  name          = "import-ngd-csv-into-postgres"
+  type          = "CONDITIONAL"
+  workflow_name = aws_glue_workflow.addressing_daily_update.name
+
+  actions {
+    job_name = module.import_ngd_csv_into_postgres_etl.etl_job_name
+  }
+
+  predicate {
+    conditions {
+      job_name = module.load_ngd_csvs_into_s3_etl.etl_job_name
+      state    = "SUCCEEDED"
+    }
+  }
+}
