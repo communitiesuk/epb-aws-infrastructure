@@ -945,13 +945,14 @@ module "addressing_application" {
 module "addressing_database" {
   count                         = var.environment == "intg" ? 1 : 0
   source                        = "./aurora_rds"
-  cluster_parameter_group_name  = module.parameter_groups.aurora_pg_param_group_name
+  cluster_parameter_group_name  = module.parameter_groups.aurora_pg_17_serverless_param_group_name
   db_name                       = "epb"
-  instance_class                = "db.t3.medium"
-  instance_parameter_group_name = module.parameter_groups.rds_pg_param_group_name
+  instance_class                = "db.serverless"
+  instance_parameter_group_name = module.parameter_groups.aurora_pg_param_group_name
   prefix                        = "${local.prefix}-addressing"
-  postgres_version              = var.postgres_aurora_version
+  postgres_version              = var.addressing_postgres_aurora_version
   security_group_ids            = [module.addressing_glue[0].glue_security_group_id, module.bastion.security_group_id, module.addressing_application[0].ecs_security_group_id]
+  scaling_configuration         = var.environment == "intg" ? { max_capacity = 16, min_capacity = 0.5 } : { max_capacity = 64, min_capacity = 8 }
   storage_backup_period         = var.storage_backup_period
   subnet_group_name             = local.db_subnet
   vpc_id                        = module.networking.vpc_id
