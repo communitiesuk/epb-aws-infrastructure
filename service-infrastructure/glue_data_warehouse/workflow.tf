@@ -66,18 +66,22 @@ resource "aws_glue_trigger" "trigger_delete" {
   }
 }
 
-resource "aws_glue_workflow" "domestic_monthly_export" {
-  name = "${local.prefix}_glue_workflow_domestic_monthly_export"
+resource "aws_glue_workflow" "monthly_export" {
+  name = "${local.prefix}_glue_workflow_monthly_export"
 }
 
-resource "aws_glue_trigger" "trigger_domestic_monthly_export" {
-  name          = "trigger-domestic-monthly-export"
+resource "aws_glue_trigger" "trigger_monthly_export" {
+  name          = "trigger-monthly-export"
   type          = "SCHEDULED"
   schedule      = "cron(30 0 1 * ? *)" # Runs at 00:30 UTC on the 1st of every month
-  workflow_name = aws_glue_workflow.domestic_monthly_export.name
+  workflow_name = aws_glue_workflow.monthly_export.name
 
   actions {
     job_name = module.export_domestic_data_by_year.etl_job_name
+  }
+
+  actions {
+    job_name = module.export_commercial_data_by_year.etl_job_name
   }
 
   actions {
