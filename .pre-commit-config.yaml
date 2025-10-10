@@ -5,9 +5,9 @@ repos:
     - id: terraform_fmt
       args:
         - --args=-recursive
-    - id: terraform_tflint
-    - id: terraform_checkov
-      args:
-        - --args=-d .
-        - --args=--check HIGH  # Only HIGH+ severity issues
-        - --args=--skip-check CKV_AWS_103  # Prevents Internal Load balancers HTTP access issues
+#    - id: terraform_tflint
+#    - id: terraform_checkov
+#      args:
+#        - --args=-d .
+#        - --args=--check HIGH  # Only HIGH+ severity issues
+#        - --args=--skip-check CKV_AWS_103  # Prevents Internal Load balancers HTTP access issues

@@ -331,6 +331,19 @@ module "api_docs_pipeline" {
   dev_account_id          = var.account_ids["developer"]
 }
 
+module "dwh_api_docs_pipeline" {
+  source                  = "./modules/dwh-api-docs-pipeline"
+  artefact_bucket         = module.artefact.codepipeline_bucket
+  codebuild_role_arn      = module.codebuild_role.aws_codebuild_role_arn
+  codepipeline_role_arn   = module.codepipeline_role.aws_codepipeline_role_arn
+  codestar_connection_arn = module.codestar_connection.codestar_connection_arn
+  github_branch           = "main"
+  github_repository       = "epb-data-warehouse"
+  github_organisation     = var.github_organisation
+  region                  = var.region
+  account_ids             = var.account_ids
+}
+
 module "prototypes_pipeline" {
   artefact_bucket         = module.artefact.codepipeline_bucket
   codebuild_role_arn      = module.codebuild_role.aws_codebuild_role_arn

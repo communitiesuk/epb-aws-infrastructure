@@ -1266,3 +1266,8 @@ module "epb_data_user_credentials" {
     module.data_frontend_application[0].ecs_role
   ]
 }
+
+module "epb_dwh_api_swagger_docs" {
+  source = "./s3_bucket"
+  prefix = "${local.prefix}-dwh-api-swagger-docs"
+}
