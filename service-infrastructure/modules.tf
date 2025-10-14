@@ -10,6 +10,15 @@ locals {
   data_service_url    = replace(var.data_service_url, ".digital", "")
   dwh_api_polciies    = var.environment == "prod" ? { "UserData_S3_access" : module.user_data.s3_read_access_policy_arn } : { "UserData_S3_access" : module.user_data.s3_read_access_policy_arn, "DynamoDB_User_Credentials_read_access" : module.epb_data_user_credentials[0].dynamodb_read_policy_arn }
 
+  register_api_params = var.environment == "intg" ? {
+    "EPB_AUTH_CLIENT_ID"     = module.parameter_store.parameter_arns["REGISTER_API_EPB_AUTH_CLIENT_ID"],
+    "EPB_AUTH_CLIENT_SECRET" = module.parameter_store.parameter_arns["REGISTER_API_EPB_AUTH_CLIENT_SECRET"]
+  } : {}
+
+  register_api_secrets = var.environment == "intg" ? {
+    "EPB_AUTH_SERVER" : module.secrets.secret_arns["EPB_AUTH_SERVER"],
+    "EPB_ADDRESSING_URL" : module.secrets.secret_arns["EPB_ADDRESSING_URL"]
+  } : {}
 }
 
 module "account_security" {
@@ -116,6 +125,7 @@ module "secrets" {
     "EPB_DATA_WAREHOUSE_QUEUES_URI" : module.warehouse_redis.redis_uri
     "EPB_UNLEASH_URI" : "https://${module.toggles_application.internal_alb_name}.${var.domain_name}:443/api"
     "EPB_QUEUES_URI" : module.warehouse_redis.redis_uri
+    "EPB_ADDRESSING_URL" : var.environment == "intg" ? "https://${module.addressing_application[0].internal_alb_name}.${var.domain_name}" : "test"
     "ONELOGIN_CLIENT_ID" : var.environment != "prod" ? var.parameters["ONELOGIN_CLIENT_ID"] : "test"
     "ONELOGIN_HOST_URL" : var.environment != "prod" ? var.parameters["ONELOGIN_HOST_URL"] : "test"
     "ONELOGIN_TLS_KEYS" : var.environment != "prod" ? jsonencode({ "kid" = module.onelogin_keys[0].key_id, "private_key" = module.onelogin_keys[0].private_key_pem, "public_key" = module.onelogin_keys[0].public_key_pem }) : "test"
@@ -183,6 +193,14 @@ module "parameter_store" {
     "FRONTEND_EPB_AUTH_CLIENT_SECRET" : {
       type  = "SecureString"
       value = var.parameters["FRONTEND_EPB_AUTH_CLIENT_SECRET"]
+    }
+    "REGISTER_API_EPB_AUTH_CLIENT_ID" : {
+      type  = "SecureString"
+      value = var.parameters["REGISTER_API_EPB_AUTH_CLIENT_ID"]
+    }
+    "REGISTER_API_EPB_AUTH_CLIENT_SECRET" : {
+      type  = "SecureString"
+      value = var.parameters["REGISTER_API_EPB_AUTH_CLIENT_SECRET"]
     }
     "JWT_ISSUER" : {
       type  = "SecureString"
@@ -452,15 +470,22 @@ module "register_api_application" {
   container_port        = 3001
   egress_ports          = [80, 443, 5432, local.redis_port, var.parameters["LOGSTASH_PORT"]]
   environment_variables = {}
-  secrets = {
-    "DATABASE_URL" : module.secrets.secret_arns["RDS_API_V2_SERVICE_CONNECTION_STRING"],
-    "DATABASE_READER_URL" : module.secrets.secret_arns["RDS_API_V2_SERVICE_READER_CONNECTION_STRING"],
-    "EPB_UNLEASH_URI" : module.secrets.secret_arns["EPB_UNLEASH_URI"],
-    "EPB_DATA_WAREHOUSE_QUEUES_URI" : module.secrets.secret_arns["EPB_DATA_WAREHOUSE_QUEUES_URI"]
-  }
-  parameters = merge(module.parameter_store.parameter_arns, {
-    "SENTRY_DSN" : module.parameter_store.parameter_arns["SENTRY_DSN_REGISTER_API"]
-  })
+  secrets = merge(
+    {
+      "DATABASE_URL" : module.secrets.secret_arns["RDS_API_V2_SERVICE_CONNECTION_STRING"],
+      "DATABASE_READER_URL" : module.secrets.secret_arns["RDS_API_V2_SERVICE_READER_CONNECTION_STRING"],
+      "EPB_UNLEASH_URI" : module.secrets.secret_arns["EPB_UNLEASH_URI"],
+      "EPB_DATA_WAREHOUSE_QUEUES_URI" : module.secrets.secret_arns["EPB_DATA_WAREHOUSE_QUEUES_URI"]
+    },
+    local.register_api_secrets
+  )
+  parameters = merge(
+    module.parameter_store.parameter_arns,
+    {
+      "SENTRY_DSN" : module.parameter_store.parameter_arns["SENTRY_DSN_REGISTER_API"]
+    },
+    local.register_api_params
+  )
   has_exec_cmd_task                  = true
   deployment_minimum_healthy_percent = var.environment == "prod" ? 100 : 0
   vpc_id                             = module.networking.vpc_id
