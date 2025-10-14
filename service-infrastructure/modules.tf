@@ -10,12 +10,12 @@ locals {
   data_service_url    = replace(var.data_service_url, ".digital", "")
   dwh_api_polciies    = var.environment == "prod" ? { "UserData_S3_access" : module.user_data.s3_read_access_policy_arn } : { "UserData_S3_access" : module.user_data.s3_read_access_policy_arn, "DynamoDB_User_Credentials_read_access" : module.epb_data_user_credentials[0].dynamodb_read_policy_arn }
 
-  register_api_params = var.environment == "intg" ? {
+  register_api_params = var.environment != "prod" ? {
     "EPB_AUTH_CLIENT_ID"     = module.parameter_store.parameter_arns["REGISTER_API_EPB_AUTH_CLIENT_ID"],
     "EPB_AUTH_CLIENT_SECRET" = module.parameter_store.parameter_arns["REGISTER_API_EPB_AUTH_CLIENT_SECRET"]
   } : {}
 
-  register_api_secrets = var.environment == "intg" ? {
+  register_api_secrets = var.environment != "prod" ? {
     "EPB_AUTH_SERVER" : module.secrets.secret_arns["EPB_AUTH_SERVER"],
     "EPB_ADDRESSING_URL" : module.secrets.secret_arns["EPB_ADDRESSING_URL"]
   } : {}
@@ -125,7 +125,7 @@ module "secrets" {
     "EPB_DATA_WAREHOUSE_QUEUES_URI" : module.warehouse_redis.redis_uri
     "EPB_UNLEASH_URI" : "https://${module.toggles_application.internal_alb_name}.${var.domain_name}:443/api"
     "EPB_QUEUES_URI" : module.warehouse_redis.redis_uri
-    "EPB_ADDRESSING_URL" : var.environment == "intg" ? "https://${module.addressing_application[0].internal_alb_name}.${var.domain_name}" : "test"
+    "EPB_ADDRESSING_URL" : var.environment != "prod" ? "https://${module.addressing_application[0].internal_alb_name}.${var.domain_name}" : "test"
     "ONELOGIN_CLIENT_ID" : var.environment != "prod" ? var.parameters["ONELOGIN_CLIENT_ID"] : "test"
     "ONELOGIN_HOST_URL" : var.environment != "prod" ? var.parameters["ONELOGIN_HOST_URL"] : "test"
     "ONELOGIN_TLS_KEYS" : var.environment != "prod" ? jsonencode({ "kid" = module.onelogin_keys[0].key_id, "private_key" = module.onelogin_keys[0].private_key_pem, "public_key" = module.onelogin_keys[0].public_key_pem }) : "test"
@@ -148,10 +148,10 @@ module "secrets" {
     "RDS_WAREHOUSE_V2_READER_CONNECTION_STRING" : module.warehouse_database_v2.rds_db_reader_connection_string
     "RDS_WAREHOUSE_V2_PASSWORD" : module.warehouse_database_v2.rds_db_password
     "RDS_WAREHOUSE_V2_USERNAME" : module.warehouse_database_v2.rds_db_username
-    "RDS_ADDRESSING_CONNECTION_STRING" : var.environment == "intg" ? module.addressing_database[0].rds_db_connection_string : "test"
-    "RDS_ADDRESSING_READER_CONNECTION_STRING" : var.environment == "intg" ? module.addressing_database[0].rds_db_reader_connection_string : "test"
-    "RDS_ADDRESSING_PASSWORD" : var.environment == "intg" ? module.addressing_database[0].rds_db_password : "test"
-    "RDS_ADDRESSING_USERNAME" : var.environment == "intg" ? module.addressing_database[0].rds_db_username : "test"
+    "RDS_ADDRESSING_CONNECTION_STRING" : var.environment != "prod" ? module.addressing_database[0].rds_db_connection_string : "test"
+    "RDS_ADDRESSING_READER_CONNECTION_STRING" : var.environment != "prod" ? module.addressing_database[0].rds_db_reader_connection_string : "test"
+    "RDS_ADDRESSING_PASSWORD" : var.environment != "prod" ? module.addressing_database[0].rds_db_password : "test"
+    "RDS_ADDRESSING_USERNAME" : var.environment != "prod" ? module.addressing_database[0].rds_db_username : "test"
     "UD_BUCKET_NAME" : module.user_data.bucket_name
     "WAREHOUSE_EXPORT_BUCKET_NAME" : module.warehouse_document_export.bucket_name
     "WAREHOUSE_EXPORT_BUCKET_ACCESS_KEY" : module.warehouse_document_export.s3_access_key
@@ -917,7 +917,7 @@ module "warehouse_redis" {
 }
 
 module "addressing_application" {
-  count                 = var.environment == "intg" ? 1 : 0
+  count                 = var.environment != "prod" ? 1 : 0
   source                = "./application"
   ci_account_id         = var.ci_account_id
   prefix                = "${local.prefix}-addressing"
@@ -968,7 +968,7 @@ module "addressing_application" {
 }
 
 module "addressing_database" {
-  count                         = var.environment == "intg" ? 1 : 0
+  count                         = var.environment != "prod" ? 1 : 0
   source                        = "./aurora_rds"
   cluster_parameter_group_name  = module.parameter_groups.aurora_pg_17_serverless_param_group_name
   db_name                       = "epb"
@@ -977,7 +977,7 @@ module "addressing_database" {
   prefix                        = "${local.prefix}-addressing"
   postgres_version              = var.addressing_postgres_aurora_version
   security_group_ids            = [module.addressing_glue[0].glue_security_group_id, module.bastion.security_group_id, module.addressing_application[0].ecs_security_group_id]
-  scaling_configuration         = var.environment == "intg" ? { max_capacity = 16, min_capacity = 0.5 } : { max_capacity = 64, min_capacity = 8 }
+  scaling_configuration         = var.environment != "prod" ? { max_capacity = 16, min_capacity = 0.5 } : { max_capacity = 64, min_capacity = 8 }
   storage_backup_period         = var.storage_backup_period
   subnet_group_name             = local.db_subnet
   vpc_id                        = module.networking.vpc_id
@@ -989,7 +989,7 @@ module "bastion" {
   subnet_id = module.networking.private_subnet_ids[0]
   vpc_id    = module.networking.vpc_id
   rds_access_policy_arns = merge(
-    var.environment == "intg" ? {
+    var.environment != "prod" ? {
       "Addressing" = module.addressing_database[0].rds_full_access_policy_arn
     } : {},
     {
@@ -1112,7 +1112,7 @@ module "user_data" {
 }
 
 module "ngd_data" {
-  count  = var.environment == "intg" ? 1 : 0
+  count  = var.environment != "prod" ? 1 : 0
   source = "./s3_bucket"
   prefix = "${local.prefix}-ngd-data"
 }
@@ -1257,7 +1257,7 @@ module "data_warehouse_glue" {
 }
 
 module "addressing_glue" {
-  count                      = var.environment == "intg" ? 1 : 0
+  count                      = var.environment != "prod" ? 1 : 0
   source                     = "./glue_addressing"
   prefix                     = local.prefix
   module_prefix              = "addressing"
