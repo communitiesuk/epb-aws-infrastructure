@@ -42,40 +42,40 @@ module "populate_domestic_rr_etl" {
   }
 }
 
-module "populate_commercial_etl" {
+module "populate_non_domestic_etl" {
   source           = "./etl_job"
   bucket_name      = aws_s3_bucket.this.bucket
   glue_connector   = [aws_glue_connection.this.name]
-  job_name         = "Populate commercial catalog"
+  job_name         = "Populate non-domestic catalog"
   role_arn         = aws_iam_role.glueServiceRole.arn
   script_file_name = "populate_iceberg_catalog.py"
   scripts_module   = path.module
   arguments = {
     "--DATABASE_NAME"             = aws_glue_catalog_database.this.name
-    "--CATALOG_TABLE_NAME"        = "commercial"
+    "--CATALOG_TABLE_NAME"        = "non_domestic"
     "--S3_BUCKET"                 = aws_s3_bucket.this.bucket
     "--CONNECTION_NAME"           = aws_glue_connection.this.name
     "--DB_TABLE_NAME"             = "mvw_commercial_search"
-    "--COLUMNS"                   = templatefile("${path.module}/table_definitions/commercial.txt", {})
+    "--COLUMNS"                   = templatefile("${path.module}/table_definitions/non_domestic.txt", {})
     "--additional-python-modules" = "boto3==1.38.43"
   }
 }
 
-module "populate_commercial_rr_etl" {
+module "populate_non_domestic_rr_etl" {
   source           = "./etl_job"
   bucket_name      = aws_s3_bucket.this.bucket
   glue_connector   = [aws_glue_connection.this.name]
-  job_name         = "Populate commercial rr catalog"
+  job_name         = "Populate non-domestic rr catalog"
   role_arn         = aws_iam_role.glueServiceRole.arn
   script_file_name = "populate_iceberg_catalog.py"
   scripts_module   = path.module
   arguments = {
     "--DATABASE_NAME"             = aws_glue_catalog_database.this.name
-    "--CATALOG_TABLE_NAME"        = "commercial_rr"
+    "--CATALOG_TABLE_NAME"        = "non_domestic_rr"
     "--S3_BUCKET"                 = aws_s3_bucket.this.bucket
     "--CONNECTION_NAME"           = aws_glue_connection.this.name
     "--DB_TABLE_NAME"             = "mvw_commercial_rr_search"
-    "--COLUMNS"                   = templatefile("${path.module}/table_definitions/commercial_rr.txt", {})
+    "--COLUMNS"                   = templatefile("${path.module}/table_definitions/non_domestic_rr.txt", {})
     "--additional-python-modules" = "boto3==1.38.43"
 
   }
@@ -157,39 +157,39 @@ module "insert_domestic_rr_iceberg_data" {
   scripts_module   = path.module
 }
 
-module "insert_commercial_iceberg_data" {
+module "insert_non_domestic_iceberg_data" {
   source         = "./etl_job"
   glue_connector = [aws_glue_connection.this.name]
   arguments = {
     "--CONNECTION_NAME"        = aws_glue_connection.this.name
     "--DATABASE_NAME"          = aws_glue_catalog_database.this.name
-    "--CATALOG_TABLE_NAME"     = "commercial"
-    "--COLUMNS"                = templatefile("${path.module}/table_definitions/commercial.txt", {})
+    "--CATALOG_TABLE_NAME"     = "non_domestic"
+    "--COLUMNS"                = templatefile("${path.module}/table_definitions/non_domestic.txt", {})
     "--S3_BUCKET"              = aws_s3_bucket.this.bucket
     "--SOURCE_VIEW_TABLE_NAME" = "vw_commercial_yesterday"
     "--conf"                   = local.iceberg_conf
   }
   bucket_name      = aws_s3_bucket.this.bucket
-  job_name         = "Insert commercial iceberg data"
+  job_name         = "Insert non-domestic iceberg data"
   role_arn         = aws_iam_role.glueServiceRole.arn
   script_file_name = "insert_data.py"
   scripts_module   = path.module
 }
 
-module "insert_commercial_rr_iceberg_data" {
+module "insert_non_domestic_rr_iceberg_data" {
   source         = "./etl_job"
   glue_connector = [aws_glue_connection.this.name]
   arguments = {
     "--CONNECTION_NAME"        = aws_glue_connection.this.name
     "--DATABASE_NAME"          = aws_glue_catalog_database.this.name
-    "--CATALOG_TABLE_NAME"     = "commercial_rr"
-    "--COLUMNS"                = templatefile("${path.module}/table_definitions/commercial_rr.txt", {})
+    "--CATALOG_TABLE_NAME"     = "non_domestic_rr"
+    "--COLUMNS"                = templatefile("${path.module}/table_definitions/non_domestic_rr.txt", {})
     "--S3_BUCKET"              = aws_s3_bucket.this.bucket
     "--SOURCE_VIEW_TABLE_NAME" = "vw_commercial_rr_yesterday"
     "--conf"                   = local.iceberg_conf
   }
   bucket_name      = aws_s3_bucket.this.bucket
-  job_name         = "Insert commercial rr iceberg data"
+  job_name         = "Insert non-domestic rr iceberg data"
   role_arn         = aws_iam_role.glueServiceRole.arn
   script_file_name = "insert_data.py"
   scripts_module   = path.module
@@ -229,17 +229,17 @@ module "export_domestic_data_by_year" {
   }
 }
 
-module "export_commercial_data_by_year" {
+module "export_non_domestic_data_by_year" {
   source           = "./etl_job"
   bucket_name      = aws_s3_bucket.this.bucket
-  job_name         = "Export commercial data by year to S3"
+  job_name         = "Export non-domestic data by year to S3"
   role_arn         = aws_iam_role.glueServiceRole.arn
   script_file_name = "export_by_year.py"
   scripts_module   = path.module
   arguments = {
     "--DATABASE_NAME" = aws_glue_catalog_database.this.name
-    "--TABLE_NAME"    = "commercial"
-    "--TABLE_NAME_RR" = "commercial_rr"
+    "--TABLE_NAME"    = "non_domestic"
+    "--TABLE_NAME_RR" = "non_domestic_rr"
     "--S3_BUCKET"     = var.output_bucket_name
   }
 }
