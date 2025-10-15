@@ -205,6 +205,7 @@ module "addressing-pipeline" {
   github_branch           = "main"
   github_organisation     = var.github_organisation
   integration_prefix      = var.integration_prefix
+  staging_prefix          = var.staging_prefix
   codestar_connection_arn = module.codestar_connection.codestar_connection_arn
   account_ids             = var.account_ids
   ecs_cluster_name        = "addressing-cluster"

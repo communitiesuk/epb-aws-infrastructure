@@ -69,3 +69,7 @@ variable "region" {
 variable "postgres_image_ecr_url" {
   type = string
 }
+
+variable "staging_prefix" {
+  type = string
+}
