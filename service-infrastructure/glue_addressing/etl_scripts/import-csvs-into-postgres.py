@@ -130,7 +130,7 @@ conn_info = get_connection_info()
 create_staging_table(conn_info)
 
 # Script generated for node Amazon S3
-AmazonS3_node1757327398684 = glueContext.create_dynamic_frame.from_options(format_options={"quoteChar": "\"", "withHeader": True, "separator": ",", "optimizePerformance": False}, connection_type="s3", format="csv", connection_options={"paths": ["s3://epb-intg-ngd-data/ngd/"], "recurse": True}, transformation_ctx="AmazonS3_node1757327398684")
+AmazonS3_node1757327398684 = glueContext.create_dynamic_frame.from_options(format_options={"quoteChar": "\"", "withHeader": True, "separator": ",", "optimizePerformance": False}, connection_type="s3", format="csv", connection_options={"paths": [f"s3://{S3_BUCKET}/ngd/"], "recurse": True}, transformation_ctx="AmazonS3_node1757327398684")
 
 columns_to_keep = get_table_columns(conn_info, DB_TABLE_NAME)
 
