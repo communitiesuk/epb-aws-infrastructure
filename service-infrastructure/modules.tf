@@ -487,6 +487,7 @@ module "register_api_application" {
     local.register_api_params
   )
   has_exec_cmd_task                  = true
+  enable_execute_command             = var.environment != "prod"
   deployment_minimum_healthy_percent = var.environment == "prod" ? 100 : 0
   vpc_id                             = module.networking.vpc_id
   fluentbit_ecr_url                  = module.fluentbit_ecr.ecr_url
