@@ -287,6 +287,10 @@ module "parameter_store" {
       type  = "SecureString"
       value = var.parameters["SENTRY_DSN_DATA_FRONTEND"]
     }
+    "SENTRY_DSN_ADDRESSING" : {
+      type  = "SecureString"
+      value = var.parameters["SENTRY_DSN_ADDRESSING"]
+    }
     "SLACK_EPB_BOT_TOKEN" : {
       type  = "SecureString"
       value = var.parameters["SLACK_EPB_BOT_TOKEN"]
@@ -930,7 +934,9 @@ module "addressing_application" {
     "DATABASE_URL" : module.secrets.secret_arns["RDS_ADDRESSING_CONNECTION_STRING"],
     "DATABASE_READER_URL" : module.secrets.secret_arns["RDS_ADDRESSING_READER_CONNECTION_STRING"],
   }
-  parameters                         = module.parameter_store.parameter_arns
+  parameters = merge(module.parameter_store.parameter_arns, {
+    "SENTRY_DSN" : module.parameter_store.parameter_arns["SENTRY_DSN_ADDRESSING"]
+  })
   has_exec_cmd_task                  = true
   deployment_minimum_healthy_percent = var.environment == "intg" ? 0 : 100
   vpc_id                             = module.networking.vpc_id
