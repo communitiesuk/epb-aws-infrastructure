@@ -75,6 +75,15 @@ def get_download_urls_from_data_package(api_key, data_package_id):
     created_on_dates = [version["createdOn"] for version in data_package["versions"]]
     latest_created_on_date = max(created_on_dates)
 
+    allowed_files = {
+        "add_gb_builtaddress.zip",
+        "add_gb_historicaddress.zip",
+        "add_gb_prebuildaddress.zip",
+        "add_isl_builtaddress.zip",
+        "add_isl_historicaddress.zip",
+        "add_isl_prebuildaddress.zip"
+    }
+
     urls = []
     for version in data_package["versions"]:
         if version["createdOn"] != latest_created_on_date:
@@ -84,7 +93,7 @@ def get_download_urls_from_data_package(api_key, data_package_id):
         data_package_version = json.loads(data_package_version_response.text)
 
         for file in data_package_version["downloads"]:
-            if file["fileName"].endswith(".zip"):
+            if file["fileName"] in allowed_files:
                 urls.append(file["url"])
     return latest_created_on_date, urls
 
@@ -134,7 +143,7 @@ for url in download_urls:
         for file_name, file_size, file_chunks in stream_unzip.stream_unzip(r.iter_content(zip_chunk_size_bytes)):
             name = file_name.decode("utf-8")
 
-            if not name.endswith("_builtaddress.csv"):
+            if not name.endswith("address.csv"):
                 for chunk in file_chunks:
                     pass
                 continue
