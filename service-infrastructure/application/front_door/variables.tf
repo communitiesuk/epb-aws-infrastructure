@@ -108,3 +108,11 @@ variable "cdn_cache_headers" {
   type        = list(string)
   default     = []
 }
+
+variable "s3_origin_bucket_name" {
+  type = string
+}
+
+variable "s3_origin_route" {
+  type = string
+}

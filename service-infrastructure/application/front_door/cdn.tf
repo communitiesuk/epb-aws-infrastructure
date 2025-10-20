@@ -7,6 +7,14 @@ locals {
   error_caching_min_ttl = 15
 }
 
+resource "aws_cloudfront_origin_access_control" "this" {
+  count                             = var.s3_origin_bucket_name == null ? 0 : 1
+  name                              = "${var.s3_origin_bucket_name}-access-control"
+  origin_access_control_origin_type = "s3"
+  signing_behavior                  = "always"
+  signing_protocol                  = "sigv4"
+}
+
 resource "aws_cloudfront_distribution" "cdn" {
   for_each = var.cdn_aliases
 
@@ -16,6 +24,14 @@ resource "aws_cloudfront_distribution" "cdn" {
   price_class     = "PriceClass_100" # Affects CDN distribution https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/PriceClass.html
   aliases         = var.cdn_certificate_arn != null ? [each.value] : null
   web_acl_id      = var.waf_acl_arn
+
+  origin {
+    count                    = var.s3_origin_bucket_name == null ? 0 : 1
+    domain_name              = aws_lb.public.dns_name
+    origin_id                = "S3-${var.s3_origin_bucket_name}"
+    origin_path              = var.s3_origin_route
+    origin_access_control_id = aws_cloudfront_origin_access_control.this[0].id
+  }
 
   origin {
     domain_name = aws_lb.public.dns_name

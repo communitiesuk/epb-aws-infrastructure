@@ -24,4 +24,6 @@ module "front_door" {
   cdn_cache_cookie_items         = var.front_door_config.cdn_cache_cookie_items
   cdn_include_static_error_pages = var.front_door_config.cdn_include_static_error_pages
   error_pages_bucket_name        = var.front_door_config.error_pages_bucket_name
+  s3_origin_bucket_name          = var.front_door_config.s3_origin_bucket_name
+  s3_origin_route                = var.front_door_config.s3_origin_route
 }

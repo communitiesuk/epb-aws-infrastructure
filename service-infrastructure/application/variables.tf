@@ -103,6 +103,8 @@ variable "front_door_config" {
     }))
     # we can generate n extra load balancer target groups if we need them for e.g. targeting path-based forwarding rules from other load balancers
     extra_lb_target_groups = number
+    s3_origin_bucket_name  = optional(string)
+    s3_origin_route        = optional(string)
   })
 
   default = null
@@ -192,4 +194,3 @@ variable "is_fluentbit_container_essential" {
   type    = bool
   default = false
 }
-
