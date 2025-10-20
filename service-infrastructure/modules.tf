@@ -769,6 +769,8 @@ module "data_frontend_application" {
     cdn_cache_cookie_items         = ["cookie_consent", "epb_data.session", "state", "nonce"]
     cdn_include_static_error_pages = true
     error_pages_bucket_name        = module.error_pages.error_pages_bucket_name
+    s3_origin_bucket_name          = module.epb_dwh_api_swagger_docs.bucket_name
+    s3_origin_route                = "/api-documentation"
   }
   task_max_capacity                = var.task_max_capacity
   task_desired_capacity            = var.task_desired_capacity
