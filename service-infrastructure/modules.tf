@@ -5,8 +5,7 @@ locals {
     Name      = "${local.prefix}-${local.rds_snapshot_backup_bucket}"
     Terraform = "true"
   }
-  security_groups     = [module.warehouse_application.ecs_security_group_id, module.bastion.security_group_id, module.warehouse_scheduled_tasks_application.ecs_security_group_id, module.warehouse_api_application.ecs_security_group_id]
-  dwh_security_groups = var.environment == "prod" ? local.security_groups : concat(local.security_groups, [module.data_warehouse_glue[0].glue_security_group_id])
+  dwh_security_groups = [module.warehouse_application.ecs_security_group_id, module.bastion.security_group_id, module.warehouse_scheduled_tasks_application.ecs_security_group_id, module.warehouse_api_application.ecs_security_group_id, module.data_warehouse_glue[0].glue_security_group_id]
   data_service_url    = replace(var.data_service_url, ".digital", "")
   dwh_api_polciies    = var.environment == "prod" ? { "UserData_S3_access" : module.user_data.s3_read_access_policy_arn } : { "UserData_S3_access" : module.user_data.s3_read_access_policy_arn, "DynamoDB_User_Credentials_read_access" : module.epb_data_user_credentials[0].dynamodb_read_policy_arn }
 
@@ -1249,7 +1248,7 @@ module "backup-vault" {
 }
 
 module "data_warehouse_glue" {
-  count                      = var.environment == "prod" ? 0 : 1
+  count                      = 1
   source                     = "./glue_data_warehouse"
   prefix                     = local.prefix
   subnet_group_id            = module.networking.private_db_subnet_first_id
@@ -1283,8 +1282,7 @@ module "addressing_glue" {
 }
 
 module "epb_data_user_credentials" {
-  count = var.environment == "prod" ? 0 : 1
-
+  count           = var.environment == "prod" ? 0 : 1
   source          = "./dynamo_db"
   prefix          = local.prefix
   environment     = var.environment
