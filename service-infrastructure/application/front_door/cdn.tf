@@ -7,7 +7,7 @@ locals {
   error_caching_min_ttl = 15
 }
 
-resource "aws_cloudfront_origin_access_control" "this" {
+resource "aws_cloudfront_origin_access_control" "api_docs_origin" {
   count                             = var.s3_origin_bucket_name == null ? 0 : 1
   name                              = "${var.s3_origin_bucket_name}-access-control"
   origin_access_control_origin_type = "s3"
@@ -25,13 +25,7 @@ resource "aws_cloudfront_distribution" "cdn" {
   aliases         = var.cdn_certificate_arn != null ? [each.value] : null
   web_acl_id      = var.waf_acl_arn
 
-  origin {
-    count                    = var.s3_origin_bucket_name == null ? 0 : 1
-    domain_name              = aws_lb.public.dns_name
-    origin_id                = "S3-${var.s3_origin_bucket_name}"
-    origin_path              = var.s3_origin_route
-    origin_access_control_id = aws_cloudfront_origin_access_control.this[0].id
-  }
+
 
   origin {
     domain_name = aws_lb.public.dns_name
@@ -53,6 +47,17 @@ resource "aws_cloudfront_distribution" "cdn" {
   }
 
   dynamic "origin" {
+    for_each = var.s3_origin_bucket_name == null ? [] : ["this"]
+    content {
+      domain_name              = "api-docs.${aws_lb.public.dns_name}"
+      origin_id                = "S3-${var.s3_origin_bucket_name}"
+      origin_path              = var.s3_origin_route
+      origin_access_control_id = aws_cloudfront_origin_access_control.api_docs_origin[0].id
+
+    }
+  }
+
+  dynamic "origin" {
     for_each = var.cdn_include_static_error_pages ? ["this"] : []
 
     content {
@@ -64,6 +69,8 @@ resource "aws_cloudfront_distribution" "cdn" {
       }
     }
   }
+
+
 
   default_cache_behavior {
     allowed_methods          = var.cdn_allowed_methods
