@@ -85,3 +85,4 @@ output "address_base_ecs_task_exec_arn" {
 output "ecs_role" {
   value = aws_iam_role.ecs_task_role.arn
 }
+

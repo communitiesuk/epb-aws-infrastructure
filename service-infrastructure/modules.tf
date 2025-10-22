@@ -771,6 +771,8 @@ module "data_frontend_application" {
     error_pages_bucket_name        = module.error_pages.error_pages_bucket_name
     s3_origin_bucket_name          = module.epb_dwh_api_swagger_docs.bucket_name
     s3_origin_route                = "/api-documentation"
+    s3_origin_domain_name          = module.epb_dwh_api_swagger_docs.bucket_regional_domain_name
+
   }
   task_max_capacity                = var.task_max_capacity
   task_desired_capacity            = var.task_desired_capacity
@@ -1300,6 +1302,9 @@ module "epb_data_user_credentials" {
 }
 
 module "epb_dwh_api_swagger_docs" {
-  source = "./s3_bucket"
-  prefix = "${local.prefix}-dwh-api-swagger-docs"
+  source         = "./dwh-api-docs"
+  bucket_name    = "${local.prefix}-dwh-api-swagger-docs"
+  ci_account_id  = var.ci_account_id
+  ci_role_id     = module.access.ci_role_id
+  cloudfront_arn = module.data_frontend_application[0].cloudfront_distribution_ids[0]["arn"]
 }

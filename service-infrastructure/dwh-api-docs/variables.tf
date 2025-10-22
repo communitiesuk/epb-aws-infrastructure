@@ -11,3 +11,9 @@ variable "ci_account_id" {
 variable "ci_role_id" {
   type = string
 }
+
+variable "cloudfront_arn" {
+  type = string
+}
+
+

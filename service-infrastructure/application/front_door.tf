@@ -26,4 +26,5 @@ module "front_door" {
   error_pages_bucket_name        = var.front_door_config.error_pages_bucket_name
   s3_origin_bucket_name          = var.front_door_config.s3_origin_bucket_name
   s3_origin_route                = var.front_door_config.s3_origin_route
+  s3_origin_domain_name          = var.front_door_config.s3_origin_domain_name
 }

@@ -1,9 +1,9 @@
 resource "aws_s3_bucket_policy" "allow_bucket_access" {
   bucket = aws_s3_bucket.this.id
-  policy = data.aws_iam_policy_document.allow_bucket_access_doc.json
+  policy = data.aws_iam_policy_document.cdn_bucket_access_doc.json
 }
 
-data "aws_iam_policy_document" "allow_bucket_access_doc" {
+data "aws_iam_policy_document" "cdn_bucket_access_doc" {
   statement {
     principals {
       type        = "AWS"
@@ -11,16 +11,8 @@ data "aws_iam_policy_document" "allow_bucket_access_doc" {
     }
     effect = "Allow"
     actions = [
-      "s3:GetLifecycleConfiguration",
-      "s3:ListBucket",
-      "s3:DeleteObject",
-      "s3:GetBucketLocation",
       "s3:GetObject",
-      "s3:ListBucket",
-      "s3:PutObject",
-      "s3:PutObjectAcl",
     ]
-
     resources = [
       aws_s3_bucket.this.arn,
       "${aws_s3_bucket.this.arn}/*",
@@ -31,7 +23,6 @@ data "aws_iam_policy_document" "allow_bucket_access_doc" {
       type        = "Service"
       identifiers = ["cloudfront.amazonaws.com"]
     }
-
     actions = [
       "s3:GetObject",
     ]
@@ -41,10 +32,9 @@ data "aws_iam_policy_document" "allow_bucket_access_doc" {
     ]
 
     effect = "Allow"
-
     condition {
       test     = "StringEquals"
-      values   = [aws_cloudfront_distribution.api_docs_s3_distribution.arn]
+      values   = [var.cloudfront_arn]
       variable = "aws:SourceAccount"
     }
   }

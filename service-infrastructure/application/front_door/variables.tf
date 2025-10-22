@@ -116,3 +116,7 @@ variable "s3_origin_bucket_name" {
 variable "s3_origin_route" {
   type = string
 }
+
+variable "s3_origin_domain_name" {
+  type = string
+}

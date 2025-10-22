@@ -105,6 +105,7 @@ variable "front_door_config" {
     extra_lb_target_groups = number
     s3_origin_bucket_name  = optional(string)
     s3_origin_route        = optional(string)
+    s3_origin_domain_name  = optional(string)
   })
 
   default = null

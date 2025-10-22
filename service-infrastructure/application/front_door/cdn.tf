@@ -49,9 +49,8 @@ resource "aws_cloudfront_distribution" "cdn" {
   dynamic "origin" {
     for_each = var.s3_origin_bucket_name == null ? [] : ["this"]
     content {
-      domain_name              = "api-docs.${aws_lb.public.dns_name}"
+      domain_name              = var.s3_origin_domain_name
       origin_id                = "S3-${var.s3_origin_bucket_name}"
-      origin_path              = var.s3_origin_route
       origin_access_control_id = aws_cloudfront_origin_access_control.api_docs_origin[0].id
 
     }
@@ -69,8 +68,6 @@ resource "aws_cloudfront_distribution" "cdn" {
       }
     }
   }
-
-
 
   default_cache_behavior {
     allowed_methods          = var.cdn_allowed_methods
@@ -104,6 +101,20 @@ resource "aws_cloudfront_distribution" "cdn" {
       cache_policy_id          = data.aws_cloudfront_cache_policy.caching_disabled.id
     }
   }
+
+  dynamic "ordered_cache_behavior" {
+    for_each = var.s3_origin_bucket_name == null ? [] : ["this"]
+    content {
+      allowed_methods          = ["GET", "HEAD"]
+      cached_methods           = ["GET", "HEAD"]
+      path_pattern             = "${var.s3_origin_route}/*"
+      target_origin_id         = "S3-${var.s3_origin_bucket_name}"
+      viewer_protocol_policy   = "allow-all"
+      origin_request_policy_id = aws_cloudfront_origin_request_policy.cdn.id
+      cache_policy_id          = data.aws_cloudfront_cache_policy.caching_disabled.id
+    }
+  }
+
 
   viewer_certificate {
     acm_certificate_arn            = var.cdn_certificate_arn
