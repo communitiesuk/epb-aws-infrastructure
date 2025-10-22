@@ -15,7 +15,7 @@ job.init(args['JOB_NAME'], args)
 
 DATABASE_NAME =  args['DATABASE_NAME']
 CONNECTION_NAME = args['CONNECTION_NAME']
-CATALOG_TABLE_NAME = ['domestic', 'domestic_rr', 'commercial', 'commercial_rr', 'json_documents']
+CATALOG_TABLE_NAME = ['domestic', 'domestic_rr', 'non_domestic', 'non_domestic_rr', 'json_documents']
 SOURCE_TABLE_NAME = 'audit_logs'
 
 # Script generated for node PostgreSQL
