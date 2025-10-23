@@ -3,6 +3,7 @@ module "collect_data_queue" {
   prefix         = var.prefix
   queue_name     = "delivery"
   lambda_role_id = module.collect_user_data_lambda.lambda_role_id
+  lambda_timeout = var.lambda_timeout
 }
 
 module "send_data_queue" {
@@ -10,6 +11,7 @@ module "send_data_queue" {
   prefix         = var.prefix
   queue_name     = "send"
   lambda_role_id = module.send_user_data_lambda.lambda_role_id
+  lambda_timeout = var.lambda_timeout
 }
 
 data "aws_arn" "athena_workgroup" {
@@ -28,14 +30,15 @@ module "collect_user_data_lambda" {
     SQS_QUEUE_URL    = module.send_data_queue.sqs_queue_url
   }
   sqs_arn        = module.collect_data_queue.sqs_queue_arn
-  lambda_timeout = 900
+  lambda_timeout = var.lambda_timeout
 }
 
 module "send_user_data_lambda" {
-  source        = "./lambda"
-  prefix        = var.prefix
-  function_name = "send-user-requested-data"
-  output_file   = "send_user_requested_data.zip"
-  environment   = var.notify_environment
-  sqs_arn       = module.send_data_queue.sqs_queue_arn
+  source         = "./lambda"
+  prefix         = var.prefix
+  function_name  = "send-user-requested-data"
+  output_file    = "send_user_requested_data.zip"
+  environment    = var.notify_environment
+  sqs_arn        = module.send_data_queue.sqs_queue_arn
+  lambda_timeout = var.lambda_timeout
 }

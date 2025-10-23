@@ -14,3 +14,7 @@ variable "queue_name" {
 variable "lambda_role_id" {
   type = string
 }
+
+variable "lambda_timeout" {
+  type = number
+}

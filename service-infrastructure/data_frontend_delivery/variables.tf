@@ -29,3 +29,8 @@ variable "notify_environment" {
 variable "output_bucket_name" {
   type = string
 }
+
+variable "lambda_timeout" {
+  type    = number
+  default = 900
+}

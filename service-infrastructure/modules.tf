@@ -7,7 +7,7 @@ locals {
   }
   dwh_security_groups = [module.warehouse_application.ecs_security_group_id, module.bastion.security_group_id, module.warehouse_scheduled_tasks_application.ecs_security_group_id, module.warehouse_api_application.ecs_security_group_id, module.data_warehouse_glue[0].glue_security_group_id]
   data_service_url    = replace(var.data_service_url, ".digital", "")
-  dwh_api_polciies    = var.environment == "prod" ? { "UserData_S3_access" : module.user_data.s3_read_access_policy_arn } : { "UserData_S3_access" : module.user_data.s3_read_access_policy_arn, "DynamoDB_User_Credentials_read_access" : module.epb_data_user_credentials[0].dynamodb_read_policy_arn }
+  dwh_api_polciies    = { "UserData_S3_access" : module.user_data.s3_read_access_policy_arn, "DynamoDB_User_Credentials_read_access" : module.epb_data_user_credentials[0].dynamodb_read_policy_arn }
 
   register_api_params = var.environment != "prod" ? {
     "EPB_AUTH_CLIENT_ID"     = module.parameter_store.parameter_arns["REGISTER_API_EPB_AUTH_CLIENT_ID"],
@@ -22,23 +22,6 @@ locals {
 
 module "account_security" {
   source = "./account_security"
-}
-
-module "data_frontend_delivery" {
-  count                          = var.environment == "prod" ? 0 : 1
-  source                         = "./data_frontend_delivery"
-  prefix                         = local.prefix
-  athena_workgroup_arn           = module.data_warehouse_glue[0].athena_workgroup_arn
-  glue_s3_bucket_read_policy_arn = module.data_warehouse_glue[0].glue_s3_bucket_read_policy_arn
-  output_bucket_write_policy_arn = module.user_data.s3_write_access_policy_arn
-  glue_catalog_name              = module.data_warehouse_glue[0].glue_catalog_name
-  output_bucket_arn              = module.user_data.bucket_arn
-  output_bucket_name             = module.user_data.bucket_name
-  notify_environment = {
-    "NOTIFY_DATA_API_KEY"              = var.parameters["NOTIFY_DATA_API_KEY"],
-    "NOTIFY_DATA_DOWNLOAD_TEMPLATE_ID" = var.parameters["NOTIFY_DATA_TEMPLATE_ID"],
-    "FRONTEND_URL"                     = "https://${var.data_service_url}",
-  }
 }
 
 module "networking" {
@@ -718,7 +701,7 @@ module "frontend_application" {
 }
 
 module "data_frontend_application" {
-  count                              = var.environment == "prod" ? 0 : 1
+  count                              = 1
   source                             = "./application"
   ci_account_id                      = var.ci_account_id
   prefix                             = "${local.prefix}-data-frontend"
@@ -761,8 +744,8 @@ module "data_frontend_application" {
   logs_bucket_name              = module.logging.logs_bucket_name
   logs_bucket_url               = module.logging.logs_bucket_url
   front_door_config = {
-    ssl_certificate_arn = module.ssl_certificate.certificate_arn
-    cdn_certificate_arn = module.cdn_certificate.certificate_arn
+    ssl_certificate_arn = var.environment == "prod" ? module.ssl_certificate_epb_data.certificate_arn : module.ssl_certificate.certificate_arn
+    cdn_certificate_arn = var.environment == "prod" ? module.cdn_certificate_epb_data.certificate_arn : module.cdn_certificate.certificate_arn
     cdn_allowed_methods = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
     cdn_cached_methods  = ["GET", "HEAD", "OPTIONS"]
     cdn_cache_ttl       = 60 # 1 minute
@@ -1259,6 +1242,23 @@ module "backup-vault" {
   backup_frequency = var.environment == "prod" ? "cron(01 4 * * ? *)" : "cron(01 4 ? * wed *)"
 }
 
+module "data_frontend_delivery" {
+  count                          = 1
+  source                         = "./data_frontend_delivery"
+  prefix                         = local.prefix
+  athena_workgroup_arn           = module.data_warehouse_glue[0].athena_workgroup_arn
+  glue_s3_bucket_read_policy_arn = module.data_warehouse_glue[0].glue_s3_bucket_read_policy_arn
+  output_bucket_write_policy_arn = module.user_data.s3_write_access_policy_arn
+  glue_catalog_name              = module.data_warehouse_glue[0].glue_catalog_name
+  output_bucket_arn              = module.user_data.bucket_arn
+  output_bucket_name             = module.user_data.bucket_name
+  notify_environment = {
+    "NOTIFY_DATA_API_KEY"              = var.parameters["NOTIFY_DATA_API_KEY"],
+    "NOTIFY_DATA_DOWNLOAD_TEMPLATE_ID" = var.parameters["NOTIFY_DATA_TEMPLATE_ID"],
+    "FRONTEND_URL"                     = "https://${var.data_service_url}",
+  }
+}
+
 module "data_warehouse_glue" {
   count                      = 1
   environment                = var.environment
@@ -1296,7 +1296,7 @@ module "addressing_glue" {
 }
 
 module "epb_data_user_credentials" {
-  count           = var.environment == "prod" ? 0 : 1
+  count           = 1
   source          = "./dynamo_db"
   prefix          = local.prefix
   environment     = var.environment
