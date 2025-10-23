@@ -562,6 +562,7 @@ module "scheduled_tasks_application" {
   additional_task_role_policy_arns = {
     "LandmarkData_S3_access" : module.landmark_data.s3_read_access_policy_arn,
     "OnsPostcodeData_S3_access" : module.ons_postcode_data.s3_read_access_policy_arn,
+    "OnsPostcodeData_S3_write_access" : module.ons_postcode_data.s3_write_access_policy_arn,
     "OpenDataExport_S3_access" : module.open_data_export.s3_write_access_policy_arn
   }
   aws_cloudwatch_log_group_id   = module.logging.cloudwatch_log_group_id
@@ -581,21 +582,28 @@ module "scheduled_tasks_application" {
   health_check_path             = "/healthcheck"
   logs_bucket_name              = module.logging.logs_bucket_name
   logs_bucket_url               = module.logging.logs_bucket_url
-  parameters = merge(module.parameter_store.parameter_arns, {
-    "SENTRY_DSN" : module.parameter_store.parameter_arns["SENTRY_DSN_REGISTER_WORKER"]
-  })
+  parameters = merge(
+    module.parameter_store.parameter_arns,
+    {
+      "SENTRY_DSN" : module.parameter_store.parameter_arns["SENTRY_DSN_REGISTER_WORKER"]
+    },
+    local.register_api_params
+  )
   prefix             = "${local.prefix}-scheduled-tasks"
   private_subnet_ids = module.networking.private_subnet_ids
   region             = var.region
-  secrets = {
-    "DATABASE_URL" : module.secrets.secret_arns["RDS_API_V2_SERVICE_CONNECTION_STRING"],
-    "DATABASE_READER_URL" : module.secrets.secret_arns["RDS_API_V2_SERVICE_READER_CONNECTION_STRING"],
-    "EPB_DATA_WAREHOUSE_QUEUES_URI" : module.secrets.secret_arns["EPB_DATA_WAREHOUSE_QUEUES_URI"],
-    "EPB_UNLEASH_URI" : module.secrets.secret_arns["EPB_UNLEASH_URI"],
-    "LANDMARK_DATA_BUCKET_NAME" : module.secrets.secret_arns["LANDMARK_DATA_BUCKET_NAME"],
-    "ODE_BUCKET_NAME" : module.secrets.secret_arns["ODE_BUCKET_NAME"],
-    "ONS_POSTCODE_BUCKET_NAME" : module.secrets.secret_arns["ONS_POSTCODE_BUCKET_NAME"]
-  }
+  secrets = merge(
+    {
+      "DATABASE_URL" : module.secrets.secret_arns["RDS_API_V2_SERVICE_CONNECTION_STRING"],
+      "DATABASE_READER_URL" : module.secrets.secret_arns["RDS_API_V2_SERVICE_READER_CONNECTION_STRING"],
+      "EPB_DATA_WAREHOUSE_QUEUES_URI" : module.secrets.secret_arns["EPB_DATA_WAREHOUSE_QUEUES_URI"],
+      "EPB_UNLEASH_URI" : module.secrets.secret_arns["EPB_UNLEASH_URI"],
+      "LANDMARK_DATA_BUCKET_NAME" : module.secrets.secret_arns["LANDMARK_DATA_BUCKET_NAME"],
+      "ODE_BUCKET_NAME" : module.secrets.secret_arns["ODE_BUCKET_NAME"],
+      "ONS_POSTCODE_BUCKET_NAME" : module.secrets.secret_arns["ONS_POSTCODE_BUCKET_NAME"]
+    },
+    local.register_api_secrets
+  )
   task_desired_capacity     = 0
   task_max_capacity         = 3
   task_min_capacity         = 0
