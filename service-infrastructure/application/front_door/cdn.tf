@@ -105,12 +105,13 @@ resource "aws_cloudfront_distribution" "cdn" {
   dynamic "ordered_cache_behavior" {
     for_each = var.s3_origin_bucket_name == null ? [] : ["this"]
     content {
-      allowed_methods          = ["GET", "HEAD"]
-      cached_methods           = ["GET", "HEAD"]
-      path_pattern             = "${var.s3_origin_route}/*"
-      target_origin_id         = "S3-${var.s3_origin_bucket_name}"
-      viewer_protocol_policy   = "allow-all"
-      origin_request_policy_id = aws_cloudfront_origin_request_policy.cdn.id
+      allowed_methods        = ["GET", "HEAD"]
+      cached_methods         = ["GET", "HEAD"]
+      path_pattern           = "${var.s3_origin_route}/*"
+      target_origin_id       = "S3-${var.s3_origin_bucket_name}"
+      viewer_protocol_policy = "allow-all"
+      # Managed-AllViewerExceptHostHeader policy id
+      origin_request_policy_id = "b689b0a8-53d0-40ab-baf2-68738e2966ac"
       cache_policy_id          = data.aws_cloudfront_cache_policy.caching_disabled.id
     }
   }
@@ -201,6 +202,8 @@ resource "aws_cloudfront_origin_request_policy" "cdn" {
     query_string_behavior = "all"
   }
 }
+
+
 
 data "aws_cloudfront_origin_request_policy" "corsS3Origin" {
   name = "Managed-CORS-S3Origin"

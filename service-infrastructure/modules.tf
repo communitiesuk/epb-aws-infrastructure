@@ -1316,5 +1316,5 @@ module "epb_dwh_api_swagger_docs" {
   bucket_name    = "${local.prefix}-dwh-api-swagger-docs"
   ci_account_id  = var.ci_account_id
   ci_role_id     = module.access.ci_role_id
-  cloudfront_arn = module.data_frontend_application[0].cloudfront_distribution_ids[0]["arn"]
+  cloudfront_arn = try(module.data_frontend_application[0].cloudfront_distribution_ids[0]["arn"], "")
 }
