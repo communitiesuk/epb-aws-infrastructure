@@ -23,3 +23,16 @@ module "codebuild_build_push_repo_stag" {
   ]
   region = var.region
 }
+
+module "codebuild_build_push_repo_prod" {
+  source             = "../codebuild_project"
+  codebuild_role_arn = var.codebuild_role_arn
+  name               = "${var.project_name}-deploy-production"
+  build_image_uri    = "aws/codebuild/standard:7.0"
+  buildspec_file     = "${var.configuration}/build_api_docs_and_push_to_aws.yml"
+  environment_variables = [
+    { name = "ENV", value = "prod" },
+    { name = "AWS_ACCOUNT_ID", value = var.account_ids["production"] },
+  ]
+  region = var.region
+}

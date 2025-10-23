@@ -55,5 +55,18 @@ resource "aws_codepipeline" "codepipeline" {
         ProjectName = module.codebuild_build_push_repo_stag.codebuild_name
       }
     }
+
+    action {
+      name             = "Build-production"
+      category         = "Build"
+      owner            = "AWS"
+      provider         = "CodeBuild"
+      version          = "1"
+      input_artifacts  = ["code_source"]
+      output_artifacts = ["build_and_push_to_output_prod"]
+      configuration = {
+        ProjectName = module.codebuild_build_push_repo_prod.codebuild_name
+      }
+    }
   }
 }
