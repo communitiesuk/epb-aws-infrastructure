@@ -1261,6 +1261,7 @@ module "backup-vault" {
 
 module "data_warehouse_glue" {
   count                      = 1
+  environment                = var.environment
   source                     = "./glue_data_warehouse"
   prefix                     = local.prefix
   subnet_group_id            = module.networking.private_db_subnet_first_id
@@ -1272,6 +1273,7 @@ module "data_warehouse_glue" {
   output_bucket_name         = module.user_data.bucket_name
   output_bucket_read_policy  = module.user_data.s3_read_access_policy_arn
   output_bucket_write_policy = module.user_data.s3_write_access_policy_arn
+
 }
 
 module "addressing_glue" {

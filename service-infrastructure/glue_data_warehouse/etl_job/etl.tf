@@ -3,6 +3,7 @@ resource "aws_glue_job" "this" {
   role_arn     = var.role_arn
   glue_version = var.glue_version
   connections  = var.glue_connector
+  worker_type  = var.worker_type
   command {
     name            = "glueetl"
     python_version  = var.python_version

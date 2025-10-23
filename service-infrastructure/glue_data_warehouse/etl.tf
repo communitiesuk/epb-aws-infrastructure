@@ -1,5 +1,6 @@
 locals {
   iceberg_conf = "spark.sql.extensions=org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions --conf spark.sql.catalog.glue_catalog=org.apache.iceberg.spark.SparkCatalog --conf spark.sql.catalog.glue_catalog.catalog-impl=org.apache.iceberg.aws.glue.GlueCatalog --conf spark.sql.catalog.glue_catalog.io-impl=org.apache.iceberg.aws.s3.S3FileIO --conf spark.sql.catalog.glue_catalog.warehouse=file:///tmp/spark-warehouse"
+  worker_type  = var.environment == "prod" ? "G.4X" : "G.1X"
 }
 
 
@@ -11,6 +12,7 @@ module "populate_domestic_etl" {
   role_arn         = aws_iam_role.glueServiceRole.arn
   script_file_name = "populate_iceberg_catalog.py"
   scripts_module   = path.module
+  worker_type      = local.worker_type
   arguments = {
     "--DATABASE_NAME"             = aws_glue_catalog_database.this.name
     "--CATALOG_TABLE_NAME"        = "domestic"
@@ -19,6 +21,7 @@ module "populate_domestic_etl" {
     "--DB_TABLE_NAME"             = "mvw_domestic_search"
     "--COLUMNS"                   = templatefile("${path.module}/table_definitions/domestic.txt", {})
     "--additional-python-modules" = "boto3==1.38.43"
+
   }
 }
 
@@ -30,6 +33,7 @@ module "populate_domestic_rr_etl" {
   role_arn         = aws_iam_role.glueServiceRole.arn
   script_file_name = "populate_iceberg_catalog.py"
   scripts_module   = path.module
+  worker_type      = local.worker_type
   arguments = {
     "--DATABASE_NAME"             = aws_glue_catalog_database.this.name
     "--CATALOG_TABLE_NAME"        = "domestic_rr"
@@ -38,7 +42,6 @@ module "populate_domestic_rr_etl" {
     "--DB_TABLE_NAME"             = "mvw_domestic_rr_search"
     "--COLUMNS"                   = templatefile("${path.module}/table_definitions/domestic_rr.txt", {})
     "--additional-python-modules" = "boto3==1.38.43"
-
   }
 }
 
@@ -80,7 +83,6 @@ module "populate_non_domestic_rr_etl" {
 
   }
 }
-
 
 module "populate_json_documents_etl" {
   count            = local.number_of_jobs
