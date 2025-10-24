@@ -83,7 +83,7 @@ module "waf" {
 
 module "onelogin_keys" {
   source = "./tls_key"
-  count  = var.environment == "prod" ? 0 : 1
+  count  = 1
 }
 
 
@@ -101,16 +101,16 @@ module "secrets" {
   secrets = {
     "EPB_API_URL" : "https://${module.register_api_application.internal_alb_name}.${var.domain_name}:443"
     "EPB_AUTH_SERVER" : "https://${module.auth_application.internal_alb_name}.${var.domain_name}:443/auth"
-    "EPB_DATA_FRONTEND_DELIVERY_SNS_ARN" : var.environment != "prod" ? module.data_frontend_delivery[0].sns_topic_arn : "test",
+    "EPB_DATA_FRONTEND_DELIVERY_SNS_ARN" : module.data_frontend_delivery[0].sns_topic_arn
     "EPB_DATA_FRONTEND_SESSION_SECRET" : random_string.epb_data_frontend_session_secret.result
     "EPB_DATA_WAREHOUSE_API_URL" : "https://${module.warehouse_api_application.internal_alb_name}.${var.domain_name}"
     "EPB_DATA_WAREHOUSE_QUEUES_URI" : module.warehouse_redis.redis_uri
     "EPB_UNLEASH_URI" : "https://${module.toggles_application.internal_alb_name}.${var.domain_name}:443/api"
     "EPB_QUEUES_URI" : module.warehouse_redis.redis_uri
     "EPB_ADDRESSING_URL" : var.environment != "prod" ? "https://${module.addressing_application[0].internal_alb_name}.${var.domain_name}" : "test"
-    "ONELOGIN_CLIENT_ID" : var.environment != "prod" ? var.parameters["ONELOGIN_CLIENT_ID"] : "test"
-    "ONELOGIN_HOST_URL" : var.environment != "prod" ? var.parameters["ONELOGIN_HOST_URL"] : "test"
-    "ONELOGIN_TLS_KEYS" : var.environment != "prod" ? jsonencode({ "kid" = module.onelogin_keys[0].key_id, "private_key" = module.onelogin_keys[0].private_key_pem, "public_key" = module.onelogin_keys[0].public_key_pem }) : "test"
+    "ONELOGIN_CLIENT_ID" : var.parameters["ONELOGIN_CLIENT_ID"]
+    "ONELOGIN_HOST_URL" : var.parameters["ONELOGIN_HOST_URL"]
+    "ONELOGIN_TLS_KEYS" : jsonencode({ "kid" = module.onelogin_keys[0].key_id, "private_key" = module.onelogin_keys[0].private_key_pem, "public_key" = module.onelogin_keys[0].public_key_pem })
     "LANDMARK_DATA_BUCKET_NAME" : module.landmark_data.bucket_name
     "ODE_BUCKET_NAME" : module.open_data_export.bucket_name
     "ODE_BUCKET_ACCESS_KEY" : module.open_data_export.s3_access_key
