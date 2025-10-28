@@ -21,7 +21,7 @@ NOTIFY_API_KEY = os.getenv("NOTIFY_DATA_API_KEY")
 NOTIFY_TEMPLATE_ID = os.getenv("NOTIFY_DATA_DOWNLOAD_TEMPLATE_ID")
 FRONTEND_URL = os.getenv("FRONTEND_URL")
 
-def send_notify_email(email_address, urls):
+def send_notify_email(email_address, urls, file_sizes):
     logger.info(f"Sending email to {email_address}: {urls}")
 
     if not NOTIFY_API_KEY or not NOTIFY_TEMPLATE_ID:
@@ -34,7 +34,8 @@ def send_notify_email(email_address, urls):
         template_id=NOTIFY_TEMPLATE_ID,
         personalisation={
             "subject": "Your data download link",
-            "link": urls
+            "link": urls,
+            "file_size": file_sizes
         },
     )
 
@@ -47,10 +48,16 @@ def lambda_handler(event, context):
             sns_message = json.loads(record["body"])
             email_address = sns_message.get("email")
             s3_keys = sns_message.get("s3_keys")
+            file_sizes = sns_message.get("file_sizes")
+
             urls = []
+            file_sizes_in_mbs = []
             
             for file_name, s3_link in s3_keys.items():
                 urls.append(f"[{file_name}.csv]({FRONTEND_URL}/download?file={s3_link})")
+
+            for file_size in file_sizes:
+                file_sizes_in_mbs.append(f"{file_size/(1024 * 1024)}mbs")
 
             if not email_address or not s3_keys:
                 logger.error(f"Missing required fields (email, s3_keys) in SQS message: {sns_message}")
@@ -60,7 +67,7 @@ def lambda_handler(event, context):
 
             # Send an email via Notify
             if s3_keys:
-                send_notify_email(email_address, urls)
+                send_notify_email(email_address, urls, file_sizes_in_mbs)
                 logger.info(f"Successfully sent email to {email_address} with S3 key: {s3_keys}")
             else:
                 logger.error(f"Failed to send the email via Notify")
