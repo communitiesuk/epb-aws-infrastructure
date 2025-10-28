@@ -25,6 +25,8 @@ resource "aws_s3_bucket_lifecycle_configuration" "logs" {
     id     = "all_logs"
     status = "Enabled"
 
+    filter { prefix = "" }
+
     expiration {
       days = 14
     }

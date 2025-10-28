@@ -25,6 +25,8 @@ resource "aws_s3_bucket_lifecycle_configuration" "expire_in_30_days" {
     id     = "expire-in-30-days"
     status = "Enabled"
 
+    filter { prefix = "" }
+
     expiration {
       days = 30
     }

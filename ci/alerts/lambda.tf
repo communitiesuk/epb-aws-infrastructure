@@ -11,7 +11,7 @@ resource "aws_lambda_function" "main_slack_alerts" {
   function_name = "ci-main-slack-alerts"
   role          = aws_iam_role.lambda_sns_subscriber.arn
 
-  runtime = "python3.9"
+  runtime = "python3.13"
   handler = "slack_alerts.lambda_handler"
 
   source_code_hash = data.archive_file.slack_alerts.output_base64sha256

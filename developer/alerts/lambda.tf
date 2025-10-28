@@ -11,7 +11,7 @@ resource "aws_lambda_function" "main_slack_alerts" {
   function_name = "developer-main-slack-alerts"
   role          = aws_iam_role.lambda_sns_subscriber.arn
 
-  runtime = "python3.9"
+  runtime = "python3.13"
   handler = "slack_alerts.lambda_handler"
 
   source_code_hash = data.archive_file.slack_alerts.output_base64sha256
@@ -27,6 +27,14 @@ resource "aws_lambda_function" "main_slack_alerts" {
 resource "aws_lambda_permission" "main_slack_alerts_with_sns" {
   statement_id  = "AllowExecutionFromSNS"
   action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.main_slack_alerts.function_name
+  principal     = "sns.amazonaws.com"
+  source_arn    = aws_sns_topic.cloudwatch_to_main_slack_alerts.arn
+}
+
+resource "aws_lambda_permission" "main_slack_alerts_with_sns_url" {
+  statement_id  = "AllowUrlExecutionFromSNS"
+  action        = "lambda:InvokeFunctionUrl"
   function_name = aws_lambda_function.main_slack_alerts.function_name
   principal     = "sns.amazonaws.com"
   source_arn    = aws_sns_topic.cloudwatch_to_main_slack_alerts.arn
