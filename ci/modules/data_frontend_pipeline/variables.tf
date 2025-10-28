@@ -58,9 +58,9 @@ variable "staging_prefix" {
   type = string
 }
 
-# variable "production_prefix" {
-#   type = string
-# }
+variable "production_prefix" {
+  type = string
+}
 
 variable "pipeline_name" {
   type = string
