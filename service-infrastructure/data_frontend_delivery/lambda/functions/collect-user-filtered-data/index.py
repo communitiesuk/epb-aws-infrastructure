@@ -18,7 +18,7 @@ ATHENA_WORKGROUP = os.getenv("ATHENA_WORKGROUP")
 OUTPUT_BUCKET = os.getenv("OUTPUT_BUCKET")
 SQS_QUEUE_URL = os.getenv("SQS_QUEUE_URL")
 
-max_wait = 400
+max_wait = 900
 
 
 def table(filters):
@@ -187,7 +187,7 @@ def copy_results_to_user_location(
         return None
 
 
-def send_email_and_s3_key_to_sqs(user_email, s3_keys):
+def send_email_and_s3_key_to_sqs(user_email, s3_keys, file_sizes):
     try:
         sqs_client = boto3.client("sqs")
 
@@ -195,6 +195,7 @@ def send_email_and_s3_key_to_sqs(user_email, s3_keys):
             "email": user_email,
             "s3_keys": s3_keys,
             "bucket_name": OUTPUT_BUCKET,
+            "file_sizes": file_sizes
         }
         logger.info(f"Sending user email and S3 key to SQS: {message}")
         response = sqs_client.send_message(
@@ -267,6 +268,17 @@ def log_error(error_message, body):
     logger.error(error_message)
     return {"statusCode": 500, "body": json.dumps(body)}
 
+def get_s3_file_size(s3_key):
+    s3 = boto3.client('s3')
+    response = s3.head_object(Bucket=OUTPUT_BUCKET, Key=s3_key)
+    size_in_bytes = response['ContentLength']
+    return size_in_bytes
+
+def get_s3_file_sizes(keys):
+    file_sizes = []
+    for key, value in keys.items():
+        file_sizes.append(get_s3_file_size(value))
+    return file_sizes
 
 def lambda_handler(event, context):
     logger.info("EVENT INFO:")
@@ -332,5 +344,6 @@ def lambda_handler(event, context):
                     "Failed to generate the S3 Recommendations key.",
                 )
 
+        file_sizes = get_s3_file_sizes(s3_keys)
         # Get and put email and results location to the SQS queue
-        send_email_and_s3_key_to_sqs(user_email, s3_keys)
+        send_email_and_s3_key_to_sqs(user_email, s3_keys, file_sizes)

@@ -47,10 +47,28 @@ def lambda_handler(event, context):
             sns_message = json.loads(record["body"])
             email_address = sns_message.get("email")
             s3_keys = sns_message.get("s3_keys")
+            file_sizes = sns_message.get("file_sizes")
+
             urls = []
-            
+            file_sizes_in_mbs = []
+
             for file_name, s3_link in s3_keys.items():
                 urls.append(f"[{file_name}.csv]({FRONTEND_URL}/download?file={s3_link})")
+
+            for file_size in file_sizes:
+                file_size_in_mb = round(file_size / (1024 * 1024), 2)
+                file_sizes_in_mbs.append(f"{file_size_in_mb}")
+
+            if len(urls) != len(file_sizes_in_mbs):
+                return {
+                    "statusCode": 400,
+                    "body": json.dumps("Mismatched urls and file sizes."),
+                }
+
+            count = 0
+            while count < len(urls):
+                urls[count] = f"{urls[count]} (estimated size: {file_sizes_in_mbs[count]} MB)"
+                count += 1
 
             if not email_address or not s3_keys:
                 logger.error(f"Missing required fields (email, s3_keys) in SQS message: {sns_message}")
