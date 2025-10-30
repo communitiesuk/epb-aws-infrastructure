@@ -268,17 +268,20 @@ def log_error(error_message, body):
     logger.error(error_message)
     return {"statusCode": 500, "body": json.dumps(body)}
 
+
 def get_s3_file_size(s3_key):
     s3 = boto3.client('s3')
     response = s3.head_object(Bucket=OUTPUT_BUCKET, Key=s3_key)
     size_in_bytes = response['ContentLength']
     return size_in_bytes
 
+
 def get_s3_file_sizes(keys):
     file_sizes = []
     for key, value in keys.items():
         file_sizes.append(get_s3_file_size(value))
     return file_sizes
+
 
 def lambda_handler(event, context):
     logger.info("EVENT INFO:")
@@ -321,7 +324,7 @@ def lambda_handler(event, context):
 
         if filters["include_recommendations"]:
             # Wait for Athena query to complete and get results location
-            results_rr_location = get_query_results_location(query_execution_rr_id)
+            results_rr_location = get_result_location(query_execution_rr_id)
             if not results_rr_location:
                 return log_error(
                     f"Athena Recommendations query {query_execution_rr_id} did not complete within the allowed time ({max_wait} seconds).",
