@@ -86,7 +86,7 @@ module "codebuild_deploy_production" {
     { name = "AWS_ACCOUNT_ID", value = var.account_ids["production"] },
     { name = "DOCKER_IMAGE_URI", value = "${var.account_ids["production"]}.dkr.ecr.${var.region}.amazonaws.com/${var.production_prefix}-${var.app_ecr_name}" },
     { name = "CLUSTER_NAME", value = "${var.production_prefix}-${var.ecs_cluster_name}" },
-    { name = "SERVICE_NAME", value = "${var.staging_prefix}-${var.ecs_service_name}" },
+    { name = "SERVICE_NAME", value = "${var.production_prefix}-${var.ecs_service_name}" },
   ]
   region = var.region
 }
