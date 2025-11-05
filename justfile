@@ -145,11 +145,11 @@ aurora-list: _ensure_aws_profile
     aws-vault exec $AWS_PROFILE -- aws rds describe-db-cluster-endpoints --query 'DBClusterEndpoints[*].[EndpointType,Endpoint]' --output table
     echo "run 'just rds-connect <endpoint>' to connect to the rds instance"
 
-# Creates connection to RDS instance. requires bastion host 'bastion-host' to be running in currenct account. Run 'just rds-list' to get available endpoint addresses
+# Creates connection to RDS instance. requires bastion host 'bastion-host' to be running in current account. Run 'just rds-list' to get available endpoint addresses
 rds-connect rds_endpoint local_port="5555": _ensure_aws_profile
     #!/usr/bin/env bash
 
-    BASTION_RDS_INSTANCE_ID=$(aws-vault exec $AWS_PROFILE -- aws ec2 describe-instances --filters "Name=tag:Name,Values=bastion-host" --query 'Reservations[*].Instances[*].InstanceId' --output text)
+    BASTION_RDS_INSTANCE_ID=$(aws-vault exec $AWS_PROFILE -- aws ec2 describe-instances --filters "Name=tag:Name,Values=bastion-host" --filters "Name=instance-state-name,Values=running" --query 'Reservations[*].Instances[*].InstanceId' --output text)
     
     echo "You can connect to your Database now using your preferred interface at server address localhost:{{local_port}}"
     echo "e.g. psql -h localhost -p 5555"
@@ -167,7 +167,7 @@ redis-connect redis_endpoint="" local_port="6380": _ensure_aws_profile
         REDIS_ENDPOINT={{redis_endpoint}}
      fi
 
-     BASTION_INSTANCE_ID=$(aws-vault exec $AWS_PROFILE -- aws ec2 describe-instances --filters "Name=tag:Name,Values=bastion-host" --query 'Reservations[*].Instances[*].InstanceId' --output text)
+     BASTION_INSTANCE_ID=$(aws-vault exec $AWS_PROFILE -- aws ec2 describe-instances --filters "Name=tag:Name,Values=bastion-host" --filters "Name=instance-state-name,Values=running" --query 'Reservations[*].Instances[*].InstanceId' --output text)
      echo "You can connect to Redis now using localhost:{{local_port}}"
      echo "e.g. redis-cli -h localhost -p 6380"
 
@@ -177,7 +177,7 @@ redis-connect redis_endpoint="" local_port="6380": _ensure_aws_profile
 # Disconnects from RDS instance
 rds-disconnect: _ensure_aws_profile
     #!/usr/bin/env bash
-    BASTION_RDS_INSTANCE_ID=$(aws-vault exec $AWS_PROFILE -- aws ec2 describe-instances --filters "Name=tag:Name,Values=bastion-host" --query 'Reservations[*].Instances[*].InstanceId' --output text)
+    BASTION_RDS_INSTANCE_ID=$(aws-vault exec $AWS_PROFILE -- aws ec2 describe-instances --filters "Name=tag:Name,Values=bastion-host" --filters "Name=instance-state-name,Values=running" --query 'Reservations[*].Instances[*].InstanceId' --output text)
     aws-vault exec $AWS_PROFILE -- aws ssm stop-session --target $(BASTION_RDS_INSTANCE_ID)
 
 # list available secrets
