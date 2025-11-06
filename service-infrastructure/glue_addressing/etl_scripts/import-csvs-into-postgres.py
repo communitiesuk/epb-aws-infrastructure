@@ -6,6 +6,7 @@ import psycopg2
 from awsglue.transforms import *
 from awsglue.utils import getResolvedOptions
 from pyspark.context import SparkContext
+from pyspark.sql.functions import lit
 from awsglue.dynamicframe import DynamicFrame
 from awsglue.context import GlueContext
 from awsglue.job import Job
@@ -90,7 +91,8 @@ def create_staging_table(conn_info):
     cur = conn.cursor()
 
     cur.execute(f"""
-        CREATE TABLE IF NOT EXISTS {DB_TABLE_NAME_STAGING} (LIKE {DB_TABLE_NAME} INCLUDING ALL);
+        DROP TABLE {DB_TABLE_NAME_STAGING};
+        CREATE TABLE {DB_TABLE_NAME_STAGING} (LIKE {DB_TABLE_NAME} INCLUDING ALL);
         TRUNCATE {DB_TABLE_NAME_STAGING};
     """)
 
@@ -119,7 +121,10 @@ def swap_tables(conn_info):
     cur.close()
     conn.close()
 
-
+def list_csv_files(bucket, prefix):
+    objects = s3_client.list_objects_v2(Bucket=bucket, Prefix=prefix)
+    files = [obj['Key'] for obj in objects.get('Contents', []) if obj['Key'].endswith(".csv")]
+    return files
 
 ngd_version_s3_obj = s3_client.get_object(Bucket=S3_BUCKET, Key=NGD_IMPORT_VERSION_KEY)
 ngd_data_version = ngd_version_s3_obj['Body'].read().decode().strip()
@@ -129,25 +134,32 @@ logger.warn(f"Importing NGD version: {ngd_data_version}. Proceeding with ETL.")
 conn_info = get_connection_info()
 create_staging_table(conn_info)
 
-# Script generated for node Amazon S3
-AmazonS3_node1757327398684 = glueContext.create_dynamic_frame.from_options(format_options={"quoteChar": "\"", "withHeader": True, "separator": ",", "optimizePerformance": False}, connection_type="s3", format="csv", connection_options={"paths": [f"s3://{S3_BUCKET}/ngd/"], "recurse": True}, transformation_ctx="AmazonS3_node1757327398684")
+file_keys = list_csv_files(S3_BUCKET, "ngd/")
+logger.warn(f"CSV files found: {', '.join(file_keys)}")
 
 columns_to_keep = get_table_columns(conn_info, DB_TABLE_NAME)
 
-df = AmazonS3_node1757327398684.toDF().select(*columns_to_keep)
-schema = df.schema
+for file_key in file_keys:
 
-filtered_frame = DynamicFrame.fromDF(df, glueContext, "filtered_frame")
+    # Script generated for node Amazon S3
+    AmazonS3_node1757327398684 = glueContext.create_dynamic_frame.from_options(format_options={"quoteChar": "\"", "withHeader": True, "separator": ",", "optimizePerformance": False}, connection_type="s3", format="csv", connection_options={"paths": [f"s3://{S3_BUCKET}/{file_key}"], "recurse": True}, transformation_ctx="AmazonS3_node1757327398684")
 
-glueContext.write_dynamic_frame.from_jdbc_conf(
-    frame=filtered_frame,
-    catalog_connection=CONNECTION_NAME,
-    connection_options={
-        "dbtable": DB_TABLE_NAME_STAGING,
-        "database": DATABASE_NAME
-    },
-    transformation_ctx="PostgresSink"
-)
+
+    df = AmazonS3_node1757327398684.toDF()
+    df = df.withColumn("source", lit(file_key))
+    df = df.select(*columns_to_keep)
+
+    filtered_frame = DynamicFrame.fromDF(df, glueContext, "filtered_frame")
+
+    glueContext.write_dynamic_frame.from_jdbc_conf(
+        frame=filtered_frame,
+        catalog_connection=CONNECTION_NAME,
+        connection_options={
+            "dbtable": DB_TABLE_NAME_STAGING,
+            "database": DATABASE_NAME
+        },
+        transformation_ctx="PostgresSink"
+    )
 
 swap_tables(conn_info)
 
