@@ -25,18 +25,10 @@ resource "aws_instance" "bastion" {
 
   lifecycle {
     ignore_changes = [
-      ami,
       user_data,
     ]
   }
 
-  provisioner "local-exec" {
-    command = <<-EOH
-          sudo apt update
-          sudo apt install postgresql postgresql-contrib
-          sudo apt-get install redis-tools
-        EOH
-  }
 }
 
 data "aws_ami" "ubuntu" {
@@ -44,7 +36,7 @@ data "aws_ami" "ubuntu" {
 
   filter {
     name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
+    values = ["ubuntu/images/hvm-ssd-gp3/ubuntu-noble-24.04-amd64-server-*"]
   }
 
   filter {
