@@ -87,6 +87,10 @@ resource "aws_glue_trigger" "trigger_monthly_export" {
   actions {
     job_name = module.export_json_domestic_data_by_year.etl_job_name
   }
+
+  actions {
+    job_name = module.export_json_non_domestic_data_by_year.etl_job_name
+  }
 }
 
 # Chain populate domestic_json_document jobs:
