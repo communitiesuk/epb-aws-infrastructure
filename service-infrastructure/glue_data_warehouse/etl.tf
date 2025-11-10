@@ -292,6 +292,6 @@ module "export_json_non_domestic_rr_data_by_year" {
     "--TABLE_NAME"       = "json_documents"
     "--S3_BUCKET"        = var.output_bucket_name
     "--ASSESSMENT_TYPES" = "CEPC-RR"
-    "--EPC_TYPE"         = "non-domestic_rr"
+    "--EPC_TYPE"         = "non-domestic-rr"
   }
 }
