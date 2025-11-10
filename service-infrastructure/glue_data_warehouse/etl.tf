@@ -278,3 +278,20 @@ module "export_json_non_domestic_data_by_year" {
     "--EPC_TYPE"         = "non-domestic"
   }
 }
+
+module "export_json_non_domestic_rr_data_by_year" {
+  source           = "./etl_job"
+  bucket_name      = aws_s3_bucket.this.bucket
+  job_name         = "Export JSON non-domestic RR data by year to S3"
+  role_arn         = aws_iam_role.glueServiceRole.arn
+  script_file_name = "export_json_by_year.py"
+  scripts_module   = path.module
+  worker_type      = local.worker_type
+  arguments = {
+    "--DATABASE_NAME"    = aws_glue_catalog_database.this.name
+    "--TABLE_NAME"       = "json_documents"
+    "--S3_BUCKET"        = var.output_bucket_name
+    "--ASSESSMENT_TYPES" = "CEPC-RR"
+    "--EPC_TYPE"         = "non-domestic_rr"
+  }
+}
