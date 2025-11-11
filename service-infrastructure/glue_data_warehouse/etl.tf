@@ -282,7 +282,7 @@ module "export_json_non_domestic_data_by_year" {
 module "export_json_non_domestic_rr_data_by_year" {
   source           = "./etl_job"
   bucket_name      = aws_s3_bucket.this.bucket
-  job_name         = "Export JSON non-domestic RR data by year to S3"
+  job_name         = "Export json non-domestic RR data by year to S3"
   role_arn         = aws_iam_role.glueServiceRole.arn
   script_file_name = "export_json_by_year.py"
   scripts_module   = path.module
@@ -292,6 +292,6 @@ module "export_json_non_domestic_rr_data_by_year" {
     "--TABLE_NAME"       = "json_documents"
     "--S3_BUCKET"        = var.output_bucket_name
     "--ASSESSMENT_TYPES" = "CEPC-RR"
-    "--EPC_TYPE"         = "non-domestic-rr"
+    "--EPC_TYPE"         = "non-domestic-recommendations"
   }
 }
