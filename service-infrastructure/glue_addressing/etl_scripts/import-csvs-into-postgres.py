@@ -93,7 +93,6 @@ def create_staging_table(conn_info):
     cur.execute(f"""
         DROP TABLE {DB_TABLE_NAME_STAGING};
         CREATE TABLE {DB_TABLE_NAME_STAGING} (LIKE {DB_TABLE_NAME} INCLUDING ALL);
-        TRUNCATE {DB_TABLE_NAME_STAGING};
     """)
 
     cur.close()
@@ -111,11 +110,13 @@ def swap_tables(conn_info):
     cur = conn.cursor()
 
     cur.execute(f"""
+        BEGIN;
         DROP TABLE IF EXISTS {DB_TABLE_NAME}_old;
         ALTER TABLE IF EXISTS {DB_TABLE_NAME} RENAME TO {DB_TABLE_NAME}_old;
         ALTER TABLE {DB_TABLE_NAME_STAGING} RENAME TO {DB_TABLE_NAME};
         ALTER TABLE {DB_TABLE_NAME}_old RENAME TO {DB_TABLE_NAME_STAGING};
         TRUNCATE {DB_TABLE_NAME_STAGING};
+        COMMIT;
     """)
 
     cur.close()
@@ -138,6 +139,7 @@ file_keys = list_csv_files(S3_BUCKET, "ngd/")
 logger.warn(f"CSV files found: {', '.join(file_keys)}")
 
 columns_to_keep = get_table_columns(conn_info, DB_TABLE_NAME)
+countries_to_filter = ['Isle of Man', 'Channel Islands']
 
 for file_key in file_keys:
 
@@ -148,6 +150,7 @@ for file_key in file_keys:
     df = AmazonS3_node1757327398684.toDF()
     df = df.withColumn("source", lit(file_key))
     df = df.select(*columns_to_keep)
+    df = df.filter(~df['country'].isin(countries_to_filter))
 
     filtered_frame = DynamicFrame.fromDF(df, glueContext, "filtered_frame")
 
