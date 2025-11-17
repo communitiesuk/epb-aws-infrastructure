@@ -2,11 +2,12 @@ import boto3
 import json
 import sys
 import psycopg2
+from functools import reduce
 
 from awsglue.transforms import *
 from awsglue.utils import getResolvedOptions
 from pyspark.context import SparkContext
-from pyspark.sql.functions import lit
+from pyspark.sql.functions import lit, col
 from awsglue.dynamicframe import DynamicFrame
 from awsglue.context import GlueContext
 from awsglue.job import Job
@@ -43,6 +44,52 @@ DB_TABLE_NAME = args['DB_TABLE_NAME']
 DB_TABLE_NAME_STAGING = args['DB_TABLE_NAME_STAGING']
 DB_IMPORT_VERSION_KEY = "database.version"
 NGD_IMPORT_VERSION_KEY = "ngd.version"
+
+classificationcode_exclude_prefixes = [
+    "CC10",  # Recycling Site
+    "CC11",  # CCTV
+    "CL06QS", # Racquet Sports
+    "CL09",  # Beach Hut
+    "CR11",  # ATM
+    "CT01HT", # Heliport / Helipad
+    "CT02",  # Bus Shelter
+    "CT05",  # Marina
+    "CT06",  # Mooring
+    "CT07",  # Railway Asset
+    "CT09",  # Transport Track
+    "CT11",  # Transport Infrastructure
+    "CT12",  # Overnight Lorry Park
+    "CT13",  # Harbour / Port
+    "CU01",  # Electricity Sub-Station
+    "CU02",  # Landfill
+    "CU11",  # Telephone Box
+    "CU12",  # Dam
+    "CZ01",  # Advertising Hoarding
+    "CZ02",  # Tourist Signage
+    "CZ03",  # Traffic Signage
+    "L",     # Land
+    "O",     # Other OS Only
+    "P",     # Parent Shell
+    "RC",    # Car Park Space
+    "RD07",  # House Boat
+    "RG02",  # Lock-Up Garage
+    "ZA",    # Archaeological Dig
+    "ZU",    # Underground Feature
+    "ZM",    # Monument
+    "ZV"     # Other Underground
+]
+
+classificationcode_include_exceptions = [
+    "ZM04",     # Castle / Historic Ruin
+    "ZV01",     # Cellar
+    "LB99PI",   # Pavilion / Changing Room
+    "PP"        # Property Shell
+]
+
+classificationcode_starts_with_excluded = reduce(
+    lambda a, b: a | b,
+    [col("classificationcode").startswith(prefix) for prefix in classificationcode_exclude_prefixes]
+)
 
 s3_client = boto3.client("s3")
 
@@ -151,6 +198,7 @@ for file_key in file_keys:
     df = df.withColumn("source", lit(file_key))
     df = df.select(*columns_to_keep)
     df = df.filter(~df['country'].isin(countries_to_filter))
+    df = df.filter(~classificationcode_starts_with_excluded | col("classificationcode").isin(classificationcode_include_exceptions))
 
     filtered_frame = DynamicFrame.fromDF(df, glueContext, "filtered_frame")
 
