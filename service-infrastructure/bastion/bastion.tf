@@ -26,6 +26,7 @@ resource "aws_instance" "bastion" {
   lifecycle {
     ignore_changes = [
       user_data,
+      ami
     ]
   }
 
