@@ -73,3 +73,7 @@ variable "postgres_image_ecr_url" {
 variable "staging_prefix" {
   type = string
 }
+
+variable "production_prefix" {
+  type = string
+}
