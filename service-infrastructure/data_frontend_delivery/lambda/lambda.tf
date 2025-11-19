@@ -4,7 +4,7 @@ locals {
 
 data "archive_file" "this" {
   type        = "zip"
-  source_dir  = "${local.source}${var.function_name}"
+  source_file = "${local.source}${var.function_name}/index.py"
   output_path = "${local.source}${var.output_file}"
 }
 
