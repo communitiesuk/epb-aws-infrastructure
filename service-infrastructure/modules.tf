@@ -947,18 +947,7 @@ module "addressing_application" {
   internal_alb_config = {
     ssl_certificate_arn = module.ssl_certificate.certificate_arn
   }
-  front_door_config = {
-    ssl_certificate_arn          = module.ssl_certificate.certificate_arn
-    cdn_certificate_arn          = module.cdn_certificate.certificate_arn
-    cdn_allowed_methods          = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
-    cdn_cached_methods           = ["GET", "HEAD", "OPTIONS"]
-    cdn_cache_ttl                = 0
-    cdn_aliases                  = toset([var.addressing_service_url])
-    waf_acl_arn                  = module.waf.waf_acl_arn
-    public_subnet_ids            = module.networking.public_subnet_ids
-    extra_lb_target_groups       = 0
-    path_based_routing_overrides = []
-  }
+
   task_max_capacity         = var.task_max_capacity
   task_desired_capacity     = var.task_desired_capacity
   task_min_capacity         = var.task_min_capacity
