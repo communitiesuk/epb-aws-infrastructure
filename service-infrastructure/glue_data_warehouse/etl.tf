@@ -19,7 +19,6 @@ module "populate_domestic_etl" {
     "--S3_BUCKET"                 = aws_s3_bucket.this.bucket
     "--CONNECTION_NAME"           = aws_glue_connection.this.name
     "--DB_TABLE_NAME"             = "mvw_domestic_search"
-    "--COLUMNS"                   = templatefile("${path.module}/table_definitions/domestic.txt", {})
     "--additional-python-modules" = "boto3==1.38.43"
 
   }
@@ -40,7 +39,6 @@ module "populate_domestic_rr_etl" {
     "--S3_BUCKET"                 = aws_s3_bucket.this.bucket
     "--CONNECTION_NAME"           = aws_glue_connection.this.name
     "--DB_TABLE_NAME"             = "mvw_domestic_rr_search"
-    "--COLUMNS"                   = templatefile("${path.module}/table_definitions/domestic_rr.txt", {})
     "--additional-python-modules" = "boto3==1.38.43"
   }
 }
@@ -59,7 +57,6 @@ module "populate_non_domestic_etl" {
     "--S3_BUCKET"                 = aws_s3_bucket.this.bucket
     "--CONNECTION_NAME"           = aws_glue_connection.this.name
     "--DB_TABLE_NAME"             = "mvw_commercial_search"
-    "--COLUMNS"                   = templatefile("${path.module}/table_definitions/non_domestic.txt", {})
     "--additional-python-modules" = "boto3==1.38.43"
   }
 }
@@ -78,7 +75,6 @@ module "populate_non_domestic_rr_etl" {
     "--S3_BUCKET"                 = aws_s3_bucket.this.bucket
     "--CONNECTION_NAME"           = aws_glue_connection.this.name
     "--DB_TABLE_NAME"             = "mvw_commercial_rr_search"
-    "--COLUMNS"                   = templatefile("${path.module}/table_definitions/non_domestic_rr.txt", {})
     "--additional-python-modules" = "boto3==1.38.43"
 
   }
@@ -100,7 +96,6 @@ module "populate_json_documents_etl" {
     "--S3_BUCKET"                 = aws_s3_bucket.this.bucket
     "--CONNECTION_NAME"           = aws_glue_connection.this.name
     "--DB_TABLE_NAME"             = "vw_export_documents_${local.catalog_start_year + count.index}"
-    "--COLUMNS"                   = templatefile("${path.module}/table_definitions/json_documents.txt", {})
     "--additional-python-modules" = "boto3==1.38.43"
   }
 }
@@ -128,7 +123,6 @@ module "insert_domestic_iceberg_data" {
     "--CONNECTION_NAME"        = aws_glue_connection.this.name
     "--DATABASE_NAME"          = aws_glue_catalog_database.this.name
     "--CATALOG_TABLE_NAME"     = "domestic"
-    "--COLUMNS"                = templatefile("${path.module}/table_definitions/domestic.txt", {})
     "--S3_BUCKET"              = aws_s3_bucket.this.bucket
     "--SOURCE_VIEW_TABLE_NAME" = "vw_domestic_yesterday"
     "--conf"                   = local.iceberg_conf
@@ -147,7 +141,6 @@ module "insert_domestic_rr_iceberg_data" {
     "--CONNECTION_NAME"        = aws_glue_connection.this.name
     "--DATABASE_NAME"          = aws_glue_catalog_database.this.name
     "--CATALOG_TABLE_NAME"     = "domestic_rr"
-    "--COLUMNS"                = templatefile("${path.module}/table_definitions/domestic_rr.txt", {})
     "--S3_BUCKET"              = aws_s3_bucket.this.bucket
     "--SOURCE_VIEW_TABLE_NAME" = "vw_domestic_rr_yesterday"
     "--conf"                   = local.iceberg_conf
@@ -166,7 +159,6 @@ module "insert_non_domestic_iceberg_data" {
     "--CONNECTION_NAME"        = aws_glue_connection.this.name
     "--DATABASE_NAME"          = aws_glue_catalog_database.this.name
     "--CATALOG_TABLE_NAME"     = "non_domestic"
-    "--COLUMNS"                = templatefile("${path.module}/table_definitions/non_domestic.txt", {})
     "--S3_BUCKET"              = aws_s3_bucket.this.bucket
     "--SOURCE_VIEW_TABLE_NAME" = "vw_commercial_yesterday"
     "--conf"                   = local.iceberg_conf
@@ -185,7 +177,6 @@ module "insert_non_domestic_rr_iceberg_data" {
     "--CONNECTION_NAME"        = aws_glue_connection.this.name
     "--DATABASE_NAME"          = aws_glue_catalog_database.this.name
     "--CATALOG_TABLE_NAME"     = "non_domestic_rr"
-    "--COLUMNS"                = templatefile("${path.module}/table_definitions/non_domestic_rr.txt", {})
     "--S3_BUCKET"              = aws_s3_bucket.this.bucket
     "--SOURCE_VIEW_TABLE_NAME" = "vw_commercial_rr_yesterday"
     "--conf"                   = local.iceberg_conf
@@ -204,7 +195,6 @@ module "insert_json_document_iceberg_data" {
     "--CONNECTION_NAME"        = aws_glue_connection.this.name
     "--DATABASE_NAME"          = aws_glue_catalog_database.this.name
     "--CATALOG_TABLE_NAME"     = "json_documents"
-    "--COLUMNS"                = templatefile("${path.module}/table_definitions/json_documents.txt", {})
     "--S3_BUCKET"              = aws_s3_bucket.this.bucket
     "--SOURCE_VIEW_TABLE_NAME" = "vw_json_documents_yesterday"
     "--conf"                   = local.iceberg_conf
