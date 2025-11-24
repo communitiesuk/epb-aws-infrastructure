@@ -45,6 +45,10 @@ variable "main_slack_alerts" {
   type = number
 }
 
+variable "glue_to_main_slack_alerts" {
+  type = bool
+}
+
 variable "cloudtrail_log_group_name" {
   type = string
 }

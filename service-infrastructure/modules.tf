@@ -1005,6 +1005,7 @@ module "alerts" {
   slack_webhook_url          = var.parameters["EPB_TEAM_SLACK_URL"]
   main_slack_alerts          = var.environment == "intg" ? 1 : 0
   main_slack_webhook_url     = var.parameters["EPB_TEAM_MAIN_SLACK_URL"]
+  glue_to_main_slack_alerts  = var.environment == "prod" ? true : false
   cloudtrail_log_group_name  = module.logging.cloudtrail_log_group_name
   cloudwatch_ecs_events_name = module.logging.cloudwatch_ecs_events_name
 

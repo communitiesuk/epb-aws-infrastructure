@@ -20,3 +20,12 @@ resource "aws_sns_topic_subscription" "cloudwatch_to_main_slack_alerts_lambda" {
   endpoint  = aws_lambda_function.main_slack_alerts[0].arn
 }
 
+resource "aws_sns_topic" "eventbridge_glue_slack_alerts" {
+  name = "eventbridge_glue_slack_alerts"
+}
+
+resource "aws_sns_topic_subscription" "eventbridge_glue_alerts_lambda" {
+  topic_arn = aws_sns_topic.eventbridge_glue_slack_alerts.arn
+  protocol  = "lambda"
+  endpoint  = aws_lambda_function.glue_slack_alerts.arn
+}
