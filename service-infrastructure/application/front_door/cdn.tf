@@ -26,7 +26,6 @@ resource "aws_cloudfront_distribution" "cdn" {
   web_acl_id      = var.waf_acl_arn
 
 
-
   origin {
     domain_name = aws_lb.public.dns_name
     origin_id   = local.origin_id
@@ -75,8 +74,15 @@ resource "aws_cloudfront_distribution" "cdn" {
     target_origin_id         = local.origin_id
     viewer_protocol_policy   = "redirect-to-https"
     origin_request_policy_id = aws_cloudfront_origin_request_policy.cdn.id
+    cache_policy_id          = var.cdn_cache_ttl > 0 ? aws_cloudfront_cache_policy.ttl_based[0].id : data.aws_cloudfront_cache_policy.caching_disabled.id
 
-    cache_policy_id = var.cdn_cache_ttl > 0 ? aws_cloudfront_cache_policy.ttl_based[0].id : data.aws_cloudfront_cache_policy.caching_disabled.id
+    dynamic "function_association" {
+      for_each = var.authorization_header_function ? ["this"] : []
+      content {
+        event_type   = "viewer-request"
+        function_arn = aws_cloudfront_function.authorization_function[0].arn
+      }
+    }
   }
 
   ordered_cache_behavior {
@@ -115,6 +121,7 @@ resource "aws_cloudfront_distribution" "cdn" {
       cache_policy_id          = data.aws_cloudfront_cache_policy.caching_disabled.id
     }
   }
+
 
 
   viewer_certificate {
@@ -184,6 +191,8 @@ resource "aws_cloudfront_distribution" "cdn" {
   lifecycle {
     prevent_destroy = true
   }
+
+
 }
 
 resource "aws_cloudfront_origin_request_policy" "cdn" {
@@ -202,7 +211,6 @@ resource "aws_cloudfront_origin_request_policy" "cdn" {
     query_string_behavior = "all"
   }
 }
-
 
 
 data "aws_cloudfront_origin_request_policy" "corsS3Origin" {
@@ -258,4 +266,14 @@ resource "aws_shield_protection" "cdn" {
 resource "aws_cloudfront_origin_access_identity" "error_pages" {
   count   = var.cdn_include_static_error_pages ? 1 : 0
   comment = "Error pages"
+}
+
+
+resource "aws_cloudfront_function" "authorization_function" {
+  count   = var.authorization_header_function ? 1 : 0
+  name    = "check-authorisation-header"
+  comment = "checks the authorisation in the request"
+  runtime = "cloudfront-js-1.0"
+  publish = true
+  code    = templatefile("${path.module}/authorization_header_function.js", {})
 }

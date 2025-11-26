@@ -120,3 +120,9 @@ variable "s3_origin_route" {
 variable "s3_origin_domain_name" {
   type = string
 }
+
+variable "authorization_header_function" {
+  type     = bool
+  default  = false
+  nullable = false
+}

@@ -84,6 +84,7 @@ variable "internal_alb_config" {
 
 variable "front_door_config" {
   type = object({
+    authorization_header_function  = optional(bool)
     ssl_certificate_arn            = string
     cdn_certificate_arn            = string
     cdn_cache_headers              = optional(list(string))

@@ -856,7 +856,7 @@ module "warehouse_api_application" {
     ssl_certificate_arn = module.ssl_certificate.certificate_arn
   }
   front_door_config = {
-    ssl_certificate_arn            = module.ssl_certificate_epb_data.certificate_arn
+    authorization_header_function  = true
     cdn_cache_headers              = ["Authorization"]
     cdn_certificate_arn            = module.cdn_certificate_epb_data.certificate_arn
     cdn_allowed_methods            = ["GET", "HEAD", "OPTIONS"]
@@ -864,12 +864,13 @@ module "warehouse_api_application" {
     cdn_cache_ttl                  = 60 # 1 minute
     cdn_cache_cookie_behaviour     = "none"
     cdn_aliases                    = toset(["api.${local.data_service_url}"])
-    waf_acl_arn                    = module.waf.waf_acl_arn
+    cdn_include_static_error_pages = true
+    extra_lb_target_groups         = 0
+    error_pages_bucket_name        = module.error_pages.error_pages_bucket_name
     public_subnet_ids              = module.networking.public_subnet_ids
     path_based_routing_overrides   = []
-    extra_lb_target_groups         = 0
-    cdn_include_static_error_pages = true
-    error_pages_bucket_name        = module.error_pages.error_pages_bucket_name
+    ssl_certificate_arn            = module.ssl_certificate_epb_data.certificate_arn
+    waf_acl_arn                    = module.waf.waf_acl_arn
   }
   task_max_capacity         = var.task_max_capacity
   task_desired_capacity     = var.task_desired_capacity
