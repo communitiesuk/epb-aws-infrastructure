@@ -25,6 +25,10 @@ resource "aws_glue_trigger" "trigger_insert" {
   }
 
   actions {
+    job_name = module.insert_dec_iceberg_data.etl_job_name
+  }
+
+  actions {
     job_name = module.insert_json_document_iceberg_data.etl_job_name
   }
 }
@@ -60,6 +64,11 @@ resource "aws_glue_trigger" "trigger_delete" {
     }
 
     conditions {
+      job_name = module.insert_dec_iceberg_data.etl_job_name
+      state    = "SUCCEEDED"
+    }
+
+    conditions {
       job_name = module.insert_json_document_iceberg_data.etl_job_name
       state    = "SUCCEEDED"
     }
@@ -85,6 +94,10 @@ resource "aws_glue_trigger" "trigger_monthly_export" {
   }
 
   actions {
+    job_name = module.export_dec_data_by_year.etl_job_name
+  }
+
+  actions {
     job_name = module.export_json_domestic_data_by_year.etl_job_name
   }
 
@@ -94,6 +107,10 @@ resource "aws_glue_trigger" "trigger_monthly_export" {
 
   actions {
     job_name = module.export_json_non_domestic_rr_data_by_year.etl_job_name
+  }
+
+  actions {
+    job_name = module.export_json_dec_data_by_year.etl_job_name
   }
 }
 

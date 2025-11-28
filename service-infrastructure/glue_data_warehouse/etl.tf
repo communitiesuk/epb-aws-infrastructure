@@ -80,6 +80,24 @@ module "populate_non_domestic_rr_etl" {
   }
 }
 
+module "populate_dec_etl" {
+  source           = "./etl_job"
+  bucket_name      = aws_s3_bucket.this.bucket
+  glue_connector   = [aws_glue_connection.this.name]
+  job_name         = "Populate dec catalog"
+  role_arn         = aws_iam_role.glueServiceRole.arn
+  script_file_name = "populate_iceberg_catalog.py"
+  scripts_module   = path.module
+  arguments = {
+    "--DATABASE_NAME"             = aws_glue_catalog_database.this.name
+    "--CATALOG_TABLE_NAME"        = "dec"
+    "--S3_BUCKET"                 = aws_s3_bucket.this.bucket
+    "--CONNECTION_NAME"           = aws_glue_connection.this.name
+    "--DB_TABLE_NAME"             = "mvw_dec_search"
+    "--additional-python-modules" = "boto3==1.38.43"
+  }
+}
+
 module "populate_json_documents_etl" {
   count            = local.number_of_jobs
   source           = "./etl_job"
@@ -188,6 +206,24 @@ module "insert_non_domestic_rr_iceberg_data" {
   scripts_module   = path.module
 }
 
+module "insert_dec_iceberg_data" {
+  source         = "./etl_job"
+  glue_connector = [aws_glue_connection.this.name]
+  arguments = {
+    "--CONNECTION_NAME"        = aws_glue_connection.this.name
+    "--DATABASE_NAME"          = aws_glue_catalog_database.this.name
+    "--CATALOG_TABLE_NAME"     = "dec"
+    "--S3_BUCKET"              = aws_s3_bucket.this.bucket
+    "--SOURCE_VIEW_TABLE_NAME" = "vw_dec_yesterday"
+    "--conf"                   = local.iceberg_conf
+  }
+  bucket_name      = aws_s3_bucket.this.bucket
+  job_name         = "Insert dec iceberg data"
+  role_arn         = aws_iam_role.glueServiceRole.arn
+  script_file_name = "insert_data.py"
+  scripts_module   = path.module
+}
+
 module "insert_json_document_iceberg_data" {
   source         = "./etl_job"
   glue_connector = [aws_glue_connection.this.name]
@@ -232,6 +268,20 @@ module "export_non_domestic_data_by_year" {
     "--DATABASE_NAME" = aws_glue_catalog_database.this.name
     "--TABLE_NAME"    = "non_domestic"
     "--TABLE_NAME_RR" = "non_domestic_rr"
+    "--S3_BUCKET"     = var.output_bucket_name
+  }
+}
+
+module "export_dec_data_by_year" {
+  source           = "./etl_job"
+  bucket_name      = aws_s3_bucket.this.bucket
+  job_name         = "Export dec data by year to S3"
+  role_arn         = aws_iam_role.glueServiceRole.arn
+  script_file_name = "export_by_year.py"
+  scripts_module   = path.module
+  arguments = {
+    "--DATABASE_NAME" = aws_glue_catalog_database.this.name
+    "--TABLE_NAME"    = "dec"
     "--S3_BUCKET"     = var.output_bucket_name
   }
 }
@@ -283,5 +333,22 @@ module "export_json_non_domestic_rr_data_by_year" {
     "--S3_BUCKET"        = var.output_bucket_name
     "--ASSESSMENT_TYPES" = "CEPC-RR"
     "--EPC_TYPE"         = "non-domestic-recommendations"
+  }
+}
+
+module "export_json_dec_data_by_year" {
+  source           = "./etl_job"
+  bucket_name      = aws_s3_bucket.this.bucket
+  job_name         = "Export JSON dec data by year to S3"
+  role_arn         = aws_iam_role.glueServiceRole.arn
+  script_file_name = "export_json_by_year.py"
+  scripts_module   = path.module
+  worker_type      = local.worker_type
+  arguments = {
+    "--DATABASE_NAME"    = aws_glue_catalog_database.this.name
+    "--TABLE_NAME"       = "json_documents"
+    "--S3_BUCKET"        = var.output_bucket_name
+    "--ASSESSMENT_TYPES" = "DEC"
+    "--EPC_TYPE"         = "dec"
   }
 }
