@@ -219,6 +219,14 @@ module "parameter_store" {
       type  = "String"
       value = var.parameters["NOTIFY_TEMPLATE_ID"]
     }
+    "NOTIFY_OPT_OUT_TEMPLATE_ID" : {
+      type  = "String"
+      value = var.parameters["NOTIFY_OPT_OUT_TEMPLATE_ID"]
+    }
+    "NOTIFY_OPT_OUT_EMAIL_RECIPIENT" : {
+      type  = "String"
+      value = var.parameters["NOTIFY_OPT_OUT_EMAIL_RECIPIENT"]
+    }
     "NOTIFY_DATA_API_KEY" : {
       type  = "String"
       value = var.parameters["NOTIFY_DATA_API_KEY"]
@@ -721,6 +729,9 @@ module "data_frontend_application" {
     "EPB_AUTH_CLIENT_ID" : module.parameter_store.parameter_arns["WAREHOUSE_EPB_AUTH_CLIENT_ID"],
     "EPB_AUTH_CLIENT_SECRET" : module.parameter_store.parameter_arns["WAREHOUSE_EPB_AUTH_CLIENT_SECRET"]
     "SENTRY_DSN" : module.parameter_store.parameter_arns["SENTRY_DSN_DATA_FRONTEND"]
+    "NOTIFY_CLIENT_API_KEY" : module.parameter_store.parameter_arns["NOTIFY_CLIENT_API_KEY"]
+    "NOTIFY_OPT_OUT_TEMPLATE_ID" : module.parameter_store.parameter_arns["NOTIFY_OPT_OUT_TEMPLATE_ID"]
+    "NOTIFY_OPT_OUT_EMAIL_RECIPIENT" : module.parameter_store.parameter_arns["NOTIFY_OPT_OUT_EMAIL_RECIPIENT"]
   })
   vpc_id                                     = module.networking.vpc_id
   fluentbit_ecr_url                          = module.fluentbit_ecr.ecr_url
