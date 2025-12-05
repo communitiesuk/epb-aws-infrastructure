@@ -11,7 +11,7 @@ data "aws_iam_policy_document" "allow_bucket_access_doc" {
 
     principals {
       type        = "AWS"
-      identifiers = [var.oai_iam_arn]
+      identifiers = var.oai_iam_arns
     }
 
     effect = "Allow"

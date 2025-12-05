@@ -1120,9 +1120,13 @@ locals {
 }
 
 module "error_pages" {
-  source          = "./error_pages"
-  prefix          = "${local.prefix}-error-pages"
-  oai_iam_arn     = module.frontend_application.oai_iam_arn
+  source = "./error_pages"
+  prefix = "${local.prefix}-error-pages"
+  oai_iam_arns = [
+    module.frontend_application.oai_iam_arn,
+    module.data_frontend_application[0].oai_iam_arn,
+    module.warehouse_api_application.oai_iam_arn,
+  ]
   allowed_origins = local.allowed_origins
 }
 
