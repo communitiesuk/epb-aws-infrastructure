@@ -98,6 +98,25 @@ module "populate_dec_etl" {
   }
 }
 
+module "populate_dec_rr_etl" {
+  source           = "./etl_job"
+  bucket_name      = aws_s3_bucket.this.bucket
+  glue_connector   = [aws_glue_connection.this.name]
+  job_name         = "Populate dec rr catalog"
+  role_arn         = aws_iam_role.glueServiceRole.arn
+  script_file_name = "populate_iceberg_catalog.py"
+  scripts_module   = path.module
+  arguments = {
+    "--DATABASE_NAME"             = aws_glue_catalog_database.this.name
+    "--CATALOG_TABLE_NAME"        = "dec_rr"
+    "--S3_BUCKET"                 = aws_s3_bucket.this.bucket
+    "--CONNECTION_NAME"           = aws_glue_connection.this.name
+    "--DB_TABLE_NAME"             = "mvw_dec_rr_search"
+    "--additional-python-modules" = "boto3==1.38.43"
+
+  }
+}
+
 module "populate_json_documents_etl" {
   count            = local.number_of_jobs
   source           = "./etl_job"
@@ -219,6 +238,24 @@ module "insert_dec_iceberg_data" {
   }
   bucket_name      = aws_s3_bucket.this.bucket
   job_name         = "Insert dec iceberg data"
+  role_arn         = aws_iam_role.glueServiceRole.arn
+  script_file_name = "insert_data.py"
+  scripts_module   = path.module
+}
+
+module "insert_dec_rr_iceberg_data" {
+  source         = "./etl_job"
+  glue_connector = [aws_glue_connection.this.name]
+  arguments = {
+    "--CONNECTION_NAME"        = aws_glue_connection.this.name
+    "--DATABASE_NAME"          = aws_glue_catalog_database.this.name
+    "--CATALOG_TABLE_NAME"     = "dec_rr"
+    "--S3_BUCKET"              = aws_s3_bucket.this.bucket
+    "--SOURCE_VIEW_TABLE_NAME" = "vw_dec_rr_yesterday"
+    "--conf"                   = local.iceberg_conf
+  }
+  bucket_name      = aws_s3_bucket.this.bucket
+  job_name         = "Insert dec rr iceberg data"
   role_arn         = aws_iam_role.glueServiceRole.arn
   script_file_name = "insert_data.py"
   scripts_module   = path.module

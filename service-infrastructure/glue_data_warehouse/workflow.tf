@@ -29,6 +29,10 @@ resource "aws_glue_trigger" "trigger_insert" {
   }
 
   actions {
+    job_name = module.insert_dec_rr_iceberg_data.etl_job_name
+  }
+
+  actions {
     job_name = module.insert_json_document_iceberg_data.etl_job_name
   }
 }
@@ -65,6 +69,11 @@ resource "aws_glue_trigger" "trigger_delete" {
 
     conditions {
       job_name = module.insert_dec_iceberg_data.etl_job_name
+      state    = "SUCCEEDED"
+    }
+
+    conditions {
+      job_name = module.insert_dec_rr_iceberg_data.etl_job_name
       state    = "SUCCEEDED"
     }
 
