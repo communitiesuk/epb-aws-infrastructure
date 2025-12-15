@@ -714,6 +714,7 @@ module "data_frontend_application" {
   environment_variables = {
     "AWS_S3_USER_DATA_BUCKET_NAME" : module.user_data.bucket_name,
     "EPB_DATA_USER_CREDENTIAL_TABLE_NAME" : module.epb_data_user_credentials[0].table_name,
+    "PUBLISHED_DWH_API_URL" : "https://api.${var.data_service_url}"
   }
   secrets = {
     "EPB_UNLEASH_URI" : module.secrets.secret_arns["EPB_UNLEASH_URI"]
