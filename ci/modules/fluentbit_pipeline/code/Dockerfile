@@ -1,4 +1,4 @@
-FROM fluent/fluent-bit:latest as builder
+FROM fluent/fluent-bit:4.1.2 as builder
 FROM debian:bookworm-slim as debug
 ENV DEBIAN_FRONTEND noninteractive
 

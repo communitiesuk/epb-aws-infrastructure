@@ -43,7 +43,7 @@ module "fluentbit_pipeline" {
   source              = "./schedule"
   name                = "start-fluentbit-pipeline"
   group_name          = local.group_name
-  schedule_expression = "cron(03 15 19 * ? *)"
+  schedule_expression = "cron(03 13 10 * ? *)"
   pipeline_arn        = var.fluentbit_codepipeline_arn
   iam_role_arn        = local.scheduler_role_arn
 }
