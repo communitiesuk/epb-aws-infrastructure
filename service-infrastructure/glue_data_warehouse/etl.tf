@@ -84,13 +84,13 @@ module "populate_dec_etl" {
   source           = "./etl_job"
   bucket_name      = aws_s3_bucket.this.bucket
   glue_connector   = [aws_glue_connection.this.name]
-  job_name         = "Populate dec catalog"
+  job_name         = "Populate display catalog"
   role_arn         = aws_iam_role.glueServiceRole.arn
   script_file_name = "populate_iceberg_catalog.py"
   scripts_module   = path.module
   arguments = {
     "--DATABASE_NAME"             = aws_glue_catalog_database.this.name
-    "--CATALOG_TABLE_NAME"        = "dec"
+    "--CATALOG_TABLE_NAME"        = "display"
     "--S3_BUCKET"                 = aws_s3_bucket.this.bucket
     "--CONNECTION_NAME"           = aws_glue_connection.this.name
     "--DB_TABLE_NAME"             = "mvw_dec_search"
@@ -102,13 +102,13 @@ module "populate_dec_rr_etl" {
   source           = "./etl_job"
   bucket_name      = aws_s3_bucket.this.bucket
   glue_connector   = [aws_glue_connection.this.name]
-  job_name         = "Populate dec rr catalog"
+  job_name         = "Populate display rr catalog"
   role_arn         = aws_iam_role.glueServiceRole.arn
   script_file_name = "populate_iceberg_catalog.py"
   scripts_module   = path.module
   arguments = {
     "--DATABASE_NAME"             = aws_glue_catalog_database.this.name
-    "--CATALOG_TABLE_NAME"        = "dec_rr"
+    "--CATALOG_TABLE_NAME"        = "display_rr"
     "--S3_BUCKET"                 = aws_s3_bucket.this.bucket
     "--CONNECTION_NAME"           = aws_glue_connection.this.name
     "--DB_TABLE_NAME"             = "mvw_dec_rr_search"
@@ -231,13 +231,13 @@ module "insert_dec_iceberg_data" {
   arguments = {
     "--CONNECTION_NAME"        = aws_glue_connection.this.name
     "--DATABASE_NAME"          = aws_glue_catalog_database.this.name
-    "--CATALOG_TABLE_NAME"     = "dec"
+    "--CATALOG_TABLE_NAME"     = "display"
     "--S3_BUCKET"              = aws_s3_bucket.this.bucket
     "--SOURCE_VIEW_TABLE_NAME" = "vw_dec_yesterday"
     "--conf"                   = local.iceberg_conf
   }
   bucket_name      = aws_s3_bucket.this.bucket
-  job_name         = "Insert dec iceberg data"
+  job_name         = "Insert display iceberg data"
   role_arn         = aws_iam_role.glueServiceRole.arn
   script_file_name = "insert_data.py"
   scripts_module   = path.module
@@ -249,13 +249,13 @@ module "insert_dec_rr_iceberg_data" {
   arguments = {
     "--CONNECTION_NAME"        = aws_glue_connection.this.name
     "--DATABASE_NAME"          = aws_glue_catalog_database.this.name
-    "--CATALOG_TABLE_NAME"     = "dec_rr"
+    "--CATALOG_TABLE_NAME"     = "display_rr"
     "--S3_BUCKET"              = aws_s3_bucket.this.bucket
     "--SOURCE_VIEW_TABLE_NAME" = "vw_dec_rr_yesterday"
     "--conf"                   = local.iceberg_conf
   }
   bucket_name      = aws_s3_bucket.this.bucket
-  job_name         = "Insert dec rr iceberg data"
+  job_name         = "Insert display rr iceberg data"
   role_arn         = aws_iam_role.glueServiceRole.arn
   script_file_name = "insert_data.py"
   scripts_module   = path.module
@@ -312,13 +312,13 @@ module "export_non_domestic_data_by_year" {
 module "export_dec_data_by_year" {
   source           = "./etl_job"
   bucket_name      = aws_s3_bucket.this.bucket
-  job_name         = "Export dec data by year to S3"
+  job_name         = "Export display data by year to S3"
   role_arn         = aws_iam_role.glueServiceRole.arn
   script_file_name = "export_by_year.py"
   scripts_module   = path.module
   arguments = {
     "--DATABASE_NAME" = aws_glue_catalog_database.this.name
-    "--TABLE_NAME"    = "dec"
+    "--TABLE_NAME"    = "display"
     "--S3_BUCKET"     = var.output_bucket_name
   }
 }
@@ -376,7 +376,7 @@ module "export_json_non_domestic_rr_data_by_year" {
 module "export_json_dec_data_by_year" {
   source           = "./etl_job"
   bucket_name      = aws_s3_bucket.this.bucket
-  job_name         = "Export JSON dec data by year to S3"
+  job_name         = "Export JSON display data by year to S3"
   role_arn         = aws_iam_role.glueServiceRole.arn
   script_file_name = "export_json_by_year.py"
   scripts_module   = path.module
