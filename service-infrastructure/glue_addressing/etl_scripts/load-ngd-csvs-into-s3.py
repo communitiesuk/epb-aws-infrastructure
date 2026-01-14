@@ -114,7 +114,6 @@ job.init(args["JOB_NAME"], args)
 S3_BUCKET = args["S3_BUCKET"]
 OS_API_KEY = args["OS_API_KEY"]
 DATA_PACKAGE_ID = args["DATA_PACKAGE_ID"]
-
 CURRENT_VERSION_S3_KEY = "ngd.version"
 
 s3_client = boto3.client("s3")
@@ -127,38 +126,36 @@ try:
 except s3_client.exceptions.NoSuchKey:
     current_version = None
 
-if latest_version == current_version:
+if latest_version != current_version:
+    logger.warn(f"New version found: {latest_version}. Starting ZIP file stream to S3.")
+
+    chunk_size_bytes = 1024 * 1024 * 50
+    zip_chunk_size_bytes = 65536
+
+    for url in download_urls:
+        logger.warn(f"Streaming Zip file: {url}")
+        with requests.get(url, stream=True) as r:
+            r.raise_for_status()
+            for file_name, file_size, file_chunks in stream_unzip.stream_unzip(r.iter_content(zip_chunk_size_bytes)):
+                name = file_name.decode("utf-8")
+
+                if not name.endswith("address.csv"):
+                    # Exhaust the generator to move to next file
+                    for _ in file_chunks:
+                        pass
+                    continue
+
+                logger.warn(f"Found CSV: {name}, size={file_size} bytes")
+                with S3MultipartWriter(s3_client, S3_BUCKET, "ngd/" + name, chunk_size=chunk_size_bytes) as mpw:
+                    for chunk in file_chunks:
+                        mpw.write(chunk)
+
+    s3_client.put_object(
+        Bucket=S3_BUCKET,
+        Key=CURRENT_VERSION_S3_KEY,
+        Body=latest_version.encode("utf-8")
+    )
+else:
     logger.warn("No new updates, exit early")
-    sys.exit(0)
-
-logger.warn(f'Starting ZIP file stream to S3"')
-
-chunk_size_bytes = 1024 * 1024 * 50
-zip_chunk_size_bytes = 65536
-
-for url in download_urls:
-    logger.warn(f"Streaming Zip file: {url}" )
-    with requests.get(url, stream=True) as r:
-        r.raise_for_status()
-        for file_name, file_size, file_chunks in stream_unzip.stream_unzip(r.iter_content(zip_chunk_size_bytes)):
-            name = file_name.decode("utf-8")
-
-            if not name.endswith("address.csv"):
-                for chunk in file_chunks:
-                    pass
-                continue
-
-            logger.warn(f"Found CSV: {name}, size={file_size} bytes")
-            with S3MultipartWriter(s3_client, S3_BUCKET, "ngd/" + name, chunk_size=chunk_size_bytes) as mpw:
-                logger.warn(f'S3MultipartWriter created"')
-
-                for chunk in file_chunks:
-                    mpw.write(chunk)
-
-s3_client.put_object(
-    Bucket=S3_BUCKET,
-    Key=CURRENT_VERSION_S3_KEY,
-    Body=latest_version.encode("utf-8")
-)
 
 job.commit()

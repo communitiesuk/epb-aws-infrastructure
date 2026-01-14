@@ -177,49 +177,59 @@ def list_csv_files(bucket, prefix):
 ngd_version_s3_obj = s3_client.get_object(Bucket=S3_BUCKET, Key=NGD_IMPORT_VERSION_KEY)
 ngd_data_version = ngd_version_s3_obj['Body'].read().decode().strip()
 
-logger.warn(f"Importing NGD version: {ngd_data_version}. Proceeding with ETL.")
+try:
+    obj = s3_client.get_object(Bucket=S3_BUCKET, Key=DB_IMPORT_VERSION_KEY)
+    current_db_version = obj['Body'].read().decode().strip()
+except s3_client.exceptions.NoSuchKey:
+    current_db_version = None
 
-conn_info = get_connection_info()
-create_staging_table(conn_info)
+if ngd_data_version != current_db_version:
 
-file_keys = list_csv_files(S3_BUCKET, "ngd/")
-logger.warn(f"CSV files found: {', '.join(file_keys)}")
+    logger.warn(f"Importing NGD version: {ngd_data_version}. Proceeding with ETL.")
 
-columns_to_keep = get_table_columns(conn_info, DB_TABLE_NAME)
-countries_to_filter = ['Isle of Man', 'Channel Islands']
+    conn_info = get_connection_info()
+    create_staging_table(conn_info)
 
-for file_key in file_keys:
+    file_keys = list_csv_files(S3_BUCKET, "ngd/")
+    logger.warn(f"CSV files found: {', '.join(file_keys)}")
 
-    # Script generated for node Amazon S3
-    AmazonS3_node1757327398684 = glueContext.create_dynamic_frame.from_options(format_options={"quoteChar": "\"", "withHeader": True, "separator": ",", "optimizePerformance": False}, connection_type="s3", format="csv", connection_options={"paths": [f"s3://{S3_BUCKET}/{file_key}"], "recurse": True}, transformation_ctx="AmazonS3_node1757327398684")
+    columns_to_keep = get_table_columns(conn_info, DB_TABLE_NAME)
+    countries_to_filter = ['Isle of Man', 'Channel Islands']
+
+    for file_key in file_keys:
+
+        # Script generated for node Amazon S3
+        AmazonS3_node1757327398684 = glueContext.create_dynamic_frame.from_options(format_options={"quoteChar": "\"", "withHeader": True, "separator": ",", "optimizePerformance": False}, connection_type="s3", format="csv", connection_options={"paths": [f"s3://{S3_BUCKET}/{file_key}"], "recurse": True}, transformation_ctx="AmazonS3_node1757327398684")
 
 
-    df = AmazonS3_node1757327398684.toDF()
-    df = df.withColumn("source", lit(file_key))
-    df = df.select(*columns_to_keep)
-    df = df.filter(~df['country'].isin(countries_to_filter))
-    df = df.filter(~classificationcode_starts_with_excluded | col("classificationcode").isin(classificationcode_include_exceptions))
+        df = AmazonS3_node1757327398684.toDF()
+        df = df.withColumn("source", lit(file_key))
+        df = df.select(*columns_to_keep)
+        df = df.filter(~df['country'].isin(countries_to_filter))
+        df = df.filter(~classificationcode_starts_with_excluded | col("classificationcode").isin(classificationcode_include_exceptions))
 
-    filtered_frame = DynamicFrame.fromDF(df, glueContext, "filtered_frame")
+        filtered_frame = DynamicFrame.fromDF(df, glueContext, "filtered_frame")
 
-    glueContext.write_dynamic_frame.from_jdbc_conf(
-        frame=filtered_frame,
-        catalog_connection=CONNECTION_NAME,
-        connection_options={
-            "dbtable": DB_TABLE_NAME_STAGING,
-            "database": DATABASE_NAME
-        },
-        transformation_ctx="PostgresSink"
+        glueContext.write_dynamic_frame.from_jdbc_conf(
+            frame=filtered_frame,
+            catalog_connection=CONNECTION_NAME,
+            connection_options={
+                "dbtable": DB_TABLE_NAME_STAGING,
+                "database": DATABASE_NAME
+            },
+            transformation_ctx="PostgresSink"
+        )
+
+    swap_tables(conn_info)
+
+    logger.warn(f"NGD data version imported successfully: {ngd_data_version}.")
+
+    s3_client.put_object(
+        Bucket=S3_BUCKET,
+        Key=DB_IMPORT_VERSION_KEY,
+        Body=ngd_data_version.encode("utf-8")
     )
-
-swap_tables(conn_info)
-
-logger.warn(f"NGD data version imported successfully: {ngd_data_version}.")
-
-s3_client.put_object(
-    Bucket=S3_BUCKET,
-    Key=DB_IMPORT_VERSION_KEY,
-    Body=ngd_data_version.encode("utf-8")
-)
+else:
+    logger.warn("No new updates, exit early")
 
 job.commit()
