@@ -67,8 +67,9 @@ def query_search_filter_setup(filters):
                                 clauses.append(
                                     f"\"constituency_label\" IN ({', '.join(valid_constituencies)})"
                                 )
-                        else:
-                            clauses.append(f"{sub_key} = '{sub_value}'")
+                        elif sub_key == "postcode":
+                            if sub_value:
+                                clauses.append(f"{sub_key} = '{sub_value}'")
             else:
                 continue
 
