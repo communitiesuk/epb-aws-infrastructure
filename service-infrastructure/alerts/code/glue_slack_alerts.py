@@ -18,7 +18,7 @@ def lambda_handler(event, context):
     msg = str()
 
     logging.debug(msg)
-    if event['source'] == "aws.glue" and event['state'] == 'FAILED':
+    if event['source'] == "aws.glue" and event['state'] in ("FAILED", "TIMEOUT"):
         msg = send_slack_alert(event)
 
     encoded_msg = json.dumps(msg).encode("utf-8")

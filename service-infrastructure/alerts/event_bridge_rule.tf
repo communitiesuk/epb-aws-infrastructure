@@ -5,7 +5,7 @@ resource "aws_cloudwatch_event_rule" "glue_failure" {
     source        = ["aws.glue"],
     "detail-type" = ["Glue Job State Change"],
     detail = {
-      state = ["FAILED"]
+      state = ["FAILED", "TIMEOUT"]
     }
   })
 }
