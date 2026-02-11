@@ -31,9 +31,10 @@ job.init(args["JOB_NAME"], args)
 DATABASE_NAME = args["DATABASE_NAME"]
 TABLE_NAME = args["TABLE_NAME"]
 S3_BUCKET = args["S3_BUCKET"]
+EPC_TYPE = args["TABLE_NAME"].replace("_", "-")
 S3_PREFIX = f"full-load/"
 S3_OUTPUT_PATH = f"s3://{S3_BUCKET}/{S3_PREFIX}"
-ZIP_FILE_KEY = f"{S3_PREFIX}{TABLE_NAME}-csv.zip"
+ZIP_FILE_KEY = f"{S3_PREFIX}{EPC_TYPE}-csv.zip"
 TABLE_NAME_RR = args.get("TABLE_NAME_RR")
 
 
