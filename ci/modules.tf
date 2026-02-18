@@ -125,8 +125,6 @@ module "register-api-pipeline" {
   performance_test_branch     = var.performance_test_branch
   smoketests_repository       = var.smoketests_repository
   smoketests_branch           = var.smoketests_branch
-  static_start_page_url       = var.static_start_page_url
-  front_end_domain            = var.front_end_domain
 }
 
 module "performance_test_pipeline" {
@@ -167,8 +165,6 @@ module "frontend-pipeline" {
   aws_codebuild_image     = var.aws_amd_codebuild_image
   smoketests_repository   = var.smoketests_repository
   smoketests_branch       = var.smoketests_branch
-  static_start_page_url   = var.static_start_page_url
-  front_end_domain        = var.front_end_domain
 }
 
 module "data_frontend-pipeline" {

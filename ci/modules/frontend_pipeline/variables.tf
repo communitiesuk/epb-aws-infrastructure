@@ -81,11 +81,3 @@ variable "smoketests_repository" {
 variable "smoketests_branch" {
   type = string
 }
-
-variable "static_start_page_url" {
-  type = string
-}
-
-variable "front_end_domain" {
-  type = string
-}

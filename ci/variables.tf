@@ -69,16 +69,6 @@ variable "api_docs_bucket" {
   type = string
 }
 
-variable "static_start_page_url" {
-  type    = string
-  default = "http://epb-static-start-pages-integration.s3-website.eu-west-2.amazonaws.com"
-}
-
-variable "front_end_domain" {
-  type    = string
-  default = "digital.communities.gov.uk"
-}
-
 variable "parameters" {
   description = "A map of parameter values. Keys should be a subset of the ones passed to 'parameters' module."
   type        = map(string)
