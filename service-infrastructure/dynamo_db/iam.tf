@@ -45,7 +45,7 @@ resource "aws_iam_policy" "dynamodb_read_access" {
       {
         "Effect" : "Allow",
         "Action" : "kms:Decrypt",
-        "Resource" : var.kms_key_arn
+        "Resource" : module.dynamodb_kms_key.key_arn
       }
     ]
   })
@@ -77,4 +77,3 @@ resource "aws_vpc_endpoint_policy" "dynamodb_access" {
     ]
   })
 }
-

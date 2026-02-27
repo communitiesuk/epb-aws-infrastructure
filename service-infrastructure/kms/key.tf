@@ -1,7 +1,7 @@
 data "aws_caller_identity" "current" {}
 
 resource "aws_kms_key" "this" {
-  description             = "KMS key for RDS encryption"
+  description             = var.description
   deletion_window_in_days = 7
   multi_region            = false
   enable_key_rotation     = true
@@ -11,7 +11,7 @@ resource "aws_kms_key" "this" {
   policy = jsonencode(
     {
       "Version" : "2012-10-17",
-      "Id" : "auto-rds-2",
+      "Id" : "auto-${var.policy_id_suffix}",
       "Statement" : [
         {
           "Sid" : "Enable IAM User Permissions",
@@ -23,7 +23,7 @@ resource "aws_kms_key" "this" {
           "Resource" : "*"
         },
         {
-          "Sid" : "Allow access through RDS for all principals in the account that are authorized to use RDS",
+          "Sid" : "Allow access through AWS services for all principals in the account that are authorized to use them",
           "Effect" : "Allow",
           "Principal" : {
             "AWS" : "*"
@@ -44,10 +44,7 @@ resource "aws_kms_key" "this" {
                 data.aws_caller_identity.current.account_id,
                 var.backup_account_id
               ],
-              "kms:ViaService" : [
-                "rds.eu-west-2.amazonaws.com",
-                "backup.eu-west-2.amazonaws.com"
-              ]
+              "kms:ViaService" : var.via_services
             }
           }
         },
@@ -73,9 +70,7 @@ resource "aws_kms_key" "this" {
   )
 }
 
-
 resource "aws_kms_alias" "this" {
-  name          = "alias/${var.prefix}-rds-custom-encryption-key"
+  name          = "alias/${var.prefix}-${var.alias_suffix}"
   target_key_id = aws_kms_key.this.key_id
 }
-

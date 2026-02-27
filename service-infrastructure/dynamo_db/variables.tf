@@ -11,9 +11,8 @@ variable "environment" {
   type = string
 }
 
-variable "kms_key_arn" {
-  description = "The ARN of the KMS key to use for DynamoDB encryption"
-  type        = string
+variable "backup_account_id" {
+  type = string
 }
 
 variable "vpc_id" {

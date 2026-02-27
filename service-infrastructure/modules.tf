@@ -1224,6 +1224,11 @@ module "rds_kms_key" {
   prefix            = local.prefix
   environment       = var.environment
   backup_account_id = var.backup_account_id
+
+  description      = "KMS key for RDS encryption"
+  alias_suffix     = "rds-custom-encryption-key"
+  policy_id_suffix = "rds-2"
+  via_services     = ["rds.${var.region}.amazonaws.com", "backup.${var.region}.amazonaws.com"]
 }
 
 module "backup-vault" {
@@ -1294,15 +1299,15 @@ module "addressing_glue" {
 }
 
 module "epb_data_user_credentials" {
-  count           = 1
-  source          = "./dynamo_db"
-  prefix          = local.prefix
-  environment     = var.environment
-  table_name      = "${local.prefix}-user-credentials"
-  region          = var.region
-  kms_key_arn     = module.rds_kms_key.key_arn
-  vpc_id          = module.networking.vpc_id
-  route_table_ids = module.networking.route_table_ids
+  count             = 1
+  source            = "./dynamo_db"
+  prefix            = local.prefix
+  environment       = var.environment
+  backup_account_id = var.backup_account_id
+  table_name        = "${local.prefix}-user-credentials"
+  region            = var.region
+  vpc_id            = module.networking.vpc_id
+  route_table_ids   = module.networking.route_table_ids
   ecs_roles = [
     module.warehouse_api_application.ecs_role,
     module.data_frontend_application[0].ecs_role
