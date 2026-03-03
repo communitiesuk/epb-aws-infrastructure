@@ -864,7 +864,6 @@ module "warehouse_api_application" {
   logs_bucket_name                 = module.logging.logs_bucket_name
   logs_bucket_url                  = module.logging.logs_bucket_url
   enable_execute_command           = true
-  has_target_tracking              = false
   internal_alb_config = {
     ssl_certificate_arn = module.ssl_certificate.certificate_arn
   }
