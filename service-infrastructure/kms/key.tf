@@ -39,13 +39,15 @@ resource "aws_kms_key" "this" {
           ],
           "Resource" : "*",
           "Condition" : {
-            "StringEquals" : {
-              "kms:CallerAccount" : [
-                data.aws_caller_identity.current.account_id,
-                var.backup_account_id
-              ],
-              "kms:ViaService" : var.via_services
-            }
+            "StringEquals" : merge(
+              {
+                "kms:CallerAccount" : [
+                  data.aws_caller_identity.current.account_id,
+                  var.backup_account_id
+                ]
+              },
+              length(var.via_services) > 0 ? { "kms:ViaService" : var.via_services } : {}
+            )
           }
         },
         {

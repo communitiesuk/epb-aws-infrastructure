@@ -715,7 +715,7 @@ module "data_frontend_application" {
     "AWS_S3_USER_DATA_BUCKET_NAME" : module.user_data.bucket_name,
     "EPB_DATA_USER_CREDENTIAL_TABLE_NAME" : module.epb_data_user_credentials[0].table_name,
     "PUBLISHED_DWH_API_URL" : "https://api.${local.data_service_url}"
-
+    "KMS_KEY_ID" : module.data_frontend_kms_key.key_arn
   }
   secrets = {
     "EPB_UNLEASH_URI" : module.secrets.secret_arns["EPB_UNLEASH_URI"]
@@ -1228,6 +1228,18 @@ module "rds_kms_key" {
   alias_suffix     = "rds-custom-encryption-key"
   policy_id_suffix = "rds-2"
   via_services     = ["rds.${var.region}.amazonaws.com", "backup.${var.region}.amazonaws.com"]
+}
+
+module "data_frontend_kms_key" {
+  source            = "./kms"
+  prefix            = local.prefix
+  environment       = var.environment
+  backup_account_id = var.backup_account_id
+
+  description      = "KMS key for Data Frontend user encryption"
+  alias_suffix     = "data-frontend-custom-encryption-key"
+  policy_id_suffix = "data-frontend"
+  via_services     = []
 }
 
 module "backup-vault" {
