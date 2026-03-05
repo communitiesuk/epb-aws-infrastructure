@@ -1231,10 +1231,9 @@ module "rds_kms_key" {
 }
 
 module "data_frontend_kms_key" {
-  source            = "./kms"
-  prefix            = local.prefix
-  environment       = var.environment
-  backup_account_id = var.backup_account_id
+  source      = "./kms"
+  prefix      = local.prefix
+  environment = var.environment
 
   description      = "KMS key for Data Frontend user encryption"
   alias_suffix     = "data-frontend-custom-encryption-key"
@@ -1310,15 +1309,14 @@ module "addressing_glue" {
 }
 
 module "epb_data_user_credentials" {
-  count             = 1
-  source            = "./dynamo_db"
-  prefix            = local.prefix
-  environment       = var.environment
-  backup_account_id = var.backup_account_id
-  table_name        = "${local.prefix}-user-credentials"
-  region            = var.region
-  vpc_id            = module.networking.vpc_id
-  route_table_ids   = module.networking.route_table_ids
+  count           = 1
+  source          = "./dynamo_db"
+  prefix          = local.prefix
+  environment     = var.environment
+  table_name      = "${local.prefix}-user-credentials"
+  region          = var.region
+  vpc_id          = module.networking.vpc_id
+  route_table_ids = module.networking.route_table_ids
   ecs_roles = [
     module.warehouse_api_application.ecs_role,
     module.data_frontend_application[0].ecs_role

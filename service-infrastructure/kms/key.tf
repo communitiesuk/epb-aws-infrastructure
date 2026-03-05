@@ -41,10 +41,10 @@ resource "aws_kms_key" "this" {
           "Condition" : {
             "StringEquals" : merge(
               {
-                "kms:CallerAccount" : [
+                "kms:CallerAccount" : distinct(compact([
                   data.aws_caller_identity.current.account_id,
                   var.backup_account_id
-                ]
+                ]))
               },
               length(var.via_services) > 0 ? { "kms:ViaService" : var.via_services } : {}
             )
@@ -54,10 +54,10 @@ resource "aws_kms_key" "this" {
           "Sid" : "Allow direct access to key metadata to the account",
           "Effect" : "Allow",
           "Principal" : {
-            "AWS" : [
+            "AWS" : distinct(compact([
               "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root",
-              "arn:aws:iam::${var.backup_account_id}:root"
-            ]
+              var.backup_account_id != null ? "arn:aws:iam::${var.backup_account_id}:root" : null
+            ]))
           },
           "Action" : [
             "kms:Describe*",

@@ -11,9 +11,6 @@ variable "environment" {
   type = string
 }
 
-variable "backup_account_id" {
-  type = string
-}
 
 variable "vpc_id" {
   type = string
