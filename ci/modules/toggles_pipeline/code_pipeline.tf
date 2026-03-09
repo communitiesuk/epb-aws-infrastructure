@@ -47,7 +47,7 @@ resource "aws_codepipeline" "codepipeline" {
   }
 
   stage {
-    name = "deploy-to-pre-production"
+    name = "deploy-to-integration"
 
     action {
       name            = "deploy-toggles-to-integration-cluster"
@@ -60,6 +60,10 @@ resource "aws_codepipeline" "codepipeline" {
         ProjectName = module.codebuild_deploy_integration.codebuild_name
       }
     }
+  }
+
+  stage {
+    name = "deploy-to-staging"
 
     action {
       name            = "deploy-toggles-to-staging-cluster"
