@@ -18,3 +18,7 @@ variable "lambda_role_id" {
 variable "lambda_timeout" {
   type = number
 }
+
+variable "kms_key_arn" {
+  type = string
+}

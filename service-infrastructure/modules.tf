@@ -1241,6 +1241,19 @@ module "data_frontend_kms_key" {
   via_services     = []
 }
 
+module "data_frontend_delivery_kms_key" {
+  source      = "./kms"
+  prefix      = local.prefix
+  environment = var.environment
+  region      = var.region
+
+  description               = "KMS key for Data Frontend delivery SNS/SQS encryption"
+  alias_suffix              = "data-frontend-delivery-sns-sqs-encryption-key"
+  policy_id_suffix          = "data-frontend-delivery"
+  via_services              = ["sns.${var.region}.amazonaws.com", "sqs.${var.region}.amazonaws.com"]
+  enable_sns_kms_key_policy = true
+}
+
 module "backup-vault" {
   source            = "./backup"
   prefix            = local.prefix
@@ -1270,6 +1283,7 @@ module "data_frontend_delivery" {
     "NOTIFY_DATA_DOWNLOAD_TEMPLATE_ID" = var.parameters["NOTIFY_DATA_TEMPLATE_ID"],
     "FRONTEND_URL"                     = "https://${var.data_service_url}",
   }
+  kms_key_arn = module.data_frontend_delivery_kms_key.key_arn
 }
 
 module "data_warehouse_glue" {

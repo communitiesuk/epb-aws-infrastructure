@@ -4,6 +4,7 @@ module "collect_data_queue" {
   queue_name     = "delivery"
   lambda_role_id = module.collect_user_data_lambda.lambda_role_id
   lambda_timeout = var.lambda_timeout
+  kms_key_arn    = var.kms_key_arn
 }
 
 module "send_data_queue" {
@@ -12,6 +13,13 @@ module "send_data_queue" {
   queue_name     = "send"
   lambda_role_id = module.send_user_data_lambda.lambda_role_id
   lambda_timeout = var.lambda_timeout
+  kms_key_arn    = var.kms_key_arn
+}
+
+module "send_user_request_sns" {
+  source      = "./sns"
+  prefix      = var.prefix
+  kms_key_arn = var.kms_key_arn
 }
 
 data "aws_arn" "athena_workgroup" {

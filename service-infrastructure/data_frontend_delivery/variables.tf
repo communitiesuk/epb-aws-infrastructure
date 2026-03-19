@@ -34,3 +34,7 @@ variable "lambda_timeout" {
   type    = number
   default = 900
 }
+
+variable "kms_key_arn" {
+  type = string
+}

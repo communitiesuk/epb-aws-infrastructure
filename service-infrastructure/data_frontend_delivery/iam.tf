@@ -112,3 +112,35 @@ resource "aws_iam_role_policy_attachment" "output_s3_write_policy_attachment" {
   role       = module.collect_user_data_lambda.lambda_role_id
   policy_arn = var.output_bucket_write_policy_arn
 }
+
+data "aws_iam_policy_document" "sns_to_sqs_document" {
+  statement {
+    sid    = "First"
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["sns.amazonaws.com"]
+    }
+
+    actions   = ["sqs:SendMessage"]
+    resources = [module.collect_data_queue.sqs_queue_arn]
+
+    condition {
+      test     = "ArnEquals"
+      variable = "aws:SourceArn"
+      values   = [module.send_user_request_sns.sns_topic_arn]
+    }
+  }
+}
+
+resource "aws_sqs_queue_policy" "sns_to_sqs_policy" {
+  queue_url = module.collect_data_queue.sqs_queue_url
+  policy    = data.aws_iam_policy_document.sns_to_sqs_document.json
+}
+
+resource "aws_sns_topic_subscription" "sns_to_sqs_subscription" {
+  topic_arn = module.send_user_request_sns.sns_topic_arn
+  protocol  = "sqs"
+  endpoint  = module.collect_data_queue.sqs_queue_arn
+}

@@ -33,3 +33,14 @@ variable "policy_id_suffix" {
   description = "Suffix used for the key policy Id field (auto-<suffix>)."
   type        = string
 }
+
+variable "enable_sns_kms_key_policy" {
+  description = "When true, appends an SNS service principal statement to the KMS key policy."
+  type        = bool
+  default     = false
+}
+
+variable "region" {
+  type    = string
+  default = "eu-west-2"
+}

@@ -6,9 +6,10 @@ terraform {
       version = "~>5.100"
       source  = "hashicorp/aws"
     }
-  }
-}
+    archive = {
+      source  = "hashicorp/archive"
+      version = "2.3.0"
+    }
 
-locals {
-  aws_account_id = data.aws_caller_identity.current.account_id
+  }
 }
