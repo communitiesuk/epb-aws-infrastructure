@@ -5,6 +5,8 @@ import boto3
 import uuid
 import time
 
+from urllib.parse import urlparse
+
 """
 This function processes a data request from an SQS queue (triggered by SNS),
 queries data from Athena based on the provided filters, and uploads the results to S3.
@@ -156,30 +158,43 @@ def copy_results_to_user_location(
     athena_results_location, user_email, query_execution_id, table
 ):
     bucket_name = OUTPUT_BUCKET
-    source_prefix = "output/"
     destination_prefix = f"{table}/user-exports/{query_execution_id}/{uuid.uuid4()}/"
     copied_file_key = None
 
     try:
         s3_client = boto3.client("s3")
-        response = s3_client.list_objects_v2(Bucket=bucket_name, Prefix=source_prefix)
-        if "Contents" not in response:
-            logger.warning(f"No results found in: s3://{bucket_name}/{source_prefix}")
+
+        # Parse exact source bucket and key from OutputLocation
+        results_location_url = urlparse(athena_results_location)
+        src_bucket = results_location_url.netloc
+        src_key = results_location_url.path.lstrip("/")
+        file_name = os.path.basename(src_key)
+
+        # Waiting for the S3 object to be available
+        max_results_wait = 10
+        poll_interval = 1
+        waited = 0
+        available = False
+        while waited < max_results_wait:
+            try:
+                s3_client.head_object(Bucket=src_bucket, Key=src_key)
+                available = True
+                break
+            except s3_client.exceptions.NoSuchKey:
+                time.sleep(poll_interval)
+                waited += poll_interval
+
+        if not available:
+            logger.warning(
+                f"Could not find the expected Athena results file in: {athena_results_location}"
+            )
             return None
 
-        for obj in response["Contents"]:
-            if obj["Key"].endswith(os.path.basename(athena_results_location)):
-                file_name = os.path.basename(obj["Key"])
-                copy_source = {"Bucket": bucket_name, "Key": obj["Key"]}
-                destination_key = f"{destination_prefix}{file_name}"
-                s3_client.copy(copy_source, bucket_name, destination_key)
-                copied_file_key = destination_key
-                break  # Assuming only one relevant file (csv)
 
-        if not copied_file_key:
-            logger.warning(
-                f"Could not find the expected Athena results file in: s3://{bucket_name}/{source_prefix}"
-            )
+        destination_key = f"{destination_prefix}{file_name}"
+        copy_source = {"Bucket": src_bucket, "Key": src_key}
+        s3_client.copy(copy_source, bucket_name, destination_key)
+        copied_file_key = destination_key
 
         return copied_file_key
 
