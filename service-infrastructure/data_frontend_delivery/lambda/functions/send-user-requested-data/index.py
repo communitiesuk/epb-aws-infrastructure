@@ -4,6 +4,8 @@ import os
 import boto3
 import sys
 import subprocess
+import time
+from datetime import datetime
 
 subprocess.call("pip install notifications-python-client -t /tmp/ --no-cache-dir".split(), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 sys.path.insert(1, "/tmp/")
@@ -21,7 +23,21 @@ NOTIFY_API_KEY = os.getenv("NOTIFY_DATA_API_KEY")
 NOTIFY_TEMPLATE_ID = os.getenv("NOTIFY_DATA_DOWNLOAD_TEMPLATE_ID")
 FRONTEND_URL = os.getenv("FRONTEND_URL")
 
-def send_notify_email(email_address, urls):
+def extract_request_summary(sns_message):
+    request_timestamp = sns_message.get("request_timestamp", time.time())
+    dt_obj = datetime.fromtimestamp(request_timestamp)
+
+    return {
+        "time": dt_obj.strftime("%H:%M"),
+        "date": dt_obj.strftime("%d %B %Y"),
+        "date_start": sns_message.get("date_start"),
+        "date_end": sns_message.get("date_end"),
+        "area": sns_message.get("area"),
+        "include_recommendations": sns_message.get("include_recommendations", False),
+        "efficiency_ratings": sns_message.get("efficiency_ratings"),
+    }
+
+def send_notify_email(email_address, urls, request_data):
     logger.info(f"Sending email to {email_address}: {urls}")
 
     if not NOTIFY_API_KEY or not NOTIFY_TEMPLATE_ID:
@@ -33,8 +49,15 @@ def send_notify_email(email_address, urls):
         email_address=email_address,
         template_id=NOTIFY_TEMPLATE_ID,
         personalisation={
-            "subject": "Your data download link",
-            "link": urls
+            "subject": "Your energy performance of buildings data request",
+            "link": urls,
+            "time": request_data["time"],
+            "date": request_data["date"],
+            "include_recommendations": "and recommendations" if request_data["include_recommendations"] else "",
+            "date_start": request_data["date_start"],
+            "date_end": request_data["date_end"],
+            "area_value": request_data["area"],
+            "efficiency_ratings": request_data["efficiency_ratings"],
         },
     )
 
@@ -45,6 +68,7 @@ def lambda_handler(event, context):
     for record in event["Records"]:
         try:
             sns_message = json.loads(record["body"])
+            request_data = extract_request_summary(sns_message)
             email_address = sns_message.get("email")
             s3_keys = sns_message.get("s3_keys")
             file_sizes = sns_message.get("file_sizes")
@@ -78,7 +102,7 @@ def lambda_handler(event, context):
 
             # Send an email via Notify
             if s3_keys:
-                send_notify_email(email_address, urls)
+                send_notify_email(email_address, urls, request_data)
                 logger.info(f"Successfully sent email to {email_address} with S3 key: {s3_keys}")
             else:
                 logger.error(f"Failed to send the email via Notify")

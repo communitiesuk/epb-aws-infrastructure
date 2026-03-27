@@ -5,6 +5,7 @@ import boto3
 import uuid
 import time
 
+from datetime import datetime
 from urllib.parse import urlparse
 
 """
@@ -154,9 +155,7 @@ def get_query_results_location(query_execution_id):
         return None
 
 
-def copy_results_to_user_location(
-    athena_results_location, user_email, query_execution_id, table
-):
+def copy_results_to_user_location(athena_results_location, user_email, query_execution_id, table):
     bucket_name = OUTPUT_BUCKET
     destination_prefix = f"{table}/user-exports/{query_execution_id}/{uuid.uuid4()}/"
     copied_file_key = None
@@ -203,7 +202,7 @@ def copy_results_to_user_location(
         return None
 
 
-def send_email_and_s3_key_to_sqs(user_email, s3_keys, file_sizes):
+def send_email_and_s3_key_to_sqs(user_email, s3_keys, file_sizes, request_summary):
     try:
         sqs_client = boto3.client("sqs")
 
@@ -211,14 +210,15 @@ def send_email_and_s3_key_to_sqs(user_email, s3_keys, file_sizes):
             "email": user_email,
             "s3_keys": s3_keys,
             "bucket_name": OUTPUT_BUCKET,
-            "file_sizes": file_sizes
+            "file_sizes": file_sizes,
+            **request_summary,
         }
         logger.info(f"Sending user email and S3 key to SQS: {message}")
         response = sqs_client.send_message(
             QueueUrl=SQS_QUEUE_URL, MessageBody=json.dumps(message)
         )
         logger.info(
-            f"Sent user email and S3 key to SQS. Message ID: {response['MessageId']}"
+            f"Sent user email, S3 key and request summary to SQS. Message ID: {response['MessageId']}"
         )
     except Exception as e:
         logger.error(f"Error sending message to email notification SQS: {e}")
@@ -298,14 +298,48 @@ def get_s3_file_sizes(keys):
         file_sizes.append(get_s3_file_size(value))
     return file_sizes
 
+def extract_request_summary(filters, request_timestamp):
+    date_start = datetime.strptime(filters["date_start"], '%Y-%m-%d').strftime('%B %Y')
+    date_end = datetime.strptime(filters["date_end"], '%Y-%m-%d').strftime('%B %Y')
+
+    area_dict = filters.get("area")
+    raw_area = next(iter(area_dict.values()), [])
+
+    if isinstance(raw_area, list) and "Select all" in raw_area:
+        area_value = "England and Wales"
+    else:
+        if isinstance(raw_area, list):
+            area_value = ", ".join([str(a) for a in raw_area if str(a).strip()])
+        else:
+            area_value = str(raw_area or "").strip()
+
+    # Strip any hidden newlines that can cause the extra bullet point in Notify template
+    area_value = area_value.strip().replace("\n", "")
+
+    ratings_list = filters.get("efficiency_ratings")
+    ratings_string = ", ".join([str(r) for r in ratings_list])
+
+    return {
+        "date_start": date_start,
+        "date_end": date_end,
+        "efficiency_ratings": ratings_string,
+        "include_recommendations": filters.get("include_recommendations", False),
+        "request_timestamp": request_timestamp,
+        "area": area_value
+    }
 
 def lambda_handler(event, context):
     logger.info("EVENT INFO:")
     logger.info(json.dumps(event))
 
+    request_timestamp = time.time()
+    logger.info(f"Request timestamp: {request_timestamp}")
+
     for record in event["Records"]:
         sns_message = json.loads(record["body"])
         filters = json.loads(sns_message["Message"])
+        request_summary = extract_request_summary(filters, request_timestamp)
+        include_recommendations = request_summary["include_recommendations"]
         user_email = filters.pop("email_address")
         table_name = table(filters)
         rr_table_name = rr_table(filters)
@@ -313,7 +347,7 @@ def lambda_handler(event, context):
 
         query_execution_id = build_certificates(filters)
 
-        if filters["include_recommendations"]:
+        if include_recommendations:
             query_execution_rr_id = build_recommendations(filters)
 
         # Wait for Athena query to complete and get results location
@@ -331,14 +365,14 @@ def lambda_handler(event, context):
         )
 
         if s3_key:
-            s3_keys["certificates"] = s3_key
+            s3_keys["energy_certificates"] = s3_key
         else:
             return log_error(
                 f"Failed to generate S3 key for user with email {user_email}",
                 "Failed to generate the S3 key.",
             )
 
-        if filters["include_recommendations"]:
+        if include_recommendations:
             # Wait for Athena query to complete and get results location
             results_rr_location = get_result_location(query_execution_rr_id)
             if not results_rr_location:
@@ -365,4 +399,4 @@ def lambda_handler(event, context):
 
         file_sizes = get_s3_file_sizes(s3_keys)
         # Get and put email and results location to the SQS queue
-        send_email_and_s3_key_to_sqs(user_email, s3_keys, file_sizes)
+        send_email_and_s3_key_to_sqs(user_email, s3_keys, file_sizes, request_summary)
