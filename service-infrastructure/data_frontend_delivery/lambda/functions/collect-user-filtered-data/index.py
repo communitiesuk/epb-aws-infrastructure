@@ -317,7 +317,11 @@ def extract_request_summary(filters, request_timestamp):
     area_value = area_value.strip().replace("\n", "")
 
     ratings_list = filters.get("efficiency_ratings")
-    ratings_string = ", ".join([str(r) for r in ratings_list])
+
+    if ratings_list is None:
+        ratings_string = "A, B, C, D, E, F, G"
+    else:
+        ratings_string = ", ".join([str(r) for r in ratings_list])
 
     return {
         "date_start": date_start,
