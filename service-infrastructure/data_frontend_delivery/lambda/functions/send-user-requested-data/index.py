@@ -5,7 +5,9 @@ import boto3
 import sys
 import subprocess
 import time
+
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 subprocess.call("pip install notifications-python-client -t /tmp/ --no-cache-dir".split(), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 sys.path.insert(1, "/tmp/")
@@ -33,10 +35,10 @@ def get_property_type_title(property_type):
 
 def extract_request_summary(sns_message):
     request_timestamp = sns_message.get("request_timestamp", time.time())
-    dt_obj = datetime.fromtimestamp(request_timestamp)
+    dt_obj = datetime.fromtimestamp(request_timestamp, ZoneInfo("Europe/London"))
 
     return {
-        "time": dt_obj.strftime("%H:%M"),
+        "time": dt_obj.strftime("%H:%M %Z"),
         "date": dt_obj.strftime("%d %B %Y"),
         "property_type_title": get_property_type_title(sns_message.get("property_type")),
         "date_start": sns_message.get("date_start"),
