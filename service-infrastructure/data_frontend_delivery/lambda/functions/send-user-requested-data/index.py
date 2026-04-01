@@ -23,6 +23,14 @@ NOTIFY_API_KEY = os.getenv("NOTIFY_DATA_API_KEY")
 NOTIFY_TEMPLATE_ID = os.getenv("NOTIFY_DATA_DOWNLOAD_TEMPLATE_ID")
 FRONTEND_URL = os.getenv("FRONTEND_URL")
 
+def get_property_type_title(property_type):
+    titles = {
+        "domestic": "Domestic Energy Performance Certificates",
+        "non_domestic": "Non-domestic Energy Performance Certificates",
+        "display": "Display Energy Certificates"
+    }
+    return titles.get(property_type, "Energy Performance Certificates")
+
 def extract_request_summary(sns_message):
     request_timestamp = sns_message.get("request_timestamp", time.time())
     dt_obj = datetime.fromtimestamp(request_timestamp)
@@ -30,6 +38,7 @@ def extract_request_summary(sns_message):
     return {
         "time": dt_obj.strftime("%H:%M"),
         "date": dt_obj.strftime("%d %B %Y"),
+        "property_type_title": get_property_type_title(sns_message.get("property_type")),
         "date_start": sns_message.get("date_start"),
         "date_end": sns_message.get("date_end"),
         "area": sns_message.get("area"),
@@ -53,11 +62,13 @@ def send_notify_email(email_address, urls, request_data):
             "link": urls,
             "time": request_data["time"],
             "date": request_data["date"],
+            "property_type_title": request_data["property_type_title"],
             "include_recommendations": "and recommendations" if request_data["include_recommendations"] else "",
             "date_start": request_data["date_start"],
             "date_end": request_data["date_end"],
             "area_value": request_data["area"],
             "efficiency_ratings": request_data["efficiency_ratings"],
+            "show_ratings": bool(request_data["efficiency_ratings"])
         },
     )
 

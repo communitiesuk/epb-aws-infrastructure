@@ -319,13 +319,14 @@ def extract_request_summary(filters, request_timestamp):
     ratings_list = filters.get("efficiency_ratings")
 
     if ratings_list is None:
-        ratings_string = "A, B, C, D, E, F, G"
+        ratings_string = ""
     else:
         ratings_string = ", ".join([str(r) for r in ratings_list])
 
     return {
         "date_start": date_start,
         "date_end": date_end,
+        "property_type": filters.get("property_type"),
         "efficiency_ratings": ratings_string,
         "include_recommendations": filters.get("include_recommendations", False),
         "request_timestamp": request_timestamp,
