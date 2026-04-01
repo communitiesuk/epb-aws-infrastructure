@@ -1,8 +1,10 @@
 import io
 import sys
+import time
 import zipfile
 
 import boto3
+import botocore.exceptions
 from awsglue.context import GlueContext
 from awsglue.job import Job
 from awsglue.utils import getResolvedOptions
@@ -154,7 +156,20 @@ with S3MultipartWriter(s3_client, S3_BUCKET, ZIP_FILE_KEY, chunk_size=chunk_size
                         zi = zipfile.ZipInfo(f"certificates-{year}.json")
                         zi.compress_type = zipfile.ZIP_DEFLATED
                         with zipf.open(zi, mode="w", force_zip64=True) as zf_entry:
-                            body = s3_client.get_object(Bucket=S3_BUCKET, Key=obj["Key"])["Body"]
+                            for attempt in range(5):
+                                try:
+                                    body = s3_client.get_object(Bucket=S3_BUCKET, Key=obj["Key"])["Body"]
+                                    break
+                                except botocore.exceptions.ClientError as e:
+                                    if e.response['Error']['Code'] == 'NoSuchKey':
+                                        if attempt < 4:
+                                            logger.warn(f"NoSuchKey for {obj['Key']}, retrying in 1 second")
+                                            time.sleep(1)
+                                        else:
+                                            logger.error(f"NoSuchKey for {obj['Key']} after 5 attempts, failing")
+                                            raise
+                                    else:
+                                        raise
                             for chunk in iter(lambda: body.read(10 * 1024 * 1024), b""):  # 10 MB
                                 zf_entry.write(chunk)
                         s3_client.delete_object(Bucket=S3_BUCKET, Key=obj["Key"])
