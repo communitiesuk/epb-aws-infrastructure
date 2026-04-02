@@ -6,3 +6,7 @@ output "sns_write_access_policy_arn" {
 output "sns_topic_arn" {
   value = module.send_user_request_sns.sns_topic_arn
 }
+
+output "lambda_function_names" {
+  value = [module.collect_user_data_lambda.lambda_name, module.send_user_data_lambda.lambda_name]
+}

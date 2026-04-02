@@ -1021,6 +1021,7 @@ module "alerts" {
   glue_to_main_slack_alerts  = var.environment == "prod" ? true : false
   cloudtrail_log_group_name  = module.logging.cloudtrail_log_group_name
   cloudwatch_ecs_events_name = module.logging.cloudwatch_ecs_events_name
+  lambda_functions           = module.data_frontend_delivery[0].lambda_function_names
 
   ecs_services = {
     api_service = {

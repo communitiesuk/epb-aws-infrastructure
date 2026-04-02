@@ -218,3 +218,25 @@ resource "aws_cloudwatch_metric_alarm" "ecs_exec_cmd_task_failure" {
     group = "family:${each.value}"
   }
 }
+
+resource "aws_cloudwatch_metric_alarm" "lambda_failure" {
+  for_each = toset(var.lambda_functions)
+
+  alarm_name          = "${each.value}-lambda-failure"
+  alarm_description   = "Detected Lambda failure in for ${each.value}"
+  namespace           = "AWS/Lambda"
+  metric_name         = "Errors"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  treat_missing_data  = "ignore"
+  evaluation_periods  = 1
+  period              = 60
+  threshold           = 1
+  statistic           = "Sum"
+
+  dimensions = {
+    FunctionName = each.value
+  }
+
+  alarm_actions = [aws_sns_topic.cloudwatch_alerts.arn]
+  ok_actions    = [aws_sns_topic.cloudwatch_alerts.arn]
+}

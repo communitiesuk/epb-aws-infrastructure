@@ -56,3 +56,9 @@ variable "cloudtrail_log_group_name" {
 variable "cloudwatch_ecs_events_name" {
   type = string
 }
+
+variable "lambda_functions" {
+  description = "List of Lambda names to monitor for failures. Example: ['<prefix>-send-user-requested-data']"
+  type        = list(string)
+  default     = []
+}
