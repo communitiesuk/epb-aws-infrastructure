@@ -122,11 +122,36 @@ resource "aws_wafv2_web_acl" "this" {
       rate_based_statement {
         aggregate_key_type = "IP"
         limit              = var.environment == "stag" ? 1000000 : 1000
+        scope_down_statement {
+          not_statement {
+            statement {
+              byte_match_statement {
+                positional_constraint = "CONTAINS"
+                search_string         = "api.get-energy-performance-data"
+                field_to_match {
+                  single_header {
+                    name = "host"
+                  }
+                }
+                text_transformation {
+                  priority = 0
+                  type     = "NONE"
+                }
+              }
+
+            }
+          }
+        }
+
       }
     }
 
     action {
-      block {}
+      block {
+        custom_response {
+          response_code = 429
+        }
+      }
     }
 
     visibility_config {
@@ -137,8 +162,49 @@ resource "aws_wafv2_web_acl" "this" {
   }
 
   rule {
-    name     = "throttle-requests-frontend-rule"
+    name     = "throttle-requests-rule-dwh-api"
     priority = 14
+
+    statement {
+      rate_based_statement {
+        aggregate_key_type = "IP"
+        limit              = 6000
+        scope_down_statement {
+          byte_match_statement {
+            positional_constraint = "CONTAINS"
+            search_string         = "api.get-energy-performance-data"
+            field_to_match {
+              single_header {
+                name = "host"
+              }
+            }
+            text_transformation {
+              priority = 0
+              type     = "NONE"
+            }
+          }
+        }
+      }
+    }
+
+    action {
+      block {
+        custom_response {
+          response_code = 429
+        }
+      }
+    }
+
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      metric_name                = "throttle-requests-rule-dwh-api"
+      sampled_requests_enabled   = true
+    }
+  }
+
+  rule {
+    name     = "throttle-requests-frontend-rule"
+    priority = 16
 
     statement {
       rate_based_statement {
@@ -182,7 +248,11 @@ resource "aws_wafv2_web_acl" "this" {
     }
 
     action {
-      block {}
+      block {
+        custom_response {
+          response_code = 429
+        }
+      }
     }
 
     visibility_config {
@@ -213,7 +283,11 @@ resource "aws_wafv2_web_acl" "this" {
     }
 
     action {
-      block {}
+      block {
+        custom_response {
+          response_code = 429
+        }
+      }
     }
 
     visibility_config {
