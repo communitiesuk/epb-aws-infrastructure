@@ -9,7 +9,8 @@ resource "aws_iam_policy" "dynamodb_write_access" {
         Effect = "Allow"
         Action = [
           "dynamodb:PutItem",
-          "dynamodb:UpdateItem"
+          "dynamodb:UpdateItem",
+          "dynamodb:DeleteItem",
         ]
         Resource = aws_dynamodb_table.this.arn
         Condition = {
@@ -66,6 +67,7 @@ resource "aws_vpc_endpoint_policy" "dynamodb_access" {
           "dynamodb:UpdateItem",
           "dynamodb:Scan",
           "dynamodb:GetItem",
+          "dynamodb:DeleteItem",
         ],
         "Resource" = aws_dynamodb_table.this.arn,
         "Condition" = {
