@@ -121,12 +121,12 @@ variable "recaptcha_secret_key" {
 
 variable "postgres_rds_version" {
   type    = string
-  default = "14.17"
+  default = "14.20"
 }
 
 variable "postgres_aurora_version" {
   type    = string
-  default = "14.17"
+  default = "14.20"
 }
 
 variable "data_warehouse_postgres_aurora_version" {
@@ -136,5 +136,5 @@ variable "data_warehouse_postgres_aurora_version" {
 
 variable "addressing_postgres_aurora_version" {
   type    = string
-  default = "17.4"
+  default = "17.7"
 }
