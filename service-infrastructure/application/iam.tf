@@ -72,8 +72,16 @@ resource "aws_iam_role_policy" "secret_access" {
   })
 }
 
+
+
+
+locals {
+
+
+}
+
 resource "aws_iam_role_policy" "parameter_access" {
-  for_each = var.parameters
+  for_each = local.parameters
 
   name = "${var.prefix}-parameter-access-${each.key}"
   role = aws_iam_role.ecs_task_execution_role.id

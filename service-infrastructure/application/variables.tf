@@ -196,3 +196,8 @@ variable "is_fluentbit_container_essential" {
   type    = bool
   default = false
 }
+
+variable "parameter_filter" {
+  type    = list(string)
+  default = []
+}

@@ -46,7 +46,7 @@ resource "aws_ecs_task_definition" "this" {
         value = value
       } if value != ""]
 
-      secrets = [for key, value in merge(var.secrets, var.parameters) : {
+      secrets = [for key, value in merge(var.secrets, local.parameters) : {
         name      = key
         valueFrom = value
       }]
@@ -157,7 +157,7 @@ resource "aws_ecs_task_definition" "exec_cmd_task" {
         value = value
       }]
       user = "root" #added to ensure paketo image defaults to root user
-      secrets = [for key, value in merge(var.secrets, var.parameters) : {
+      secrets = [for key, value in merge(var.secrets, local.parameters) : {
         name      = key
         valueFrom = value
       }]
@@ -202,7 +202,7 @@ resource "aws_ecs_task_definition" "address_base_updater_task" {
         value = value
       }]
       user = "root" #added to ensure paketo image defaults to root user
-      secrets = [for key, value in merge(var.secrets, var.parameters) : {
+      secrets = [for key, value in merge(var.secrets, local.parameters) : {
         name      = key
         valueFrom = value
       }]
