@@ -235,6 +235,10 @@ module "parameter_store" {
       type  = "String"
       value = var.parameters["NOTIFY_DATA_TEMPLATE_ID"]
     }
+    "NOTIFY_DATA_EMAIL_USERS_TEMPLATE_ID" : {
+      type  = "String"
+      value = var.parameters["NOTIFY_DATA_EMAIL_USERS_TEMPLATE_ID"]
+    }
     "RACK_ENV" : {
       type  = "String"
       value = var.parameters["RACK_ENV"]
@@ -354,6 +358,7 @@ module "toggles_application" {
     "DATABASE_URL" : module.secrets.secret_arns["RDS_TOGGLES_V2_CONNECTION_STRING"],
   }
   parameters                                 = module.parameter_store.parameter_arns
+  parameter_filter                           = ["NOTIFY_DATA_EMAIL_USERS_TEMPLATE_ID"]
   vpc_id                                     = module.networking.vpc_id
   fluentbit_ecr_url                          = module.fluentbit_ecr.ecr_url
   private_subnet_ids                         = module.networking.private_subnet_ids
@@ -398,6 +403,7 @@ module "auth_application" {
   parameters = merge(module.parameter_store.parameter_arns, {
     "SENTRY_DSN" : module.parameter_store.parameter_arns["SENTRY_DSN_AUTH_SERVER"]
   })
+  parameter_filter                           = ["NOTIFY_DATA_EMAIL_USERS_TEMPLATE_ID"]
   has_exec_cmd_task                          = true
   vpc_id                                     = module.networking.vpc_id
   fluentbit_ecr_url                          = module.fluentbit_ecr.ecr_url
@@ -472,6 +478,7 @@ module "register_api_application" {
       "EPB_AUTH_CLIENT_SECRET" = module.parameter_store.parameter_arns["REGISTER_API_EPB_AUTH_CLIENT_SECRET"]
     }
   )
+  parameter_filter                   = ["NOTIFY_DATA_EMAIL_USERS_TEMPLATE_ID"]
   has_exec_cmd_task                  = true
   enable_execute_command             = var.environment != "prod"
   deployment_minimum_healthy_percent = var.environment == "prod" ? 100 : 0
@@ -573,6 +580,7 @@ module "scheduled_tasks_application" {
       "EPB_AUTH_CLIENT_SECRET" = module.parameter_store.parameter_arns["REGISTER_API_EPB_AUTH_CLIENT_SECRET"]
     }
   )
+  parameter_filter   = ["NOTIFY_DATA_EMAIL_USERS_TEMPLATE_ID", "NOTIFY_DATA_API_KEY", "NOTIFY_OPT_OUT_TEMPLATE_ID", "NOTIFY_DATA_DOWNLOAD_TEMPLATE_ID", "NOTIFY_OPT_OUT_EMAIL_RECIPIENT"]
   prefix             = "${local.prefix}-scheduled-tasks"
   private_subnet_ids = module.networking.private_subnet_ids
   region             = var.region
@@ -597,21 +605,28 @@ module "scheduled_tasks_application" {
 }
 
 module "warehouse_scheduled_tasks_application" {
-  source                = "./application"
-  ci_account_id         = var.ci_account_id
-  has_start_task        = false
-  has_exec_cmd_task     = true
-  prefix                = "${local.prefix}-warehouse-scheduled-tasks"
-  region                = var.region
-  container_port        = 80
-  egress_ports          = [80, 443, 5432, var.parameters["LOGSTASH_PORT"]]
-  environment_variables = {}
+  source            = "./application"
+  ci_account_id     = var.ci_account_id
+  has_start_task    = false
+  has_exec_cmd_task = true
+  prefix            = "${local.prefix}-warehouse-scheduled-tasks"
+  region            = var.region
+  container_port    = 80
+  egress_ports      = [80, 443, 5432, var.parameters["LOGSTASH_PORT"]]
+  environment_variables = {
+    "EPB_DATA_USER_CREDENTIAL_TABLE_NAME" : try(module.epb_data_user_credentials[0].table_name, "none")
+    "KMS_KEY_ID" : module.data_frontend_kms_key.key_arn
+    "DATA_SERVICE_URL" : var.data_service_url
+  }
   secrets = {
     "DATABASE_URL" : module.secrets.secret_arns["RDS_WAREHOUSE_V2_CONNECTION_STRING"],
     "UD_BUCKET_NAME" : module.secrets.secret_arns["UD_BUCKET_NAME"],
   }
   parameters = merge(module.parameter_store.parameter_arns, {
     "SENTRY_DSN" : module.parameter_store.parameter_arns["SENTRY_DSN_DATA_WAREHOUSE"]
+    "NOTIFY_DATA_API_KEY" : module.parameter_store.parameter_arns["NOTIFY_DATA_API_KEY"]
+    "NOTIFY_DATA_EMAIL_USERS_TEMPLATE_ID" : module.parameter_store.parameter_arns["NOTIFY_DATA_EMAIL_USERS_TEMPLATE_ID"]
+
   })
   vpc_id             = module.networking.vpc_id
   fluentbit_ecr_url  = module.fluentbit_ecr.ecr_url
@@ -622,8 +637,8 @@ module "warehouse_scheduled_tasks_application" {
   }
   additional_task_role_policy_arns = {
     "UserData_S3_access" : module.user_data.s3_write_access_policy_arn
+    "DynamoDB_User_Credentials_read_access" : module.epb_data_user_credentials[0].dynamodb_read_policy_arn
   }
-
   aws_cloudwatch_log_group_id   = module.logging.cloudwatch_log_group_id
   aws_cloudwatch_log_group_name = module.logging.cloudwatch_log_group_name
   logs_bucket_name              = module.logging.logs_bucket_name
@@ -663,6 +678,7 @@ module "frontend_application" {
     "EPB_AUTH_CLIENT_SECRET" : module.parameter_store.parameter_arns["FRONTEND_EPB_AUTH_CLIENT_SECRET"]
     "SENTRY_DSN" : module.parameter_store.parameter_arns["SENTRY_DSN_FRONTEND"]
   })
+  parameter_filter                           = ["NOTIFY_DATA_EMAIL_USERS_TEMPLATE_ID"]
   vpc_id                                     = module.networking.vpc_id
   fluentbit_ecr_url                          = module.fluentbit_ecr.ecr_url
   private_subnet_ids                         = module.networking.private_subnet_ids
@@ -735,6 +751,7 @@ module "data_frontend_application" {
     "NOTIFY_OPT_OUT_TEMPLATE_ID" : module.parameter_store.parameter_arns["NOTIFY_OPT_OUT_TEMPLATE_ID"]
     "NOTIFY_OPT_OUT_EMAIL_RECIPIENT" : module.parameter_store.parameter_arns["NOTIFY_OPT_OUT_EMAIL_RECIPIENT"]
   })
+  parameter_filter                           = ["NOTIFY_DATA_EMAIL_USERS_TEMPLATE_ID"]
   vpc_id                                     = module.networking.vpc_id
   fluentbit_ecr_url                          = module.fluentbit_ecr.ecr_url
   private_subnet_ids                         = module.networking.private_subnet_ids
@@ -807,6 +824,7 @@ module "warehouse_application" {
     "NOTIFY_EMAIL_RECIPIENT" : module.parameter_store.parameter_arns["NOTIFY_EMAIL_RECIPIENT"]
     "NOTIFY_TEMPLATE_ID" : module.parameter_store.parameter_arns["NOTIFY_TEMPLATE_ID"]
   })
+  parameter_filter   = ["NOTIFY_DATA_EMAIL_USERS_TEMPLATE_ID"]
   vpc_id             = module.networking.vpc_id
   fluentbit_ecr_url  = module.fluentbit_ecr.ecr_url
   private_subnet_ids = module.networking.private_subnet_ids
@@ -847,9 +865,9 @@ module "warehouse_api_application" {
     "EPB_UNLEASH_URI" : module.secrets.secret_arns["EPB_UNLEASH_URI"]
   }
   parameters = merge(module.parameter_store.parameter_arns, {
-
     "SENTRY_DSN" : module.parameter_store.parameter_arns["SENTRY_DSN_REGISTER_API"]
   })
+  parameter_filter   = ["NOTIFY_DATA_EMAIL_USERS_TEMPLATE_ID"]
   has_exec_cmd_task  = true
   vpc_id             = module.networking.vpc_id
   fluentbit_ecr_url  = module.fluentbit_ecr.ecr_url
@@ -938,6 +956,7 @@ module "addressing_application" {
   parameters = merge(module.parameter_store.parameter_arns, {
     "SENTRY_DSN" : module.parameter_store.parameter_arns["SENTRY_DSN_ADDRESSING"]
   })
+  parameter_filter                   = ["NOTIFY_DATA_EMAIL_USERS_TEMPLATE_ID"]
   has_exec_cmd_task                  = true
   deployment_minimum_healthy_percent = var.environment == "intg" ? 0 : 100
   vpc_id                             = module.networking.vpc_id
@@ -1334,7 +1353,8 @@ module "epb_data_user_credentials" {
   route_table_ids = module.networking.route_table_ids
   ecs_roles = [
     module.warehouse_api_application.ecs_role,
-    module.data_frontend_application[0].ecs_role
+    module.data_frontend_application[0].ecs_role,
+    module.warehouse_scheduled_tasks_application.ecs_role
   ]
 }
 
