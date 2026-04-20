@@ -144,35 +144,43 @@ with S3MultipartWriter(s3_client, S3_BUCKET, ZIP_FILE_KEY, chunk_size=chunk_size
             prefix = f"{S3_PREFIX}{TABLE_NAME}-{year}/"
             logger.warn(f'S3 Prefix to inspect "{prefix}"')
 
-            response = s3_client.list_objects_v2(Bucket=S3_BUCKET, Prefix=prefix)
-            if "Contents" in response:
-                logger.warn(f'Response has Contents')
+            max_list_attempts = 5
+            for list_attempt in range(max_list_attempts):
+                response = s3_client.list_objects_v2(Bucket=S3_BUCKET, Prefix=prefix)
+                if "Contents" in response:
+                    logger.warn(f'Response has Contents')
+                    break
+                if list_attempt < max_list_attempts - 1:
+                    logger.warn(f'No contents found for prefix "{prefix}", retrying in 5 seconds (attempt {list_attempt + 1}/{max_list_attempts})')
+                    time.sleep(5)
+                else:
+                    raise RuntimeError(f'No contents found for prefix "{prefix}" after {max_list_attempts} attempts')
 
-                for obj in response["Contents"]:
-                    logger.warn(f'File from S3 being processed: "{obj["Key"]}"')
+            for obj in response["Contents"]:
+                logger.warn(f'File from S3 being processed: "{obj["Key"]}"')
 
-                    if obj["Key"].endswith(".json"):
-                        logger.warn(f"Streaming {obj['Key']} into zip")
-                        zi = zipfile.ZipInfo(f"certificates-{year}.json")
-                        zi.compress_type = zipfile.ZIP_DEFLATED
-                        with zipf.open(zi, mode="w", force_zip64=True) as zf_entry:
-                            for attempt in range(5):
-                                try:
-                                    body = s3_client.get_object(Bucket=S3_BUCKET, Key=obj["Key"])["Body"]
-                                    break
-                                except botocore.exceptions.ClientError as e:
-                                    if e.response['Error']['Code'] == 'NoSuchKey':
-                                        if attempt < 4:
-                                            logger.warn(f"NoSuchKey for {obj['Key']}, retrying in 1 second")
-                                            time.sleep(1)
-                                        else:
-                                            logger.error(f"NoSuchKey for {obj['Key']} after 5 attempts, failing")
-                                            raise
+                if obj["Key"].endswith(".json"):
+                    logger.warn(f"Streaming {obj['Key']} into zip")
+                    zi = zipfile.ZipInfo(f"certificates-{year}.json")
+                    zi.compress_type = zipfile.ZIP_DEFLATED
+                    with zipf.open(zi, mode="w", force_zip64=True) as zf_entry:
+                        for attempt in range(5):
+                            try:
+                                body = s3_client.get_object(Bucket=S3_BUCKET, Key=obj["Key"])["Body"]
+                                break
+                            except botocore.exceptions.ClientError as e:
+                                if e.response['Error']['Code'] == 'NoSuchKey':
+                                    if attempt < 4:
+                                        logger.warn(f"NoSuchKey for {obj['Key']}, retrying in 1 second")
+                                        time.sleep(1)
                                     else:
+                                        logger.error(f"NoSuchKey for {obj['Key']} after 5 attempts, failing")
                                         raise
-                            for chunk in iter(lambda: body.read(10 * 1024 * 1024), b""):  # 10 MB
-                                zf_entry.write(chunk)
-                        s3_client.delete_object(Bucket=S3_BUCKET, Key=obj["Key"])
+                                else:
+                                    raise
+                        for chunk in iter(lambda: body.read(10 * 1024 * 1024), b""):  # 10 MB
+                            zf_entry.write(chunk)
+                    s3_client.delete_object(Bucket=S3_BUCKET, Key=obj["Key"])
 
-                        break
+                    break
 job.commit()
