@@ -88,16 +88,16 @@ S3_BUCKET = args["S3_BUCKET"]
 EPC_TYPE = args["EPC_TYPE"]
 ASSESSMENT_TYPES = args.get("ASSESSMENT_TYPES")
 S3_PREFIX = f"full-load/"
-S3_OUTPUT_PATH = f"s3://{S3_BUCKET}/{S3_PREFIX}"
+S3_TEMP_OUTPUT_PREFIX = f"{S3_PREFIX}temp/{EPC_TYPE}"
+S3_TEMP_OUTPUT_PATH = f"s3://{S3_BUCKET}/{S3_TEMP_OUTPUT_PREFIX}"
 ZIP_FILE_KEY = f"{S3_PREFIX}{EPC_TYPE}-json.zip"
-
 
 sql_spark = (
     SparkSession.builder
     .config("spark.sql.extensions", "org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions")
     .config("spark.sql.catalog.glue_catalog", "org.apache.iceberg.spark.SparkCatalog")
     .config("spark.sql.catalog.glue_catalog.catalog-impl", "org.apache.iceberg.aws.glue.GlueCatalog")
-    .config("spark.sql.catalog.glue_catalog.warehouse", S3_OUTPUT_PATH)
+    .config("spark.sql.catalog.glue_catalog.warehouse", S3_TEMP_OUTPUT_PATH)
     .config("spark.sql.catalog.glue_catalog.job-language", "python")
     .getOrCreate()
 )
@@ -124,7 +124,7 @@ def generate_json_per_year(df, table_name, years, assessment_types):
         assessment_types_df = df.filter(F.col("assessment_type").isin(assessment_types))
         year_df = assessment_types_df.filter(F.col("year") == year).drop("year").repartition(1)
 
-        output_folder = f"{S3_OUTPUT_PATH}{table_name}-{year}/"
+        output_folder = f"{S3_TEMP_OUTPUT_PATH}/{table_name}-{year}/"
         year_df.write.mode("overwrite").json(output_folder)
         logger.warn(f'Finished processing table: "{table_name}" year: {year}')
 
@@ -141,7 +141,7 @@ with S3MultipartWriter(s3_client, S3_BUCKET, ZIP_FILE_KEY, chunk_size=chunk_size
 
     with zipfile.ZipFile(mpw, mode="w", compression=zipfile.ZIP_DEFLATED, allowZip64=True) as zipf:
         for year in years:
-            prefix = f"{S3_PREFIX}{TABLE_NAME}-{year}/"
+            prefix = f"{S3_TEMP_OUTPUT_PREFIX}/{TABLE_NAME}-{year}/"
             logger.warn(f'S3 Prefix to inspect "{prefix}"')
 
             max_list_attempts = 5
