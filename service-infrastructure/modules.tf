@@ -1307,20 +1307,26 @@ module "data_frontend_delivery" {
 }
 
 module "data_warehouse_glue" {
-  count                      = 1
-  environment                = var.environment
-  source                     = "./glue_data_warehouse"
-  prefix                     = local.prefix
-  subnet_group_id            = module.networking.private_db_subnet_first_id
-  db_instance                = module.warehouse_database_v2.rds_db_reader_endpoint
-  db_user                    = module.warehouse_database_v2.rds_db_username
-  db_password                = module.warehouse_database_v2.rds_db_password
-  subnet_group_az            = module.networking.private_db_subnet_first_az
-  vpc_id                     = module.networking.vpc_id
-  output_bucket_name         = module.user_data.bucket_name
-  output_bucket_read_policy  = module.user_data.s3_read_access_policy_arn
-  output_bucket_write_policy = module.user_data.s3_write_access_policy_arn
-
+  count                       = 1
+  environment                 = var.environment
+  source                      = "./glue_data_warehouse"
+  prefix                      = local.prefix
+  subnet_group_id             = module.networking.private_db_subnet_first_id
+  db_instance                 = module.warehouse_database_v2.rds_db_reader_endpoint
+  db_user                     = module.warehouse_database_v2.rds_db_username
+  db_password                 = module.warehouse_database_v2.rds_db_password
+  subnet_group_az             = module.networking.private_db_subnet_first_az
+  vpc_id                      = module.networking.vpc_id
+  output_bucket_name          = module.user_data.bucket_name
+  output_bucket_read_policy   = module.user_data.s3_read_access_policy_arn
+  output_bucket_write_policy  = module.user_data.s3_write_access_policy_arn
+  ecs_cluster_arn             = module.warehouse_scheduled_tasks_application.ecs_cluster_arn
+  ecs_task_arn                = module.warehouse_scheduled_tasks_application.ecs_task_exec_arn
+  ecs_task_role_arn           = module.warehouse_scheduled_tasks_application.ecs_role
+  ecs_task_execution_role_arn = module.warehouse_scheduled_tasks_application.ecs_task_execution_role_arn
+  ecs_container_name          = module.warehouse_scheduled_tasks_application.migration_container_name
+  ecs_security_group_id       = module.warehouse_scheduled_tasks_application.ecs_security_group_id
+  ecs_subnet_ids              = module.networking.private_db_subnet_ids
 }
 
 module "addressing_glue" {

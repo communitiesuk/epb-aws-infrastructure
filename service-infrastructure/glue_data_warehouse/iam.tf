@@ -117,3 +117,87 @@ resource "aws_iam_role_policy" "self_pass_role" {
     ]
   })
 }
+
+resource "aws_iam_role" "refresh_mvw_state_machine" {
+  name = "${var.prefix}-refresh-mvw-state-machine"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "states.amazonaws.com"
+        }
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy" "refresh_mvw_state_machine" {
+  name = "${var.prefix}-refresh-mvw-state-machine"
+  role = aws_iam_role.refresh_mvw_state_machine.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "RunEcsTask"
+        Effect = "Allow"
+        Action = [
+          "ecs:RunTask"
+        ]
+        Resource = var.ecs_task_arn
+      },
+      {
+        Sid    = "TrackEcsTask"
+        Effect = "Allow"
+        Action = [
+          "ecs:DescribeTasks",
+          "ecs:StopTask"
+        ]
+        Resource = "*"
+      },
+      {
+        Sid    = "PassEcsRoles"
+        Effect = "Allow"
+        Action = [
+          "iam:PassRole"
+        ]
+        Resource = [
+          var.ecs_task_role_arn,
+          var.ecs_task_execution_role_arn
+        ]
+        Condition = {
+          StringLike = {
+            "iam:PassedToService" = "ecs-tasks.amazonaws.com"
+          }
+        }
+      },
+      {
+        Sid    = "RunAllGluePopulateJobs"
+        Effect = "Allow"
+        Action = [
+          "glue:StartJobRun",
+          "glue:GetJobRun",
+          "glue:GetJobRuns",
+          "glue:BatchStopJobRun"
+        ]
+        Resource = [for workflow in values(local.mvw_refresh_workflows) : workflow.glue_job_arn]
+      },
+      {
+        Sid    = "ManageStepFunctionsEventBridgeRules"
+        Effect = "Allow"
+        Action = [
+          "events:PutRule",
+          "events:PutTargets",
+          "events:DescribeRule",
+          "events:RemoveTargets",
+          "events:DeleteRule"
+        ]
+        Resource = "arn:aws:events:*:*:rule/StepFunctionsGetEventsFor*"
+      }
+    ]
+  })
+}
