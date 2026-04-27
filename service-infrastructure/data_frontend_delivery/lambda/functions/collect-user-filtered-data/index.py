@@ -32,6 +32,10 @@ def rr_table(filters):
     return f"{filters["property_type"]}_rr"
 
 
+def escape_sql(value):
+    return str(value).replace("'", "''")
+
+
 def query_search_filter_setup(filters):
     clauses = []
 
@@ -52,7 +56,7 @@ def query_search_filter_setup(filters):
                     if sub_value:
                         if sub_key == "local-authority":
                             valid_authorities = [
-                                f"'{v}'"
+                                f"'{escape_sql(v)}'"
                                 for v in sub_value
                                 if v.lower() != "select all" and v != ""
                             ]
@@ -62,7 +66,7 @@ def query_search_filter_setup(filters):
                                 )
                         elif sub_key == "parliamentary-constituency":
                             valid_constituencies = [
-                                f"'{v}'"
+                                f"'{escape_sql(v)}'"
                                 for v in sub_value
                                 if v.lower() != "select all" and v != ""
                             ]
