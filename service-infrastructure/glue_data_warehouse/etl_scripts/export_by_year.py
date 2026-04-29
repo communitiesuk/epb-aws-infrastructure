@@ -98,7 +98,7 @@ def process_and_zip(df, table_name, years, zipf, csv_filename=None):
         year_df = df.filter(F.col("year") == year).drop("year").repartition(1)
 
         output_folder = f"{S3_OUTPUT_PATH}{table_name}-{year}/"
-        year_df.write.mode("overwrite").option("header", "true").csv(output_folder)
+        year_df.write.mode("overwrite").option("header", "true").option("escape", "\"").csv(output_folder)
 
         prefix = f"{S3_PREFIX}{table_name}-{year}/"
         response = s3_client.list_objects_v2(Bucket=S3_BUCKET, Prefix=prefix)
