@@ -319,6 +319,7 @@ module "export_dec_data_by_year" {
   arguments = {
     "--DATABASE_NAME" = aws_glue_catalog_database.this.name
     "--TABLE_NAME"    = "display"
+    "--TABLE_NAME_RR" = "display_rr"
     "--S3_BUCKET"     = var.output_bucket_name
   }
 }
