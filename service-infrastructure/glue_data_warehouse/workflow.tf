@@ -143,6 +143,9 @@ resource "aws_glue_trigger" "populate_json_documents_trigger" {
 
   actions {
     job_name = module.populate_json_documents_etl[0].etl_job_name
+    arguments = {
+      "--ENABLE_OPTIMIZERS_AFTER_JOB" = "false"
+    }
   }
 }
 
@@ -162,5 +165,8 @@ resource "aws_glue_trigger" "populate_json_documents_chain" {
 
   actions {
     job_name = module.populate_json_documents_etl[count.index + 1].etl_job_name
+    arguments = {
+      "--ENABLE_OPTIMIZERS_AFTER_JOB" = (count.index + 1) == local.number_years ? "true" : "false"
+    }
   }
 }

@@ -13,7 +13,7 @@ from pyspark.sql import SparkSession
 # -------------------------------------------------------
 #               PARSE JOB ARGUMENTS
 # -------------------------------------------------------
-args = getResolvedOptions(sys.argv, ['JOB_NAME', 'DATABASE_NAME', 'S3_BUCKET', 'CONNECTION_NAME', 'CATALOG_TABLE_NAME', "DB_TABLE_NAME"])
+args = getResolvedOptions(sys.argv, ['JOB_NAME', 'DATABASE_NAME', 'S3_BUCKET', 'CONNECTION_NAME', 'CATALOG_TABLE_NAME', 'DB_TABLE_NAME'])
 
 DATABASE_NAME =  args['DATABASE_NAME']
 S3_BUCKET = args['S3_BUCKET']
@@ -23,6 +23,12 @@ DB_TABLE_NAME = args['DB_TABLE_NAME']
 
 S3_PATH=f"s3://{S3_BUCKET}/{CATALOG_TABLE_NAME}/"
 GLUE_TABLE_PATH = f"glue_catalog.{DATABASE_NAME}.{CATALOG_TABLE_NAME}"
+
+try:
+    optional_arg = getResolvedOptions(sys.argv, ['ENABLE_OPTIMIZERS_AFTER_JOB'])
+    ENABLE_OPTIMIZERS_AFTER_JOB = optional_arg['ENABLE_OPTIMIZERS_AFTER_JOB'].lower() == 'true'
+except Exception:
+    ENABLE_OPTIMIZERS_AFTER_JOB = True
 
 # -------------------------------------------------------
 #               SETUP SPARK + GLUE CONTEXT
@@ -243,8 +249,11 @@ except Exception as e:
     logger.error(f"Job failed during Merge: {str(e)}")
     raise e
 finally:
-    logger.info("Resuming optimizers for background maintenance.")
-    set_optimizers_status(glue, DATABASE_NAME, CATALOG_TABLE_NAME, optimizer_configurations.keys(), enabled=True)
+    if ENABLE_OPTIMIZERS_AFTER_JOB:
+        logger.info("Resuming optimizers for background maintenance (last job in workflow).")
+        set_optimizers_status(glue, DATABASE_NAME, CATALOG_TABLE_NAME, optimizer_configurations.keys(), enabled=True)
+    else:
+        logger.info("Skipping optimizer re-enable — not the last job in the workflow. Optimizers will be re-enabled by the final year job to prevent compaction races with subsequent MERGE operations.")
 
     job.commit()
     logger.info("Glue job completed successfully.")
