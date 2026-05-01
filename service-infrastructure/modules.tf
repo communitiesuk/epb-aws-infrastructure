@@ -1029,8 +1029,7 @@ module "fluentbit_ecr" {
 }
 
 module "alerts" {
-  source = "./alerts"
-
+  source                     = "./alerts"
   prefix                     = local.prefix
   region                     = var.region
   environment                = var.parameters["STAGE"]
@@ -1041,7 +1040,6 @@ module "alerts" {
   cloudtrail_log_group_name  = module.logging.cloudtrail_log_group_name
   cloudwatch_ecs_events_name = module.logging.cloudwatch_ecs_events_name
   lambda_functions           = module.data_frontend_delivery[0].lambda_function_names
-
   ecs_services = {
     api_service = {
       cluster_name = module.register_api_application.ecs_cluster_name
@@ -1055,6 +1053,10 @@ module "alerts" {
       cluster_name = module.frontend_application.ecs_cluster_name
       service_name = module.frontend_application.ecs_service_name
     },
+    data_frontend = {
+      cluster_name = module.data_frontend_application[0].ecs_cluster_name
+      service_name = module.data_frontend_application[0].ecs_service_name
+    },
     toggles = {
       cluster_name = module.toggles_application.ecs_cluster_name
       service_name = module.toggles_application.ecs_service_name
@@ -1066,7 +1068,11 @@ module "alerts" {
     warehouse_api = {
       cluster_name = module.warehouse_api_application.ecs_cluster_name
       service_name = module.warehouse_api_application.ecs_service_name
-    }
+    },
+    addressing_api = {
+      cluster_name = module.addressing_application[0].ecs_cluster_name
+      service_name = module.addressing_application[0].ecs_service_name
+    },
   }
 
   exec_cmd_tasks = {
@@ -1088,13 +1094,17 @@ module "alerts" {
   }
 
   albs = {
-    auth                  = module.auth_application.front_door_alb_arn_suffix
-    auth_internal         = module.auth_application.internal_alb_arn_suffix
-    register_api          = module.register_api_application.front_door_alb_arn_suffix
-    register_api_internal = module.register_api_application.internal_alb_arn_suffix
-    toggles               = module.toggles_application.front_door_alb_arn_suffix
-    toggles_internal      = module.toggles_application.internal_alb_arn_suffix
-    frontend              = module.frontend_application.front_door_alb_arn_suffix
+    auth                    = module.auth_application.front_door_alb_arn_suffix
+    auth_internal           = module.auth_application.internal_alb_arn_suffix
+    register_api            = module.register_api_application.front_door_alb_arn_suffix
+    register_api_internal   = module.register_api_application.internal_alb_arn_suffix
+    toggles                 = module.toggles_application.front_door_alb_arn_suffix
+    toggles_internal        = module.toggles_application.internal_alb_arn_suffix
+    frontend                = module.frontend_application.front_door_alb_arn_suffix
+    data_frontend           = module.data_frontend_application[0].front_door_alb_arn_suffix
+    dwh_api                 = module.warehouse_api_application.front_door_alb_arn_suffix
+    dwh_api_internal        = module.warehouse_api_application.internal_alb_arn_suffix
+    addressing_api_internal = module.addressing_application[0].internal_alb_arn_suffix
   }
 }
 
