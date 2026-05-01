@@ -32,8 +32,8 @@ sleep 30
 STATUS=$(aws ecs describe-tasks  --cluster $CLUSTER_NAME --tasks $TASK_ID --query 'tasks[0].containers[0].lastStatus' --profile $PROFILE )
 if [[ $STATUS == "\"RUNNING\"" ]]; then
   # check that a running does not not consequently stop
-  echo "${TASK_ID} << TASK IS RUNNING...WAIT ANOTHER 10 seconds"
-  sleep 10
+  echo "${TASK_ID} << TASK IS RUNNING...WAIT ANOTHER 120 seconds"
+  sleep 120
   UPDATE_STATUS=$(aws ecs describe-tasks  --cluster $CLUSTER_NAME --tasks $TASK_ID --query 'tasks[0].containers[0].lastStatus' --profile $PROFILE)
  if [[ $UPDATE_STATUS == "\"RUNNING\"" ]]; then
   echo "${TASK_ID} << TASK IS STILL RUNNING"

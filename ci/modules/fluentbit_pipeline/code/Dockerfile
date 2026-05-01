@@ -1,16 +1,16 @@
-FROM fluent/fluent-bit:4.1.2 as builder
-FROM debian:bookworm-slim as debug
+FROM fluent/fluent-bit:latest as builder
+FROM debian:trixie-slim as debug
 ENV DEBIAN_FRONTEND noninteractive
 
 # hadolint ignore=DL3008
-RUN echo "deb http://deb.debian.org/debian bookworm-backports main" >> /etc/apt/sources.list && \
+RUN echo "deb http://deb.debian.org/debian trixie-backports main" >> /etc/apt/sources.list && \
     apt-get update && \
     apt-get install -y --no-install-recommends \
     libssl3 \
     libsasl2-2 \
     pkg-config \
     libpq5 \
-    libsystemd0/bookworm-backports \
+    libsystemd0/trixie \
     zlib1g \
     ca-certificates \
     libatomic1 \
