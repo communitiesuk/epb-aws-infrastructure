@@ -5,8 +5,7 @@ resource "aws_elasticache_cluster" "redis" {
   # If updating the engine_version, ensure the version referenced for the parameter_group_name tallies
   engine_version = "7.1"
   # Parameter group families are outlined here - https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/ParameterGroups.Redis.html
-  parameter_group_name = "default.redis7"
-
+  parameter_group_name       = "default.redis7"
   node_type                  = "cache.t3.micro"
   num_cache_nodes            = 1
   apply_immediately          = true
@@ -33,3 +32,31 @@ resource "aws_elasticache_subnet_group" "this" {
   name       = "${var.prefix}-redis-subnet"
   subnet_ids = var.subnet_ids
 }
+
+
+
+resource "aws_elasticache_replication_group" "this" {
+  replication_group_id = "${var.prefix}-redis-group"
+  description          = "epb redis replication group"
+  engine               = "redis"
+  engine_version       = "7.1"
+  node_type            = "cache.t3.micro"
+
+  replicas_per_node_group    = 2
+  automatic_failover_enabled = true
+  multi_az_enabled           = true
+
+  parameter_group_name = "default.redis7"
+  maintenance_window   = "sun:01:00-sun:03:00"
+
+  snapshot_retention_limit = 1
+  snapshot_window          = "03:00-04:00"
+
+  at_rest_encryption_enabled = true
+  transit_encryption_enabled = true
+
+  subnet_group_name  = aws_elasticache_subnet_group.this.name
+  security_group_ids = [aws_security_group.redis.id]
+
+}
+
