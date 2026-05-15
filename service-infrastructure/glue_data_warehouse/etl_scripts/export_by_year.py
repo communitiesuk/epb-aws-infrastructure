@@ -10,6 +10,7 @@ from boto3.s3.transfer import TransferConfig
 from pyspark.context import SparkContext
 from pyspark.sql import functions as F
 from pyspark.sql import SparkSession
+from pyspark.sql.types import StringType
 
 required_args = ["JOB_NAME", "TABLE_NAME", "S3_BUCKET", "DATABASE_NAME"]
 
@@ -50,6 +51,27 @@ sql_spark = (
 )
 
 s3_client = boto3.client("s3")
+
+TEXT_COLUMNS_TO_NORMALIZE = [
+    "glazed_type",
+    "improvement_descr_text",
+    "improvement_summary_text",
+    "main_fuel",
+    "mechanical_ventilation",
+    "ventilation_type",
+    "transaction_type",
+]
+
+
+def strip_newlines(df):
+    fields_by_name = {field.name: field for field in df.schema.fields}
+    for column_name in TEXT_COLUMNS_TO_NORMALIZE:
+        field = fields_by_name.get(column_name)
+        if field and isinstance(field.dataType, StringType):
+            col = F.regexp_replace(F.col(column_name), r"\s*[\r\n]+\s*", " ")
+            df = df.withColumn(column_name, col)
+    return df
+
 
 # Read data from Glue Catalog
 frame = glueContext.create_data_frame.from_catalog(
@@ -95,7 +117,8 @@ def process_and_zip(df, table_name, years, zipf, csv_filename=None):
 
     for year in years:
         logger.warn(f'Processing table "{table_name}" year: {year}')
-        year_df = df.filter(F.col("year") == year).drop("year").repartition(1)
+        year_df = df.filter(F.col("year") == year).drop("year")
+        year_df = strip_newlines(year_df).repartition(1)
 
         output_folder = f"{S3_OUTPUT_PATH}{table_name}-{year}/"
         year_df.write.mode("overwrite").option("header", "true").option("escape", "\"").csv(output_folder)
