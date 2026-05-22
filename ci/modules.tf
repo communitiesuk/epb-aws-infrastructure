@@ -362,7 +362,6 @@ module "prototypes_pipeline" {
 module "view-models-pipeline" {
   source                  = "./modules/view_models_pipeline"
   codepipeline_bucket     = module.artefact.codepipeline_bucket
-  codepipeline_role_arn   = module.codepipeline_role.aws_codepipeline_role_arn
   codebuild_role_arn      = module.codebuild_role.aws_codebuild_role_arn
   pipeline_name           = "epbr-view-models-pipeline"
   github_repository       = "epb-view-models"

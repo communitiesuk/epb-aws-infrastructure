@@ -6,10 +6,6 @@ variable "codebuild_role_arn" {
   type = string
 }
 
-variable "codepipeline_role_arn" {
-  type = string
-}
-
 variable "codepipeline_bucket" {
   type = string
 }
