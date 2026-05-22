@@ -1,3 +1,23 @@
+locals {
+  ecr_arns = [
+    "arn:aws:ecr:${var.region}:${var.account_ids["integration"]}:repository/${var.integration_prefix}-${var.app_ecr_name}/",
+    "arn:aws:ecr:${var.region}:${var.account_ids["staging"]}:repository/${var.staging_prefix}-${var.app_ecr_name}/",
+    "arn:aws:ecr:${var.region}:${var.account_ids["production"]}:repository/${var.production_prefix}-${var.app_ecr_name}/",
+  ]
+  codebuild_names = ["${var.project_name}-codebuild-build-image", "${var.project_name}-codebuild-deploy-integration", "${var.project_name}-codebuild-deploy-staging", "${var.project_name}-codebuild-deploy-production"]
+}
+
+module "codepipeline_iam" {
+  source                  = "../codepipeline_iam"
+  project_name            = "epbr-toggles-pipeline-role"
+  region                  = var.region
+  ecr_arns                = local.ecr_arns
+  codestar_connection_arn = var.codestar_connection_arn
+  codebuild_names         = local.codebuild_names
+}
+
+
+
 module "codebuild_build_app_image" {
   source             = "../codebuild_project"
   codebuild_role_arn = var.codebuild_role_arn
