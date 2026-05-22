@@ -46,6 +46,7 @@ data "aws_iam_policy_document" "codepipeline_role_policy" {
 resource "aws_iam_role" "codepipeline_role" {
   name               = "epbr-codepipeline-${var.project_name}-role"
   assume_role_policy = data.aws_iam_policy_document.assume_role_codepipeline.json
+
 }
 
 resource "aws_iam_role_policy" "codepipeline_policy" {

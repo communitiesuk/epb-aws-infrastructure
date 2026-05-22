@@ -9,13 +9,12 @@ locals {
 
 module "codepipeline_iam" {
   source                  = "../codepipeline_iam"
-  project_name            = "epbr-toggles-pipeline-role"
+  project_name            = "toggles"
   region                  = var.region
   ecr_arns                = local.ecr_arns
   codestar_connection_arn = var.codestar_connection_arn
   codebuild_names         = local.codebuild_names
 }
-
 
 
 module "codebuild_build_app_image" {

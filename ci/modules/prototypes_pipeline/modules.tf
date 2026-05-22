@@ -6,7 +6,7 @@ locals {
 
 module "codepipeline_iam" {
   source                  = "../codepipeline_iam"
-  project_name            = local.project_name
+  project_name            = "prototypes"
   region                  = var.region
   ecr_arns                = ["arn:aws:ecr:${var.region}:${var.dev_account_id}:repository/${local.ecr_name}/"]
   codestar_connection_arn = var.codestar_connection_arn

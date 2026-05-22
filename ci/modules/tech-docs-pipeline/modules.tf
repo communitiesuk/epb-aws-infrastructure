@@ -1,6 +1,6 @@
 module "codepipeline_iam" {
   source                  = "../codepipeline_iam"
-  project_name            = "epbr-codebuild-${var.project_name}"
+  project_name            = var.project_name
   region                  = var.region
   codestar_connection_arn = var.codestar_connection_arn
   codebuild_names         = ["epbr-codebuild-${var.project_name}"]

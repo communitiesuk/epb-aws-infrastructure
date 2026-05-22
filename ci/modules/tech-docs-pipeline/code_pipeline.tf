@@ -1,5 +1,5 @@
 resource "aws_codepipeline" "codepipeline" {
-  name     = "tech-docs"
+  name     = "epbr-${var.project_name}-pipeline"
   role_arn = module.codepipeline_iam.aws_codepipeline_role_arn
 
   artifact_store {
