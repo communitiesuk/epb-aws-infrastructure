@@ -7,7 +7,8 @@ variable "project_name" {
 }
 
 variable "ecr_arns" {
-  type = list(string)
+  type    = list(string)
+  default = null
 }
 
 variable "codestar_connection_arn" {
