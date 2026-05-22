@@ -1,6 +1,6 @@
 resource "aws_codepipeline" "codepipeline" {
-  name     = "epbr-${var.project_name}-pipeline"
-  role_arn = var.codepipeline_role_arn
+  name     = local.project_name
+  role_arn = module.codepipeline_iam.aws_codepipeline_role_arn
 
   artifact_store {
     location = var.artefact_bucket

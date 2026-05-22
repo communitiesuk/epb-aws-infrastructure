@@ -345,7 +345,6 @@ module "dwh_api_docs_pipeline" {
 module "prototypes_pipeline" {
   artefact_bucket         = module.artefact.codepipeline_bucket
   codebuild_role_arn      = module.codebuild_role.aws_codebuild_role_arn
-  codepipeline_role_arn   = module.codepipeline_role.aws_codepipeline_role_arn
   codestar_connection_arn = module.codestar_connection.codestar_connection_arn
   github_branch           = "master"
   github_repository       = "epb-prototypes"
