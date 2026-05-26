@@ -129,7 +129,7 @@ module "register-api-pipeline" {
 module "performance_test_pipeline" {
   source                      = "./modules/performance_test_pipeline"
   codepipeline_bucket         = module.artefact.codepipeline_bucket
-  codepipeline_role_arn       = module.codepipeline_role.aws_codepipeline_role_arn
+  artefact_bucket_arn         = module.artefact.codepipeline_bucket_arn
   codebuild_role_arn          = module.codebuild_role.aws_codebuild_role_arn
   project_name                = "epbr-performance-test"
   pipeline_name               = "epbr-performance-test-pipeline"
