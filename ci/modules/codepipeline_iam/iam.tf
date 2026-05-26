@@ -1,3 +1,5 @@
+
+
 data "aws_iam_policy_document" "assume_role_codepipeline" {
   statement {
     effect  = "Allow"
@@ -32,15 +34,6 @@ data "aws_iam_policy_document" "codepipeline_role_policy" {
     resources = local.codebuild_arns
   }
 
-  statement {
-    effect = "Allow"
-    actions = [
-      "codestar-connections:UseConnection",
-
-    ]
-    resources = [var.codestar_connection_arn]
-  }
-
 }
 
 resource "aws_iam_role" "codepipeline_role" {
@@ -55,8 +48,7 @@ resource "aws_iam_role_policy" "codepipeline_policy" {
   policy = data.aws_iam_policy_document.codepipeline_role_policy.json
 }
 
-
-resource "aws_iam_role_policy" "this" {
+resource "aws_iam_role_policy" "ecr_role_policy" {
   count = var.ecr_arns == null ? 0 : 1
   name  = "epbr-codepipeline-${var.project_name}-ecr-policy"
   role  = aws_iam_role.codepipeline_role.id
@@ -74,3 +66,21 @@ resource "aws_iam_role_policy" "this" {
     }]
   })
 }
+
+resource "aws_iam_role_policy" "codestar_role_policy" {
+  count = var.codestar_connection_arn == "" ? 0 : 1
+  name  = "epbr-codepipeline-${var.project_name}-codestar-policy"
+  role  = aws_iam_role.codepipeline_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Action = [
+        "codestar-connections:UseConnection",
+      ]
+      Effect   = "Allow"
+      Resource = var.codestar_connection_arn
+    }]
+  })
+}
+

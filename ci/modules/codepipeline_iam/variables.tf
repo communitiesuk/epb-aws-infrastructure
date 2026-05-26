@@ -12,7 +12,9 @@ variable "ecr_arns" {
 }
 
 variable "codestar_connection_arn" {
-  type = string
+  type    = string
+  default = ""
+
 }
 
 variable "codebuild_names" {
