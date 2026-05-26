@@ -14,7 +14,7 @@ resource "aws_s3_object" "code" {
 
 resource "aws_codepipeline" "postgres_image_codepipeline" {
   name     = var.pipeline_name
-  role_arn = var.codepipeline_role_arn
+  role_arn = module.codepipeline_iam.aws_codepipeline_role_arn
 
   artifact_store {
     location = var.artefact_bucket

@@ -49,13 +49,12 @@ module "app_test_image_pipeline" {
 }
 
 module "postgres_test_image_pipeline" {
-  source                = "./modules/postgres_image_pipeline"
-  artefact_bucket       = module.artefact.codepipeline_bucket
-  artefact_bucket_arn   = module.artefact.codepipeline_bucket_arn
-  codepipeline_role_arn = module.codepipeline_role.aws_codepipeline_role_arn
-  pipeline_name         = "epbr-postgres-image-pipeline"
-  project_name          = "epbr-postgres-image"
-  region                = var.region
+  source              = "./modules/postgres_image_pipeline"
+  artefact_bucket     = module.artefact.codepipeline_bucket
+  artefact_bucket_arn = module.artefact.codepipeline_bucket_arn
+  pipeline_name       = "epbr-postgres-image-pipeline"
+  project_name        = "epbr-postgres-image"
+  region              = var.region
 
 }
 
