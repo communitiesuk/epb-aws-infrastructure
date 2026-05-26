@@ -261,6 +261,7 @@ module "toggles-pipeline" {
   project_name            = "epbr-toggles"
   region                  = var.region
   aws_codebuild_image     = var.aws_amd_codebuild_image
+  artefact_bucket_arn     = module.artefact.codepipeline_bucket_arn
 }
 
 module "fluentbit_pipeline" {
@@ -302,6 +303,7 @@ module "cc-tray" {
 
 module "tech_docs_pipeline" {
   artefact_bucket         = module.artefact.codepipeline_bucket
+  artefact_bucket_arn     = module.artefact.codepipeline_bucket_arn
   codebuild_role_arn      = module.codebuild_role.aws_codebuild_role_arn
   codestar_connection_arn = module.codestar_connection.codestar_connection_arn
   github_branch           = "master"
@@ -342,6 +344,7 @@ module "dwh_api_docs_pipeline" {
 
 module "prototypes_pipeline" {
   artefact_bucket         = module.artefact.codepipeline_bucket
+  artefact_bucket_arn     = module.artefact.codepipeline_bucket_arn
   codebuild_role_arn      = module.codebuild_role.aws_codebuild_role_arn
   codestar_connection_arn = module.codestar_connection.codestar_connection_arn
   github_branch           = "master"
@@ -361,6 +364,7 @@ module "prototypes_pipeline" {
 
 module "view-models-pipeline" {
   source                  = "./modules/view_models_pipeline"
+  artefact_bucket_arn     = module.artefact.codepipeline_bucket_arn
   codepipeline_bucket     = module.artefact.codepipeline_bucket
   codebuild_role_arn      = module.codebuild_role.aws_codebuild_role_arn
   pipeline_name           = "epbr-view-models-pipeline"

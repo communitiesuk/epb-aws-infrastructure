@@ -2,6 +2,10 @@ variable "artefact_bucket" {
   type = string
 }
 
+variable "artefact_bucket_arn" {
+  type = string
+}
+
 variable "dev_account_id" {
   type = string
 }

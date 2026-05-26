@@ -4,6 +4,7 @@ module "codepipeline_iam" {
   region                  = var.region
   codestar_connection_arn = var.codestar_connection_arn
   codebuild_names         = ["epbr-codebuild-${var.project_name}"]
+  artefact_bucket_arn     = var.artefact_bucket_arn
 }
 
 module "codebuild_build_push_repo" {

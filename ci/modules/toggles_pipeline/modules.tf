@@ -14,6 +14,7 @@ module "codepipeline_iam" {
   ecr_arns                = local.ecr_arns
   codestar_connection_arn = var.codestar_connection_arn
   codebuild_names         = local.codebuild_names
+  artefact_bucket_arn     = var.artefact_bucket_arn
 }
 
 

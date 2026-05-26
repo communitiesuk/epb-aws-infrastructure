@@ -2,6 +2,10 @@ variable "region" {
   type = string
 }
 
+variable "artefact_bucket_arn" {
+  type = string
+}
+
 variable "project_name" {
   type = string
 }
@@ -20,4 +24,3 @@ variable "codestar_connection_arn" {
 variable "codebuild_names" {
   type = list(string)
 }
-

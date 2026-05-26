@@ -6,6 +6,7 @@ module "codepipeline_iam" {
   region                  = var.region
   codestar_connection_arn = var.codestar_connection_arn
   codebuild_names         = ["${var.project_name}-codebuild-run-test"]
+  artefact_bucket_arn     = var.artefact_bucket_arn
 }
 
 module "codebuild_run_app_test" {

@@ -1,3 +1,14 @@
+locals {
+  s3_allowed_action = [
+    "s3:GetObject",
+    "s3:GetObjectVersion",
+    "s3:GetBucketVersioning",
+    "s3:PutObject"
+  ]
+
+
+}
+
 
 
 data "aws_iam_policy_document" "assume_role_codepipeline" {
@@ -13,17 +24,16 @@ data "aws_iam_policy_document" "assume_role_codepipeline" {
 }
 
 
+
+
 data "aws_iam_policy_document" "codepipeline_role_policy" {
   statement {
-    effect = "Allow"
-    actions = [
-      "s3:GetObject",
-      "s3:GetObjectVersion",
-      "s3:GetBucketVersioning",
-      "s3:PutObject"
-    ]
-    resources = ["arn:aws:s3:::epbr-pipeline-storage/*"]
+    effect    = "Allow"
+    actions   = local.s3_allowed_action
+    resources = [var.artefact_bucket_arn, "${var.artefact_bucket_arn}/*"]
   }
+
+
 
   statement {
     effect = "Allow"
@@ -83,4 +93,6 @@ resource "aws_iam_role_policy" "codestar_role_policy" {
     }]
   })
 }
+
+
 

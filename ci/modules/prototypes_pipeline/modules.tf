@@ -11,6 +11,7 @@ module "codepipeline_iam" {
   ecr_arns                = ["arn:aws:ecr:${var.region}:${var.dev_account_id}:repository/${local.ecr_name}/"]
   codestar_connection_arn = var.codestar_connection_arn
   codebuild_names         = ["${var.project_name}-codebuild-app-image", "${var.project_name}-codebuild-deploy"]
+  artefact_bucket_arn     = var.artefact_bucket_arn
 }
 
 module "codebuild_build_app_image" {
