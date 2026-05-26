@@ -16,7 +16,6 @@ module "codepipeline_iam" {
   region              = var.region
   ecr_arns            = local.ecr_arns
   codebuild_names     = local.codebuild_names
-  etag_policy         = true
   artefact_bucket_arn = var.artefact_bucket_arn
 }
 
