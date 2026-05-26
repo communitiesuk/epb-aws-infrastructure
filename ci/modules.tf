@@ -35,11 +35,11 @@ module "codebuild_role" {
 module "app_test_image_pipeline" {
   source = "./modules/build_test_image_pipeline"
 
-  artefact_bucket         = module.artefact.codepipeline_bucket
-  artefact_bucket_arn     = module.artefact.codepipeline_bucket_arn
-  build_spec_file         = "aws-ruby-node/buildspec_aws.yml"
-  configuration           = "aws-ruby-node"
-  codepipeline_role_arn   = module.codepipeline_role.aws_codepipeline_role_arn
+  artefact_bucket     = module.artefact.codepipeline_bucket
+  artefact_bucket_arn = module.artefact.codepipeline_bucket_arn
+  build_spec_file     = "aws-ruby-node/buildspec_aws.yml"
+  configuration       = "aws-ruby-node"
+
   github_repository       = "epb-docker-images"
   github_branch           = "master"
   github_organisation     = var.github_organisation

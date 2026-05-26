@@ -6,10 +6,6 @@ variable "artefact_bucket_arn" {
   type = string
 }
 
-variable "codepipeline_role_arn" {
-  type = string
-}
-
 variable "codestar_connection_arn" {
   type = string
 }
