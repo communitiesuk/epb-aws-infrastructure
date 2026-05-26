@@ -14,7 +14,7 @@ resource "aws_s3_object" "code" {
 
 resource "aws_codepipeline" "fluentbit_image_codepipeline" {
   name     = var.pipeline_name
-  role_arn = var.codepipeline_role_arn
+  role_arn = module.codepipeline_iam.aws_codepipeline_role_arn
 
   artifact_store {
     location = var.artefact_bucket
@@ -32,8 +32,8 @@ resource "aws_codepipeline" "fluentbit_image_codepipeline" {
       output_artifacts = ["pipeline_source"]
 
       configuration = {
-        S3Bucket             = resource.aws_s3_object.code.bucket
-        S3ObjectKey          = resource.aws_s3_object.code.key
+        S3Bucket             = aws_s3_object.code.bucket
+        S3ObjectKey          = aws_s3_object.code.key
         PollForSourceChanges = "false"
 
       }

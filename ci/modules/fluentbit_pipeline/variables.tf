@@ -6,9 +6,6 @@ variable "artefact_bucket_arn" {
   type = string
 }
 
-variable "codepipeline_role_arn" {
-  type = string
-}
 
 variable "app_ecr_name" {
   type    = string

@@ -1,5 +1,26 @@
 data "aws_caller_identity" "current" {}
 
+locals {
+  ecr_arns = [
+    "arn:aws:ecr:${var.region}:${var.account_ids["integration"]}:repository/${var.integration_prefix}-${var.app_ecr_name}/",
+    "arn:aws:ecr:${var.region}:${var.account_ids["staging"]}:repository/${var.staging_prefix}-${var.app_ecr_name}/",
+    "arn:aws:ecr:${var.region}:${var.account_ids["production"]}:repository/${var.production_prefix}-${var.app_ecr_name}/",
+  ]
+  codebuild_names = ["${var.project_name}-build-image", "${var.project_name}-deploy-image-integration", "${var.project_name}-run-integration-task", "${var.project_name}-deploy-image-staging", "${var.project_name}-deploy-image-production"]
+}
+
+
+module "codepipeline_iam" {
+  source              = "../codepipeline_iam"
+  project_name        = "fluentbit"
+  region              = var.region
+  ecr_arns            = local.ecr_arns
+  codebuild_names     = local.codebuild_names
+  etag_policy         = true
+  artefact_bucket_arn = var.artefact_bucket_arn
+}
+
+
 module "codebuild_build_image" {
   source = "../codebuild_project"
 
