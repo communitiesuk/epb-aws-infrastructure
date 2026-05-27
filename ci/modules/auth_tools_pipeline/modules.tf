@@ -1,5 +1,14 @@
 data "aws_caller_identity" "current" {}
 
+module "codepipeline_iam" {
+  source                  = "../codepipeline_iam"
+  project_name            = "auth-tools"
+  region                  = var.region
+  codestar_connection_arn = var.codestar_connection_arn
+  codebuild_names         = ["${var.project_name}-codebuild-run-test"]
+  artefact_bucket_arn     = var.artefact_bucket_arn
+}
+
 module "codebuild_run_app_test" {
   source             = "../codebuild_project"
   codebuild_role_arn = var.codebuild_role_arn

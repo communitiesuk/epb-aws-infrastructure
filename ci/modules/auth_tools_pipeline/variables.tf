@@ -2,11 +2,11 @@ variable "codebuild_image_ecr_url" {
   type = string
 }
 
-variable "codebuild_role_arn" {
+variable "artefact_bucket_arn" {
   type = string
 }
 
-variable "codepipeline_role_arn" {
+variable "codebuild_role_arn" {
   type = string
 }
 
