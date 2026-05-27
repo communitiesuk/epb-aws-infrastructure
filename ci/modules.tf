@@ -280,18 +280,19 @@ module "fluentbit_pipeline" {
 }
 
 module "restart_ecs_tasks_pipeline" {
-  source                = "./modules/restart_tasks_pipeline"
-  codepipeline_bucket   = module.artefact.codepipeline_bucket
-  codepipeline_role_arn = module.codepipeline_role.aws_codepipeline_role_arn
-  codebuild_role_arn    = module.codebuild_role.aws_codebuild_role_arn
-  aws_codebuild_image   = var.aws_amd_codebuild_image
-  pipeline_name         = "restart-ecs-tasks-pipeline"
-  account_ids           = var.account_ids
-  project_name          = "epbr-ecs-restart-tasks"
-  region                = var.region
-  integration_prefix    = var.integration_prefix
-  staging_prefix        = var.staging_prefix
-  production_prefix     = var.production_prefix
+  source              = "./modules/restart_tasks_pipeline"
+  artefact_bucket_arn = module.artefact.codepipeline_bucket_arn
+  codepipeline_bucket = module.artefact.codepipeline_bucket
+
+  codebuild_role_arn  = module.codebuild_role.aws_codebuild_role_arn
+  aws_codebuild_image = var.aws_amd_codebuild_image
+  pipeline_name       = "restart-ecs-tasks-pipeline"
+  account_ids         = var.account_ids
+  project_name        = "epbr-ecs-restart-tasks"
+  region              = var.region
+  integration_prefix  = var.integration_prefix
+  staging_prefix      = var.staging_prefix
+  production_prefix   = var.production_prefix
 }
 
 module "cc-tray" {

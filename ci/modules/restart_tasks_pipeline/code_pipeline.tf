@@ -14,7 +14,7 @@ resource "aws_s3_object" "code" {
 
 resource "aws_codepipeline" "this" {
   name     = var.pipeline_name
-  role_arn = var.codepipeline_role_arn
+  role_arn = module.codepipeline_iam.aws_codepipeline_role_arn
 
   artifact_store {
     location = var.codepipeline_bucket
@@ -33,8 +33,8 @@ resource "aws_codepipeline" "this" {
       output_artifacts = ["SourceOutput"]
 
       configuration = {
-        S3Bucket             = resource.aws_s3_object.code.bucket
-        S3ObjectKey          = resource.aws_s3_object.code.key
+        S3Bucket             = aws_s3_object.code.bucket
+        S3ObjectKey          = aws_s3_object.code.key
         PollForSourceChanges = "false"
       }
     }

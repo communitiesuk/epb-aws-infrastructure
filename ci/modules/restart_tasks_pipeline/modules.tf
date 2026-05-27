@@ -1,3 +1,16 @@
+locals {
+  codebuild_names = ["${var.project_name}-codebuild-integration", "${var.project_name}-codebuild-staging", "${var.project_name}-codebuild-production"]
+}
+
+module "codepipeline_iam" {
+  source              = "../codepipeline_iam"
+  project_name        = "restart-tasks"
+  region              = var.region
+  codebuild_names     = local.codebuild_names
+  artefact_bucket_arn = var.artefact_bucket_arn
+}
+
+
 module "codebuild_restart_integration" {
   source             = "../codebuild_project"
   codebuild_role_arn = var.codebuild_role_arn
