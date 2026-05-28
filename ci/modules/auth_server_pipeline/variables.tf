@@ -1,6 +1,9 @@
 variable "account_ids" {
   type = map(string)
 }
+variable "artefact_bucket_arn" {
+  type = string
+}
 
 variable "app_ecr_name" {
   type = string
@@ -18,9 +21,6 @@ variable "codebuild_role_arn" {
   type = string
 }
 
-variable "codepipeline_role_arn" {
-  type = string
-}
 
 variable "codepipeline_bucket" {
   type = string

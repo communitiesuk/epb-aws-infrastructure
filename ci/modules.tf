@@ -61,7 +61,7 @@ module "postgres_test_image_pipeline" {
 module "auth-server-pipeline" {
   source                  = "./modules/auth_server_pipeline"
   codepipeline_bucket     = module.artefact.codepipeline_bucket
-  codepipeline_role_arn   = module.codepipeline_role.aws_codepipeline_role_arn
+  artefact_bucket_arn     = module.artefact.codepipeline_bucket_arn
   codebuild_role_arn      = module.codebuild_role.aws_codebuild_role_arn
   pipeline_name           = "epbr-auth-server-pipeline"
   github_repository       = "epb-auth-server"
