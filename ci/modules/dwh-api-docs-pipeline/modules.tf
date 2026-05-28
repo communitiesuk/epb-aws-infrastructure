@@ -1,3 +1,17 @@
+locals {
+  codebuild_names = ["${var.project_name}-deploy-integration", "${var.project_name}-deploy-staging", "${var.project_name}-deploy-production"]
+}
+
+module "codepipeline_iam" {
+  source                  = "../codepipeline_iam"
+  project_name            = "dwh-api-docs"
+  region                  = var.region
+  codestar_connection_arn = var.codestar_connection_arn
+  codebuild_names         = local.codebuild_names
+  artefact_bucket_arn     = var.artefact_bucket_arn
+}
+
+
 module "codebuild_build_push_repo_intg" {
   source             = "../codebuild_project"
   codebuild_role_arn = var.codebuild_role_arn

@@ -2,13 +2,14 @@ variable "artefact_bucket" {
   type = string
 }
 
+variable "artefact_bucket_arn" {
+  type = string
+}
+
 variable "account_ids" {
   type = map(string)
 }
 
-variable "codepipeline_role_arn" {
-  type = string
-}
 
 variable "codebuild_role_arn" {
   type = string

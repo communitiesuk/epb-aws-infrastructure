@@ -331,8 +331,8 @@ module "api_docs_pipeline" {
 module "dwh_api_docs_pipeline" {
   source                  = "./modules/dwh-api-docs-pipeline"
   artefact_bucket         = module.artefact.codepipeline_bucket
+  artefact_bucket_arn     = module.artefact.codepipeline_bucket_arn
   codebuild_role_arn      = module.codebuild_role.aws_codebuild_role_arn
-  codepipeline_role_arn   = module.codepipeline_role.aws_codepipeline_role_arn
   codestar_connection_arn = module.codestar_connection.codestar_connection_arn
   github_branch           = "main"
   github_repository       = "epb-data-warehouse"
