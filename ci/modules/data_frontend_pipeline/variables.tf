@@ -6,6 +6,10 @@ variable "app_ecr_name" {
   type = string
 }
 
+variable "artefact_bucket_arn" {
+  type = string
+}
+
 variable "aws_codebuild_image" {
   type = string
 }
@@ -18,9 +22,6 @@ variable "codebuild_role_arn" {
   type = string
 }
 
-variable "codepipeline_role_arn" {
-  type = string
-}
 
 variable "codepipeline_bucket" {
   type = string
