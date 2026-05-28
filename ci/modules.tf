@@ -379,7 +379,7 @@ module "view-models-pipeline" {
 module "address-base-updater-pipeline" {
   source                  = "./modules/address_base_updater_pipeline"
   codepipeline_bucket     = module.artefact.codepipeline_bucket
-  codepipeline_role_arn   = module.codepipeline_role.aws_codepipeline_role_arn
+  artefact_bucket_arn     = module.artefact.codepipeline_bucket_arn
   codebuild_role_arn      = module.codebuild_role.aws_codebuild_role_arn
   integration_prefix      = var.integration_prefix
   staging_prefix          = var.staging_prefix

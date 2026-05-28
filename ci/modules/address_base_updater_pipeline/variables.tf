@@ -2,9 +2,10 @@ variable "pipeline_name" {
   type = string
 }
 
-variable "codepipeline_role_arn" {
+variable "artefact_bucket_arn" {
   type = string
 }
+
 
 variable "codepipeline_bucket" {
   type = string
