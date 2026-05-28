@@ -193,7 +193,7 @@ module "data_frontend-pipeline" {
 module "addressing-pipeline" {
   source                  = "./modules/addressing_pipeline"
   codepipeline_bucket     = module.artefact.codepipeline_bucket
-  codepipeline_role_arn   = module.codepipeline_role.aws_codepipeline_role_arn
+  artefact_bucket_arn     = module.artefact.codepipeline_bucket_arn
   codebuild_role_arn      = module.codebuild_role.aws_codebuild_role_arn
   pipeline_name           = "epbr-addressing-pipeline"
   github_repository       = "epb-addressing"
