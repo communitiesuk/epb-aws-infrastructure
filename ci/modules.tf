@@ -216,8 +216,8 @@ module "addressing-pipeline" {
 
 module "data_warehouse-pipeline" {
   source                  = "./modules/data_warehouse_pipeline"
+  artefact_bucket_arn     = module.artefact.codepipeline_bucket_arn
   codepipeline_bucket     = module.artefact.codepipeline_bucket
-  codepipeline_role_arn   = module.codepipeline_role.aws_codepipeline_role_arn
   codebuild_role_arn      = module.codebuild_role.aws_codebuild_role_arn
   pipeline_name           = "epbr-data-warehouse-pipeline"
   github_repository       = "epb-data-warehouse"
