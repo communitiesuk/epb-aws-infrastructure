@@ -10,6 +10,7 @@ locals {
     "${var.project_name}-codebuild-build-image", "${var.project_name}-codebuild-build-api-image",
     "${var.project_name}-codebuild-deploy-integration", "${var.project_name}-codebuild-api-deploy-integration",
     "${var.project_name}-codebuild-deploy-staging", "${var.project_name}-codebuild-api-deploy-staging",
+    "${var.project_name}-codebuild-check-api-integration-restart",
   "${var.project_name}-codebuild-api-deploy-production", "${var.project_name}-codebuild-deploy-production"]
 }
 
@@ -131,6 +132,21 @@ module "codebuild_deploy_staging" {
     { name = "CLUSTER_NAME", value = "${var.staging_prefix}-${var.ecs_cluster_name}" },
     { name = "SERVICE_NAME", value = "${var.staging_prefix}-${var.ecs_service_name}" },
     { name = "PREFIX", value = var.staging_prefix },
+  ]
+  region = var.region
+}
+
+module "codebuild_integration_check_integration_restart" {
+  source             = "../codebuild_project"
+  codebuild_role_arn = var.codebuild_role_arn
+  name               = "${var.project_name}-codebuild-check-api-integration-restart"
+  build_image_uri    = var.aws_codebuild_image
+  buildspec_file     = "buildspec/check_service_status.yml"
+  environment_variables = [
+    { name = "AWS_DEFAULT_REGION", value = var.region },
+    { name = "AWS_ACCOUNT_ID", value = var.account_ids["integration"] },
+    { name = "CLUSTER_NAME", value = "${var.integration_prefix}-${var.ecs_api_cluster_name}" },
+    { name = "SERVICE_NAME", value = "${var.integration_prefix}-${var.ecs_api_service_name}" },
   ]
   region = var.region
 }
