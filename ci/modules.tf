@@ -99,8 +99,8 @@ module "auth-tools-pipeline" {
 
 module "register-api-pipeline" {
   source                      = "./modules/register_api_pipeline"
+  artefact_bucket_arn         = module.artefact.codepipeline_bucket_arn
   codepipeline_bucket         = module.artefact.codepipeline_bucket
-  codepipeline_role_arn       = module.codepipeline_role.aws_codepipeline_role_arn
   codebuild_role_arn          = module.codebuild_role.aws_codebuild_role_arn
   pipeline_name               = "epbr-register-api-pipeline"
   github_repository           = "epb-register-api"

@@ -1,5 +1,33 @@
 data "aws_caller_identity" "current" {}
 
+locals {
+  ecr_arns = [
+    "arn:aws:ecr:${var.region}:${var.account_ids["integration"]}:repository/${var.integration_prefix}-${var.app_ecr_name}/",
+    "arn:aws:ecr:${var.region}:${var.account_ids["staging"]}:repository/${var.staging_prefix}-${var.app_ecr_name}/",
+    "arn:aws:ecr:${var.region}:${var.account_ids["production"]}:repository/${var.production_prefix}-${var.app_ecr_name}/",
+  ]
+  codebuild_names = ["${var.project_name}-codebuild-run-test",
+    "${var.project_name}-codebuild-app-image",
+    "${var.project_name}-codebuild-deploy-integration",
+    "${var.project_name}-codebuild-deploy-staging",
+    "${var.project_name}-codebuild-frontend-smoke-test",
+    "${var.project_name}-codebuild-performance-test",
+    "${var.project_name}-codebuild-check-integration-restart",
+    "${var.project_name}-codebuild-check-staging-restart",
+    "${var.project_name}-codebuild-deploy-production"
+  ]
+}
+
+module "codepipeline_iam" {
+  source                  = "../codepipeline_iam"
+  project_name            = "register-api"
+  region                  = var.region
+  ecr_arns                = local.ecr_arns
+  codestar_connection_arn = var.codestar_connection_arn
+  codebuild_names         = local.codebuild_names
+  artefact_bucket_arn     = var.artefact_bucket_arn
+}
+
 module "codebuild_run_app_test" {
   source             = "../codebuild_project"
   codebuild_role_arn = var.codebuild_role_arn
@@ -65,23 +93,6 @@ module "codebuild_deploy_staging" {
   region = var.region
 }
 
-module "codebuild_deploy_production" {
-  source             = "../codebuild_project"
-  codebuild_role_arn = var.codebuild_role_arn
-  name               = "${var.project_name}-codebuild-deploy-production"
-  build_image_uri    = var.aws_codebuild_image
-  buildspec_file     = "buildspec/deploy_to_cluster.yml"
-  environment_variables = [
-    { name = "AWS_DEFAULT_REGION", value = var.region },
-    { name = "AWS_ACCOUNT_ID", value = var.account_ids["production"] },
-    { name = "DOCKER_IMAGE_URI", value = "${var.account_ids["production"]}.dkr.ecr.${var.region}.amazonaws.com/${var.production_prefix}-${var.app_ecr_name}" },
-    { name = "DOCKER_IMAGE", value = var.app_image_name },
-    { name = "CLUSTER_NAME", value = "${var.production_prefix}-${var.ecs_cluster_name}" },
-    { name = "SERVICE_NAME", value = "${var.production_prefix}-${var.ecs_service_name}" },
-    { name = "PREFIX", value = var.production_prefix },
-  ]
-  region = var.region
-}
 
 module "codebuild_frontend_smoke_test" {
   source             = "../codebuild_project"
@@ -136,6 +147,24 @@ module "codebuild_check_staging_restart" {
     { name = "AWS_ACCOUNT_ID", value = var.account_ids["staging"] },
     { name = "CLUSTER_NAME", value = "${var.staging_prefix}-${var.ecs_cluster_name}" },
     { name = "SERVICE_NAME", value = "${var.staging_prefix}-${var.ecs_service_name}" },
+  ]
+  region = var.region
+}
+
+module "codebuild_deploy_production" {
+  source             = "../codebuild_project"
+  codebuild_role_arn = var.codebuild_role_arn
+  name               = "${var.project_name}-codebuild-deploy-production"
+  build_image_uri    = var.aws_codebuild_image
+  buildspec_file     = "buildspec/deploy_to_cluster.yml"
+  environment_variables = [
+    { name = "AWS_DEFAULT_REGION", value = var.region },
+    { name = "AWS_ACCOUNT_ID", value = var.account_ids["production"] },
+    { name = "DOCKER_IMAGE_URI", value = "${var.account_ids["production"]}.dkr.ecr.${var.region}.amazonaws.com/${var.production_prefix}-${var.app_ecr_name}" },
+    { name = "DOCKER_IMAGE", value = var.app_image_name },
+    { name = "CLUSTER_NAME", value = "${var.production_prefix}-${var.ecs_cluster_name}" },
+    { name = "SERVICE_NAME", value = "${var.production_prefix}-${var.ecs_service_name}" },
+    { name = "PREFIX", value = var.production_prefix },
   ]
   region = var.region
 }
