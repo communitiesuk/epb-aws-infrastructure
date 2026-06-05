@@ -17,10 +17,6 @@ module "codestar_connection" {
   region = var.region
 }
 
-module "codepipeline_role" {
-  source = "./modules/codepipeline_role"
-  region = var.region
-}
 
 module "codebuild_role" {
   source                         = "./modules/service_codebuild_role"
