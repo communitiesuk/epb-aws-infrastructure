@@ -876,12 +876,13 @@ module "warehouse_api_application" {
   additional_task_execution_role_policy_arns = {
     "RDS_access" : module.warehouse_database_v2.rds_full_access_policy_arn
   }
-  additional_task_role_policy_arns = local.dwh_api_polciies
-  aws_cloudwatch_log_group_id      = module.logging.cloudwatch_log_group_id
-  aws_cloudwatch_log_group_name    = module.logging.cloudwatch_log_group_name
-  logs_bucket_name                 = module.logging.logs_bucket_name
-  logs_bucket_url                  = module.logging.logs_bucket_url
-  enable_execute_command           = true
+  additional_task_role_policy_arns   = local.dwh_api_polciies
+  aws_cloudwatch_log_group_id        = module.logging.cloudwatch_log_group_id
+  aws_cloudwatch_log_group_name      = module.logging.cloudwatch_log_group_name
+  deployment_minimum_healthy_percent = var.environment == "intg" ? 0 : 100
+  logs_bucket_name                   = module.logging.logs_bucket_name
+  logs_bucket_url                    = module.logging.logs_bucket_url
+  enable_execute_command             = true
   internal_alb_config = {
     ssl_certificate_arn = module.ssl_certificate.certificate_arn
   }
@@ -909,6 +910,7 @@ module "warehouse_api_application" {
   task_memory               = var.task_memory
   fargate_weighting         = var.environment == "prod" ? { standard : 10, spot : 0 } : { standard : 0, spot : 10 }
   cloudwatch_ecs_events_arn = module.logging.cloudwatch_ecs_events_arn
+
 }
 
 module "warehouse_database_v2" {
