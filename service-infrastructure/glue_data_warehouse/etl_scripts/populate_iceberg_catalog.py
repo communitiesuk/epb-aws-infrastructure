@@ -231,7 +231,9 @@ try:
         spark.sql(f"""
         MERGE INTO {GLUE_TABLE_PATH} AS target
         USING {DB_TABLE_NAME} AS source
-        ON target.certificate_number = source.certificate_number
+        ON (target.certificate_number = source.certificate_number AND target.recommendation_item = source.recommendation_item)
+        WHEN MATCHED
+            THEN UPDATE SET *
         WHEN NOT MATCHED THEN
             INSERT ({column_list}) VALUES ({value_list})
         """)
