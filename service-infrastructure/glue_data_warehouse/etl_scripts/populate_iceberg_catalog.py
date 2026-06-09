@@ -228,10 +228,11 @@ try:
     value_list = ", ".join([f"source.{col}" for col in columns])
 
     if "_rr" in CATALOG_TABLE_NAME:
+        recommendation_item_name = 'improvement_item' if CATALOG_TABLE_NAME=="domestic_rr" else 'recommendation_item'
         spark.sql(f"""
         MERGE INTO {GLUE_TABLE_PATH} AS target
         USING {DB_TABLE_NAME} AS source
-        ON (target.certificate_number = source.certificate_number AND target.recommendation_item = source.recommendation_item)
+        ON (target.certificate_number = source.certificate_number AND target.{recommendation_item_name} = source.{recommendation_item_name})
         WHEN MATCHED
             THEN UPDATE SET *
         WHEN NOT MATCHED THEN
