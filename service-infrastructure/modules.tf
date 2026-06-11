@@ -862,15 +862,12 @@ module "warehouse_api_application" {
   parameters = merge(module.parameter_store.parameter_arns, {
     "SENTRY_DSN" : module.parameter_store.parameter_arns["SENTRY_DSN_REGISTER_API"]
   })
-  parameter_filter   = ["NOTIFY_DATA_EMAIL_USERS_TEMPLATE_ID"]
-  has_exec_cmd_task  = true
-  vpc_id             = module.networking.vpc_id
-  fluentbit_ecr_url  = module.fluentbit_ecr.ecr_url
-  private_subnet_ids = module.networking.private_subnet_ids
-  health_check_path  = "/healthcheck"
-  additional_task_execution_role_policy_arns = {
-    "RDS_access" : module.warehouse_database_v2.rds_full_access_policy_arn
-  }
+  parameter_filter                   = ["NOTIFY_DATA_EMAIL_USERS_TEMPLATE_ID"]
+  has_exec_cmd_task                  = true
+  vpc_id                             = module.networking.vpc_id
+  fluentbit_ecr_url                  = module.fluentbit_ecr.ecr_url
+  private_subnet_ids                 = module.networking.private_subnet_ids
+  health_check_path                  = "/healthcheck"
   additional_task_role_policy_arns   = local.dwh_api_polciies
   aws_cloudwatch_log_group_id        = module.logging.cloudwatch_log_group_id
   aws_cloudwatch_log_group_name      = module.logging.cloudwatch_log_group_name
