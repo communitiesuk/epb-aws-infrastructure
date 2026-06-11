@@ -357,17 +357,16 @@ module "toggles_application" {
   secrets = {
     "DATABASE_URL" : module.secrets.secret_arns["RDS_TOGGLES_V2_CONNECTION_STRING"],
   }
-  parameters                                 = module.parameter_store.parameter_arns
-  parameter_filter                           = ["NOTIFY_DATA_EMAIL_USERS_TEMPLATE_ID"]
-  vpc_id                                     = module.networking.vpc_id
-  fluentbit_ecr_url                          = module.fluentbit_ecr.ecr_url
-  private_subnet_ids                         = module.networking.private_subnet_ids
-  health_check_path                          = "/health"
-  additional_task_execution_role_policy_arns = { "RDS_access" : module.toggles_database_v2.rds_full_access_policy_arn }
-  aws_cloudwatch_log_group_id                = module.logging.cloudwatch_log_group_id
-  aws_cloudwatch_log_group_name              = module.logging.cloudwatch_log_group_name
-  logs_bucket_name                           = module.logging.logs_bucket_name
-  logs_bucket_url                            = module.logging.logs_bucket_url
+  parameters                    = module.parameter_store.parameter_arns
+  parameter_filter              = ["NOTIFY_DATA_EMAIL_USERS_TEMPLATE_ID"]
+  vpc_id                        = module.networking.vpc_id
+  fluentbit_ecr_url             = module.fluentbit_ecr.ecr_url
+  private_subnet_ids            = module.networking.private_subnet_ids
+  health_check_path             = "/health"
+  aws_cloudwatch_log_group_id   = module.logging.cloudwatch_log_group_id
+  aws_cloudwatch_log_group_name = module.logging.cloudwatch_log_group_name
+  logs_bucket_name              = module.logging.logs_bucket_name
+  logs_bucket_url               = module.logging.logs_bucket_url
   internal_alb_config = {
     ssl_certificate_arn = module.ssl_certificate.certificate_arn
   }
