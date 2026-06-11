@@ -540,11 +540,9 @@ module "register_api_database_v2" {
 }
 
 module "scheduled_tasks_application" {
-  source = "./application"
-
+  source                   = "./application"
   address_base_updater_ecr = module.address_base_updater_ecr.ecr_url
   additional_task_execution_role_policy_arns = {
-    "RDS_access" : module.register_api_database_v2.rds_full_access_policy_arn,
     "Redis_access" : data.aws_iam_policy.elasticache_full_access.arn
   }
   additional_task_role_policy_arns = {
