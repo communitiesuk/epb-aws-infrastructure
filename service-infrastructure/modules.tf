@@ -631,9 +631,6 @@ module "warehouse_scheduled_tasks_application" {
   fluentbit_ecr_url  = module.fluentbit_ecr.ecr_url
   private_subnet_ids = module.networking.private_subnet_ids
   health_check_path  = "/healthcheck"
-  additional_task_execution_role_policy_arns = {
-    "RDS_access" : module.warehouse_database_v2.rds_full_access_policy_arn,
-  }
   additional_task_role_policy_arns = {
     "UserData_S3_access" : module.user_data.s3_write_access_policy_arn
     "DynamoDB_User_Credentials_read_access" : module.epb_data_user_credentials[0].dynamodb_read_policy_arn
