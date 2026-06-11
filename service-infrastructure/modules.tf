@@ -1006,13 +1006,6 @@ module "bastion" {
   source    = "./bastion"
   subnet_id = module.networking.private_subnet_ids[0]
   vpc_id    = module.networking.vpc_id
-  rds_access_policy_arns = {
-    "Addressing" = module.addressing_database[0].rds_full_access_policy_arn
-    "API"        = module.register_api_database_v2.rds_full_access_policy_arn
-    "Auth"       = module.auth_database_v2.rds_full_access_policy_arn
-    "Toggles"    = module.toggles_database_v2.rds_full_access_policy_arn
-    "Warehouse"  = module.warehouse_database_v2.rds_full_access_policy_arn
-  }
 }
 
 # logging and alerts

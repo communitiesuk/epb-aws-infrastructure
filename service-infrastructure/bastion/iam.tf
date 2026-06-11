@@ -16,13 +16,6 @@ resource "aws_iam_role" "ec2_rds_access" {
   })
 }
 
-resource "aws_iam_role_policy_attachment" "bastion_role_policy_attachment" {
-  for_each = var.rds_access_policy_arns
-
-  role       = aws_iam_role.ec2_rds_access.name
-  policy_arn = each.value
-}
-
 resource "aws_iam_role_policy_attachment" "ssm_instance_core" {
   role       = aws_iam_role.ec2_rds_access.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
