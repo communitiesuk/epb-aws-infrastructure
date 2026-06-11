@@ -485,7 +485,6 @@ module "register_api_application" {
   private_subnet_ids                 = module.networking.private_subnet_ids
   health_check_path                  = "/healthcheck"
   additional_task_execution_role_policy_arns = {
-    "RDS_access" : module.register_api_database_v2.rds_full_access_policy_arn,
     "Redis_access" : data.aws_iam_policy.elasticache_full_access.arn
   }
   aws_cloudwatch_log_group_id   = module.logging.cloudwatch_log_group_id
@@ -954,13 +953,10 @@ module "addressing_application" {
   fluentbit_ecr_url                  = module.fluentbit_ecr.ecr_url
   private_subnet_ids                 = module.networking.private_subnet_ids
   health_check_path                  = "/healthcheck"
-  additional_task_execution_role_policy_arns = {
-    "RDS_access" : module.addressing_database[0].rds_full_access_policy_arn
-  }
-  aws_cloudwatch_log_group_id   = module.logging.cloudwatch_log_group_id
-  aws_cloudwatch_log_group_name = module.logging.cloudwatch_log_group_name
-  logs_bucket_name              = module.logging.logs_bucket_name
-  logs_bucket_url               = module.logging.logs_bucket_url
+  aws_cloudwatch_log_group_id        = module.logging.cloudwatch_log_group_id
+  aws_cloudwatch_log_group_name      = module.logging.cloudwatch_log_group_name
+  logs_bucket_name                   = module.logging.logs_bucket_name
+  logs_bucket_url                    = module.logging.logs_bucket_url
   internal_alb_config = {
     ssl_certificate_arn = module.ssl_certificate.certificate_arn
   }
