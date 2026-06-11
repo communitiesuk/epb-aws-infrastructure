@@ -829,7 +829,6 @@ module "warehouse_application" {
     "WarehouseDocumentExport_S3_access" : module.warehouse_document_export.s3_write_access_policy_arn
   }
   additional_task_execution_role_policy_arns = {
-    "RDS_access" : module.warehouse_database_v2.rds_full_access_policy_arn
     "Redis_access" : data.aws_iam_policy.elasticache_full_access.arn
   }
   aws_cloudwatch_log_group_id   = module.logging.cloudwatch_log_group_id
