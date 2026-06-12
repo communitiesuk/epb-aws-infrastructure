@@ -1,5 +1,6 @@
-import io
+import os
 import sys
+import tempfile
 import zipfile
 
 import boto3
@@ -131,62 +132,38 @@ def process_and_zip(df, table_name, years, zipf, csv_filename=None):
             logger.warn(f'No CSV found for table "{table_name}" year {year}')
 
 
-zip_buffer = io.BytesIO()
-with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zipf:
-    logger.warn(f'Will start processing "{TABLE_NAME}"')
-    process_and_zip(df, TABLE_NAME, years, zipf, csv_filename="certificates")
-
-    if TABLE_NAME_RR:
-        logger.warn(f'Will start processing "{TABLE_NAME_RR}" for recommendations')
-        process_and_zip(joined_df, TABLE_NAME_RR, years, zipf, csv_filename="recommendations")
-
-# The start of upload ZIP to S3
-zip_buffer.seek(0)
-chunk_size_bytes = 1024 * 1024 * 300
-logger.warn(f'The chunk size will be "{chunk_size_bytes}"')
-
-# Create a multipart upload
-response = s3_client.create_multipart_upload(Bucket=S3_BUCKET, Key=ZIP_FILE_KEY)
-upload_id = response["UploadId"]
-
-# Initialize part number and parts list
-part_number = 1
-parts = []
+temp_dir = tempfile.gettempdir()
+local_zip_path = os.path.join(temp_dir, f"{EPC_TYPE}-output.zip")
 
 try:
-    while True:
-        chunk = zip_buffer.read(chunk_size_bytes)
-        if not chunk:
-            break
-        part = s3_client.upload_part(
-            Bucket=S3_BUCKET,
-            Key=ZIP_FILE_KEY,
-            Body=chunk,
-            PartNumber=part_number,
-            UploadId=upload_id,
-        )
-        logger.warn(f'Part number uploaded "{part_number}"')
-        parts.append({"PartNumber": part_number, "ETag": part["ETag"]})
-        part_number += 1
+    with zipfile.ZipFile(local_zip_path, "w", zipfile.ZIP_DEFLATED) as zipf:
+        logger.warn(f'Will start processing "{TABLE_NAME}"')
+        process_and_zip(df, TABLE_NAME, years, zipf, csv_filename="certificates")
 
-    logger.warn(f'All parts uploaded. Ready to complete the upload"')
+        if TABLE_NAME_RR:
+            logger.warn(f'Will start processing "{TABLE_NAME_RR}" for recommendations')
+            process_and_zip(joined_df, TABLE_NAME_RR, years, zipf, csv_filename="recommendations")
 
-    # Complete the multipart upload
-    s3_client.complete_multipart_upload(
+    chunk_size_bytes = 1024 * 1024 * 300
+    logger.warn(f'Uploading {local_zip_path} to s3://{S3_BUCKET}/{ZIP_FILE_KEY} with chunk size {chunk_size_bytes}')
+
+    config = TransferConfig(multipart_chunksize=chunk_size_bytes)
+
+    s3_client.upload_file(
+        Filename=local_zip_path,
         Bucket=S3_BUCKET,
         Key=ZIP_FILE_KEY,
-        UploadId=upload_id,
-        MultipartUpload={"Parts": parts},
+        Config=config
     )
-    logger.warn(f'Completed the multipart upload"')
+    logger.warn('Completed the upload successfully')
 
 except Exception as e:
-    # Handle any exceptions, such as cleanup or logging
-    logger.error(f'Error: "{e}"')
-    # Optionally abort the multipart upload if an error occurs
-    s3_client.abort_multipart_upload(
-        Bucket=S3_BUCKET, Key=ZIP_FILE_KEY, UploadId=upload_id
-    )
-    raise  # Re-raise the exception after cleanup
+    logger.error(f'Error occurred: "{e}"')
+    raise
+
+finally:
+    if os.path.exists(local_zip_path):
+        os.remove(local_zip_path)
+        logger.warn(f'Cleaned up local temporary file at {local_zip_path}')
 
 job.commit()
