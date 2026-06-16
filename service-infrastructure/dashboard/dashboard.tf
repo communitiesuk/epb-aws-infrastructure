@@ -12,8 +12,7 @@ resource "aws_cloudwatch_dashboard" "main" {
         properties : {
           metrics : [
             [
-              "AWS/ECS", "CPUUtilization", "ClusterName", "epb-${var.environment}-frontend-cluster", "ServiceName",
-              "epb-${var.environment}-frontend", { stat : "Average", region : var.region }
+              "AWS/ECS", "CPUUtilization", "ClusterName", "epb-${var.environment}-frontend-cluster", "ServiceName", "epb-${var.environment}-frontend", { stat : "Average", region : var.region }
             ],
             [
               "...", "epb-${var.environment}-toggles-cluster", ".", "epb-${var.environment}-toggles", { stat : "Average", region : var.region }
@@ -22,12 +21,11 @@ resource "aws_cloudwatch_dashboard" "main" {
               "...", "epb-${var.environment}-reg-api-cluster", ".", "epb-${var.environment}-reg-api", { stat : "Average", region : var.region }
             ],
             [
-              "...", "epb-${var.environment}-warehouse-cluster", ".", "epb-${var.environment}-warehouse",
-              { stat : "Average", region : var.region }
+              "...", "epb-${var.environment}-warehouse-cluster", ".", "epb-${var.environment}-warehouse", { stat : "Average", region : var.region }
             ],
-            ["...", "epb-${var.environment}-warehouse-api-cluster", ".", "epb-${var.environment}-warehouse-api-cluster", { stat : "Average", region : var.region }],
+            ["...", "epb-${var.environment}-warehouse-api-cluster", ".", "epb-${var.environment}-warehouse-api", { stat : "Average", region : var.region }],
             ["...", "epb-${var.environment}-auth-cluster", ".", "epb-${var.environment}-auth", { stat : "Average", region : var.region }],
-            ["...", "epb-${var.environment}-data-frontend-cluster", ".", "epb-${var.environment}-data-frontend-cluster", { stat : "Average", region : var.region }]
+            ["...", "epb-${var.environment}-data-frontend-cluster", ".", "epb-${var.environment}-data-frontend", { stat : "Average", region : var.region }]
           ],
           legend : {
             position : "right"
@@ -50,23 +48,20 @@ resource "aws_cloudwatch_dashboard" "main" {
         properties : {
           metrics : [
             [
-              "AWS/ECS", "MemoryUtilization", "ClusterName", "epb-${var.environment}-frontend-cluster", "ServiceName",
-              "epb-${var.environment}-frontend", { stat : "Average", region : var.region }
+              "AWS/ECS", "MemoryUtilization", "ClusterName", "epb-${var.environment}-frontend-cluster", "ServiceName", "epb-${var.environment}-frontend", { stat : "Average", region : var.region }
             ],
             [
-              "...", "epb-${var.environment}-warehouse-cluster", ".", "epb-${var.environment}-warehouse",
-              { stat : "Average", region : var.region }
+              "...", "epb-${var.environment}-warehouse-cluster", ".", "epb-${var.environment}-warehouse", { stat : "Average", region : var.region }
             ],
             [
-              "...", "epb-${var.environment}-warehouse-api-cluster", ".", "epb-${var.environment}-warehouse-api-cluster",
-              { stat : "Average", region : var.region }
+              "...", "epb-${var.environment}-warehouse-api-cluster", ".", "epb-${var.environment}-warehouse-api", { stat : "Average", region : var.region }
             ],
             [
               "...", "epb-${var.environment}-toggles-cluster", ".", "epb-${var.environment}-toggles", { stat : "Average", region : var.region }
             ],
             ["...", "epb-${var.environment}-auth-cluster", ".", "epb-${var.environment}-auth", { stat : "Average", region : var.region }],
             ["...", "epb-${var.environment}-reg-api-cluster", ".", "epb-${var.environment}-reg-api", { stat : "Average", region : var.region }],
-            ["...", "epb-${var.environment}-data-frontend-cluster", ".", "epb-${var.environment}-data-frontend-cluster", { stat : "Average", region : var.region }]
+            ["...", "epb-${var.environment}-data-frontend-cluster", ".", "epb-${var.environment}-data-frontend", { stat : "Average", region : var.region }]
           ],
           legend : {
             position : "right"
@@ -287,15 +282,14 @@ resource "aws_cloudwatch_dashboard" "main" {
         properties : {
           metrics : [
             [
-              "AWS/ECS", "CPUUtilization", "ClusterName", "epb-${var.environment}-frontend-cluster", "ServiceName",
-              "epb-${var.environment}-frontend", { region : var.region }
+              "AWS/ECS", "CPUUtilization", "ClusterName", "epb-${var.environment}-frontend-cluster", "ServiceName", "epb-${var.environment}-frontend", { region : var.region }
             ],
             ["...", "epb-${var.environment}-toggles-cluster", ".", "epb-${var.environment}-toggles", { region : var.region }],
             ["...", "epb-${var.environment}-reg-api-cluster", ".", "epb-${var.environment}-reg-api", { region : var.region }],
             ["...", "epb-${var.environment}-warehouse-cluster", ".", "epb-${var.environment}-warehouse", { region : var.region }],
-            ["...", "epb-${var.environment}-warehouse-api-cluster", ".", "epb-${var.environment}-warehouse-api-cluster", { region : var.region }],
+            ["...", "epb-${var.environment}-warehouse-api-cluster", ".", "epb-${var.environment}-warehouse-api", { region : var.region }],
             ["...", "epb-${var.environment}-auth-cluster", ".", "epb-${var.environment}-auth", { region : var.region }],
-            ["...", "epb-${var.environment}-data-frontend-cluster", ".", "epb-${var.environment}-data-frontend-cluster", { region : var.region }]
+            ["...", "epb-${var.environment}-data-frontend-cluster", ".", "epb-${var.environment}-data-frontend", { region : var.region }]
           ],
           legend : {
             position : "right"
@@ -327,9 +321,9 @@ resource "aws_cloudwatch_dashboard" "main" {
             ["...", "epb-${var.environment}-toggles-cluster", ".", "epb-${var.environment}-toggles", { region : var.region }],
             ["...", "epb-${var.environment}-reg-api-cluster", ".", "epb-${var.environment}-reg-api", { region : var.region }],
             ["...", "epb-${var.environment}-warehouse-cluster", ".", "epb-${var.environment}-warehouse", { region : var.region }],
-            ["...", "epb-${var.environment}-warehouse-api-cluster", ".", "epb-${var.environment}-warehouse-api-cluster", { region : var.region }],
+            ["...", "epb-${var.environment}-warehouse-api-cluster", ".", "epb-${var.environment}-warehouse-api", { region : var.region }],
             ["...", "epb-${var.environment}-auth-cluster", ".", "epb-${var.environment}-auth", { region : var.region }],
-            ["...", "epb-${var.environment}-data-frontend-cluster", ".", "epb-${var.environment}-data-frontend-cluster", { region : var.region }]
+            ["...", "epb-${var.environment}-data-frontend-cluster", ".", "epb-${var.environment}-data-frontend", { region : var.region }]
           ],
           legend : {
             position : "right"
