@@ -35,8 +35,12 @@ resource "aws_iam_policy" "dynamodb_read_access" {
         Action = [
           "dynamodb:Scan",
           "dynamodb:GetItem",
+          "dynamodb:Query"
         ]
-        Resource = aws_dynamodb_table.this.arn
+        Resource = [
+          aws_dynamodb_table.this.arn,
+          "${aws_dynamodb_table.this.arn}/index/BearerTokenIndex"
+        ]
         Condition = {
           StringEquals = {
             "aws:sourceVpce" = aws_vpc_endpoint.this.id
@@ -68,8 +72,12 @@ resource "aws_vpc_endpoint_policy" "dynamodb_access" {
           "dynamodb:Scan",
           "dynamodb:GetItem",
           "dynamodb:DeleteItem",
+          "dynamodb:Query"
         ],
-        "Resource" = aws_dynamodb_table.this.arn,
+        "Resource" = [
+          aws_dynamodb_table.this.arn,
+          "${aws_dynamodb_table.this.arn}/index/BearerTokenIndex"
+        ]
         "Condition" = {
           "StringEquals" = {
             "aws:PrincipalArn" = var.ecs_roles
