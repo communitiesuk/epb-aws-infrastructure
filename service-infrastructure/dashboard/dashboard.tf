@@ -25,7 +25,9 @@ resource "aws_cloudwatch_dashboard" "main" {
               "...", "epb-${var.environment}-warehouse-cluster", ".", "epb-${var.environment}-warehouse",
               { stat : "Average", region : var.region }
             ],
-            ["...", "epb-${var.environment}-auth-cluster", ".", "epb-${var.environment}-auth", { stat : "Average", region : var.region }]
+            ["...", "epb-${var.environment}-warehouse-api-cluster", ".", "epb-${var.environment}-warehouse-api-cluster", { stat : "Average", region : var.region }],
+            ["...", "epb-${var.environment}-auth-cluster", ".", "epb-${var.environment}-auth", { stat : "Average", region : var.region }],
+            ["...", "epb-${var.environment}-data-frontend-cluster", ".", "epb-${var.environment}-data-frontend-cluster", { stat : "Average", region : var.region }]
           ],
           legend : {
             position : "right"
@@ -56,10 +58,15 @@ resource "aws_cloudwatch_dashboard" "main" {
               { stat : "Average", region : var.region }
             ],
             [
+              "...", "epb-${var.environment}-warehouse-api-cluster", ".", "epb-${var.environment}-warehouse-api-cluster",
+              { stat : "Average", region : var.region }
+            ],
+            [
               "...", "epb-${var.environment}-toggles-cluster", ".", "epb-${var.environment}-toggles", { stat : "Average", region : var.region }
             ],
             ["...", "epb-${var.environment}-auth-cluster", ".", "epb-${var.environment}-auth", { stat : "Average", region : var.region }],
-            ["...", "epb-${var.environment}-reg-api-cluster", ".", "epb-${var.environment}-reg-api", { stat : "Average", region : var.region }]
+            ["...", "epb-${var.environment}-reg-api-cluster", ".", "epb-${var.environment}-reg-api", { stat : "Average", region : var.region }],
+            ["...", "epb-${var.environment}-data-frontend-cluster", ".", "epb-${var.environment}-data-frontend-cluster", { stat : "Average", region : var.region }]
           ],
           legend : {
             position : "right"
@@ -197,6 +204,14 @@ resource "aws_cloudwatch_dashboard" "main" {
             [
               "AWS/ApplicationELB", "TargetResponseTime", "LoadBalancer", var.albs.toggles_internal,
               { region : var.region }
+            ],
+            [
+              "AWS/ApplicationELB", "TargetResponseTime", "LoadBalancer", var.albs.warehouse_api,
+              { region : var.region }
+            ],
+            [
+              "AWS/ApplicationELB", "TargetResponseTime", "LoadBalancer", var.albs.data_frontend,
+              { region : var.region }
             ]
           ],
           view : "timeSeries",
@@ -278,7 +293,9 @@ resource "aws_cloudwatch_dashboard" "main" {
             ["...", "epb-${var.environment}-toggles-cluster", ".", "epb-${var.environment}-toggles", { region : var.region }],
             ["...", "epb-${var.environment}-reg-api-cluster", ".", "epb-${var.environment}-reg-api", { region : var.region }],
             ["...", "epb-${var.environment}-warehouse-cluster", ".", "epb-${var.environment}-warehouse", { region : var.region }],
-            ["...", "epb-${var.environment}-auth-cluster", ".", "epb-${var.environment}-auth", { region : var.region }]
+            ["...", "epb-${var.environment}-warehouse-api-cluster", ".", "epb-${var.environment}-warehouse-api-cluster", { region : var.region }],
+            ["...", "epb-${var.environment}-auth-cluster", ".", "epb-${var.environment}-auth", { region : var.region }],
+            ["...", "epb-${var.environment}-data-frontend-cluster", ".", "epb-${var.environment}-data-frontend-cluster", { region : var.region }]
           ],
           legend : {
             position : "right"
@@ -310,7 +327,9 @@ resource "aws_cloudwatch_dashboard" "main" {
             ["...", "epb-${var.environment}-toggles-cluster", ".", "epb-${var.environment}-toggles", { region : var.region }],
             ["...", "epb-${var.environment}-reg-api-cluster", ".", "epb-${var.environment}-reg-api", { region : var.region }],
             ["...", "epb-${var.environment}-warehouse-cluster", ".", "epb-${var.environment}-warehouse", { region : var.region }],
-            ["...", "epb-${var.environment}-auth-cluster", ".", "epb-${var.environment}-auth", { region : var.region }]
+            ["...", "epb-${var.environment}-warehouse-api-cluster", ".", "epb-${var.environment}-warehouse-api-cluster", { region : var.region }],
+            ["...", "epb-${var.environment}-auth-cluster", ".", "epb-${var.environment}-auth", { region : var.region }],
+            ["...", "epb-${var.environment}-data-frontend-cluster", ".", "epb-${var.environment}-data-frontend-cluster", { region : var.region }]
           ],
           legend : {
             position : "right"
@@ -366,7 +385,10 @@ resource "aws_cloudwatch_dashboard" "main" {
               var.target_groups.reg_api, { region : var.region, yAxis : "left" }
             ],
             ["...", var.target_groups.reg_api_internal, { region : var.region }],
-            ["...", var.target_groups.frontend, { region : var.region }]
+            ["...", var.target_groups.warehouse_api, { region : var.region }],
+            ["...", var.target_groups.warehouse_api_internal, { region : var.region }],
+            ["...", var.target_groups.frontend, { region : var.region }],
+            ["...", var.target_groups.data_frontend, { region : var.region }]
           ],
           view : "timeSeries",
           stacked : false,
@@ -383,15 +405,17 @@ resource "aws_cloudwatch_dashboard" "main" {
         type : "metric",
         properties : {
           metrics : [
-            ["AWS/CloudFront", "5xxErrorRate", "Region", "Global", "DistributionId", var.cloudfront_distribution_ids.frontend_0.id, { region : "us-east-1", label : var.cloudfront_distribution_ids.frontend_0.name }],
-            ["...", var.cloudfront_distribution_ids.auth.id, { region : "us-east-1", label : var.cloudfront_distribution_ids.auth.name }],
-            ["...", var.cloudfront_distribution_ids.frontend_1.id, { region : "us-east-1", label : var.cloudfront_distribution_ids.frontend_1.name }],
-            ["...", var.cloudfront_distribution_ids.toggles.id, { region : "us-east-1", label : var.cloudfront_distribution_ids.toggles.name }],
-            ["...", var.cloudfront_distribution_ids.reg.id, { region : "us-east-1", label : var.cloudfront_distribution_ids.reg.name }]
+            ["AWS/CloudFront", "5xxErrorRate", "Region", "Global", "DistributionId", var.cloudfront_distribution_ids.frontend_0.id, { region : var.us_region, label : var.cloudfront_distribution_ids.frontend_0.name }],
+            ["...", var.cloudfront_distribution_ids.auth.id, { region : var.us_region, label : var.cloudfront_distribution_ids.auth.name }],
+            ["...", var.cloudfront_distribution_ids.frontend_1.id, { region : var.us_region, label : var.cloudfront_distribution_ids.frontend_1.name }],
+            ["...", var.cloudfront_distribution_ids.toggles.id, { region : var.us_region, label : var.cloudfront_distribution_ids.toggles.name }],
+            ["...", var.cloudfront_distribution_ids.reg.id, { region : var.us_region, label : var.cloudfront_distribution_ids.reg.name }],
+            ["...", var.cloudfront_distribution_ids.warehouse_api.id, { region : var.us_region, label : var.cloudfront_distribution_ids.warehouse_api.name }],
+            ["...", var.cloudfront_distribution_ids.data_frontend.id, { region : var.us_region, label : var.cloudfront_distribution_ids.data_frontend.name }]
           ],
           view : "timeSeries",
           stacked : false,
-          region : "us-east-1",
+          region : var.us_region,
           period : 60,
           stat : "Average",
           title : "Cloudfront 5xx Error Rate (% of all responses)"
@@ -405,15 +429,17 @@ resource "aws_cloudwatch_dashboard" "main" {
         type : "metric",
         properties : {
           metrics : [
-            ["AWS/CloudFront", "Requests", "Region", "Global", "DistributionId", var.cloudfront_distribution_ids.frontend_0.id, { region : "us-east-1", label : var.cloudfront_distribution_ids.frontend_0.name }],
-            ["...", var.cloudfront_distribution_ids.auth.id, { region : "us-east-1", label : var.cloudfront_distribution_ids.auth.name }],
-            ["...", var.cloudfront_distribution_ids.frontend_1.id, { region : "us-east-1", label : var.cloudfront_distribution_ids.frontend_1.name }],
-            ["...", var.cloudfront_distribution_ids.toggles.id, { region : "us-east-1", label : var.cloudfront_distribution_ids.toggles.name }],
-            ["...", var.cloudfront_distribution_ids.reg.id, { region : "us-east-1", label : var.cloudfront_distribution_ids.reg.name }]
+            ["AWS/CloudFront", "Requests", "Region", "Global", "DistributionId", var.cloudfront_distribution_ids.frontend_0.id, { region : var.us_region, label : var.cloudfront_distribution_ids.frontend_0.name }],
+            ["...", var.cloudfront_distribution_ids.auth.id, { region : var.us_region, label : var.cloudfront_distribution_ids.auth.name }],
+            ["...", var.cloudfront_distribution_ids.frontend_1.id, { region : var.us_region, label : var.cloudfront_distribution_ids.frontend_1.name }],
+            ["...", var.cloudfront_distribution_ids.toggles.id, { region : var.us_region, label : var.cloudfront_distribution_ids.toggles.name }],
+            ["...", var.cloudfront_distribution_ids.reg.id, { region : var.us_region, label : var.cloudfront_distribution_ids.reg.name }],
+            ["...", var.cloudfront_distribution_ids.data_frontend.id, { region : var.us_region, label : var.cloudfront_distribution_ids.data_frontend.name }],
+            ["...", var.cloudfront_distribution_ids.warehouse_api.id, { region : var.us_region, label : var.cloudfront_distribution_ids.warehouse_api.name }]
           ],
           view : "timeSeries",
           stacked : false,
-          region : "us-east-1",
+          region : var.us_region,
           title : "Requests to Cloudfront",
           period : 300,
           stat : "Sum"

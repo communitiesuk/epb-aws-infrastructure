@@ -1160,18 +1160,25 @@ module "dashboard" {
     toggles          = module.toggles_application.front_door_alb_arn_suffix
     toggles_internal = module.toggles_application.internal_alb_arn_suffix
     frontend         = module.frontend_application.front_door_alb_arn_suffix
+    warehouse_api    = module.warehouse_api_application.front_door_alb_arn_suffix
+    data_frontend    = module.data_frontend_application[0].front_door_alb_arn_suffix
   }
   target_groups = {
-    reg_api          = module.register_api_application.front_door_alb_tg_arn_suffix
-    reg_api_internal = module.register_api_application.internal_alb_tg_arn_suffix
-    frontend         = module.frontend_application.front_door_alb_tg_arn_suffix
+    reg_api                = module.register_api_application.front_door_alb_tg_arn_suffix
+    reg_api_internal       = module.register_api_application.internal_alb_tg_arn_suffix
+    frontend               = module.frontend_application.front_door_alb_tg_arn_suffix
+    warehouse_api          = module.warehouse_api_application.front_door_alb_tg_arn_suffix
+    warehouse_api_internal = module.warehouse_api_application.internal_alb_tg_arn_suffix
+    data_frontend          = module.data_frontend_application[0].front_door_alb_tg_arn_suffix
   }
   cloudfront_distribution_ids = {
-    auth       = module.auth_application.cloudfront_distribution_ids[0]
-    reg        = module.register_api_application.cloudfront_distribution_ids[0]
-    toggles    = module.toggles_application.cloudfront_distribution_ids[0]
-    frontend_0 = module.frontend_application.cloudfront_distribution_ids[0]
-    frontend_1 = module.frontend_application.cloudfront_distribution_ids[1]
+    auth          = module.auth_application.cloudfront_distribution_ids[0]
+    reg           = module.register_api_application.cloudfront_distribution_ids[0]
+    toggles       = module.toggles_application.cloudfront_distribution_ids[0]
+    frontend_0    = module.frontend_application.cloudfront_distribution_ids[0]
+    frontend_1    = module.frontend_application.cloudfront_distribution_ids[1]
+    data_frontend = module.frontend_application.cloudfront_distribution_ids[0]
+    warehouse_api = module.warehouse_api_application.cloudfront_distribution_ids[0]
   }
 }
 
