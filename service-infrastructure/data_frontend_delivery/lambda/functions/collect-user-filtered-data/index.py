@@ -21,6 +21,16 @@ ATHENA_WORKGROUP = os.getenv("ATHENA_WORKGROUP")
 OUTPUT_BUCKET = os.getenv("OUTPUT_BUCKET")
 SQS_QUEUE_URL = os.getenv("SQS_QUEUE_URL")
 
+# If this is changed, make sure to change service-infrastructure/glue_data_warehouse/etl_scripts/export_by_year.py
+column_ordering = {
+    "domestic": ["certificate_number","address1","address2","address3","postcode","posttown","address","constituency", "constituency_label", "local_authority","local_authority_label","built_form","co2_emiss_curr_per_floor_area","co2_emissions_current","co2_emissions_potential","construction_age_band","current_energy_efficiency","current_energy_rating","energy_consumption_current","energy_consumption_potential","energy_tariff","environment_impact_current","environment_impact_potential","extension_count","fixed_lighting_outlets_count","flat_storey_count","flat_top_storey","floor_description","floor_energy_eff","floor_height","floor_level","glazed_area","glazed_type","heat_loss_corridor","heating_cost_current","heating_cost_potential","hot_water_cost_current","hot_water_cost_potential","hot_water_energy_eff","hot_water_env_eff","hotwater_description","inspection_date","lighting_cost_current","lighting_cost_potential","lighting_description","lighting_energy_eff","lighting_env_eff","lodgement_date","lodgement_datetime","low_energy_lighting","low_energy_fixed_lighting_outlets_count","main_fuel","mainheat_description","mainheat_energy_eff","mainheat_env_eff","mainheatc_energy_eff","mainheatc_env_eff","mainheatcont_description","main_heating_controls","mains_gas_flag","mechanical_ventilation","multi_glaze_proportion","number_habitable_rooms","number_heated_rooms","number_open_fireplaces","photo_supply","potential_energy_efficiency","potential_energy_rating","property_type","report_type","roof_description","roof_energy_eff","roof_env_eff","secondheat_description","sheating_energy_eff","sheating_env_eff","solar_water_heating_flag","tenure","total_floor_area","transaction_type","unheated_corridor_length","walls_description","walls_energy_eff","walls_env_eff","wind_turbine_count","windows_description","windows_energy_eff","windows_env_eff","floor_env_eff","region","country", "uprn", "uprn_source"],
+    "non_domestic": ["certificate_number","address1","address2","address3","posttown","postcode","address","constituency","constituency_label","local_authority","local_authority_label","asset_rating","asset_rating_band","property_type","inspection_date","lodgement_date","lodgement_datetime","transaction_type","new_build_benchmark","existing_stock_benchmark","building_level","main_heating_fuel","other_fuel_desc","special_energy_uses","renewable_sources","floor_area","standard_emissions","target_emissions","typical_emissions","building_emissions","aircon_present","aircon_kw_rating","estimated_aircon_kw_rating","ac_inspection_commissioned","building_environment","report_type","primary_energy_value", "uprn", "uprn_source"],
+    "display":      ["certificate_number","address1","address2","address3","posttown","postcode","address","constituency","constituency_label","local_authority","local_authority_label","current_operational_rating","yr1_operational_rating","yr2_operational_rating","electric_co2","heating_co2","renewables_co2","property_type","inspection_date","lodgement_date","lodgement_datetime","main_benchmark","main_heating_fuel","special_energy_uses","renewable_sources","total_floor_area","annual_thermal_fuel_usage","typical_thermal_fuel_usage", "typical_thermal_use", "annual_electrical_fuel_usage","typical_electrical_fuel_usage","renewables_fuel_thermal","renewables_electrical","yr1_electricity_co2","yr2_electricity_co2","yr1_heating_co2","yr2_heating_co2","yr1_renewables_co2","yr2_renewables_co2","aircon_present","aircon_kw_rating","estimated_aircon_kw_rating","ac_inspection_commissioned","building_environment","building_category","operational_rating_band","nominated_date","or_assessment_end_date","occupancy_level","report_type","other_fuel","country", "uprn", "uprn_source"],
+    "domestic_rr": ["certificate_number","improvement_item","improvement_id","improvement_summary_text","improvement_descr_text","indicative_cost"],
+    "non_domestic_rr": ["certificate_number","related_certificate_number","payback_type","recommendation_item","recommendation_code","recommendation"],
+    "display_rr": ["certificate_number","related_certificate_number","payback_type","recommendation_item","recommendation_code","recommendation"]
+}
+
 max_wait = 900
 
 
@@ -82,46 +92,35 @@ def query_search_filter_setup(filters):
 
     return clauses
 
+def get_column_ordering(table_name, prefix=""):
+    columns = column_ordering.get(table_name, ["*"])
+
+    if columns == ["*"]:
+        select_columns = f"{prefix}*"
+    else:
+        select_columns = ", ".join(f'{prefix}"{col}"' for col in columns)
+
+    return select_columns
 
 def construct_athena_query(filters):
     clauses = query_search_filter_setup(filters)
-    base_query = f'SELECT * FROM "{ATHENA_DATABASE}"."{table(filters)}"'
+    select_columns = get_column_ordering(table(filters))
+    base_query = f'SELECT {select_columns} FROM "{ATHENA_DATABASE}"."{table(filters)}"'
     query = f"{base_query} WHERE {' AND '.join(clauses)}"
     logger.info(f"Athena Query: {query}")
     return query
 
 
-def construct_domestic_rr_athena_query(filters):
+def construct_recommendations_athena_query(filters):
     clauses = query_search_filter_setup(filters)
-    base_rr_query = f'SELECT rr.certificate_number, \
-                      improvement_item, \
-                      improvement_id, \
-                      indicative_cost, \
-                      improvement_summary_text, \
-                      improvement_descr_text \
+    select_columns = get_column_ordering(rr_table(filters), prefix="rr.")
+    base_rr_query = f'SELECT {select_columns} \
                       FROM "{ATHENA_DATABASE}"."{rr_table(filters)}" rr \
                       JOIN "{ATHENA_DATABASE}"."{table(filters)}" m ON m.certificate_number=rr.certificate_number'
 
     query = f"{base_rr_query} WHERE {' AND '.join(clauses)}"
     logger.info(f"Athena Recommendations Query: {query}")
     return query
-
-
-def construct_commercial_rr_athena_query(filters):
-     clauses = query_search_filter_setup(filters)
-     base_rr_query = f'SELECT rr.certificate_number, \
-                       payback_type, \
-                       recommendation_item, \
-                       related_certificate_number, \
-                       recommendation_code, \
-                       recommendation \
-                       FROM "{ATHENA_DATABASE}"."{rr_table(filters)}" rr \
-                       JOIN "{ATHENA_DATABASE}"."{table(filters)}" m ON m.certificate_number=rr.related_certificate_number'
-
-     query = f"{base_rr_query} WHERE {' AND '.join(clauses)}"
-     logger.info(f"Athena Recommendations Query: {query}")
-     return query
-
 
 def execute_athena_query(query):
     athena_client = boto3.client("athena")
@@ -265,11 +264,7 @@ def build_certificates(filters):
 def build_recommendations(filters):
     filters_copy = filters.copy()
 
-    # Construct Athena rr query
-    if table(filters) == "domestic":
-        athena_rr_query = construct_domestic_rr_athena_query(filters_copy)
-    else:
-        athena_rr_query = construct_commercial_rr_athena_query(filters_copy)
+    athena_rr_query = construct_recommendations_athena_query(filters_copy)
 
     # Execute Athena rr query
     query_execution_rr_id = execute_athena_query(athena_rr_query)
