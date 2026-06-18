@@ -93,6 +93,21 @@ resource "aws_codepipeline" "codepipeline" {
   }
 
   stage {
+    name = "integration-restart-status"
+    action {
+      name            = "Build"
+      category        = "Build"
+      owner           = "AWS"
+      provider        = "CodeBuild"
+      input_artifacts = ["docker_image"]
+      version         = "1"
+      configuration = {
+        ProjectName = module.codebuild_integration_check_integration_restart.codebuild_name
+      }
+    }
+  }
+
+  stage {
     name = "deploy-to-production"
 
     action {
