@@ -388,13 +388,14 @@ module "toggles_application" {
 }
 
 module "auth_application" {
-  source                = "./application"
-  ci_account_id         = var.ci_account_id
-  prefix                = "${local.prefix}-auth"
-  region                = var.region
-  container_port        = 3001
-  egress_ports          = [80, 443, 5432, var.parameters["LOGSTASH_PORT"]]
-  environment_variables = {}
+  source                             = "./application"
+  ci_account_id                      = var.ci_account_id
+  deployment_minimum_healthy_percent = var.environment == "intg" ? 0 : 100
+  prefix                             = "${local.prefix}-auth"
+  region                             = var.region
+  container_port                     = 3001
+  egress_ports                       = [80, 443, 5432, var.parameters["LOGSTASH_PORT"]]
+  environment_variables              = {}
   secrets = {
     "DATABASE_URL" : module.secrets.secret_arns["RDS_AUTH_V2_SERVICE_CONNECTION_STRING"],
     "EPB_UNLEASH_URI" : module.secrets.secret_arns["EPB_UNLEASH_URI"]
@@ -427,9 +428,10 @@ module "auth_application" {
     path_based_routing_overrides = []
     extra_lb_target_groups       = 1
   }
-  fargate_weighting         = var.environment == "prod" ? { standard : 10, spot : 0 } : { standard : 0, spot : 10 }
-  has_target_tracking       = false
-  cloudwatch_ecs_events_arn = module.logging.cloudwatch_ecs_events_arn
+  fargate_weighting                = var.environment == "prod" ? { standard : 10, spot : 0 } : { standard : 0, spot : 10 }
+  has_target_tracking              = false
+  cloudwatch_ecs_events_arn        = module.logging.cloudwatch_ecs_events_arn
+  is_fluentbit_container_essential = var.environment == "intg" ? true : false
 }
 
 module "auth_database_v2" {
