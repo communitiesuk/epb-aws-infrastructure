@@ -1357,11 +1357,9 @@ module "register_glue" {
   db_instance               = module.register_api_database_v2.rds_db_writer_endpoint
   db_user                   = module.register_api_database_v2.rds_db_username
   db_password               = module.register_api_database_v2.rds_db_password
-  db_name                   = module.register_api_database_v2.rds_db_name
   subnet_group_az           = module.networking.private_db_subnet_first_az
   vpc_id                    = module.networking.vpc_id
   output_bucket_read_policy = module.scotland_metadata[0].s3_read_access_policy_arn
-  storage_bucket            = module.scotland_metadata[0].bucket_name
 }
 
 module "epb_data_user_credentials" {
