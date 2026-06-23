@@ -167,8 +167,23 @@ resource "aws_wafv2_web_acl" "this" {
 
     statement {
       rate_based_statement {
-        aggregate_key_type = "IP"
+        aggregate_key_type = "CUSTOM_KEYS"
         limit              = 6000
+
+        custom_key {
+          ip {}
+        }
+
+        custom_key {
+          header {
+            name = "authorization"
+            text_transformation {
+              priority = 0
+              type     = "NONE"
+            }
+          }
+        }
+
         scope_down_statement {
           byte_match_statement {
             positional_constraint = "CONTAINS"
