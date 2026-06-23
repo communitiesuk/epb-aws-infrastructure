@@ -532,7 +532,7 @@ module "register_api_database_v2" {
   instance_parameter_group_name = module.parameter_groups.rds_pg_param_group_name
   prefix                        = "${local.prefix}-reg-api"
   postgres_version              = var.postgres_aurora_version
-  security_group_ids            = [module.register_api_application.ecs_security_group_id, module.bastion.security_group_id, module.scheduled_tasks_application.ecs_security_group_id]
+  security_group_ids            = [module.register_api_application.ecs_security_group_id, module.bastion.security_group_id, module.scheduled_tasks_application.ecs_security_group_id, module.register_glue[0].glue_security_group_id]
   storage_backup_period         = var.storage_backup_period
   subnet_group_name             = local.db_subnet
   vpc_id                        = module.networking.vpc_id
@@ -1123,6 +1123,13 @@ module "ngd_data" {
   prefix = "${local.prefix}-ngd-data"
 }
 
+module "scotland_metadata" {
+  count  = 1
+  source = "./s3_bucket"
+  prefix = "${local.prefix}-scotland-metadata"
+}
+
+
 module "parameter_groups" {
   source = "./database_parameter_groups"
 }
@@ -1339,6 +1346,22 @@ module "addressing_glue" {
   storage_bucket             = module.ngd_data[0].bucket_name
   os_data_hub_api_key        = var.parameters["OS_DATA_HUB_API_KEY"]
   os_data_package_id         = var.parameters["OS_NGD_MONTHLY_DATA_PACKAGE_ID"]
+}
+
+module "register_glue" {
+  count                     = 1
+  source                    = "./glue_register"
+  prefix                    = local.prefix
+  module_prefix             = "register"
+  subnet_group_id           = module.networking.private_db_subnet_first_id
+  db_instance               = module.register_api_database_v2.rds_db_writer_endpoint
+  db_user                   = module.register_api_database_v2.rds_db_username
+  db_password               = module.register_api_database_v2.rds_db_password
+  db_name                   = module.register_api_database_v2.rds_db_name
+  subnet_group_az           = module.networking.private_db_subnet_first_az
+  vpc_id                    = module.networking.vpc_id
+  output_bucket_read_policy = module.scotland_metadata[0].s3_read_access_policy_arn
+  storage_bucket            = module.scotland_metadata[0].bucket_name
 }
 
 module "epb_data_user_credentials" {
