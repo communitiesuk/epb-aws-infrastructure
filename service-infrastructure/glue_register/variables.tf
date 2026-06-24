@@ -29,6 +29,13 @@ variable "db_user" {
 variable "db_password" {
   type = string
 }
+variable "db_name" {
+  type = string
+}
+
+variable "db_port" {
+  type = string
+}
 
 variable "secrets" {
   default = {}
@@ -36,5 +43,9 @@ variable "secrets" {
 }
 
 variable "output_bucket_read_policy" {
+  type = string
+}
+
+variable "storage_bucket" {
   type = string
 }
