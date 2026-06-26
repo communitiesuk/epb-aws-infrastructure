@@ -26,14 +26,6 @@ variable "instance_class" {
   type = string
 }
 
-variable "cluster_parameter_group_name" {
-  type = string
-}
-
-variable "instance_parameter_group_name" {
-  type = string
-}
-
 variable "postgres_version" {
   type = string
 }
@@ -59,3 +51,7 @@ variable "name_suffix" {
   type        = string
 }
 
+variable "group_name" {
+  description = "part name of the db group"
+  type        = string
+}

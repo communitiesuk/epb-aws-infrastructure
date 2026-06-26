@@ -12,3 +12,8 @@ terraform {
     }
   }
 }
+
+locals {
+  is_serverless    = var.instance_class == "db.serverless" ? true : false
+  pg_major_version = split(".", var.postgres_version)[0]
+}

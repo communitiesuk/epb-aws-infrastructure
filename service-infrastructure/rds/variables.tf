@@ -31,7 +31,8 @@ variable "instance_class" {
 }
 
 variable "parameter_group_name" {
-  type = string
+  type    = string
+  default = ""
 }
 
 variable "postgres_version" {
@@ -53,4 +54,10 @@ variable "name_suffix" {
   description = "Suffix added to the instance name when we have 2 versions of the same db"
   default     = null
   type        = string
+}
+
+
+variable "rds_parameter_group_name" {
+  type = string
+
 }

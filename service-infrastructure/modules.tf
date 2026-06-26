@@ -331,19 +331,19 @@ module "parameter_store" {
 module "toggles_database_v2" {
   source = "./rds"
 
-  db_name               = "unleash"
-  instance_class        = var.environment == "intg" ? "db.t3.micro" : "db.m5.large"
-  parameter_group_name  = module.parameter_groups.rds_pg_param_group_name
-  prefix                = "${local.prefix}-toggles"
-  postgres_version      = var.postgres_rds_version
-  security_group_ids    = [module.toggles_application.ecs_security_group_id, module.bastion.security_group_id]
-  storage_backup_period = 1
-  storage_size          = 5
-  subnet_group_name     = local.db_subnet
-  vpc_id                = module.networking.vpc_id
-  multi_az              = var.environment == "prod" ? true : false
-  name_suffix           = "v2"
-  kms_key_id            = module.rds_kms_key.key_arn
+  db_name                  = "unleash"
+  instance_class           = var.environment == "intg" ? "db.t3.micro" : "db.m5.large"
+  prefix                   = "${local.prefix}-toggles"
+  postgres_version         = var.postgres_versions["toggles"]
+  security_group_ids       = [module.toggles_application.ecs_security_group_id, module.bastion.security_group_id]
+  storage_backup_period    = 1
+  storage_size             = 5
+  subnet_group_name        = local.db_subnet
+  vpc_id                   = module.networking.vpc_id
+  multi_az                 = var.environment == "prod" ? true : false
+  name_suffix              = "v2"
+  kms_key_id               = module.rds_kms_key.key_arn
+  rds_parameter_group_name = "unleash"
 }
 
 module "toggles_application" {
@@ -437,19 +437,20 @@ module "auth_application" {
 module "auth_database_v2" {
   source = "./rds"
 
-  db_name               = "epb"
-  instance_class        = var.environment == "intg" ? "db.t3.micro" : "db.m5.large"
-  parameter_group_name  = module.parameter_groups.rds_pg_param_group_name
-  postgres_version      = var.postgres_rds_version
-  prefix                = "${local.prefix}-auth"
-  security_group_ids    = [module.auth_application.ecs_security_group_id, module.bastion.security_group_id]
-  storage_backup_period = 1 # to prevent weird behaviour when the backup window is set to 0
-  storage_size          = 5
-  subnet_group_name     = local.db_subnet
-  vpc_id                = module.networking.vpc_id
-  multi_az              = var.environment == "prod" ? true : false
-  name_suffix           = "v2"
-  kms_key_id            = module.rds_kms_key.key_arn
+  db_name                  = "epb"
+  instance_class           = var.environment == "intg" ? "db.t3.micro" : "db.m5.large"
+  parameter_group_name     = module.parameter_groups.rds_pg_param_group_name
+  postgres_version         = var.postgres_versions["auth"]
+  prefix                   = "${local.prefix}-auth"
+  security_group_ids       = [module.auth_application.ecs_security_group_id, module.bastion.security_group_id]
+  storage_backup_period    = 1 # to prevent weird behaviour when the backup window is set to 0
+  storage_size             = 5
+  subnet_group_name        = local.db_subnet
+  vpc_id                   = module.networking.vpc_id
+  multi_az                 = var.environment == "prod" ? true : false
+  name_suffix              = "v2"
+  kms_key_id               = module.rds_kms_key.key_arn
+  rds_parameter_group_name = "auth"
 }
 
 module "register_api_application" {
@@ -524,20 +525,18 @@ module "register_api_application" {
 }
 
 module "register_api_database_v2" {
-  source = "./aurora_rds"
-
-  cluster_parameter_group_name  = module.parameter_groups.aurora_pg_param_group_name
-  db_name                       = "epb"
-  instance_class                = var.environment == "intg" ? "db.t3.medium" : var.environment == "stag" ? "db.r5.large" : "db.r5.2xlarge"
-  instance_parameter_group_name = module.parameter_groups.rds_pg_param_group_name
-  prefix                        = "${local.prefix}-reg-api"
-  postgres_version              = var.postgres_aurora_version
-  security_group_ids            = [module.register_api_application.ecs_security_group_id, module.bastion.security_group_id, module.scheduled_tasks_application.ecs_security_group_id, module.register_glue[0].glue_security_group_id]
-  storage_backup_period         = var.storage_backup_period
-  subnet_group_name             = local.db_subnet
-  vpc_id                        = module.networking.vpc_id
-  name_suffix                   = "v2"
-  kms_key_id                    = module.rds_kms_key.key_arn
+  source                = "./aurora_rds"
+  db_name               = "epb"
+  instance_class        = var.environment == "intg" ? "db.t3.medium" : var.environment == "stag" ? "db.r5.large" : "db.r5.2xlarge"
+  prefix                = "${local.prefix}-reg-api"
+  postgres_version      = var.postgres_versions["register"]
+  security_group_ids    = [module.register_api_application.ecs_security_group_id, module.bastion.security_group_id, module.scheduled_tasks_application.ecs_security_group_id, module.register_glue[0].glue_security_group_id]
+  storage_backup_period = var.storage_backup_period
+  subnet_group_name     = local.db_subnet
+  vpc_id                = module.networking.vpc_id
+  name_suffix           = "v2"
+  kms_key_id            = module.rds_kms_key.key_arn
+  group_name            = "register"
 }
 
 module "scheduled_tasks_application" {
@@ -904,21 +903,19 @@ module "warehouse_api_application" {
 }
 
 module "warehouse_database_v2" {
-  source = "./aurora_rds"
-
-  cluster_parameter_group_name  = module.parameter_groups.aurora_pg_17_serverless_param_group_name
-  db_name                       = "epb"
-  instance_class                = "db.serverless"
-  instance_parameter_group_name = module.parameter_groups.aurora_pg_param_group_name
-  postgres_version              = var.data_warehouse_postgres_aurora_version
-  prefix                        = "${local.prefix}-warehouse"
-  security_group_ids            = local.dwh_security_groups
-  storage_backup_period         = var.storage_backup_period
-  subnet_group_name             = local.db_subnet
-  vpc_id                        = module.networking.vpc_id
-  scaling_configuration         = var.environment == "intg" ? { max_capacity = 16, min_capacity = 0.5 } : { max_capacity = 64, min_capacity = 8 }
-  name_suffix                   = "v2"
-  kms_key_id                    = module.rds_kms_key.key_arn
+  source                = "./aurora_rds"
+  db_name               = "epb"
+  instance_class        = "db.serverless"
+  postgres_version      = var.postgres_versions["warehouse"]
+  prefix                = "${local.prefix}-warehouse"
+  security_group_ids    = local.dwh_security_groups
+  storage_backup_period = var.storage_backup_period
+  subnet_group_name     = local.db_subnet
+  vpc_id                = module.networking.vpc_id
+  scaling_configuration = var.environment == "intg" ? { max_capacity = 16, min_capacity = 0.5 } : { max_capacity = 64, min_capacity = 8 }
+  name_suffix           = "v2"
+  kms_key_id            = module.rds_kms_key.key_arn
+  group_name            = "warehouse"
 }
 
 module "warehouse_redis" {
@@ -973,20 +970,19 @@ module "addressing_application" {
 }
 
 module "addressing_database" {
-  count                         = 1
-  source                        = "./aurora_rds"
-  cluster_parameter_group_name  = module.parameter_groups.aurora_pg_17_serverless_param_group_name
-  db_name                       = "epb"
-  instance_class                = "db.serverless"
-  instance_parameter_group_name = module.parameter_groups.aurora_pg_param_group_name
-  prefix                        = "${local.prefix}-addressing"
-  postgres_version              = var.addressing_postgres_aurora_version
-  security_group_ids            = [module.addressing_glue[0].glue_security_group_id, module.bastion.security_group_id, module.addressing_application[0].ecs_security_group_id]
-  scaling_configuration         = var.environment != "prod" ? { max_capacity = 16, min_capacity = 0.5 } : { max_capacity = 64, min_capacity = 8 }
-  storage_backup_period         = var.storage_backup_period
-  subnet_group_name             = local.db_subnet
-  vpc_id                        = module.networking.vpc_id
-  kms_key_id                    = module.rds_kms_key.key_arn
+  count                 = 1
+  source                = "./aurora_rds"
+  db_name               = "epb"
+  instance_class        = "db.serverless"
+  prefix                = "${local.prefix}-addressing"
+  postgres_version      = var.postgres_versions["addressing"]
+  security_group_ids    = [module.addressing_glue[0].glue_security_group_id, module.bastion.security_group_id, module.addressing_application[0].ecs_security_group_id]
+  scaling_configuration = var.environment != "prod" ? { max_capacity = 16, min_capacity = 0.5 } : { max_capacity = 64, min_capacity = 8 }
+  storage_backup_period = var.storage_backup_period
+  subnet_group_name     = local.db_subnet
+  vpc_id                = module.networking.vpc_id
+  kms_key_id            = module.rds_kms_key.key_arn
+  group_name            = "addressing"
 }
 
 module "bastion" {
@@ -1128,7 +1124,6 @@ module "scotland_metadata" {
   source = "./s3_bucket"
   prefix = "${local.prefix}-scotland-metadata"
 }
-
 
 module "parameter_groups" {
   source = "./database_parameter_groups"

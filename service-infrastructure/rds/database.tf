@@ -18,9 +18,9 @@ resource "aws_db_instance" "postgres_rds" {
   skip_final_snapshot     = true
   username                = "postgres"
   password                = random_password.password.result
-  parameter_group_name    = var.parameter_group_name
+  parameter_group_name    = aws_db_parameter_group.this.name
   kms_key_id              = var.kms_key_id
-
+  apply_immediately       = false
   lifecycle {
     prevent_destroy = true
   }

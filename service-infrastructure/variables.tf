@@ -138,3 +138,9 @@ variable "addressing_postgres_aurora_version" {
   type    = string
   default = "17.7"
 }
+
+variable "postgres_versions" {
+  description = "A map of of databases and their versions of Postgres"
+  type        = map(string)
+  sensitive   = true
+}

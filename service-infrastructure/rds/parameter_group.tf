@@ -1,17 +1,7 @@
-resource "aws_db_parameter_group" "rds_db" {
-  count  = var.has_rds == true ? 1 : 0
-  name   = "rds-pg"
-  family = "postgres14"
-}
-
-resource "aws_rds_cluster_parameter_group" "rds_aurora" {
-  name   = var.aurora_name
-  family = "aurora-postgresql14"
-}
-
-resource "aws_rds_cluster_parameter_group" "rds_aurora_serverless_17" {
-  name   = "${var.aurora_name}-serverless-17"
-  family = "aurora-postgresql17"
+resource "aws_db_parameter_group" "this" {
+  name        = "rds-${var.rds_parameter_group_name}-pg-${local.pg_major_version}"
+  family      = "postgres${local.pg_major_version}"
+  description = "RDS PG${local.pg_major_version} parameter group"
 
   # required for blue/green deployment using logical replication
   parameter {
@@ -46,5 +36,9 @@ resource "aws_rds_cluster_parameter_group" "rds_aurora_serverless_17" {
     value        = "10"
     apply_method = "pending-reboot"
   }
-}
 
+  lifecycle {
+    create_before_destroy = true
+
+  }
+}

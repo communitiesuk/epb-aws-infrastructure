@@ -1,19 +1,20 @@
-resource "aws_db_parameter_group" "rds_db" {
-  count  = var.has_rds == true ? 1 : 0
-  name   = "rds-pg"
-  family = "postgres14"
+
+resource "aws_db_parameter_group" "rds_instance" {
+  name        = "aurora-${var.group_name}-instance-pg-${local.pg_major_version}"
+  family      = "aurora-postgresql${local.pg_major_version}"
+  description = "Aurora PG${local.pg_major_version} instance parameter group"
+
+  lifecycle {
+    create_before_destroy = true
+  }
+
 }
 
-resource "aws_rds_cluster_parameter_group" "rds_aurora" {
-  name   = var.aurora_name
-  family = "aurora-postgresql14"
-}
+resource "aws_rds_cluster_parameter_group" "rds_cluster" {
+  name        = "aurora-${var.group_name}-pg-${local.pg_major_version}"
+  family      = "aurora-postgresql${local.pg_major_version}"
+  description = "Aurora PG${local.pg_major_version} cluster parameter group"
 
-resource "aws_rds_cluster_parameter_group" "rds_aurora_serverless_17" {
-  name   = "${var.aurora_name}-serverless-17"
-  family = "aurora-postgresql17"
-
-  # required for blue/green deployment using logical replication
   parameter {
     name         = "rds.logical_replication"
     value        = "1"
@@ -46,5 +47,14 @@ resource "aws_rds_cluster_parameter_group" "rds_aurora_serverless_17" {
     value        = "10"
     apply_method = "pending-reboot"
   }
+
+
+  lifecycle {
+    ignore_changes        = [description]
+    create_before_destroy = true
+  }
+
+
 }
+
 

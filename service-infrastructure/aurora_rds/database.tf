@@ -13,14 +13,15 @@ resource "aws_rds_cluster" "this" {
   master_password                  = random_password.password.result
   backup_retention_period          = var.storage_backup_period
   preferred_backup_window          = "02:00-04:00"
-  db_cluster_parameter_group_name  = var.cluster_parameter_group_name
-  db_instance_parameter_group_name = var.instance_parameter_group_name
+  db_cluster_parameter_group_name  = aws_rds_cluster_parameter_group.rds_cluster.name
+  db_instance_parameter_group_name = aws_db_parameter_group.rds_instance.name
 
   db_subnet_group_name   = var.subnet_group_name
   vpc_security_group_ids = [aws_security_group.rds_security_group.id]
   storage_encrypted      = true
   skip_final_snapshot    = true
   kms_key_id             = var.kms_key_id
+  apply_immediately      = false
   lifecycle {
     prevent_destroy = true
   }
@@ -42,8 +43,9 @@ resource "aws_rds_cluster_instance" "this" {
   instance_class               = var.instance_class
   engine                       = aws_rds_cluster.this.engine
   engine_version               = aws_rds_cluster.this.engine_version
+  db_parameter_group_name      = aws_db_parameter_group.rds_instance.name
   preferred_maintenance_window = count.index == 0 ? "Sun:01:01-Sun:02:01" : "Sun:02:02-Sun:03:02"
-
+  apply_immediately            = false
   lifecycle {
     prevent_destroy = true
   }

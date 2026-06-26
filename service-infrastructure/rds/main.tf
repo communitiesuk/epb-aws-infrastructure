@@ -12,3 +12,6 @@ terraform {
     }
   }
 }
+locals {
+  pg_major_version = split(".", var.postgres_version)[0]
+}
