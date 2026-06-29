@@ -1,0 +1,172 @@
+import os
+import sys
+import zipfile
+
+import boto3
+from awsglue.context import GlueContext
+from awsglue.job import Job
+from awsglue.utils import getResolvedOptions
+from pyspark.context import SparkContext
+from pyspark.sql import functions as F
+from pyspark.sql import SparkSession
+from pyspark.sql.types import StringType
+
+required_args = ["JOB_NAME", "TABLE_NAME", "S3_BUCKET", "DATABASE_NAME"]
+
+if any(arg.startswith("--TABLE_NAME_RR") for arg in sys.argv):
+    required_args.append("TABLE_NAME_RR")
+
+
+# Get job arguments
+args = getResolvedOptions(sys.argv, required_args)
+
+sc = SparkContext()
+glueContext = GlueContext(sc)
+logger = glueContext.get_logger()
+spark = glueContext.spark_session
+job = Job(glueContext)
+job.init(args["JOB_NAME"], args)
+
+# Configuration
+DATABASE_NAME = args["DATABASE_NAME"]
+TABLE_NAME = args["TABLE_NAME"]
+S3_BUCKET = args["S3_BUCKET"]
+EPC_TYPE = args["TABLE_NAME"].replace("_", "-")
+S3_PREFIX = f"full-load/"
+S3_OUTPUT_PATH = f"s3://{S3_BUCKET}/{S3_PREFIX}"
+ZIP_FILE_KEY = f"{S3_PREFIX}{EPC_TYPE}-csv.zip"
+TABLE_NAME_RR = args.get("TABLE_NAME_RR")
+
+
+
+sql_spark = (
+    SparkSession.builder
+    .config("spark.sql.extensions", "org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions")
+    .config("spark.sql.catalog.glue_catalog", "org.apache.iceberg.spark.SparkCatalog")
+    .config("spark.sql.catalog.glue_catalog.catalog-impl", "org.apache.iceberg.aws.glue.GlueCatalog")
+    .config("spark.sql.catalog.glue_catalog.warehouse", S3_OUTPUT_PATH)
+    .config("spark.sql.catalog.glue_catalog.job-language", "python")
+    .getOrCreate()
+)
+
+s3_client = boto3.client("s3")
+
+TEXT_COLUMNS_TO_NORMALIZE = [
+    "glazed_type",
+    "improvement_descr_text",
+    "improvement_summary_text",
+    "main_fuel",
+    "mechanical_ventilation",
+    "ventilation_type",
+    "transaction_type",
+]
+
+
+def strip_newlines(df):
+    fields_by_name = {field.name: field for field in df.schema.fields}
+    for column_name in TEXT_COLUMNS_TO_NORMALIZE:
+        field = fields_by_name.get(column_name)
+        if field and isinstance(field.dataType, StringType):
+            col = F.regexp_replace(F.col(column_name), r"\s*[\r\n]+\s*", " ")
+            df = df.withColumn(column_name, col)
+    return df
+
+
+# Read data from Glue Catalog
+frame = glueContext.create_data_frame.from_catalog(
+    database=DATABASE_NAME, table_name=TABLE_NAME
+)
+
+df = frame.withColumn("year", F.year(F.col("lodgement_date")))
+
+# Get unique years
+years = [
+    row.year
+    for row in df.select("year").filter(df["year"].isNotNull()).distinct().collect()
+]
+
+
+if TABLE_NAME_RR:
+    logger.warn(f'Received table "{TABLE_NAME_RR}" for recommendations')
+
+    df_rr = glueContext.create_data_frame.from_catalog(
+        database=DATABASE_NAME, table_name=TABLE_NAME_RR
+    )
+
+    if TABLE_NAME == "domestic":
+        joined_df = (
+            df.select("certificate_number", "year")
+            .dropDuplicates(["certificate_number"])
+            .join(df_rr, on="certificate_number", how="inner")
+        )
+    else:
+        df_rr_selected = df_rr.select(
+            *[col for col in df_rr.columns if col != 'certificate_number']
+        )
+
+        joined_df = (
+            df.select("certificate_number", "year")
+            .dropDuplicates(["certificate_number"])
+            .join(df_rr_selected, df.certificate_number == df_rr_selected.related_certificate_number, "inner")
+        )
+
+def process_and_zip(df, table_name, years, zipf, csv_filename=None):
+    if not csv_filename:
+        csv_filename = table_name
+
+    for year in years:
+        logger.warn(f'Processing table "{table_name}" year: {year}')
+        year_df = df.filter(F.col("year") == year).drop("year")
+        year_df = strip_newlines(year_df).repartition(1)
+
+        output_folder = f"{S3_OUTPUT_PATH}{table_name}-{year}/"
+        year_df.write.mode("overwrite").option("header", "true").option("escape", "\"").csv(output_folder)
+
+        prefix = f"{S3_PREFIX}{table_name}-{year}/"
+        response = s3_client.list_objects_v2(Bucket=S3_BUCKET, Prefix=prefix)
+
+        if "Contents" in response:
+            for obj in response["Contents"]:
+                if obj["Key"].endswith(".csv"):
+                    logger.warn(f"Processing file: {obj['Key']}")
+                    file_obj = s3_client.get_object(Bucket=S3_BUCKET, Key=obj["Key"])
+                    zipf.writestr(f"{csv_filename}-{year}.csv", file_obj["Body"].read())
+
+                    for obj in response["Contents"]:
+                        s3_client.delete_object(Bucket=S3_BUCKET, Key=obj["Key"])
+                    break  # Only process the first CSV file
+        else:
+            logger.warn(f'No CSV found for table "{table_name}" year {year}')
+
+
+# Create temporary ZIP file in /tmp
+zip_temp_path = os.path.join("/tmp", f"{EPC_TYPE}-csv-{os.getpid()}.zip")
+logger.warn(f'Creating ZIP file at: {zip_temp_path}')
+
+with zipfile.ZipFile(zip_temp_path, "w", zipfile.ZIP_DEFLATED) as zipf:
+    logger.warn(f'Will start processing "{TABLE_NAME}"')
+    process_and_zip(df, TABLE_NAME, years, zipf, csv_filename="certificates")
+
+    if TABLE_NAME_RR:
+        logger.warn(f'Will start processing "{TABLE_NAME_RR}" for recommendations')
+        process_and_zip(joined_df, TABLE_NAME_RR, years, zipf, csv_filename="recommendations")
+
+logger.warn(f'ZIP file created at {zip_temp_path}')
+
+# Upload ZIP file to S3
+file_size = os.path.getsize(zip_temp_path)
+logger.warn(f'ZIP file size: {file_size} bytes')
+
+try:
+    s3_client.upload_file(zip_temp_path, S3_BUCKET, ZIP_FILE_KEY)
+    logger.warn(f'Successfully uploaded ZIP to s3://{S3_BUCKET}/{ZIP_FILE_KEY}')
+except Exception as e:
+    logger.error(f'Error uploading ZIP to S3: "{e}"')
+    raise
+finally:
+    # Clean up temporary file
+    if os.path.exists(zip_temp_path):
+        os.remove(zip_temp_path)
+        logger.warn(f'Cleaned up temporary file: {zip_temp_path}')
+
+job.commit()

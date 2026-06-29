@@ -1318,7 +1318,18 @@ module "data_warehouse_glue" {
   output_bucket_read_policy  = module.user_data.s3_read_access_policy_arn
   output_bucket_write_policy = module.user_data.s3_write_access_policy_arn
 
+  # Optional: pass these if you want to enable the view refresh orchestration
+  # state machine. Uncomment step_functions module in glue_data_warehouse/step_functions.tf
+  region                       = var.region
+  ecs_cluster_arn              = module.warehouse_scheduled_tasks_application.ecs_cluster_arn
+  ecs_task_exec_arn            = module.warehouse_scheduled_tasks_application.ecs_task_exec_arn
+  ecs_migration_container_name = module.warehouse_scheduled_tasks_application.migration_container_name
+  ecs_subnet_ids               = module.networking.private_db_subnet_ids
+  ecs_security_group_id        = module.warehouse_scheduled_tasks_application.ecs_security_group_id
+  ecs_task_role_arn            = module.warehouse_scheduled_tasks_application.ecs_role
+  ecs_task_execution_role_arn  = module.warehouse_scheduled_tasks_application.ecs_task_execution_role_arn
 }
+
 
 module "addressing_glue" {
   count                      = 1
