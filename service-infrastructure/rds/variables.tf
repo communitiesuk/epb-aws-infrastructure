@@ -30,11 +30,6 @@ variable "instance_class" {
   type = string
 }
 
-variable "parameter_group_name" {
-  type    = string
-  default = ""
-}
-
 variable "postgres_version" {
   type = string
 }
@@ -59,5 +54,4 @@ variable "name_suffix" {
 
 variable "rds_parameter_group_name" {
   type = string
-
 }

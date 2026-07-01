@@ -439,7 +439,6 @@ module "auth_database_v2" {
 
   db_name                  = "epb"
   instance_class           = var.environment == "intg" ? "db.t3.micro" : "db.m5.large"
-  parameter_group_name     = module.parameter_groups.rds_pg_param_group_name
   postgres_version         = var.postgres_versions["auth"]
   prefix                   = "${local.prefix}-auth"
   security_group_ids       = [module.auth_application.ecs_security_group_id, module.bastion.security_group_id]
@@ -1125,9 +1124,6 @@ module "scotland_metadata" {
   prefix = "${local.prefix}-scotland-metadata"
 }
 
-module "parameter_groups" {
-  source = "./database_parameter_groups"
-}
 
 locals {
   register_origins = ["https://${var.get_service_url}", "https://${var.find_service_url}"]

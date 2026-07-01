@@ -119,26 +119,6 @@ variable "recaptcha_secret_key" {
   default = ""
 }
 
-variable "postgres_rds_version" {
-  type    = string
-  default = "14.22"
-}
-
-variable "postgres_aurora_version" {
-  type    = string
-  default = "14.20"
-}
-
-variable "data_warehouse_postgres_aurora_version" {
-  type    = string
-  default = "14.15"
-}
-
-variable "addressing_postgres_aurora_version" {
-  type    = string
-  default = "17.7"
-}
-
 variable "postgres_versions" {
   description = "A map of of databases and their versions of Postgres"
   type        = map(string)
