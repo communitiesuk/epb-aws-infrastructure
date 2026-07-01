@@ -65,7 +65,8 @@ updates = (
             F.lit("UPRN-"),
             F.lpad(F.col("OSG_UPRN").cast("string"), 12, "0")
         ).alias("address_id"),
-        F.lit("EST_OSG_UPRN").alias("source")
+        F.lit("est_osg_uprn").alias("source"),
+        F.current_timestamp().alias("address_updated_at")
     )
     # important for large datasets → improves JDBC parallelism
     .repartition(50)
@@ -114,7 +115,8 @@ try:
         UPDATE scotland.assessments_address_id a
         SET
             address_id = u.address_id,
-            source = u.source
+            source = u.source,
+            address_updated_at = u.address_updated_at
         FROM scotland.assessments_address_id_updates u
         WHERE a.assessment_id = u.assessment_id
     """)
