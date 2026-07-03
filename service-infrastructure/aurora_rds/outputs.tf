@@ -46,3 +46,17 @@ output "rds_db_writer_endpoint" {
   value     = aws_rds_cluster.this.endpoint
   sensitive = true
 }
+
+output "rds_db_reader_id" {
+  value = one([
+    for inst in aws_rds_cluster_instance.this : inst.id
+    if inst.writer == false
+  ])
+}
+
+output "rds_db_writer_id" {
+  value = one([
+    for inst in aws_rds_cluster_instance.this : inst.id
+    if inst.writer == true
+  ])
+}

@@ -1379,3 +1379,31 @@ module "epb_dwh_api_swagger_docs" {
   ci_role_id     = module.access.ci_role_id
   cloudfront_arn = try(module.data_frontend_application[0].cloudfront_distribution_ids[0]["arn"], "")
 }
+
+module "reboot_register_db_schedule" {
+  source           = "./reboot_rds"
+  prefix           = "epb-register"
+  schedule_enabled = var.environment == "intg" ? true : false
+  rds_reboot_aurora_instances = {
+    reader = {
+      instance_id = module.register_api_database_v2.rds_db_reader_id
+      schedule    = "cron(0 12 2 7 ? 2026)"
+    }
+
+    writer = {
+      instance_id = module.register_api_database_v2.rds_db_reader_id
+      schedule    = "cron(11 16 2 7 ? 2026)"
+    }
+
+  }
+}
+
+module "reboot_auth_db_schedule" {
+  source           = "./reboot_rds"
+  prefix           = "epb-auth"
+  schedule_enabled = var.environment == "intg" ? true : false
+  rds_reboot_instance = {
+    instance_id = module.auth_database_v2.rds_instance_identifier
+    schedule    = "cron(41 16 2 7 ? 2026)"
+  }
+}
