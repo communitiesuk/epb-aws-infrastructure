@@ -1,6 +1,7 @@
 locals {
-  iceberg_conf = "spark.sql.extensions=org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions --conf spark.sql.catalog.glue_catalog=org.apache.iceberg.spark.SparkCatalog --conf spark.sql.catalog.glue_catalog.catalog-impl=org.apache.iceberg.aws.glue.GlueCatalog --conf spark.sql.catalog.glue_catalog.io-impl=org.apache.iceberg.aws.s3.S3FileIO --conf spark.sql.catalog.glue_catalog.warehouse=file:///tmp/spark-warehouse"
-  worker_type  = var.environment == "prod" ? "G.4X" : "G.1X"
+  shared_libs_s3_path = "s3://${aws_s3_bucket.this.bucket}/etl_scripts/libs/scripts.zip"
+  iceberg_conf        = "spark.sql.extensions=org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions --conf spark.sql.catalog.glue_catalog=org.apache.iceberg.spark.SparkCatalog --conf spark.sql.catalog.glue_catalog.catalog-impl=org.apache.iceberg.aws.glue.GlueCatalog --conf spark.sql.catalog.glue_catalog.io-impl=org.apache.iceberg.aws.s3.S3FileIO --conf spark.sql.catalog.glue_catalog.warehouse=file:///tmp/spark-warehouse"
+  worker_type         = var.environment == "prod" ? "G.4X" : "G.1X"
 }
 
 
@@ -13,6 +14,7 @@ module "populate_domestic_etl" {
   script_file_name = "populate_iceberg_catalog.py"
   scripts_module   = path.module
   worker_type      = local.worker_type
+  extra_py_files   = local.shared_libs_s3_path
   arguments = {
     "--DATABASE_NAME"             = aws_glue_catalog_database.this.name
     "--CATALOG_TABLE_NAME"        = "domestic"
@@ -33,6 +35,7 @@ module "populate_domestic_rr_etl" {
   script_file_name = "populate_iceberg_catalog.py"
   scripts_module   = path.module
   worker_type      = local.worker_type
+  extra_py_files   = local.shared_libs_s3_path
   arguments = {
     "--DATABASE_NAME"             = aws_glue_catalog_database.this.name
     "--CATALOG_TABLE_NAME"        = "domestic_rr"
@@ -51,6 +54,7 @@ module "populate_non_domestic_etl" {
   role_arn         = aws_iam_role.glueServiceRole.arn
   script_file_name = "populate_iceberg_catalog.py"
   scripts_module   = path.module
+  extra_py_files   = local.shared_libs_s3_path
   arguments = {
     "--DATABASE_NAME"             = aws_glue_catalog_database.this.name
     "--CATALOG_TABLE_NAME"        = "non_domestic"
@@ -69,6 +73,7 @@ module "populate_non_domestic_rr_etl" {
   role_arn         = aws_iam_role.glueServiceRole.arn
   script_file_name = "populate_iceberg_catalog.py"
   scripts_module   = path.module
+  extra_py_files   = local.shared_libs_s3_path
   arguments = {
     "--DATABASE_NAME"             = aws_glue_catalog_database.this.name
     "--CATALOG_TABLE_NAME"        = "non_domestic_rr"
@@ -88,6 +93,7 @@ module "populate_dec_etl" {
   role_arn         = aws_iam_role.glueServiceRole.arn
   script_file_name = "populate_iceberg_catalog.py"
   scripts_module   = path.module
+  extra_py_files   = local.shared_libs_s3_path
   arguments = {
     "--DATABASE_NAME"             = aws_glue_catalog_database.this.name
     "--CATALOG_TABLE_NAME"        = "display"
@@ -106,6 +112,7 @@ module "populate_dec_rr_etl" {
   role_arn         = aws_iam_role.glueServiceRole.arn
   script_file_name = "populate_iceberg_catalog.py"
   scripts_module   = path.module
+  extra_py_files   = local.shared_libs_s3_path
   arguments = {
     "--DATABASE_NAME"             = aws_glue_catalog_database.this.name
     "--CATALOG_TABLE_NAME"        = "display_rr"
@@ -127,6 +134,7 @@ module "populate_json_documents_etl" {
   script_file_name = "populate_iceberg_catalog.py"
   scripts_module   = path.module
   suffix           = ".json_documents_${local.catalog_start_year + count.index}"
+  extra_py_files   = local.shared_libs_s3_path
   arguments = {
     "--DATABASE_NAME"             = aws_glue_catalog_database.this.name
     "--CATALOG_TABLE_NAME"        = "json_documents"

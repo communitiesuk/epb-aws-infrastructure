@@ -53,3 +53,9 @@ variable "worker_type" {
   type    = string
   default = "G.1X"
 }
+
+variable "extra_py_files" {
+  type        = string
+  description = "The S3 path to zipped custom libraries required by this job"
+  default     = ""
+}
