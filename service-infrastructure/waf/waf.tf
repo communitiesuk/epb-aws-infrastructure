@@ -135,7 +135,7 @@ resource "aws_wafv2_web_acl" "this" {
                 }
                 text_transformation {
                   priority = 0
-                  type     = "NONE"
+                  type     = "LOWERCASE"
                 }
               }
 
@@ -195,7 +195,7 @@ resource "aws_wafv2_web_acl" "this" {
             }
             text_transformation {
               priority = 0
-              type     = "NONE"
+              type     = "LOWERCASE"
             }
           }
         }
@@ -285,13 +285,44 @@ resource "aws_wafv2_web_acl" "this" {
       rate_based_statement {
         aggregate_key_type = "IP"
         limit              = var.environment == "stag" ? 1000000 : 150
+
         scope_down_statement {
-          not_statement {
+          and_statement {
+
+            # Match requests NOT originating from GB
             statement {
-              geo_match_statement {
-                country_codes = ["GB"]
+              not_statement {
+                statement {
+                  geo_match_statement {
+                    country_codes = ["GB"]
+                  }
+                }
               }
             }
+
+            # Exclude requests to Data warehouse API
+            statement {
+              not_statement {
+                statement {
+                  byte_match_statement {
+                    search_string         = "api.get-energy-performance-data"
+                    positional_constraint = "EXACTLY"
+
+                    field_to_match {
+                      single_header {
+                        name = "host"
+                      }
+                    }
+
+                    text_transformation {
+                      priority = 0
+                      type     = "LOWERCASE"
+                    }
+                  }
+                }
+              }
+            }
+
           }
         }
       }
