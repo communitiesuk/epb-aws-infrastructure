@@ -306,7 +306,7 @@ resource "aws_wafv2_web_acl" "this" {
                 statement {
                   byte_match_statement {
                     search_string         = "api.get-energy-performance-data"
-                    positional_constraint = "EXACTLY"
+                    positional_constraint = "STARTS_WITH"
 
                     field_to_match {
                       single_header {
