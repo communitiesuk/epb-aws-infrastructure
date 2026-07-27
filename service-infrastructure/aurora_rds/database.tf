@@ -22,6 +22,7 @@ resource "aws_rds_cluster" "this" {
   skip_final_snapshot    = true
   kms_key_id             = var.kms_key_id
   apply_immediately      = false
+  deletion_protection    = true
   lifecycle {
     prevent_destroy = true
   }

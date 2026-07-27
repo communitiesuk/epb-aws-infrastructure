@@ -21,6 +21,7 @@ resource "aws_db_instance" "postgres_rds" {
   parameter_group_name    = aws_db_parameter_group.this.name
   kms_key_id              = var.kms_key_id
   apply_immediately       = false
+  deletion_protection     = true
   lifecycle {
     prevent_destroy = true
   }
