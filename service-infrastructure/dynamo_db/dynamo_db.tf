@@ -62,12 +62,15 @@ resource "aws_vpc_endpoint" "this" {
 locals {
   read_max_capacity  = var.environment == "prod" ? 20000 : 20
   write_max_capacity = var.environment == "prod" ? 1000 : 20
+  read_min_capacity  = var.environment == "prod" ? 10 : 1
+  write_min_capacity = var.environment == "prod" ? 10 : 1
+
 }
 
 
 resource "aws_appautoscaling_target" "user_credentials_table_read_target" {
   max_capacity       = local.read_max_capacity
-  min_capacity       = 1
+  min_capacity       = local.read_min_capacity
   resource_id        = "table/${aws_dynamodb_table.this.name}"
   scalable_dimension = "dynamodb:table:ReadCapacityUnits"
   service_namespace  = "dynamodb"
@@ -75,7 +78,7 @@ resource "aws_appautoscaling_target" "user_credentials_table_read_target" {
 
 resource "aws_appautoscaling_target" "user_credentials_table_write_target" {
   max_capacity       = local.write_max_capacity
-  min_capacity       = 1
+  min_capacity       = local.write_min_capacity
   resource_id        = "table/${aws_dynamodb_table.this.name}"
   scalable_dimension = "dynamodb:table:WriteCapacityUnits"
   service_namespace  = "dynamodb"
@@ -83,7 +86,7 @@ resource "aws_appautoscaling_target" "user_credentials_table_write_target" {
 
 resource "aws_appautoscaling_target" "user_credentials_gsi_read_target" {
   max_capacity       = local.read_max_capacity
-  min_capacity       = 1
+  min_capacity       = local.read_min_capacity
   resource_id        = "table/${aws_dynamodb_table.this.name}/index/BearerTokenIndex"
   scalable_dimension = "dynamodb:index:ReadCapacityUnits"
   service_namespace  = "dynamodb"
@@ -91,7 +94,7 @@ resource "aws_appautoscaling_target" "user_credentials_gsi_read_target" {
 
 resource "aws_appautoscaling_target" "user_credentials_gsi_write_target" {
   max_capacity       = local.write_max_capacity
-  min_capacity       = 1
+  min_capacity       = local.write_min_capacity
   resource_id        = "table/${aws_dynamodb_table.this.name}/index/BearerTokenIndex"
   scalable_dimension = "dynamodb:index:WriteCapacityUnits"
   service_namespace  = "dynamodb"
