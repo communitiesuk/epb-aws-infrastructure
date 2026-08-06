@@ -18,7 +18,7 @@ module "populate_domestic_etl" {
     "--CATALOG_TABLE_NAME"        = "domestic"
     "--S3_BUCKET"                 = aws_s3_bucket.this.bucket
     "--CONNECTION_NAME"           = aws_glue_connection.this.name
-    "--DB_TABLE_NAME"             = "mvw_domestic_search"
+    "--DB_TABLE_NAMES"            = "mvw_domestic_search"
     "--additional-python-modules" = "boto3==1.38.43"
 
   }
@@ -38,7 +38,7 @@ module "populate_domestic_rr_etl" {
     "--CATALOG_TABLE_NAME"        = "domestic_rr"
     "--S3_BUCKET"                 = aws_s3_bucket.this.bucket
     "--CONNECTION_NAME"           = aws_glue_connection.this.name
-    "--DB_TABLE_NAME"             = "mvw_domestic_rr_search"
+    "--DB_TABLE_NAMES"            = "mvw_domestic_rr_search"
     "--additional-python-modules" = "boto3==1.38.43"
   }
 }
@@ -56,7 +56,7 @@ module "populate_non_domestic_etl" {
     "--CATALOG_TABLE_NAME"        = "non_domestic"
     "--S3_BUCKET"                 = aws_s3_bucket.this.bucket
     "--CONNECTION_NAME"           = aws_glue_connection.this.name
-    "--DB_TABLE_NAME"             = "mvw_commercial_search"
+    "--DB_TABLE_NAMES"            = "mvw_commercial_search"
     "--additional-python-modules" = "boto3==1.38.43"
   }
 }
@@ -74,7 +74,7 @@ module "populate_non_domestic_rr_etl" {
     "--CATALOG_TABLE_NAME"        = "non_domestic_rr"
     "--S3_BUCKET"                 = aws_s3_bucket.this.bucket
     "--CONNECTION_NAME"           = aws_glue_connection.this.name
-    "--DB_TABLE_NAME"             = "mvw_commercial_rr_search"
+    "--DB_TABLE_NAMES"            = "mvw_commercial_rr_search"
     "--additional-python-modules" = "boto3==1.38.43"
 
   }
@@ -93,7 +93,7 @@ module "populate_dec_etl" {
     "--CATALOG_TABLE_NAME"        = "display"
     "--S3_BUCKET"                 = aws_s3_bucket.this.bucket
     "--CONNECTION_NAME"           = aws_glue_connection.this.name
-    "--DB_TABLE_NAME"             = "mvw_dec_search"
+    "--DB_TABLE_NAMES"            = "mvw_dec_search"
     "--additional-python-modules" = "boto3==1.38.43"
   }
 }
@@ -111,7 +111,7 @@ module "populate_dec_rr_etl" {
     "--CATALOG_TABLE_NAME"        = "display_rr"
     "--S3_BUCKET"                 = aws_s3_bucket.this.bucket
     "--CONNECTION_NAME"           = aws_glue_connection.this.name
-    "--DB_TABLE_NAME"             = "mvw_dec_rr_search"
+    "--DB_TABLE_NAMES"            = "mvw_dec_rr_search"
     "--additional-python-modules" = "boto3==1.38.43"
 
   }
@@ -132,7 +132,7 @@ module "populate_json_documents_etl" {
     "--CATALOG_TABLE_NAME"        = "json_documents"
     "--S3_BUCKET"                 = aws_s3_bucket.this.bucket
     "--CONNECTION_NAME"           = aws_glue_connection.this.name
-    "--DB_TABLE_NAME"             = "vw_export_documents_${local.catalog_start_year + count.index}"
+    "--DB_TABLE_NAMES"            = "vw_export_documents_${local.catalog_start_year + count.index}"
     "--additional-python-modules" = "boto3==1.38.43"
   }
 }
