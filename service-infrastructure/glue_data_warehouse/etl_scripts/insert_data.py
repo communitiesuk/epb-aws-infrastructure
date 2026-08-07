@@ -9,13 +9,20 @@ from pyspark.sql import SparkSession
 # -------------------------------------------------------
 #               PARSE JOB ARGUMENTS
 # -------------------------------------------------------
-args = getResolvedOptions(sys.argv, ['JOB_NAME', 'CONNECTION_NAME', 'DATABASE_NAME', 'CATALOG_TABLE_NAME', 'SOURCE_VIEW_TABLE_NAME', 'S3_BUCKET'])
+args = getResolvedOptions(sys.argv, ['JOB_NAME', 'CONNECTION_NAME', 'DATABASE_NAME', 'CATALOG_TABLE_NAME', 'SOURCE_VIEW_TABLE_NAMES', 'S3_BUCKET'])
 
 DATABASE_NAME = args['DATABASE_NAME']
 CONNECTION_NAME = args['CONNECTION_NAME']
 CATALOG_TABLE_NAME =  args['CATALOG_TABLE_NAME']
 S3_BUCKET = args['S3_BUCKET']
-SOURCE_VIEW_TABLE_NAME = args['SOURCE_VIEW_TABLE_NAME']
+SOURCE_VIEW_TABLE_NAMES = [
+    table_name.strip()
+    for table_name in args['SOURCE_VIEW_TABLE_NAMES'].split(",")
+    if table_name.strip()
+]
+
+if not SOURCE_VIEW_TABLE_NAMES:
+    raise ValueError("SOURCE_VIEW_TABLE_NAMES must contain at least one PostgreSQL table name.")
 
 S3_PATH=f"s3://{S3_BUCKET}/{CATALOG_TABLE_NAME}/"
 GLUE_TABLE_PATH = f"glue_catalog.{DATABASE_NAME}.{CATALOG_TABLE_NAME}"
@@ -60,28 +67,34 @@ logger.info("Iceberg table ensured.")
 # -------------------------------------------------------
 #       EXTRACT DATA FROM POSTGRESQL SOURCE
 # -------------------------------------------------------
-logger.info("Reading source table from PostgreSQL.")
+logger.info(f"Reading {len(SOURCE_VIEW_TABLE_NAMES)} source table(s) from PostgreSQL.")
 
-PostgreSQL_src = glueContext.create_dynamic_frame.from_options(
-    connection_type = "postgresql",
-    connection_options = {
-        "useConnectionProperties": "true",
-        "dbtable": SOURCE_VIEW_TABLE_NAME,
-        "connectionName": CONNECTION_NAME,
-    },
-    transformation_ctx = "PostgreSQL_src"
-)
+postgres_dataframes = []
+for index, table_name in enumerate(SOURCE_VIEW_TABLE_NAMES):
+    postgres_source = glueContext.create_dynamic_frame.from_options(
+        connection_type = "postgresql",
+        connection_options = {
+            "useConnectionProperties": "true",
+            "dbtable": table_name,
+            "connectionName": CONNECTION_NAME,
+        },
+        transformation_ctx = f"PostgreSQL_src_{index}"
+    )
+    postgres_dataframes.append(postgres_source.toDF())
+    logger.info(f"Loaded PostgreSQL table: {table_name}")
 
-postgres_df = PostgreSQL_src.toDF()
-postgres_df.createOrReplaceTempView(SOURCE_VIEW_TABLE_NAME)
+postgres_df = postgres_dataframes[0]
+for source_dataframe in postgres_dataframes[1:]:
+    postgres_df = postgres_df.unionByName(source_dataframe)
 
-logger.info(f"Loaded PostgreSQL table: {SOURCE_VIEW_TABLE_NAME}")
+SOURCE_VIEW_NAME = "postgres_sources"
+postgres_df.createOrReplaceTempView(SOURCE_VIEW_NAME)
 
 # -------------------------------------------------------
 #  DYNAMICALLY UPDATE GLUE TABLE COLUMN DEFINITIONS
 # -------------------------------------------------------
-def get_postgres_columns_and_types(spark, postgres_table_name):
-    postgres_table_schema = spark.table(postgres_table_name).schema
+def get_postgres_columns_and_types(dataframe):
+    postgres_table_schema = dataframe.schema
     postgres_columns_with_types = {f.name: f.dataType.simpleString() for f in postgres_table_schema.fields}
     return postgres_columns_with_types
 
@@ -115,7 +128,7 @@ def dynamically_update_catalog_table(glue_spark, postgres_columns_with_types, GL
           """
     )
 
-postgres_columns_with_types = get_postgres_columns_and_types(spark, SOURCE_VIEW_TABLE_NAME)
+postgres_columns_with_types = get_postgres_columns_and_types(postgres_df)
 logger.info(f"postgres_columns_with_types: {postgres_columns_with_types}")
 
 columns = postgres_columns_with_types.keys()
@@ -134,7 +147,7 @@ value_list = ", ".join([f"source.{col}" for col in columns])
 if "_rr" in CATALOG_TABLE_NAME:
     spark.sql(f"""
     MERGE INTO {GLUE_TABLE_PATH} AS target
-    USING {SOURCE_VIEW_TABLE_NAME} AS source
+    USING {SOURCE_VIEW_NAME} AS source
     ON target.certificate_number = source.certificate_number 
     WHEN NOT MATCHED THEN
         INSERT ({column_list}) VALUES ({value_list})
@@ -142,7 +155,7 @@ if "_rr" in CATALOG_TABLE_NAME:
 else:
     spark.sql(f"""
     MERGE INTO {GLUE_TABLE_PATH} AS target
-    USING {SOURCE_VIEW_TABLE_NAME} AS source
+    USING {SOURCE_VIEW_NAME} AS source
     ON target.certificate_number = source.certificate_number 
     WHEN MATCHED
                 THEN UPDATE SET *
