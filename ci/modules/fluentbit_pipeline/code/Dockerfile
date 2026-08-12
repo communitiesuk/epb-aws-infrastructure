@@ -1,26 +1,5 @@
-FROM fluent/fluent-bit:latest as builder
-FROM debian:trixie-slim as debug
-ENV DEBIAN_FRONTEND noninteractive
+FROM fluent/fluent-bit:5.0.9
 
-# hadolint ignore=DL3008
-RUN echo "deb http://deb.debian.org/debian trixie-backports main" >> /etc/apt/sources.list && \
-    apt-get update && \
-    apt-get install -y --no-install-recommends \
-    libssl3 \
-    libsasl2-2 \
-    pkg-config \
-    libpq5 \
-    libsystemd0/trixie \
-    zlib1g \
-    ca-certificates \
-    libatomic1 \
-    libgcrypt20 \
-    libyaml-0-2 \
-    curl \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
-
-COPY --from=builder /fluent-bit /fluent-bit
 EXPOSE 2020
 
 ADD fluent-bit.conf /fluent-bit.conf
