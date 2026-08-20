@@ -55,3 +55,9 @@ variable "group_name" {
   description = "part name of the db group"
   type        = string
 }
+
+variable "max_worker_processes" {
+  description = "value of max worker processes"
+  type        = number
+  default     = 15
+}

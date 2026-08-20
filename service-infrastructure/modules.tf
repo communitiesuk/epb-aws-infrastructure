@@ -514,13 +514,14 @@ module "register_api_application" {
     ]
     extra_lb_target_groups = 0
   }
-  task_max_capacity         = var.task_max_capacity
-  task_desired_capacity     = var.task_desired_capacity
-  task_min_capacity         = var.task_min_capacity
-  task_cpu                  = var.task_cpu
-  task_memory               = var.task_memory
-  fargate_weighting         = var.environment == "prod" ? { standard : 10, spot : 0 } : { standard : 0, spot : 10 }
-  cloudwatch_ecs_events_arn = module.logging.cloudwatch_ecs_events_arn
+  task_max_capacity                = var.task_max_capacity
+  task_desired_capacity            = var.task_desired_capacity
+  task_min_capacity                = var.task_min_capacity
+  task_cpu                         = var.task_cpu
+  task_memory                      = var.task_memory
+  fargate_weighting                = var.environment == "prod" ? { standard : 10, spot : 0 } : { standard : 0, spot : 10 }
+  cloudwatch_ecs_events_arn        = module.logging.cloudwatch_ecs_events_arn
+  is_fluentbit_container_essential = var.environment == "intg" ? true : false
 }
 
 module "register_api_database_v2" {
@@ -536,6 +537,7 @@ module "register_api_database_v2" {
   name_suffix           = "v2"
   kms_key_id            = module.rds_kms_key.key_arn
   group_name            = "register"
+  max_worker_processes  = var.environment == "prod" ? 24 : 15
 }
 
 module "scheduled_tasks_application" {
@@ -827,14 +829,15 @@ module "warehouse_application" {
   additional_task_execution_role_policy_arns = {
     "Redis_access" : data.aws_iam_policy.elasticache_full_access.arn
   }
-  aws_cloudwatch_log_group_id   = module.logging.cloudwatch_log_group_id
-  aws_cloudwatch_log_group_name = module.logging.cloudwatch_log_group_name
-  logs_bucket_name              = module.logging.logs_bucket_name
-  logs_bucket_url               = module.logging.logs_bucket_url
-  enable_execute_command        = true
-  fargate_weighting             = { standard : 0, spot : 10 }
-  has_target_tracking           = false
-  cloudwatch_ecs_events_arn     = module.logging.cloudwatch_ecs_events_arn
+  aws_cloudwatch_log_group_id      = module.logging.cloudwatch_log_group_id
+  aws_cloudwatch_log_group_name    = module.logging.cloudwatch_log_group_name
+  logs_bucket_name                 = module.logging.logs_bucket_name
+  logs_bucket_url                  = module.logging.logs_bucket_url
+  enable_execute_command           = true
+  fargate_weighting                = { standard : 0, spot : 10 }
+  has_target_tracking              = false
+  cloudwatch_ecs_events_arn        = module.logging.cloudwatch_ecs_events_arn
+  is_fluentbit_container_essential = var.environment == "intg" ? true : false
 }
 
 module "warehouse_api_application" {
@@ -891,14 +894,14 @@ module "warehouse_api_application" {
     ssl_certificate_arn            = module.ssl_certificate_epb_data.certificate_arn
     waf_acl_arn                    = module.waf.waf_acl_arn
   }
-  task_max_capacity         = var.task_max_capacity
-  task_desired_capacity     = var.task_desired_capacity
-  task_min_capacity         = var.task_min_capacity
-  task_cpu                  = var.task_cpu
-  task_memory               = var.task_memory
-  fargate_weighting         = var.environment == "prod" ? { standard : 10, spot : 0 } : { standard : 0, spot : 10 }
-  cloudwatch_ecs_events_arn = module.logging.cloudwatch_ecs_events_arn
-
+  task_max_capacity                = var.task_max_capacity
+  task_desired_capacity            = var.task_desired_capacity
+  task_min_capacity                = var.task_min_capacity
+  task_cpu                         = var.task_cpu
+  task_memory                      = var.task_memory
+  fargate_weighting                = var.environment == "prod" ? { standard : 10, spot : 0 } : { standard : 0, spot : 10 }
+  cloudwatch_ecs_events_arn        = module.logging.cloudwatch_ecs_events_arn
+  is_fluentbit_container_essential = var.environment == "intg" ? true : false
 }
 
 module "warehouse_database_v2" {
@@ -959,13 +962,14 @@ module "addressing_application" {
     ssl_certificate_arn = module.ssl_certificate.certificate_arn
   }
 
-  task_max_capacity         = var.task_max_capacity
-  task_desired_capacity     = var.task_desired_capacity
-  task_min_capacity         = var.task_min_capacity
-  task_cpu                  = var.task_cpu
-  task_memory               = var.task_memory
-  fargate_weighting         = var.environment == "prod" ? { standard : 10, spot : 0 } : { standard : 0, spot : 10 }
-  cloudwatch_ecs_events_arn = module.logging.cloudwatch_ecs_events_arn
+  task_max_capacity                = var.task_max_capacity
+  task_desired_capacity            = var.task_desired_capacity
+  task_min_capacity                = var.task_min_capacity
+  task_cpu                         = var.task_cpu
+  task_memory                      = var.task_memory
+  fargate_weighting                = var.environment == "prod" ? { standard : 10, spot : 0 } : { standard : 0, spot : 10 }
+  cloudwatch_ecs_events_arn        = module.logging.cloudwatch_ecs_events_arn
+  is_fluentbit_container_essential = var.environment == "intg" ? true : false
 }
 
 module "addressing_database" {

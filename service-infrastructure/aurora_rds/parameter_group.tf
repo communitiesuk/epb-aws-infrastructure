@@ -37,7 +37,7 @@ resource "aws_rds_cluster_parameter_group" "rds_cluster" {
   # Defines the system's maximum supported background processes. Set this slightly above max_replication_slots.
   parameter {
     name         = "max_worker_processes"
-    value        = "15"
+    value        = var.max_worker_processes
     apply_method = "pending-reboot"
   }
 
