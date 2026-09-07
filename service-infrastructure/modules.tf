@@ -655,11 +655,8 @@ module "frontend_application" {
   deployment_minimum_healthy_percent = var.environment == "intg" ? 0 : 100
   egress_ports                       = [80, 443, 5432, var.parameters["LOGSTASH_PORT"]]
   environment_variables = {
-    "EPB_SUSPECTED_BOT_USER_AGENTS" : var.suspected_bot_user_agents,
     "GTM_PROPERTY_FINDING" : var.gtm_property_finding,
     "GTM_PROPERTY_GETTING" : var.gtm_property_getting,
-    "EPB_RECAPTCHA_SITE_KEY" : var.recaptcha_site_key,
-    "EPB_RECAPTCHA_SITE_SECRET" : var.recaptcha_secret_key
   }
   secrets = {
     "EPB_API_URL" : module.secrets.secret_arns["EPB_API_URL"],
