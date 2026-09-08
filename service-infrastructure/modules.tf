@@ -1,10 +1,5 @@
 locals {
-  db_subnet                  = var.environment == "stag" ? module.networking.private_subnet_group_name : module.networking.private_db_subnet_group_name
-  rds_snapshot_backup_bucket = "${local.prefix}-rds-snapshot-back-up"
-  rds_snapshot_backup_tags = {
-    Name      = "${local.prefix}-${local.rds_snapshot_backup_bucket}"
-    Terraform = "true"
-  }
+  db_subnet           = var.environment == "stag" ? module.networking.private_subnet_group_name : module.networking.private_db_subnet_group_name
   dwh_security_groups = [module.warehouse_application.ecs_security_group_id, module.bastion.security_group_id, module.warehouse_scheduled_tasks_application.ecs_security_group_id, module.warehouse_api_application.ecs_security_group_id, module.data_warehouse_glue[0].glue_security_group_id]
   data_service_url    = replace(var.data_service_url, ".digital", "")
   dwh_api_polciies    = { "UserData_S3_access" : module.user_data.s3_read_access_policy_arn, "DynamoDB_User_Credentials_read_access" : module.epb_data_user_credentials[0].dynamodb_read_policy_arn }
@@ -1181,20 +1176,6 @@ module "dashboard" {
     data_frontend = module.frontend_application.cloudfront_distribution_ids[0]
     warehouse_api = module.warehouse_api_application.cloudfront_distribution_ids[0]
   }
-}
-
-# The "rds_export_to_s3" module code is based on:
-# https://github.com/binbashar/terraform-aws-rds-export-to-s3/tree/master
-module "rds_export_to_s3" {
-  source                     = "./rds_export_to_s3"
-  prefix                     = local.prefix
-  database_names             = module.warehouse_database_v2.rds_cluster_identifier
-  snapshots_bucket_name      = local.rds_snapshot_backup_bucket
-  snapshots_bucket_prefix    = "rds_snapshots/"
-  create_customer_kms_key    = true
-  create_notifications_topic = true
-  tags                       = local.rds_snapshot_backup_tags
-  num_days_bucket_retention  = var.environment == "prod" ? 21 : 7
 }
 
 module "schedule_task_role" {
