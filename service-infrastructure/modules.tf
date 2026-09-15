@@ -531,9 +531,14 @@ module "register_api_database_v2" {
   vpc_id                = module.networking.vpc_id
   name_suffix           = "v2"
   kms_key_id            = module.rds_kms_key.key_arn
-  group_name            = "register"
+  instance_group_name   = "register"
+  cluster_group_name    = var.environment == "prod" ? "register-cluster" : "register"
   max_worker_processes  = var.environment == "prod" ? 24 : 15
 }
+# The split between instance_group_name and cluster_group_name only exists because of inconsistent parameter group
+# naming in production.
+# TODO: make parameter group naming consistent across environments and remove the "-cluster" from the prod DB parameter
+# group name, and reinstate a single "group_name" parameter to all "aurora_rds" modules in this file.
 
 module "scheduled_tasks_application" {
   source                   = "./application"
@@ -909,7 +914,8 @@ module "warehouse_database_v2" {
   scaling_configuration = var.environment == "intg" ? { max_capacity = 16, min_capacity = 0.5 } : { max_capacity = 64, min_capacity = 8 }
   name_suffix           = "v2"
   kms_key_id            = module.rds_kms_key.key_arn
-  group_name            = "warehouse"
+  instance_group_name   = "warehouse"
+  cluster_group_name    = "warehouse"
 }
 
 module "warehouse_redis" {
@@ -977,7 +983,8 @@ module "addressing_database" {
   subnet_group_name     = local.db_subnet
   vpc_id                = module.networking.vpc_id
   kms_key_id            = module.rds_kms_key.key_arn
-  group_name            = "addressing"
+  instance_group_name   = "addressing"
+  cluster_group_name    = "addressing"
 }
 
 module "bastion" {

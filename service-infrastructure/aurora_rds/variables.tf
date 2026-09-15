@@ -51,8 +51,13 @@ variable "name_suffix" {
   type        = string
 }
 
-variable "group_name" {
-  description = "part name of the db group"
+variable "instance_group_name" {
+  description = "part name of the db group for aurora instances"
+  type        = string
+}
+
+variable "cluster_group_name" {
+  description = "part name of the db group for aurora clusters"
   type        = string
 }
 

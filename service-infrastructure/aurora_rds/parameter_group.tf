@@ -1,6 +1,6 @@
 
 resource "aws_db_parameter_group" "rds_instance" {
-  name        = "aurora-${var.group_name}-instance-pg-${local.pg_major_version}"
+  name        = "aurora-${var.instance_group_name}-instance-pg-${local.pg_major_version}"
   family      = "aurora-postgresql${local.pg_major_version}"
   description = "Aurora PG${local.pg_major_version} instance parameter group"
 
@@ -11,7 +11,7 @@ resource "aws_db_parameter_group" "rds_instance" {
 }
 
 resource "aws_rds_cluster_parameter_group" "rds_cluster" {
-  name        = "aurora-${var.group_name}-pg-${local.pg_major_version}"
+  name        = "aurora-${var.cluster_group_name}-pg-${local.pg_major_version}"
   family      = "aurora-postgresql${local.pg_major_version}"
   description = "Aurora PG${local.pg_major_version} cluster parameter group"
 
