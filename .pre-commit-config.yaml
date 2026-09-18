@@ -1,6 +1,6 @@
 repos:
 - repo: https://github.com/antonbabenko/pre-commit-terraform
-  rev: 4a0e56f  # Get the latest from: https://github.com/antonbabenko/pre-commit-terraform/releases
+  rev: 253d990  # Get the latest from: https://github.com/antonbabenko/pre-commit-terraform/releases
   hooks:
     - id: terraform_fmt
       args:
