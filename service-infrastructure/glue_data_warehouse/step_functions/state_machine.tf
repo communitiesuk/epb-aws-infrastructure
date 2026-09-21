@@ -1,7 +1,63 @@
 locals {
   ecs_rake_command = ["bundle", "exec", "rake", "refresh_materialized_view"]
-  domestic_state_machine_definition = jsonencode({
-    Comment = "Orchestrate materialized view refresh → Glue populate job → Glue delete job"
+  ecs_refresh_groups = [
+    {
+      state_prefix = "Refresh"
+      view_names   = var.ecs_materialized_view_names
+    },
+    {
+      state_prefix = "Refresh-rr"
+      view_names   = var.ecs_rr_materialized_view_names
+    },
+  ]
+
+  ecs_refresh_branches = flatten([
+    for group in local.ecs_refresh_groups : [
+      for view_name in group.view_names : {
+        StartAt = "${group.state_prefix}-${view_name}"
+
+        States = {
+          "${group.state_prefix}-${view_name}" = {
+            Type     = "Task"
+            Resource = "arn:aws:states:::ecs:runTask.sync"
+
+            Parameters = {
+              Cluster        = var.ecs_cluster_arn
+              TaskDefinition = var.ecs_task_definition_arn
+              LaunchType     = "FARGATE"
+
+              NetworkConfiguration = {
+                AwsvpcConfiguration = {
+                  Subnets        = var.ecs_subnet_ids
+                  SecurityGroups = [var.ecs_security_group_id]
+                  AssignPublicIp = "DISABLED"
+                }
+              }
+
+              Overrides = {
+                ContainerOverrides = [
+                  {
+                    Name    = var.ecs_container_name
+                    Command = local.ecs_rake_command
+                    Environment = [
+                      {
+                        Name  = "NAME"
+                        Value = view_name
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+
+            End = true
+          }
+        }
+      }
+    ]
+  ])
+  state_machine_definition = jsonencode({
+    Comment = "Orchestrate materialized view refreshes → Glue populate job → Glue delete job"
     StartAt = "RefreshMaterializedViews"
 
     States = {
@@ -9,92 +65,8 @@ locals {
       RefreshMaterializedViews = {
         Type = "Parallel"
 
-        Branches = [
-
-          {
-            StartAt = "RefreshMaterializedView"
-
-            States = {
-              RefreshMaterializedView = {
-                Type     = "Task"
-                Resource = "arn:aws:states:::ecs:runTask.sync"
-
-                Parameters = {
-                  Cluster        = var.ecs_cluster_arn
-                  TaskDefinition = var.ecs_task_definition_arn
-                  LaunchType     = "FARGATE"
-
-                  NetworkConfiguration = {
-                    AwsvpcConfiguration = {
-                      Subnets        = var.ecs_subnet_ids
-                      SecurityGroups = [var.ecs_security_group_id]
-                      AssignPublicIp = "DISABLED"
-                    }
-                  }
-
-                  Overrides = {
-                    ContainerOverrides = [
-                      {
-                        Name    = var.ecs_container_name
-                        Command = local.ecs_rake_command
-                        Environment = [
-                          {
-                            Name  = "NAME"
-                            Value = var.ecs_materialized_view_name
-                          }
-                        ]
-                      }
-                    ]
-                  }
-                }
-
-                End = true
-              }
-            }
-          },
-          {
-            StartAt = "RefreshRecommendationsMaterializedView"
-
-            States = {
-              RefreshRecommendationsMaterializedView = {
-                Type     = "Task"
-                Resource = "arn:aws:states:::ecs:runTask.sync"
-
-                Parameters = {
-                  Cluster        = var.ecs_cluster_arn
-                  TaskDefinition = var.ecs_task_definition_arn
-                  LaunchType     = "FARGATE"
-
-                  NetworkConfiguration = {
-                    AwsvpcConfiguration = {
-                      Subnets        = var.ecs_subnet_ids
-                      SecurityGroups = [var.ecs_security_group_id]
-                      AssignPublicIp = "DISABLED"
-                    }
-                  }
-
-                  Overrides = {
-                    ContainerOverrides = [
-                      {
-                        Name    = var.ecs_container_name
-                        Command = local.ecs_rake_command
-                        Environment = [
-                          {
-                            Name  = "NAME"
-                            Value = var.ecs_rr_materialized_view_name
-                          }
-                        ]
-                      }
-                    ]
-                  }
-                }
-
-                End = true
-              }
-            }
-          }
-        ]
-        Next = "RunPopulateJobs"
+        Branches = local.ecs_refresh_branches
+        Next     = "RunPopulateJobs"
       }
 
 
@@ -186,5 +158,5 @@ resource "aws_sfn_state_machine" "this" {
   role_arn = aws_iam_role.step_function_role.arn
 
   type       = "STANDARD"
-  definition = local.domestic_state_machine_definition
+  definition = local.state_machine_definition
 }
