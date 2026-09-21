@@ -18,7 +18,7 @@ module "populate_domestic_etl" {
     "--CATALOG_TABLE_NAME"        = "domestic"
     "--S3_BUCKET"                 = aws_s3_bucket.this.bucket
     "--CONNECTION_NAME"           = aws_glue_connection.this.name
-    "--DB_TABLE_NAMES"            = join(",", local.domestic_mvw_names)
+    "--DB_TABLE_NAMES"            = join(",", concat(local.domestic_mvw_names, ["mvw_domestic_ni_search"]))
     "--additional-python-modules" = "boto3==1.38.43"
 
   }
@@ -38,7 +38,7 @@ module "populate_domestic_rr_etl" {
     "--CATALOG_TABLE_NAME"        = "domestic_rr"
     "--S3_BUCKET"                 = aws_s3_bucket.this.bucket
     "--CONNECTION_NAME"           = aws_glue_connection.this.name
-    "--DB_TABLE_NAMES"            = "mvw_domestic_rr_search"
+    "--DB_TABLE_NAMES"            = "mvw_domestic_rr_search,mvw_domestic_ni_rr_search"
     "--additional-python-modules" = "boto3==1.38.43"
   }
 }
@@ -56,7 +56,7 @@ module "populate_non_domestic_etl" {
     "--CATALOG_TABLE_NAME"        = "non_domestic"
     "--S3_BUCKET"                 = aws_s3_bucket.this.bucket
     "--CONNECTION_NAME"           = aws_glue_connection.this.name
-    "--DB_TABLE_NAMES"            = "mvw_commercial_search"
+    "--DB_TABLE_NAMES"            = "mvw_commercial_search,mvw_commercial_ni_search"
     "--additional-python-modules" = "boto3==1.38.43"
   }
 }
@@ -74,7 +74,7 @@ module "populate_non_domestic_rr_etl" {
     "--CATALOG_TABLE_NAME"        = "non_domestic_rr"
     "--S3_BUCKET"                 = aws_s3_bucket.this.bucket
     "--CONNECTION_NAME"           = aws_glue_connection.this.name
-    "--DB_TABLE_NAMES"            = "mvw_commercial_rr_search"
+    "--DB_TABLE_NAMES"            = "mvw_commercial_rr_search,mvw_commercial_ni_rr_search"
     "--additional-python-modules" = "boto3==1.38.43"
 
   }
@@ -93,7 +93,7 @@ module "populate_dec_etl" {
     "--CATALOG_TABLE_NAME"        = "display"
     "--S3_BUCKET"                 = aws_s3_bucket.this.bucket
     "--CONNECTION_NAME"           = aws_glue_connection.this.name
-    "--DB_TABLE_NAMES"            = "mvw_dec_search"
+    "--DB_TABLE_NAMES"            = "mvw_dec_search,mvw_dec_ni_search"
     "--additional-python-modules" = "boto3==1.38.43"
   }
 }
@@ -111,7 +111,7 @@ module "populate_dec_rr_etl" {
     "--CATALOG_TABLE_NAME"        = "display_rr"
     "--S3_BUCKET"                 = aws_s3_bucket.this.bucket
     "--CONNECTION_NAME"           = aws_glue_connection.this.name
-    "--DB_TABLE_NAMES"            = "mvw_dec_rr_search"
+    "--DB_TABLE_NAMES"            = "mvw_dec_rr_search,mvw_dec_ni_rr_search"
     "--additional-python-modules" = "boto3==1.38.43"
 
   }
@@ -133,6 +133,25 @@ module "populate_json_documents_etl" {
     "--S3_BUCKET"                 = aws_s3_bucket.this.bucket
     "--CONNECTION_NAME"           = aws_glue_connection.this.name
     "--DB_TABLE_NAMES"            = "vw_export_documents_${local.catalog_start_year + count.index}"
+    "--additional-python-modules" = "boto3==1.38.43"
+  }
+}
+
+module "populate_json_documents_ni_etl" {
+  source           = "./etl_job"
+  bucket_name      = aws_s3_bucket.this.bucket
+  glue_connector   = [aws_glue_connection.this.name]
+  job_name         = "Populate json documents catalog NI"
+  role_arn         = aws_iam_role.glueServiceRole.arn
+  script_file_name = "populate_iceberg_catalog.py"
+  scripts_module   = path.module
+  suffix           = ".json_documents_ni"
+  arguments = {
+    "--DATABASE_NAME"             = aws_glue_catalog_database.this.name
+    "--CATALOG_TABLE_NAME"        = "json_documents"
+    "--S3_BUCKET"                 = aws_s3_bucket.this.bucket
+    "--CONNECTION_NAME"           = aws_glue_connection.this.name
+    "--DB_TABLE_NAMES"            = "vw_export_documents_ni"
     "--additional-python-modules" = "boto3==1.38.43"
   }
 }
@@ -161,7 +180,7 @@ module "insert_domestic_iceberg_data" {
     "--DATABASE_NAME"           = aws_glue_catalog_database.this.name
     "--CATALOG_TABLE_NAME"      = "domestic"
     "--S3_BUCKET"               = aws_s3_bucket.this.bucket
-    "--SOURCE_VIEW_TABLE_NAMES" = "vw_domestic_yesterday"
+    "--SOURCE_VIEW_TABLE_NAMES" = "vw_domestic_yesterday,vw_domestic_ni_yesterday"
     "--conf"                    = local.iceberg_conf
   }
   bucket_name      = aws_s3_bucket.this.bucket
@@ -179,7 +198,7 @@ module "insert_domestic_rr_iceberg_data" {
     "--DATABASE_NAME"           = aws_glue_catalog_database.this.name
     "--CATALOG_TABLE_NAME"      = "domestic_rr"
     "--S3_BUCKET"               = aws_s3_bucket.this.bucket
-    "--SOURCE_VIEW_TABLE_NAMES" = "vw_domestic_rr_yesterday"
+    "--SOURCE_VIEW_TABLE_NAMES" = "vw_domestic_rr_yesterday,vw_domestic_ni_rr_yesterday"
     "--conf"                    = local.iceberg_conf
   }
   bucket_name      = aws_s3_bucket.this.bucket
@@ -197,7 +216,7 @@ module "insert_non_domestic_iceberg_data" {
     "--DATABASE_NAME"           = aws_glue_catalog_database.this.name
     "--CATALOG_TABLE_NAME"      = "non_domestic"
     "--S3_BUCKET"               = aws_s3_bucket.this.bucket
-    "--SOURCE_VIEW_TABLE_NAMES" = "vw_commercial_yesterday"
+    "--SOURCE_VIEW_TABLE_NAMES" = "vw_commercial_yesterday,vw_commercial_ni_yesterday"
     "--conf"                    = local.iceberg_conf
   }
   bucket_name      = aws_s3_bucket.this.bucket
@@ -215,7 +234,7 @@ module "insert_non_domestic_rr_iceberg_data" {
     "--DATABASE_NAME"           = aws_glue_catalog_database.this.name
     "--CATALOG_TABLE_NAME"      = "non_domestic_rr"
     "--S3_BUCKET"               = aws_s3_bucket.this.bucket
-    "--SOURCE_VIEW_TABLE_NAMES" = "vw_commercial_rr_yesterday"
+    "--SOURCE_VIEW_TABLE_NAMES" = "vw_commercial_rr_yesterday,vw_commercial_ni_rr_yesterday"
     "--conf"                    = local.iceberg_conf
   }
   bucket_name      = aws_s3_bucket.this.bucket
@@ -233,7 +252,7 @@ module "insert_dec_iceberg_data" {
     "--DATABASE_NAME"           = aws_glue_catalog_database.this.name
     "--CATALOG_TABLE_NAME"      = "display"
     "--S3_BUCKET"               = aws_s3_bucket.this.bucket
-    "--SOURCE_VIEW_TABLE_NAMES" = "vw_dec_yesterday"
+    "--SOURCE_VIEW_TABLE_NAMES" = "vw_dec_yesterday,vw_dec_ni_yesterday"
     "--conf"                    = local.iceberg_conf
   }
   bucket_name      = aws_s3_bucket.this.bucket
@@ -251,7 +270,7 @@ module "insert_dec_rr_iceberg_data" {
     "--DATABASE_NAME"           = aws_glue_catalog_database.this.name
     "--CATALOG_TABLE_NAME"      = "display_rr"
     "--S3_BUCKET"               = aws_s3_bucket.this.bucket
-    "--SOURCE_VIEW_TABLE_NAMES" = "vw_dec_rr_yesterday"
+    "--SOURCE_VIEW_TABLE_NAMES" = "vw_dec_rr_yesterday,vw_dec_ni_rr_yesterday"
     "--conf"                    = local.iceberg_conf
   }
   bucket_name      = aws_s3_bucket.this.bucket
@@ -269,7 +288,7 @@ module "insert_json_document_iceberg_data" {
     "--DATABASE_NAME"           = aws_glue_catalog_database.this.name
     "--CATALOG_TABLE_NAME"      = "json_documents"
     "--S3_BUCKET"               = aws_s3_bucket.this.bucket
-    "--SOURCE_VIEW_TABLE_NAMES" = "vw_json_documents_yesterday"
+    "--SOURCE_VIEW_TABLE_NAMES" = "vw_json_documents_yesterday,vw_json_documents_ni_yesterday"
     "--conf"                    = local.iceberg_conf
   }
   bucket_name      = aws_s3_bucket.this.bucket
