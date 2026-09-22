@@ -12,7 +12,10 @@ resource "aws_iam_policy" "dynamodb_write_access" {
           "dynamodb:UpdateItem",
           "dynamodb:DeleteItem",
         ]
-        Resource = aws_dynamodb_table.this.arn
+        Resource = [
+          aws_dynamodb_table.this.arn,
+          aws_dynamodb_table.v2.arn
+        ]
         Condition = {
           StringEquals = {
             "aws:sourceVpce" = aws_vpc_endpoint.this.id
@@ -39,7 +42,9 @@ resource "aws_iam_policy" "dynamodb_read_access" {
         ]
         Resource = [
           aws_dynamodb_table.this.arn,
-          "${aws_dynamodb_table.this.arn}/index/BearerTokenIndex"
+          "${aws_dynamodb_table.this.arn}/index/BearerTokenIndex",
+          aws_dynamodb_table.v2.arn,
+          "${aws_dynamodb_table.v2.arn}/index/BearerTokenIndex"
         ]
         Condition = {
           StringEquals = {
@@ -76,7 +81,9 @@ resource "aws_vpc_endpoint_policy" "dynamodb_access" {
         ],
         "Resource" = [
           aws_dynamodb_table.this.arn,
-          "${aws_dynamodb_table.this.arn}/index/BearerTokenIndex"
+          "${aws_dynamodb_table.this.arn}/index/BearerTokenIndex",
+          aws_dynamodb_table.v2.arn,
+          "${aws_dynamodb_table.v2.arn}/index/BearerTokenIndex"
         ]
         "Condition" = {
           "StringEquals" = {

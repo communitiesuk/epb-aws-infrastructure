@@ -612,6 +612,7 @@ module "warehouse_scheduled_tasks_application" {
   egress_ports      = [80, 443, 5432, var.parameters["LOGSTASH_PORT"]]
   environment_variables = {
     "EPB_DATA_USER_CREDENTIAL_TABLE_NAME" : try(module.epb_data_user_credentials[0].table_name, "none")
+    "EPB_DATA_USER_CREDENTIAL_V2_TABLE_NAME" : try(module.epb_data_user_credentials[0].table_v2_name, "none")
     "KMS_KEY_ID" : module.data_frontend_kms_key.key_arn
     "DATA_SERVICE_URL" : var.data_service_url
   }
@@ -719,8 +720,9 @@ module "data_frontend_application" {
   deployment_minimum_healthy_percent = var.environment == "intg" ? 0 : 100
   egress_ports                       = [80, 443, 5432, var.parameters["LOGSTASH_PORT"]]
   environment_variables = {
-    "AWS_S3_USER_DATA_BUCKET_NAME" : module.user_data.bucket_name,
-    "EPB_DATA_USER_CREDENTIAL_TABLE_NAME" : module.epb_data_user_credentials[0].table_name,
+    "AWS_S3_USER_DATA_BUCKET_NAME" : module.user_data.bucket_name
+    "EPB_DATA_USER_CREDENTIAL_TABLE_NAME" : module.epb_data_user_credentials[0].table_name
+    "EPB_DATA_USER_CREDENTIAL_V2_TABLE_NAME" : module.epb_data_user_credentials[0].table_v2_name
     "PUBLISHED_DWH_API_URL" : "https://api.${local.data_service_url}"
     "KMS_KEY_ID" : module.data_frontend_kms_key.key_arn
   }
@@ -847,6 +849,7 @@ module "warehouse_api_application" {
   environment_variables = {
     "AWS_S3_USER_DATA_BUCKET_NAME" : module.user_data.bucket_name,
     "EPB_DATA_USER_CREDENTIAL_TABLE_NAME" : try(module.epb_data_user_credentials[0].table_name, "none"),
+    "EPB_DATA_USER_CREDENTIAL_V2_TABLE_NAME" : try(module.epb_data_user_credentials[0].table_v2_name, "none"),
   }
   secrets = {
     "DATABASE_URL" : module.secrets.secret_arns["RDS_WAREHOUSE_V2_READER_CONNECTION_STRING"],

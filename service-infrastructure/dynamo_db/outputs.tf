@@ -10,5 +10,11 @@ output "dynamodb_read_policy_arn" {
 
 output "table_name" {
   value       = aws_dynamodb_table.this.name
-  description = "The name of the DynamoDB table"
+  description = "The name of the legacy DynamoDB credentials table"
 }
+
+output "table_v2_name" {
+  value       = aws_dynamodb_table.v2.name
+  description = "The name of the new DynamoDB credentials table"
+}
+

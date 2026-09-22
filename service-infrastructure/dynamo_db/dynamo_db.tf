@@ -1,3 +1,4 @@
+## Legacy User Credentials Table
 resource "aws_dynamodb_table" "this" {
   name           = var.table_name
   billing_mode   = "PROVISIONED"
@@ -162,4 +163,153 @@ resource "aws_appautoscaling_policy" "user_credentials_gsi_write_policy" {
   }
 }
 
+## New User Credentials Table
+resource "aws_dynamodb_table" "v2" {
+  name           = "${var.table_name}-v2"
+  billing_mode   = "PROVISIONED"
+  read_capacity  = 20
+  write_capacity = 20
+  hash_key       = "UserId"
+  range_key      = "Type"
 
+  attribute {
+    name = "UserId"
+    type = "S"
+  }
+
+  attribute {
+    name = "Type"
+    type = "S"
+  }
+
+  attribute {
+    name = "BearerToken"
+    type = "S"
+  }
+
+  global_secondary_index {
+    name            = "BearerTokenIndex"
+    hash_key        = "BearerToken"
+    write_capacity  = 20
+    read_capacity   = 20
+    projection_type = "KEYS_ONLY"
+  }
+
+  point_in_time_recovery {
+    enabled = true
+  }
+
+  server_side_encryption {
+    enabled     = true
+    kms_key_arn = module.dynamodb_kms_key.key_arn
+  }
+
+  tags = {
+    Name        = "${var.table_name}-v2"
+    Environment = var.environment
+  }
+
+  lifecycle {
+    prevent_destroy = true
+    ignore_changes = [
+      read_capacity,
+      write_capacity,
+      global_secondary_index
+    ]
+  }
+
+}
+
+resource "aws_appautoscaling_target" "user_credentials_table_v2_read_target" {
+  max_capacity       = local.read_max_capacity
+  min_capacity       = local.read_min_capacity
+  resource_id        = "table/${aws_dynamodb_table.v2.name}"
+  scalable_dimension = "dynamodb:table:ReadCapacityUnits"
+  service_namespace  = "dynamodb"
+}
+
+resource "aws_appautoscaling_target" "user_credentials_table_v2_write_target" {
+  max_capacity       = local.write_max_capacity
+  min_capacity       = local.write_min_capacity
+  resource_id        = "table/${aws_dynamodb_table.v2.name}"
+  scalable_dimension = "dynamodb:table:WriteCapacityUnits"
+  service_namespace  = "dynamodb"
+}
+
+resource "aws_appautoscaling_target" "user_credentials_v2_gsi_read_target" {
+  max_capacity       = local.read_max_capacity
+  min_capacity       = local.read_min_capacity
+  resource_id        = "table/${aws_dynamodb_table.v2.name}/index/BearerTokenIndex"
+  scalable_dimension = "dynamodb:index:ReadCapacityUnits"
+  service_namespace  = "dynamodb"
+}
+
+resource "aws_appautoscaling_target" "user_credentials_v2_gsi_write_target" {
+  max_capacity       = local.write_max_capacity
+  min_capacity       = local.write_min_capacity
+  resource_id        = "table/${aws_dynamodb_table.v2.name}/index/BearerTokenIndex"
+  scalable_dimension = "dynamodb:index:WriteCapacityUnits"
+  service_namespace  = "dynamodb"
+}
+
+resource "aws_appautoscaling_policy" "user_credentials_table_v2_read_policy" {
+  name               = "DynamoDBReadCapacityUtilization:${aws_appautoscaling_target.user_credentials_table_v2_read_target.resource_id}"
+  policy_type        = "TargetTrackingScaling"
+  resource_id        = aws_appautoscaling_target.user_credentials_table_v2_read_target.resource_id
+  scalable_dimension = aws_appautoscaling_target.user_credentials_table_v2_read_target.scalable_dimension
+  service_namespace  = aws_appautoscaling_target.user_credentials_table_v2_read_target.service_namespace
+
+  target_tracking_scaling_policy_configuration {
+    predefined_metric_specification {
+      predefined_metric_type = "DynamoDBReadCapacityUtilization"
+    }
+
+    target_value = 70
+  }
+}
+
+resource "aws_appautoscaling_policy" "user_credentials_table_v2_write_policy" {
+  name               = "DynamoDBWriteCapacityUtilization:${aws_appautoscaling_target.user_credentials_table_v2_write_target.resource_id}"
+  policy_type        = "TargetTrackingScaling"
+  resource_id        = aws_appautoscaling_target.user_credentials_table_v2_write_target.resource_id
+  scalable_dimension = aws_appautoscaling_target.user_credentials_table_v2_write_target.scalable_dimension
+  service_namespace  = aws_appautoscaling_target.user_credentials_table_v2_write_target.service_namespace
+
+  target_tracking_scaling_policy_configuration {
+    predefined_metric_specification {
+      predefined_metric_type = "DynamoDBWriteCapacityUtilization"
+    }
+
+    target_value = 70
+  }
+}
+
+resource "aws_appautoscaling_policy" "user_credentials_v2_gsi_read_policy" {
+  name               = "DynamoDBReadCapacityUtilization:${aws_appautoscaling_target.user_credentials_v2_gsi_read_target.resource_id}"
+  policy_type        = "TargetTrackingScaling"
+  resource_id        = aws_appautoscaling_target.user_credentials_v2_gsi_read_target.resource_id
+  scalable_dimension = aws_appautoscaling_target.user_credentials_v2_gsi_read_target.scalable_dimension
+  service_namespace  = aws_appautoscaling_target.user_credentials_v2_gsi_read_target.service_namespace
+
+  target_tracking_scaling_policy_configuration {
+    predefined_metric_specification {
+      predefined_metric_type = "DynamoDBReadCapacityUtilization"
+    }
+    target_value = 70
+  }
+}
+
+resource "aws_appautoscaling_policy" "user_credentials_v2_gsi_write_policy" {
+  name               = "DynamoDBWriteCapacityUtilization:${aws_appautoscaling_target.user_credentials_v2_gsi_write_target.resource_id}"
+  policy_type        = "TargetTrackingScaling"
+  resource_id        = aws_appautoscaling_target.user_credentials_v2_gsi_write_target.resource_id
+  scalable_dimension = aws_appautoscaling_target.user_credentials_v2_gsi_write_target.scalable_dimension
+  service_namespace  = aws_appautoscaling_target.user_credentials_v2_gsi_write_target.service_namespace
+
+  target_tracking_scaling_policy_configuration {
+    predefined_metric_specification {
+      predefined_metric_type = "DynamoDBWriteCapacityUtilization"
+    }
+    target_value = 70
+  }
+}
