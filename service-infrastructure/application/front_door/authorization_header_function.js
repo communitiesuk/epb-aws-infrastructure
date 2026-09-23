@@ -3,7 +3,7 @@ function handler(event) {
 
     // If an Authorization header is supplied and contains has a Bearer token
     // request on through to CF/the origin without any modification.
-    if (authHeaders && authHeaders.value.match(/^Bearer\s[a-zA-Z0-9]{64}$/)) {
+    if (authHeaders && authHeaders.value.match(/^Bearer\s([a-zA-Z0-9]{64}|[a-zA-Z0-9]{22})$/)) {
         return event.request;
     }
 
