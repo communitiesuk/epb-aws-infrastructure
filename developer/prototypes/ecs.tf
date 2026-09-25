@@ -36,9 +36,17 @@ resource "aws_ecs_task_definition" "this" {
       }]
 
       environment = [
-        { Name = "NODE_ENV", Value = "production" },
+        { name = "NODE_ENV", value = "production" },
       ]
 
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          awslogs-group         = aws_cloudwatch_log_group.log_group.name
+          awslogs-region        = var.region
+          awslogs-stream-prefix = var.prefix
+        }
+      }
     },
 
   ])
