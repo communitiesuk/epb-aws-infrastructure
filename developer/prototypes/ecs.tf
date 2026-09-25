@@ -19,8 +19,7 @@ resource "aws_ecs_task_definition" "this" {
       portMappings = [
         {
           protocol      = "tcp"
-          containerPort = 80
-          hostPort      = 80
+          containerPort = 8080
         }
       ]
 
@@ -76,7 +75,7 @@ resource "aws_ecs_service" "this" {
   load_balancer {
     target_group_arn = aws_lb_target_group.public.arn
     container_name   = "${var.prefix}-container"
-    container_port   = 80
+    container_port   = 8080
   }
 
   depends_on = []
