@@ -19,8 +19,7 @@ resource "aws_ecs_task_definition" "this" {
       portMappings = [
         {
           protocol      = "tcp"
-          containerPort = 80
-          hostPort      = 80
+          containerPort = 8080
         }
       ]
 
@@ -37,6 +36,7 @@ resource "aws_ecs_task_definition" "this" {
 
       environment = [
         { name = "NODE_ENV", value = "production" },
+        { name = "PORT", value = "8080" },
       ]
 
       logConfiguration = {
@@ -57,12 +57,13 @@ resource "aws_ecs_task_definition" "this" {
 }
 
 resource "aws_ecs_service" "this" {
-  name                               = var.prefix
-  cluster                            = aws_ecs_cluster.this.id
-  task_definition                    = aws_ecs_task_definition.this.arn
+  name            = var.prefix
+  cluster         = aws_ecs_cluster.this.id
+  task_definition = aws_ecs_task_definition.this.arn
+  # Sessions are stored in memory so we can only have one task
   desired_count                      = 1
   deployment_minimum_healthy_percent = 0
-  deployment_maximum_percent         = 200
+  deployment_maximum_percent         = 100
   launch_type                        = "FARGATE"
   scheduling_strategy                = "REPLICA"
 
@@ -76,7 +77,7 @@ resource "aws_ecs_service" "this" {
   load_balancer {
     target_group_arn = aws_lb_target_group.public.arn
     container_name   = "${var.prefix}-container"
-    container_port   = 80
+    container_port   = 8080
   }
 
   depends_on = []

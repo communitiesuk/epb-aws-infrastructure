@@ -10,20 +10,31 @@ resource "aws_lb" "public" {
 }
 
 resource "aws_lb_target_group" "public" {
-  name        = "${var.prefix}-alb-tg"
-  port        = 80
+  # See https://github.com/hashicorp/terraform-provider-aws/issues/636#issuecomment-637761075
+  # The name_prefix, lifecycle and tags are so the resource could be replaced
+  # when changing the port
+  name_prefix = "epbptg"
+  port        = 8080
   protocol    = "HTTP"
   vpc_id      = aws_vpc.this.id
   target_type = "ip"
 
   health_check {
-    healthy_threshold   = "3"
-    interval            = "300"
+    healthy_threshold   = 2
+    interval            = 20
     protocol            = "HTTP"
     matcher             = "200,302"
-    timeout             = "30"
+    timeout             = 5
     path                = "/healthcheck"
-    unhealthy_threshold = "3"
+    unhealthy_threshold = 3
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+
+  tags = {
+    Name = "${var.prefix}-alb-tg"
   }
 }
 
@@ -40,10 +51,6 @@ resource "aws_lb_listener" "public_http" {
       status_code = "HTTP_301"
     }
   }
-
-  lifecycle {
-    replace_triggered_by = [aws_lb_target_group.public.id]
-  }
 }
 
 resource "aws_lb_listener" "public_https" {
@@ -56,9 +63,6 @@ resource "aws_lb_listener" "public_https" {
     type             = "forward"
     target_group_arn = aws_lb_target_group.public.arn
   }
-
-  depends_on = [aws_lb_target_group.public]
-
 }
 
 resource "aws_alb_listener_rule" "this" {
@@ -76,6 +80,3 @@ resource "aws_alb_listener_rule" "this" {
 
   }
 }
-
-
-
