@@ -1,3 +1,21 @@
+module "update_scottish_created_at_date" {
+  source           = "./etl_job"
+  bucket_name      = var.storage_bucket
+  glue_connector   = [aws_glue_connection.this.name]
+  job_name         = "Update Scottish CreatedAt date"
+  role_arn         = aws_iam_role.glueServiceRole.arn
+  script_file_name = "update_scottish_created_at_date.py"
+  scripts_module   = path.module
+  arguments = {
+    "--DB_NAME"                   = var.db_name
+    "--DB_HOST"                   = var.db_instance
+    "--DB_PORT"                   = var.db_port
+    "--INPUT_S3_PATH"             = ""
+    "--GLUE_CONNECTION_NAME"      = aws_glue_connection.this.name
+    "--additional-python-modules" = "pg8000==1.31.2"
+  }
+}
+
 module "update_scottish_uprns" {
   source           = "./etl_job"
   bucket_name      = var.storage_bucket
