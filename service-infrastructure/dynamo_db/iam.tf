@@ -44,7 +44,8 @@ resource "aws_iam_policy" "dynamodb_read_access" {
           aws_dynamodb_table.this.arn,
           "${aws_dynamodb_table.this.arn}/index/BearerTokenIndex",
           aws_dynamodb_table.v2.arn,
-          "${aws_dynamodb_table.v2.arn}/index/BearerTokenIndex"
+          "${aws_dynamodb_table.v2.arn}/index/BearerTokenIndex",
+          "${aws_dynamodb_table.v2.arn}/index/OneLoginSubIndex"
         ]
         Condition = {
           StringEquals = {
@@ -83,7 +84,8 @@ resource "aws_vpc_endpoint_policy" "dynamodb_access" {
           aws_dynamodb_table.this.arn,
           "${aws_dynamodb_table.this.arn}/index/BearerTokenIndex",
           aws_dynamodb_table.v2.arn,
-          "${aws_dynamodb_table.v2.arn}/index/BearerTokenIndex"
+          "${aws_dynamodb_table.v2.arn}/index/BearerTokenIndex",
+          "${aws_dynamodb_table.v2.arn}/index/OneLoginSubIndex"
         ]
         "Condition" = {
           "StringEquals" = {
