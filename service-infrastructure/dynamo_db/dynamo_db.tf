@@ -65,7 +65,7 @@ locals {
   write_max_capacity = var.environment == "prod" ? 1000 : 20
   read_min_capacity  = var.environment == "prod" ? 10 : 1
   write_min_capacity = var.environment == "prod" ? 10 : 1
-  gsi_names          = toset(["OneLoginSubIndex"])
+  gsi_names          = toset(["GSI1_PK_Index"])
 
 }
 
@@ -184,13 +184,13 @@ resource "aws_dynamodb_table" "v2" {
   }
 
   attribute {
-    name = "OneLoginSub"
+    name = "GSI1_PK"
     type = "S"
   }
 
   global_secondary_index {
-    name            = "OneLoginSubIndex"
-    hash_key        = "OneLoginSub"
+    name            = "GSI1_PK_Index"
+    hash_key        = "GSI1_PK"
     write_capacity  = 20
     read_capacity   = 20
     projection_type = "KEYS_ONLY"
@@ -215,7 +215,7 @@ resource "aws_dynamodb_table" "v2" {
     ignore_changes = [
       read_capacity,
       write_capacity,
-      global_secondary_index
+      # global_secondary_index
     ]
   }
 
