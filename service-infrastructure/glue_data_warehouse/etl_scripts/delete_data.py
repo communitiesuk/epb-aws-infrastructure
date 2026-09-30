@@ -36,8 +36,17 @@ for table_name in CATALOG_TABLE_NAME:
     spark.sql(f"""
         DELETE FROM glue_catalog.{DATABASE_NAME}.{table_name}
         WHERE certificate_number IN (
-            SELECT assessment_id FROM {SOURCE_TABLE_NAME}
-            WHERE event_type IN ('cancelled', 'opt_out')
+            SELECT assessment_id
+            FROM (
+                SELECT
+                    assessment_id,
+                    event_type,
+                    ROW_NUMBER() OVER(PARTITION BY assessment_id ORDER BY timestamp DESC) as rn
+                FROM {SOURCE_TABLE_NAME}
+                WHERE event_type IN ('opt_in', 'opt_out', 'cancelled')
+            ) latest_status_events
+            WHERE rn = 1
+              AND event_type IN ('cancelled', 'opt_out')
         )
     """)
 
