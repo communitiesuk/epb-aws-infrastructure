@@ -65,7 +65,7 @@ locals {
   write_max_capacity = var.environment == "prod" ? 1000 : 20
   read_min_capacity  = var.environment == "prod" ? 10 : 1
   write_min_capacity = var.environment == "prod" ? 10 : 1
-  gsi_names          = toset(["BearerTokenIndex", "OneLoginSubIndex"])
+  gsi_names          = toset(["OneLoginSubIndex"])
 
 }
 
@@ -184,21 +184,8 @@ resource "aws_dynamodb_table" "v2" {
   }
 
   attribute {
-    name = "BearerToken"
-    type = "S"
-  }
-
-  attribute {
     name = "OneLoginSub"
     type = "S"
-  }
-
-  global_secondary_index {
-    name            = "BearerTokenIndex"
-    hash_key        = "BearerToken"
-    write_capacity  = 20
-    read_capacity   = 20
-    projection_type = "KEYS_ONLY"
   }
 
   global_secondary_index {
