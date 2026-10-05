@@ -18,7 +18,7 @@ module "populate_domestic_etl" {
     "--CATALOG_TABLE_NAME"        = "domestic"
     "--S3_BUCKET"                 = aws_s3_bucket.this.bucket
     "--CONNECTION_NAME"           = aws_glue_connection.this.name
-    "--DB_TABLE_NAMES"            = "mvw_domestic_search"
+    "--DB_TABLE_NAMES"            = join(",", local.domestic_mvw_names)
     "--additional-python-modules" = "boto3==1.38.43"
 
   }

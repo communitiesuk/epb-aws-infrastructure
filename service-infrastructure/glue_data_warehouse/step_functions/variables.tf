@@ -38,14 +38,14 @@ variable "ecs_task_execution_role_arn" {
   description = "ARN of the ECS task execution role (permissions to pull images, logs, secrets)."
 }
 
-variable "ecs_materialized_view_name" {
-  type        = string
-  description = "Materialized view name to refresh. This is passed to the rake command as the NAME environment variable."
+variable "ecs_materialized_view_names" {
+  type        = list(string)
+  description = "Materialized view names to refresh. Each entry is passed to the rake command as the NAME environment variable."
 }
 
-variable "ecs_rr_materialized_view_name" {
-  type        = string
-  description = "Materialized view name to refresh (recommendations).  This is passed to the rake command as the NAME environment variable."
+variable "ecs_rr_materialized_view_names" {
+  type        = list(string)
+  description = "Materialized view names to refresh (recommendations). Each entry is passed to the rake command as the NAME environment variable."
 }
 
 variable "glue_populate_job_name" {
