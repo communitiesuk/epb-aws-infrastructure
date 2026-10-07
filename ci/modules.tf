@@ -306,6 +306,7 @@ module "tech_docs_pipeline" {
   github_organisation     = var.github_organisation
   region                  = var.region
   repo_bucket_name        = var.tech_docs_bucket_repo
+  aws_codebuild_image     = module.app_test_image_pipeline.image_repository_url
   source                  = "./modules/tech-docs-pipeline"
   dev_account_id          = var.account_ids["developer"]
 }

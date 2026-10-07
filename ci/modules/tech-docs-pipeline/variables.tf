@@ -6,6 +6,10 @@ variable "artefact_bucket_arn" {
   type = string
 }
 
+variable "aws_codebuild_image" {
+  type = string
+}
+
 variable "repo_bucket_name" {
   type = string
 }
