@@ -16,13 +16,13 @@ module "update_scottish_created_at_date" {
   }
 }
 
-module "update_scottish_uprns" {
+module "update_scottish_address_ids" {
   source           = "./etl_job"
   bucket_name      = var.storage_bucket
   glue_connector   = [aws_glue_connection.this.name]
-  job_name         = "Update Scottish UPRNs"
+  job_name         = "Update Scottish address_ids"
   role_arn         = aws_iam_role.glueServiceRole.arn
-  script_file_name = "update_scottish_uprns.py"
+  script_file_name = "update_scottish_address_ids.py"
   scripts_module   = path.module
   arguments = {
     "--DB_NAME"                   = var.db_name
