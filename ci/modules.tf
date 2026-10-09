@@ -316,7 +316,6 @@ module "api_docs_pipeline" {
   artefact_bucket         = module.artefact.codepipeline_bucket
   artefact_bucket_arn     = module.artefact.codepipeline_bucket_arn
   codebuild_role_arn      = module.codebuild_role.aws_codebuild_role_arn
-  codebuild_image_ecr_url = module.app_test_image_pipeline.image_repository_url
   codestar_connection_arn = module.codestar_connection.codestar_connection_arn
   github_branch           = "master"
   github_repository       = "epb-register-api"
