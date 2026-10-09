@@ -300,13 +300,13 @@ module "tech_docs_pipeline" {
   artefact_bucket         = module.artefact.codepipeline_bucket
   artefact_bucket_arn     = module.artefact.codepipeline_bucket_arn
   codebuild_role_arn      = module.codebuild_role.aws_codebuild_role_arn
-  codebuild_image_ecr_url = module.app_test_image_pipeline.image_repository_url
   codestar_connection_arn = module.codestar_connection.codestar_connection_arn
   github_branch           = "master"
   github_repository       = "epb-tech-docs"
   github_organisation     = var.github_organisation
   region                  = var.region
   repo_bucket_name        = var.tech_docs_bucket_repo
+  aws_codebuild_image     = module.app_test_image_pipeline.image_repository_url
   source                  = "./modules/tech-docs-pipeline"
   dev_account_id          = var.account_ids["developer"]
 }
@@ -330,7 +330,6 @@ module "dwh_api_docs_pipeline" {
   artefact_bucket         = module.artefact.codepipeline_bucket
   artefact_bucket_arn     = module.artefact.codepipeline_bucket_arn
   codebuild_role_arn      = module.codebuild_role.aws_codebuild_role_arn
-  codebuild_image_ecr_url = module.app_test_image_pipeline.image_repository_url
   codestar_connection_arn = module.codestar_connection.codestar_connection_arn
   github_branch           = "main"
   github_repository       = "epb-data-warehouse"

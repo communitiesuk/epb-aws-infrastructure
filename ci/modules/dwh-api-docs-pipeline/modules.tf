@@ -11,11 +11,12 @@ module "codepipeline_iam" {
   artefact_bucket_arn     = var.artefact_bucket_arn
 }
 
+
 module "codebuild_build_push_repo_intg" {
   source             = "../codebuild_project"
   codebuild_role_arn = var.codebuild_role_arn
   name               = "${var.project_name}-deploy-integration"
-  build_image_uri    = var.codebuild_image_ecr_url
+  build_image_uri    = "aws/codebuild/standard:7.0"
   buildspec_file     = "${var.configuration}/build_api_docs_and_push_to_aws.yml"
   environment_variables = [
     { name = "ENV", value = "intg" },
@@ -28,7 +29,7 @@ module "codebuild_build_push_repo_stag" {
   source             = "../codebuild_project"
   codebuild_role_arn = var.codebuild_role_arn
   name               = "${var.project_name}-deploy-staging"
-  build_image_uri    = var.codebuild_image_ecr_url
+  build_image_uri    = "aws/codebuild/standard:7.0"
   buildspec_file     = "${var.configuration}/build_api_docs_and_push_to_aws.yml"
   environment_variables = [
     { name = "ENV", value = "stag" },
@@ -41,7 +42,7 @@ module "codebuild_build_push_repo_prod" {
   source             = "../codebuild_project"
   codebuild_role_arn = var.codebuild_role_arn
   name               = "${var.project_name}-deploy-production"
-  build_image_uri    = var.codebuild_image_ecr_url
+  build_image_uri    = "aws/codebuild/standard:7.0"
   buildspec_file     = "${var.configuration}/build_api_docs_and_push_to_aws.yml"
   environment_variables = [
     { name = "ENV", value = "prod" },

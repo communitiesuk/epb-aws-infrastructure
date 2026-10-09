@@ -10,11 +10,8 @@ variable "account_ids" {
   type = map(string)
 }
 
-variable "codebuild_role_arn" {
-  type = string
-}
 
-variable "codebuild_image_ecr_url" {
+variable "codebuild_role_arn" {
   type = string
 }
 
@@ -28,6 +25,7 @@ variable "github_branch" {
 variable "github_organisation" {
   type = string
 }
+
 
 variable "github_repository" {
   type = string
@@ -47,3 +45,5 @@ variable "configuration" {
   default = "buildspec"
   type    = string
 }
+
+

@@ -11,7 +11,7 @@ module "codebuild_build_push_repo" {
   source             = "../codebuild_project"
   codebuild_role_arn = var.codebuild_role_arn
   name               = "epbr-codebuild-${var.project_name}"
-  build_image_uri    = var.codebuild_image_ecr_url
+  build_image_uri    = var.aws_codebuild_image
   buildspec_file     = "${var.configuration}/build_and_push_to_aws.yml"
   environment_variables = [
     { name = "BUCKET_NAME", value = var.repo_bucket_name },

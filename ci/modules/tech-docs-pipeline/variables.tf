@@ -6,6 +6,10 @@ variable "artefact_bucket_arn" {
   type = string
 }
 
+variable "aws_codebuild_image" {
+  type = string
+}
+
 variable "repo_bucket_name" {
   type = string
 }
@@ -15,10 +19,6 @@ variable "dev_account_id" {
 }
 
 variable "codebuild_role_arn" {
-  type = string
-}
-
-variable "codebuild_image_ecr_url" {
   type = string
 }
 
@@ -32,6 +32,7 @@ variable "github_branch" {
 variable "github_organisation" {
   type = string
 }
+
 
 variable "github_repository" {
   type = string
