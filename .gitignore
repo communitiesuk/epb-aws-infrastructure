@@ -24,6 +24,13 @@ crash.*.log
 *.tfvars
 *.tfvars.json
 
+# Similarly to above, exclude all tfplan files. These can be given other names,
+# but this at least excludes the most likely chosen one.
+tfplan
+*.tfplan
+plan.out
+*.plan.out
+
 # Ignore override files as they are usually used to override resources locally and so
 # are not checked in
 override.tf
