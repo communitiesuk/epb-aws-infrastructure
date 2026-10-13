@@ -19,19 +19,24 @@ variable "subnet_group_az" {
 }
 
 variable "db_instance" {
-  type = string
+  type      = string
+  sensitive = true
 }
 
 variable "db_user" {
-  type = string
+  type      = string
+  sensitive = true
+
 }
 
 variable "db_password" {
-  type = string
+  type      = string
+  sensitive = true
 }
 
 variable "db_name" {
-  type = string
+  type      = string
+  sensitive = true
 }
 
 variable "secrets" {

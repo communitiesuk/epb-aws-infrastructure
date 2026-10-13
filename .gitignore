@@ -24,13 +24,6 @@ crash.*.log
 *.tfvars
 *.tfvars.json
 
-# Similarly to above, exclude all tfplan files. These can be given other names,
-# but this at least excludes the most likely chosen one.
-tfplan
-*.tfplan
-plan.out
-*.plan.out
-
 # Ignore override files as they are usually used to override resources locally and so
 # are not checked in
 override.tf
@@ -38,11 +31,18 @@ override.tf.json
 *_override.tf
 *_override.tf.json
 
+# Ignore transient lock info files created by terraform apply
+.terraform.tfstate.lock.info
+
 # Include override files you do wish to add to version control using negated pattern
 # !example_override.tf
 
 # Include tfplan files to ignore the plan output of command: terraform plan -out=tfplan
-# example: *tfplan*
+tfplan
+*.tfplan
+*plan.out
+*.plan.out
+*out.plan
 
 # Ignore CLI configuration files
 .terraformrc

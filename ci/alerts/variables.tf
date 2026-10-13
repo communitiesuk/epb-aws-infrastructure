@@ -7,7 +7,8 @@ variable "environment" {
 }
 
 variable "main_slack_webhook_url" {
-  type = string
+  type      = string
+  sensitive = true
 }
 
 variable "cloudtrail_log_group_name" {
