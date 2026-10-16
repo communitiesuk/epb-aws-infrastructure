@@ -1,4 +1,4 @@
-FROM fluent/fluent-bit:5.0.9 as builder
+FROM fluent/fluent-bit:5.0 as builder
 FROM debian:trixie-slim as debug
 ENV DEBIAN_FRONTEND noninteractive
 
