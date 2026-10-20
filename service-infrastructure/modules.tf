@@ -355,7 +355,9 @@ module "toggles_application" {
   parameters                    = module.parameter_store.parameter_arns
   parameter_filter              = ["NOTIFY_DATA_EMAIL_USERS_TEMPLATE_ID"]
   vpc_id                        = module.networking.vpc_id
-  fluentbit_ecr_url             = module.fluentbit_ecr.ecr_url
+  fluentbit_ecr_url             = module.fluentbit_config.fluentbit_ecr_url
+  fluentbit_config_arn          = module.fluentbit_config.config_arn
+  fluentbit_bucket_arn          = module.fluentbit_config.bucket_arn
   private_subnet_ids            = module.networking.private_subnet_ids
   health_check_path             = "/health"
   aws_cloudwatch_log_group_id   = module.logging.cloudwatch_log_group_id
@@ -401,7 +403,9 @@ module "auth_application" {
   parameter_filter              = ["NOTIFY_DATA_EMAIL_USERS_TEMPLATE_ID"]
   has_exec_cmd_task             = true
   vpc_id                        = module.networking.vpc_id
-  fluentbit_ecr_url             = module.fluentbit_ecr.ecr_url
+  fluentbit_ecr_url             = module.fluentbit_config.fluentbit_ecr_url
+  fluentbit_config_arn          = module.fluentbit_config.config_arn
+  fluentbit_bucket_arn          = module.fluentbit_config.bucket_arn
   private_subnet_ids            = module.networking.private_subnet_ids
   health_check_path             = "/auth/healthcheck"
   aws_cloudwatch_log_group_id   = module.logging.cloudwatch_log_group_id
@@ -478,7 +482,9 @@ module "register_api_application" {
   enable_execute_command             = var.environment != "prod"
   deployment_minimum_healthy_percent = var.environment == "prod" ? 100 : 0
   vpc_id                             = module.networking.vpc_id
-  fluentbit_ecr_url                  = module.fluentbit_ecr.ecr_url
+  fluentbit_ecr_url                  = module.fluentbit_config.fluentbit_ecr_url
+  fluentbit_config_arn               = module.fluentbit_config.config_arn
+  fluentbit_bucket_arn               = module.fluentbit_config.bucket_arn
   private_subnet_ids                 = module.networking.private_subnet_ids
   health_check_path                  = "/healthcheck"
   additional_task_execution_role_policy_arns = {
@@ -562,7 +568,9 @@ module "scheduled_tasks_application" {
   exec_cmd_task_cpu             = var.environment == "intg" ? 512 : 1024
   exec_cmd_task_ram             = var.environment == "intg" ? 2048 : 8192
   external_ecr                  = module.register_api_application.ecr_repository_url
-  fluentbit_ecr_url             = module.fluentbit_ecr.ecr_url
+  fluentbit_ecr_url             = module.fluentbit_config.fluentbit_ecr_url
+  fluentbit_config_arn          = module.fluentbit_config.config_arn
+  fluentbit_bucket_arn          = module.fluentbit_config.bucket_arn
   has_start_task                = false
   has_exec_cmd_task             = true
   has_target_tracking           = false
@@ -625,10 +633,12 @@ module "warehouse_scheduled_tasks_application" {
     "NOTIFY_DATA_EMAIL_USERS_TEMPLATE_ID" : module.parameter_store.parameter_arns["NOTIFY_DATA_EMAIL_USERS_TEMPLATE_ID"]
 
   })
-  vpc_id             = module.networking.vpc_id
-  fluentbit_ecr_url  = module.fluentbit_ecr.ecr_url
-  private_subnet_ids = module.networking.private_subnet_ids
-  health_check_path  = "/healthcheck"
+  vpc_id               = module.networking.vpc_id
+  fluentbit_ecr_url    = module.fluentbit_config.fluentbit_ecr_url
+  fluentbit_config_arn = module.fluentbit_config.config_arn
+  fluentbit_bucket_arn = module.fluentbit_config.bucket_arn
+  private_subnet_ids   = module.networking.private_subnet_ids
+  health_check_path    = "/healthcheck"
   additional_task_role_policy_arns = {
     "UserData_S3_access" : module.user_data.s3_write_access_policy_arn
     "DynamoDB_User_Credentials_read_access" : module.epb_data_user_credentials[0].dynamodb_read_policy_arn
@@ -671,7 +681,9 @@ module "frontend_application" {
   })
   parameter_filter                           = ["NOTIFY_DATA_EMAIL_USERS_TEMPLATE_ID"]
   vpc_id                                     = module.networking.vpc_id
-  fluentbit_ecr_url                          = module.fluentbit_ecr.ecr_url
+  fluentbit_ecr_url                          = module.fluentbit_config.fluentbit_ecr_url
+  fluentbit_config_arn                       = module.fluentbit_config.config_arn
+  fluentbit_bucket_arn                       = module.fluentbit_config.bucket_arn
   private_subnet_ids                         = module.networking.private_subnet_ids
   health_check_path                          = "/healthcheck"
   additional_task_execution_role_policy_arns = {}
@@ -744,7 +756,9 @@ module "data_frontend_application" {
   })
   parameter_filter                           = ["NOTIFY_DATA_EMAIL_USERS_TEMPLATE_ID"]
   vpc_id                                     = module.networking.vpc_id
-  fluentbit_ecr_url                          = module.fluentbit_ecr.ecr_url
+  fluentbit_ecr_url                          = module.fluentbit_config.fluentbit_ecr_url
+  fluentbit_config_arn                       = module.fluentbit_config.config_arn
+  fluentbit_bucket_arn                       = module.fluentbit_config.bucket_arn
   private_subnet_ids                         = module.networking.private_subnet_ids
   health_check_path                          = "/healthcheck"
   additional_task_execution_role_policy_arns = {}
@@ -815,11 +829,13 @@ module "warehouse_application" {
     "NOTIFY_EMAIL_RECIPIENT" : module.parameter_store.parameter_arns["NOTIFY_EMAIL_RECIPIENT"]
     "NOTIFY_TEMPLATE_ID" : module.parameter_store.parameter_arns["NOTIFY_TEMPLATE_ID"]
   })
-  parameter_filter   = ["NOTIFY_DATA_EMAIL_USERS_TEMPLATE_ID"]
-  vpc_id             = module.networking.vpc_id
-  fluentbit_ecr_url  = module.fluentbit_ecr.ecr_url
-  private_subnet_ids = module.networking.private_subnet_ids
-  health_check_path  = null
+  parameter_filter     = ["NOTIFY_DATA_EMAIL_USERS_TEMPLATE_ID"]
+  vpc_id               = module.networking.vpc_id
+  fluentbit_ecr_url    = module.fluentbit_config.fluentbit_ecr_url
+  fluentbit_config_arn = module.fluentbit_config.config_arn
+  fluentbit_bucket_arn = module.fluentbit_config.bucket_arn
+  private_subnet_ids   = module.networking.private_subnet_ids
+  health_check_path    = null
   additional_task_role_policy_arns = {
     "WarehouseDocumentExport_S3_access" : module.warehouse_document_export.s3_write_access_policy_arn
   }
@@ -861,7 +877,9 @@ module "warehouse_api_application" {
   parameter_filter                   = ["NOTIFY_DATA_EMAIL_USERS_TEMPLATE_ID"]
   has_exec_cmd_task                  = true
   vpc_id                             = module.networking.vpc_id
-  fluentbit_ecr_url                  = module.fluentbit_ecr.ecr_url
+  fluentbit_ecr_url                  = module.fluentbit_config.fluentbit_ecr_url
+  fluentbit_config_arn               = module.fluentbit_config.config_arn
+  fluentbit_bucket_arn               = module.fluentbit_config.bucket_arn
   private_subnet_ids                 = module.networking.private_subnet_ids
   health_check_path                  = "/healthcheck"
   additional_task_role_policy_arns   = local.dwh_api_polciies
@@ -949,7 +967,9 @@ module "addressing_application" {
   has_exec_cmd_task                  = true
   deployment_minimum_healthy_percent = var.environment == "intg" ? 0 : 100
   vpc_id                             = module.networking.vpc_id
-  fluentbit_ecr_url                  = module.fluentbit_ecr.ecr_url
+  fluentbit_ecr_url                  = module.fluentbit_config.fluentbit_ecr_url
+  fluentbit_config_arn               = module.fluentbit_config.config_arn
+  fluentbit_bucket_arn               = module.fluentbit_config.bucket_arn
   private_subnet_ids                 = module.networking.private_subnet_ids
   health_check_path                  = "/healthcheck"
   aws_cloudwatch_log_group_id        = module.logging.cloudwatch_log_group_id
@@ -1402,4 +1422,10 @@ module "reboot_auth_db_schedule" {
     instance_id = module.auth_database_v2.rds_instance_identifier
     schedule    = "cron(41 16 2 7 ? 2026)"
   }
+}
+
+module "fluentbit_config" {
+  source            = "./fluentbit_config"
+  prefix            = local.prefix
+  fluentbit_ecr_url = "public.ecr.aws/aws-observability/aws-for-fluent-bit:init-3.5.4"
 }

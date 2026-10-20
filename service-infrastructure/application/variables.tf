@@ -42,10 +42,6 @@ variable "vpc_id" {
   type = string
 }
 
-variable "fluentbit_ecr_url" {
-  type = string
-}
-
 variable "additional_task_role_policy_arns" {
   type        = map(string)
   default     = {}
@@ -190,6 +186,18 @@ variable "cloudwatch_ecs_events_arn" {
 variable "deployment_minimum_healthy_percent" {
   type    = number
   default = 100
+}
+
+variable "fluentbit_ecr_url" {
+  type = string
+}
+
+variable "fluentbit_config_arn" {
+  type = string
+}
+
+variable "fluentbit_bucket_arn" {
+  type = string
 }
 
 variable "is_fluentbit_container_essential" {

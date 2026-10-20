@@ -109,4 +109,3 @@ variable "postgres_versions" {
   type        = map(string)
   sensitive   = true
 }
-

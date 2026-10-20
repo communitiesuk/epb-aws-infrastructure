@@ -78,14 +78,15 @@ resource "aws_ecs_task_definition" "this" {
     },
     {
       name      = local.fluentbit_container_name
-      image     = "${var.fluentbit_ecr_url}:latest"
+      image     = var.fluentbit_ecr_url
       essential = var.is_fluentbit_container_essential
 
       environment = [
-        { Name = "FLB_LOG_LEVEL", Value = "debug" },
-        { Name = "LOG_LEVEL", Value = "debug" },
-        { Name = "LOG_GROUP_NAME", Value = var.aws_cloudwatch_log_group_name },
-        { Name = "LOG_STREAM_NAME", Value = var.prefix }
+        { name = "FLB_LOG_LEVEL", value = "debug" },
+        { name = "LOG_LEVEL", value = "debug" },
+        { name = "LOG_GROUP_NAME", value = var.aws_cloudwatch_log_group_name },
+        { name = "LOG_STREAM_NAME", value = var.prefix },
+        { name = "aws_fluent_bit_init_s3_1", value = var.fluentbit_config_arn }
       ]
 
       secrets = [for value in ["LOGSTASH_HOST", "LOGSTASH_PORT"] : {
@@ -95,11 +96,6 @@ resource "aws_ecs_task_definition" "this" {
 
       firelensConfiguration = {
         type = "fluentbit"
-        options = {
-          "config-file-type"  = "file",
-          "config-file-value" = "/fluent-bit.conf"
-        }
-
       }
 
       logConfiguration = {

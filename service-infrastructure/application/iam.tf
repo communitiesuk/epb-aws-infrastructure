@@ -185,5 +185,26 @@ resource "aws_iam_role_policy" "enable_exec_command" {
         }
       ]
   })
+}
 
+resource "aws_iam_role_policy" "fluentbit_conf" {
+  name = "${var.prefix}-fluentbit-read-conf"
+  role = aws_iam_role.ecs_task_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
+          "s3:GetObject",
+          "s3:GetBucketLocation"
+        ]
+        Effect = "Allow"
+        Resource = [
+          var.fluentbit_bucket_arn,
+          var.fluentbit_config_arn
+        ]
+      }
+    ]
+  })
 }
