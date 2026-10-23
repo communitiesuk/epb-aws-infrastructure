@@ -13,7 +13,6 @@ resource "aws_iam_policy" "dynamodb_write_access" {
           "dynamodb:DeleteItem",
         ]
         Resource = [
-          aws_dynamodb_table.this.arn,
           aws_dynamodb_table.v2.arn
         ]
         Condition = {
@@ -41,8 +40,6 @@ resource "aws_iam_policy" "dynamodb_read_access" {
           "dynamodb:Query"
         ]
         Resource = [
-          aws_dynamodb_table.this.arn,
-          "${aws_dynamodb_table.this.arn}/index/BearerTokenIndex",
           aws_dynamodb_table.v2.arn,
           "${aws_dynamodb_table.v2.arn}/index/GSI1_PK_Index"
         ]
@@ -80,8 +77,6 @@ resource "aws_vpc_endpoint_policy" "dynamodb_access" {
           "dynamodb:Query"
         ],
         "Resource" = [
-          aws_dynamodb_table.this.arn,
-          "${aws_dynamodb_table.this.arn}/index/BearerTokenIndex",
           aws_dynamodb_table.v2.arn,
           "${aws_dynamodb_table.v2.arn}/index/GSI1_PK_Index",
         ]
