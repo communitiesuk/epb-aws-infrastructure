@@ -3,7 +3,7 @@ terraform {
 
   required_providers {
     aws = {
-      version = "~>5.100"
+      version = "~>6.70"
       source  = "hashicorp/aws"
     }
     random = {
@@ -25,6 +25,6 @@ data "aws_partition" "current" {}
 locals {
   rds_reboot_instance_arns = [
     for instance in values(var.rds_reboot_aurora_instances) :
-    "arn:${data.aws_partition.current.partition}:rds:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:db:${instance.instance_id}"
+    "arn:${data.aws_partition.current.partition}:rds:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:db:${instance.instance_id}"
   ]
 }
