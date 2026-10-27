@@ -33,7 +33,6 @@ resource "aws_iam_policy" "scheduler" {
           var.aws_ruby_node_codepipeline_arn,
           var.auth_server_codepipeline_arn,
           var.data_frontend_codepipeline_arn,
-          var.fluentbit_codepipeline_arn,
           var.frontend_codepipeline_arn,
           var.reg_api_codepipeline_arn,
           var.warehouse_codepipeline_arn,

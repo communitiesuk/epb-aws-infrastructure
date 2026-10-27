@@ -259,22 +259,6 @@ module "toggles-pipeline" {
   artefact_bucket_arn     = module.artefact.codepipeline_bucket_arn
 }
 
-module "fluentbit_pipeline" {
-  source                  = "./modules/fluentbit_pipeline"
-  artefact_bucket         = module.artefact.codepipeline_bucket
-  artefact_bucket_arn     = module.artefact.codepipeline_bucket_arn
-  codebuild_role_arn      = module.codebuild_role.aws_codebuild_role_arn
-  pipeline_name           = "fluentbit-pipeline"
-  account_ids             = var.account_ids
-  fluentbit_ecr_name      = "fluentbit"
-  project_name            = "fluentbit"
-  region                  = var.region
-  aws_amd_codebuild_image = var.aws_amd_codebuild_image
-  integration_prefix      = var.integration_prefix
-  staging_prefix          = var.staging_prefix
-  production_prefix       = var.production_prefix
-}
-
 module "restart_ecs_tasks_pipeline" {
   source              = "./modules/restart_tasks_pipeline"
   artefact_bucket_arn = module.artefact.codepipeline_bucket_arn
@@ -425,7 +409,6 @@ module "scheduler" {
   aws_ruby_node_codepipeline_arn = module.app_test_image_pipeline.aws_ruby_node_codepipeline_arn
   auth_server_codepipeline_arn   = module.auth-server-pipeline.auth_server_codepipeline_arn
   data_frontend_codepipeline_arn = module.data_frontend-pipeline.data_frontend_codepipeline_arn
-  fluentbit_codepipeline_arn     = module.fluentbit_pipeline.fluentbit_codepipeline_arn
   frontend_codepipeline_arn      = module.frontend-pipeline.frontend_codepipeline_arn
   reg_api_codepipeline_arn       = module.register-api-pipeline.reg_api_codepipeline_arn
   warehouse_codepipeline_arn     = module.data_warehouse-pipeline.warehouse_codepipeline_arn

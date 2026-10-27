@@ -39,15 +39,6 @@ module "data_frontend_pipeline" {
   iam_role_arn        = local.scheduler_role_arn
 }
 
-module "fluentbit_pipeline" {
-  source              = "./schedule"
-  name                = "start-fluentbit-pipeline"
-  group_name          = local.group_name
-  schedule_expression = "cron(03 13 10 * ? *)"
-  pipeline_arn        = var.fluentbit_codepipeline_arn
-  iam_role_arn        = local.scheduler_role_arn
-}
-
 module "frontend_pipeline" {
   source              = "./schedule"
   name                = "start-frontend-pipeline"
@@ -83,4 +74,3 @@ module "postgres_pipeline" {
   pipeline_arn        = var.postgres_codepipeline_arn
   iam_role_arn        = local.scheduler_role_arn
 }
-
