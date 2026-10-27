@@ -31,7 +31,6 @@ module "codebuild_run_app_test" {
     { name = "AWS_ACCOUNT_ID", value = data.aws_caller_identity.current.account_id },
     { name = "STAGE", value = "integration" },
   ]
-  region = var.region
 }
 
 module "codebuild_build_app_image" {
@@ -44,7 +43,6 @@ module "codebuild_build_app_image" {
     { name = "AWS_DEFAULT_REGION", value = var.region },
     { name = "AWS_ACCOUNT_ID", value = var.account_ids["integration"] },
   ]
-  region = var.region
 }
 
 module "codebuild_deploy_integration" {
@@ -60,7 +58,6 @@ module "codebuild_deploy_integration" {
     { name = "CLUSTER_NAME", value = "${var.integration_prefix}-${var.ecs_cluster_name}" },
     { name = "SERVICE_NAME", value = "${var.integration_prefix}-${var.ecs_service_name}" },
   ]
-  region = var.region
 }
 
 module "codebuild_deploy_staging" {
@@ -76,7 +73,6 @@ module "codebuild_deploy_staging" {
     { name = "CLUSTER_NAME", value = "${var.staging_prefix}-${var.ecs_cluster_name}" },
     { name = "SERVICE_NAME", value = "${var.staging_prefix}-${var.ecs_service_name}" },
   ]
-  region = var.region
 }
 
 module "codebuild_integration_check_integration_restart" {
@@ -91,7 +87,6 @@ module "codebuild_integration_check_integration_restart" {
     { name = "CLUSTER_NAME", value = "${var.integration_prefix}-${var.ecs_cluster_name}" },
     { name = "SERVICE_NAME", value = "${var.integration_prefix}-${var.ecs_service_name}" },
   ]
-  region = var.region
 }
 
 
@@ -108,5 +103,4 @@ module "codebuild_deploy_production" {
     { name = "CLUSTER_NAME", value = "${var.production_prefix}-${var.ecs_cluster_name}" },
     { name = "SERVICE_NAME", value = "${var.production_prefix}-${var.ecs_service_name}" },
   ]
-  region = var.region
 }

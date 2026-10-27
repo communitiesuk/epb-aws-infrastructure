@@ -22,7 +22,6 @@ module "codebuild_restart_integration" {
     { name = "AWS_ACCOUNT_ID", value = var.account_ids["integration"] },
     { name = "PREFIX", value = var.integration_prefix }
   ]
-  region = var.region
 }
 
 module "codebuild_restart_staging" {
@@ -36,7 +35,6 @@ module "codebuild_restart_staging" {
     { name = "AWS_ACCOUNT_ID", value = var.account_ids["staging"] },
     { name = "PREFIX", value = var.staging_prefix }
   ]
-  region = var.region
 }
 
 module "codebuild_restart_production" {
@@ -50,5 +48,4 @@ module "codebuild_restart_production" {
     { name = "AWS_ACCOUNT_ID", value = var.account_ids["production"] },
     { name = "PREFIX", value = var.production_prefix }
   ]
-  region = var.region
 }

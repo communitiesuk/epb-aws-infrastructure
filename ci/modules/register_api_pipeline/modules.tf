@@ -40,7 +40,6 @@ module "codebuild_run_app_test" {
     { name = "STAGE", value = "integration" },
     { name = "POSTGRES_IMAGE_URL", value = var.postgres_image_ecr_url },
   ]
-  region = var.region
 }
 
 module "codebuild_build_app_image" {
@@ -54,7 +53,6 @@ module "codebuild_build_app_image" {
     { name = "AWS_ACCOUNT_ID", value = var.account_ids["integration"] },
     { name = "DOCKER_IMAGE", value = var.app_image_name },
   ]
-  region = var.region
 }
 
 module "codebuild_deploy_integration" {
@@ -72,7 +70,6 @@ module "codebuild_deploy_integration" {
     { name = "SERVICE_NAME", value = "${var.integration_prefix}-${var.ecs_service_name}" },
     { name = "PREFIX", value = var.integration_prefix },
   ]
-  region = var.region
 }
 
 module "codebuild_deploy_staging" {
@@ -90,7 +87,6 @@ module "codebuild_deploy_staging" {
     { name = "SERVICE_NAME", value = "${var.staging_prefix}-${var.ecs_service_name}" },
     { name = "PREFIX", value = var.staging_prefix },
   ]
-  region = var.region
 }
 
 
@@ -108,7 +104,6 @@ module "codebuild_frontend_smoke_test" {
     { name = "cypress_find_domain_integration", value = "https://find-energy-certificate-integration.digital.communities.gov.uk/" },
     { name = "cypress_find_service_cy_integration", value = "https://find-energy-certificate-integration.digital.communities.gov.uk/?lang=cy" }
   ]
-  region = var.region
 }
 
 module "codebuild_performance_test" {
@@ -118,7 +113,6 @@ module "codebuild_performance_test" {
   build_image_uri       = var.aws_codebuild_image
   buildspec_file        = "buildspec_aws.yml"
   environment_variables = []
-  region                = var.region
 }
 
 module "codebuild_check_integration_restart" {
@@ -133,7 +127,6 @@ module "codebuild_check_integration_restart" {
     { name = "CLUSTER_NAME", value = "${var.integration_prefix}-${var.ecs_cluster_name}" },
     { name = "SERVICE_NAME", value = "${var.integration_prefix}-${var.ecs_service_name}" },
   ]
-  region = var.region
 }
 
 module "codebuild_check_staging_restart" {
@@ -148,7 +141,6 @@ module "codebuild_check_staging_restart" {
     { name = "CLUSTER_NAME", value = "${var.staging_prefix}-${var.ecs_cluster_name}" },
     { name = "SERVICE_NAME", value = "${var.staging_prefix}-${var.ecs_service_name}" },
   ]
-  region = var.region
 }
 
 module "codebuild_deploy_production" {
@@ -166,5 +158,4 @@ module "codebuild_deploy_production" {
     { name = "SERVICE_NAME", value = "${var.production_prefix}-${var.ecs_service_name}" },
     { name = "PREFIX", value = var.production_prefix },
   ]
-  region = var.region
 }

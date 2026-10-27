@@ -4,17 +4,14 @@ module "account_security" {
 
 module "artefact" {
   source = "./modules/artifact_bucket"
-  region = var.region
 }
 
 module "performance_reports" {
   source = "./modules/performance_test_report_bucket"
-  region = var.region
 }
 
 module "codestar_connection" {
   source = "./modules/codestar_connection"
-  region = var.region
 }
 
 
@@ -24,7 +21,6 @@ module "codebuild_role" {
   performance_reports_bucket_arn = module.performance_reports.codepipeline_bucket_arn
   cross_account_role_arns        = var.cross_account_role_arns
   codestar_connection_arn        = module.codestar_connection.codestar_connection_arn
-  region                         = var.region
   s3_buckets_to_access           = [var.tech_docs_bucket_repo, var.api_docs_bucket]
 }
 
@@ -277,7 +273,6 @@ module "restart_ecs_tasks_pipeline" {
 
 module "cc-tray" {
   source = "./modules/cc_tray"
-  region = var.region
 }
 
 module "tech_docs_pipeline" {

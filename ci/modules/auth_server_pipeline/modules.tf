@@ -34,7 +34,6 @@ module "codebuild_run_app_test" {
     { name = "POSTGRES_IMAGE_URL", value = var.postgres_image_ecr_url },
 
   ]
-  region = var.region
 }
 
 module "codebuild_build_app_image" {
@@ -47,7 +46,6 @@ module "codebuild_build_app_image" {
     { name = "AWS_DEFAULT_REGION", value = var.region },
     { name = "AWS_ACCOUNT_ID", value = var.account_ids["integration"] },
   ]
-  region = var.region
 }
 
 module "codebuild_deploy_integration" {
@@ -64,7 +62,6 @@ module "codebuild_deploy_integration" {
     { name = "SERVICE_NAME", value = "${var.integration_prefix}-${var.ecs_service_name}" },
     { name = "PREFIX", value = var.integration_prefix },
   ]
-  region = var.region
 }
 
 module "codebuild_deploy_staging" {
@@ -81,7 +78,6 @@ module "codebuild_deploy_staging" {
     { name = "SERVICE_NAME", value = "${var.staging_prefix}-${var.ecs_service_name}" },
     { name = "PREFIX", value = var.staging_prefix },
   ]
-  region = var.region
 }
 
 
@@ -97,7 +93,6 @@ module "codebuild_integration_check_integration_restart" {
     { name = "CLUSTER_NAME", value = "${var.integration_prefix}-${var.ecs_cluster_name}" },
     { name = "SERVICE_NAME", value = "${var.integration_prefix}-${var.ecs_service_name}" },
   ]
-  region = var.region
 }
 
 module "codebuild_deploy_production" {
@@ -114,5 +109,4 @@ module "codebuild_deploy_production" {
     { name = "SERVICE_NAME", value = "${var.production_prefix}-${var.ecs_service_name}" },
     { name = "PREFIX", value = var.production_prefix },
   ]
-  region = var.region
 }

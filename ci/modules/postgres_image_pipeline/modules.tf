@@ -19,5 +19,4 @@ module "codebuild_build_push_image" {
     { name = "REPOSITORY_URI", value = aws_ecr_repository.this.repository_url },
     { name = "AWS_ACCOUNT_ID", value = data.aws_caller_identity.current.account_id },
   ]
-  region = var.region
 }

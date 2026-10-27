@@ -3,7 +3,7 @@ terraform {
 
   required_providers {
     aws = {
-      version = "~>5.100"
+      version = "~>6.70"
       source  = "hashicorp/aws"
     }
     archive = {
@@ -12,11 +12,3 @@ terraform {
     }
   }
 }
-
-provider "aws" {
-  region                   = var.region
-  shared_config_files      = ["~/.aws/config"]
-  shared_credentials_files = ["~/.aws/credentials"]
-}
-
-

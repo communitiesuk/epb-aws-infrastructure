@@ -22,7 +22,6 @@ module "codebuild_build_push_repo_intg" {
     { name = "ENV", value = "intg" },
     { name = "AWS_ACCOUNT_ID", value = var.account_ids["integration"] },
   ]
-  region = var.region
 }
 
 module "codebuild_build_push_repo_stag" {
@@ -35,7 +34,6 @@ module "codebuild_build_push_repo_stag" {
     { name = "ENV", value = "stag" },
     { name = "AWS_ACCOUNT_ID", value = var.account_ids["staging"] },
   ]
-  region = var.region
 }
 
 module "codebuild_build_push_repo_prod" {
@@ -48,5 +46,4 @@ module "codebuild_build_push_repo_prod" {
     { name = "ENV", value = "prod" },
     { name = "AWS_ACCOUNT_ID", value = var.account_ids["production"] },
   ]
-  region = var.region
 }

@@ -15,7 +15,6 @@ module "codebuild_performance_test" {
   build_image_uri       = var.aws_codebuild_image
   buildspec_file        = "buildspec_aws.yml"
   environment_variables = []
-  region                = var.region
 }
 
 module "codebuild_performance_test_production" {
@@ -25,5 +24,4 @@ module "codebuild_performance_test_production" {
   build_image_uri       = var.aws_codebuild_image
   buildspec_file        = "buildspec_aws_production.yml"
   environment_variables = []
-  region                = var.region
 }

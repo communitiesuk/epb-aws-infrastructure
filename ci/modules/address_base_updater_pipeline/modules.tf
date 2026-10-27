@@ -32,7 +32,6 @@ module "codebuild_run_app_test" {
     { name = "STAGE", value = "integration" },
     { name = "POSTGRES_IMAGE_URL", value = var.postgres_image_ecr_url },
   ]
-  region = var.region
 }
 
 module "codebuild_build_app_image" {
@@ -45,7 +44,6 @@ module "codebuild_build_app_image" {
     { name = "AWS_DEFAULT_REGION", value = var.region },
     { name = "AWS_ACCOUNT_ID", value = var.account_ids["integration"] },
   ]
-  region = var.region
 }
 
 module "codebuild_deploy_integration" {
@@ -59,7 +57,6 @@ module "codebuild_deploy_integration" {
     { name = "AWS_ACCOUNT_ID", value = var.account_ids["integration"] },
     { name = "DOCKER_IMAGE_URI", value = "${var.account_ids["integration"]}.dkr.ecr.${var.region}.amazonaws.com/${var.integration_prefix}-${var.app_ecr_name}" },
   ]
-  region = var.region
 }
 
 module "codebuild_deploy_staging" {
@@ -73,7 +70,6 @@ module "codebuild_deploy_staging" {
     { name = "AWS_ACCOUNT_ID", value = var.account_ids["staging"] },
     { name = "DOCKER_IMAGE_URI", value = "${var.account_ids["staging"]}.dkr.ecr.${var.region}.amazonaws.com/${var.staging_prefix}-${var.app_ecr_name}" },
   ]
-  region = var.region
 }
 
 module "codebuild_deploy_production" {
@@ -88,5 +84,4 @@ module "codebuild_deploy_production" {
     { name = "DOCKER_IMAGE_URI", value = "${var.account_ids["production"]}.dkr.ecr.${var.region}.amazonaws.com/${var.production_prefix}-${var.app_ecr_name}" },
     { name = "PREFIX", value = var.production_prefix },
   ]
-  region = var.region
 }

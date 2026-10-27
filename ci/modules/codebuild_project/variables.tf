@@ -22,7 +22,3 @@ variable "buildspec_file" {
 variable "environment_variables" {
   type = list(map(string))
 }
-
-variable "region" {
-  type = string
-}

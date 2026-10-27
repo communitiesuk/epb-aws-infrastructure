@@ -26,7 +26,6 @@ module "codebuild_build_app_image" {
     { name = "DOCKER_IMAGE", value = var.app_image_name },
     { name = "DOCKER_IMAGE_URI", value = "${var.dev_account_id}.dkr.ecr.${var.region}.amazonaws.com/${local.ecr_name}" },
   ]
-  region = var.region
 }
 
 module "codebuild_deploy" {
@@ -42,5 +41,4 @@ module "codebuild_deploy" {
     { name = "CLUSTER_NAME", value = "${var.developer_prefix}-${var.ecs_cluster_name}" },
     { name = "SERVICE_NAME", value = "${var.developer_prefix}-${var.ecs_service_name}" },
   ]
-  region = var.region
 }

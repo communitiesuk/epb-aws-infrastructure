@@ -15,9 +15,3 @@ variable "key" {
   default     = "cc.xml"
   type        = string
 }
-
-
-variable "region" {
-  type = string
-}
-

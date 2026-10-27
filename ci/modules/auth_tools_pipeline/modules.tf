@@ -19,5 +19,4 @@ module "codebuild_run_app_test" {
     { name = "AWS_DEFAULT_REGION", value = var.region },
     { name = "AWS_ACCOUNT_ID", value = data.aws_caller_identity.current.account_id },
   ]
-  region = var.region
 }
