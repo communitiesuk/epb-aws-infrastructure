@@ -1023,11 +1023,6 @@ module "logging" {
   memory_size               = var.environment == "prod" ? 256 : 128
 }
 
-module "fluentbit_ecr" {
-  source              = "./ecr"
-  ecr_repository_name = "${local.prefix}-fluentbit"
-}
-
 module "alerts" {
   source                     = "./alerts"
   prefix                     = local.prefix
