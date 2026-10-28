@@ -110,13 +110,19 @@ def construct_athena_query(filters):
     logger.info(f"Athena Query: {query}")
     return query
 
+def get_recommendations_join(filters):
+    if filters["property_type"] == "domestic":
+        return "certificate_number"
+    else:
+        return "related_certificate_number"
 
 def construct_recommendations_athena_query(filters):
     clauses = query_search_filter_setup(filters)
     select_columns = get_column_ordering(rr_table(filters), prefix="rr.")
     base_rr_query = f'SELECT {select_columns} \
                       FROM "{ATHENA_DATABASE}"."{rr_table(filters)}" rr \
-                      JOIN "{ATHENA_DATABASE}"."{table(filters)}" m ON m.certificate_number=rr.certificate_number'
+                      JOIN "{ATHENA_DATABASE}"."{table(filters)}" m \
+                      ON m.certificate_number= rr.{get_recommendations_join(filters)}'
 
     query = f"{base_rr_query} WHERE {' AND '.join(clauses)}"
     logger.info(f"Athena Recommendations Query: {query}")
