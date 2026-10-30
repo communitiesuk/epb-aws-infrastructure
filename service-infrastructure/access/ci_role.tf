@@ -43,4 +43,28 @@ resource "aws_iam_role_policy_attachment" "codebuild_ecr_policy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPowerUser"
 }
 
+resource "aws_iam_role_policy" "ci_s3_policy" {
+  name = "ci-s3-policy"
+  role = aws_iam_role.ci_role.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        "Action" : [
+          "s3:DeleteObject",
+          "s3:GetBucketLocation",
+          "s3:GetObject",
+          "s3:ListBucket",
+          "s3:PutObject"
+        ]
+        Resource = [
+          "arn:aws:s3:::epb-${var.environment}-data-lake/*",
+          "arn:aws:s3:::epb-${var.environment}-data-lake"
+        ]
+      }
+    ]
+  })
+}
+
 

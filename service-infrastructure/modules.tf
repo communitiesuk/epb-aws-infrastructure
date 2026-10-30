@@ -19,6 +19,7 @@ module "networking" {
 module "access" {
   source        = "./access"
   ci_account_id = var.ci_account_id
+  environment   = var.environment
 }
 
 module "ssl_certificate" {
