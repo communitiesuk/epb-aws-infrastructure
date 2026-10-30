@@ -8,11 +8,6 @@ variable "script_file_name" {
   description = "the name of python script file"
 }
 
-variable "scripts_module" {
-  type        = string
-  description = "the path to etl scripts"
-}
-
 variable "role_arn" {
   type        = string
   description = "the arn of the glue IAM role"
@@ -42,11 +37,6 @@ variable "python_version" {
 variable "glue_version" {
   type    = string
   default = "5.0"
-}
-
-variable "suffix" {
-  type    = string
-  default = ""
 }
 
 variable "worker_type" {

@@ -126,7 +126,6 @@ module "populate_json_documents_etl" {
   role_arn         = aws_iam_role.glueServiceRole.arn
   script_file_name = "populate_iceberg_catalog.py"
   scripts_module   = path.module
-  suffix           = ".json_documents_${local.catalog_start_year + count.index}"
   arguments = {
     "--DATABASE_NAME"             = aws_glue_catalog_database.this.name
     "--CATALOG_TABLE_NAME"        = "json_documents"
