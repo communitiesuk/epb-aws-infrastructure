@@ -233,6 +233,25 @@ module "data_warehouse-pipeline" {
   aws_codebuild_image     = var.aws_amd_codebuild_image
 }
 
+module "data_warehouse-glue-pipeline" {
+  source                  = "./modules/data_warehouse_glue_pipeline"
+  artefact_bucket_arn     = module.artefact.codepipeline_bucket_arn
+  codepipeline_bucket     = module.artefact.codepipeline_bucket
+  codebuild_role_arn      = module.codebuild_role.aws_codebuild_role_arn
+  pipeline_name           = "epbr-data-warehouse-glue-pipeline"
+  github_repository       = "epb-data-pipeline"
+  github_branch           = "main"
+  github_organisation     = var.github_organisation
+  integration_prefix      = var.integration_prefix
+  staging_prefix          = var.staging_prefix
+  production_prefix       = var.production_prefix
+  codestar_connection_arn = module.codestar_connection.codestar_connection_arn
+  project_name            = "epbr-data-warehouse-glue"
+  region                  = var.region
+  aws_codebuild_image     = var.aws_amd_codebuild_image
+  account_ids             = var.account_ids
+}
+
 module "toggles-pipeline" {
   source                  = "./modules/toggles_pipeline"
   codepipeline_bucket     = module.artefact.codepipeline_bucket
