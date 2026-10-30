@@ -74,3 +74,12 @@ variable "parameters" {
   type        = map(string)
   sensitive   = true
 }
+
+variable "docker_hub_access_token" {
+  type      = string
+  sensitive = true
+}
+
+variable "docker_hub_organisation" {
+  type = string
+}

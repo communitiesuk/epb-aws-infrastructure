@@ -67,3 +67,12 @@ variable "ecs_service_name" {
 variable "developer_prefix" {
   type = string
 }
+
+variable "docker_hub_access_token" {
+  type      = string
+  sensitive = true
+}
+
+variable "docker_hub_organisation" {
+  type = string
+}

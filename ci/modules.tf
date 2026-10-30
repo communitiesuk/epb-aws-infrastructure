@@ -354,6 +354,8 @@ module "prototypes_pipeline" {
   app_image_name          = "prototypes-image"
   codebuild_image_ecr_url = module.app_test_image_pipeline.image_repository_url
   developer_prefix        = var.developer_prefix
+  docker_hub_access_token = var.docker_hub_access_token
+  docker_hub_organisation = var.docker_hub_organisation
 }
 
 module "view-models-pipeline" {

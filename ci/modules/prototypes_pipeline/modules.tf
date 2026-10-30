@@ -25,6 +25,8 @@ module "codebuild_build_app_image" {
     { name = "AWS_ACCOUNT_ID", value = var.dev_account_id },
     { name = "DOCKER_IMAGE", value = var.app_image_name },
     { name = "DOCKER_IMAGE_URI", value = "${var.dev_account_id}.dkr.ecr.${var.region}.amazonaws.com/${local.ecr_name}" },
+    { name = "DOCKER_HUB_ACCESS_TOKEN", value = var.docker_hub_access_token },
+    { name = "DOCKER_HUB_ORGANISATION", value = var.docker_hub_organisation }
   ]
 }
 
