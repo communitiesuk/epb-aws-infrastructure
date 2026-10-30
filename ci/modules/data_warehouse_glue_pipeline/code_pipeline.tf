@@ -59,32 +59,32 @@ resource "aws_codepipeline" "codepipeline" {
       }
     }
 
-    # action {
-    #   name            = "deploy-data-warehouse-glue-jobs-to-staging"
-    #   category        = "Build"
-    #   owner           = "AWS"
-    #   provider        = "CodeBuild"
-    #   version         = "1"
-    #   input_artifacts = ["source_output"]
-    #   configuration = {
-    #     ProjectName = module.codebuild_deploy_staging.codebuild_name
-    #   }
-    # }
+    action {
+      name            = "deploy-data-warehouse-glue-jobs-to-staging"
+      category        = "Build"
+      owner           = "AWS"
+      provider        = "CodeBuild"
+      version         = "1"
+      input_artifacts = ["source_output"]
+      configuration = {
+        ProjectName = module.codebuild_deploy_staging.codebuild_name
+      }
+    }
   }
 
-  # stage {
-  #   name = "deploy-to-production"
-  #
-  #   action {
-  #     name            = "deploy-data-warehouse-glue-jobs-to-production"
-  #     category        = "Build"
-  #     owner           = "AWS"
-  #     provider        = "CodeBuild"
-  #     version         = "1"
-  #     input_artifacts = ["source_output"]
-  #     configuration = {
-  #       ProjectName = module.codebuild_deploy_production.codebuild_name
-  #     }
-  #   }
-  # }
+  stage {
+    name = "deploy-to-production"
+
+    action {
+      name            = "deploy-data-warehouse-glue-jobs-to-production"
+      category        = "Build"
+      owner           = "AWS"
+      provider        = "CodeBuild"
+      version         = "1"
+      input_artifacts = ["source_output"]
+      configuration = {
+        ProjectName = module.codebuild_deploy_production.codebuild_name
+      }
+    }
+  }
 }
