@@ -11,7 +11,6 @@ module "populate_domestic_etl" {
   job_name         = "Populate domestic catalog"
   role_arn         = aws_iam_role.glueServiceRole.arn
   script_file_name = "populate_iceberg_catalog.py"
-  scripts_module   = path.module
   worker_type      = local.worker_type
   arguments = {
     "--DATABASE_NAME"             = aws_glue_catalog_database.this.name
@@ -31,7 +30,6 @@ module "populate_domestic_rr_etl" {
   job_name         = "Populate domestic rr catalog"
   role_arn         = aws_iam_role.glueServiceRole.arn
   script_file_name = "populate_iceberg_catalog.py"
-  scripts_module   = path.module
   worker_type      = local.worker_type
   arguments = {
     "--DATABASE_NAME"             = aws_glue_catalog_database.this.name
@@ -50,7 +48,6 @@ module "populate_non_domestic_etl" {
   job_name         = "Populate non-domestic catalog"
   role_arn         = aws_iam_role.glueServiceRole.arn
   script_file_name = "populate_iceberg_catalog.py"
-  scripts_module   = path.module
   arguments = {
     "--DATABASE_NAME"             = aws_glue_catalog_database.this.name
     "--CATALOG_TABLE_NAME"        = "non_domestic"
@@ -68,7 +65,6 @@ module "populate_non_domestic_rr_etl" {
   job_name         = "Populate non-domestic rr catalog"
   role_arn         = aws_iam_role.glueServiceRole.arn
   script_file_name = "populate_iceberg_catalog.py"
-  scripts_module   = path.module
   arguments = {
     "--DATABASE_NAME"             = aws_glue_catalog_database.this.name
     "--CATALOG_TABLE_NAME"        = "non_domestic_rr"
@@ -87,7 +83,6 @@ module "populate_dec_etl" {
   job_name         = "Populate display catalog"
   role_arn         = aws_iam_role.glueServiceRole.arn
   script_file_name = "populate_iceberg_catalog.py"
-  scripts_module   = path.module
   arguments = {
     "--DATABASE_NAME"             = aws_glue_catalog_database.this.name
     "--CATALOG_TABLE_NAME"        = "display"
@@ -105,7 +100,6 @@ module "populate_dec_rr_etl" {
   job_name         = "Populate display rr catalog"
   role_arn         = aws_iam_role.glueServiceRole.arn
   script_file_name = "populate_iceberg_catalog.py"
-  scripts_module   = path.module
   arguments = {
     "--DATABASE_NAME"             = aws_glue_catalog_database.this.name
     "--CATALOG_TABLE_NAME"        = "display_rr"
@@ -125,7 +119,6 @@ module "populate_json_documents_etl" {
   job_name         = "Populate json documents catalog ${local.catalog_start_year + count.index}"
   role_arn         = aws_iam_role.glueServiceRole.arn
   script_file_name = "populate_iceberg_catalog.py"
-  scripts_module   = path.module
   arguments = {
     "--DATABASE_NAME"             = aws_glue_catalog_database.this.name
     "--CATALOG_TABLE_NAME"        = "json_documents"
@@ -149,7 +142,6 @@ module "delete_iceberg_data" {
   job_name         = "Delete Iceberg data"
   role_arn         = aws_iam_role.glueServiceRole.arn
   script_file_name = "delete_data.py"
-  scripts_module   = path.module
 }
 
 module "insert_domestic_iceberg_data" {
@@ -167,7 +159,6 @@ module "insert_domestic_iceberg_data" {
   job_name         = "Insert domestic iceberg data"
   role_arn         = aws_iam_role.glueServiceRole.arn
   script_file_name = "insert_data.py"
-  scripts_module   = path.module
 }
 
 module "insert_domestic_rr_iceberg_data" {
@@ -185,7 +176,6 @@ module "insert_domestic_rr_iceberg_data" {
   job_name         = "Insert domestic rr iceberg data"
   role_arn         = aws_iam_role.glueServiceRole.arn
   script_file_name = "insert_data.py"
-  scripts_module   = path.module
 }
 
 module "insert_non_domestic_iceberg_data" {
@@ -203,7 +193,6 @@ module "insert_non_domestic_iceberg_data" {
   job_name         = "Insert non-domestic iceberg data"
   role_arn         = aws_iam_role.glueServiceRole.arn
   script_file_name = "insert_data.py"
-  scripts_module   = path.module
 }
 
 module "insert_non_domestic_rr_iceberg_data" {
@@ -221,7 +210,6 @@ module "insert_non_domestic_rr_iceberg_data" {
   job_name         = "Insert non-domestic rr iceberg data"
   role_arn         = aws_iam_role.glueServiceRole.arn
   script_file_name = "insert_data.py"
-  scripts_module   = path.module
 }
 
 module "insert_dec_iceberg_data" {
@@ -239,7 +227,6 @@ module "insert_dec_iceberg_data" {
   job_name         = "Insert display iceberg data"
   role_arn         = aws_iam_role.glueServiceRole.arn
   script_file_name = "insert_data.py"
-  scripts_module   = path.module
 }
 
 module "insert_dec_rr_iceberg_data" {
@@ -257,7 +244,6 @@ module "insert_dec_rr_iceberg_data" {
   job_name         = "Insert display rr iceberg data"
   role_arn         = aws_iam_role.glueServiceRole.arn
   script_file_name = "insert_data.py"
-  scripts_module   = path.module
 }
 
 module "insert_json_document_iceberg_data" {
@@ -275,7 +261,6 @@ module "insert_json_document_iceberg_data" {
   job_name         = "Insert json documents iceberg data"
   role_arn         = aws_iam_role.glueServiceRole.arn
   script_file_name = "insert_data.py"
-  scripts_module   = path.module
 }
 
 module "export_domestic_data_by_year" {
@@ -284,7 +269,6 @@ module "export_domestic_data_by_year" {
   job_name         = "Export domestic data by year to S3"
   role_arn         = aws_iam_role.glueServiceRole.arn
   script_file_name = "export_by_year.py"
-  scripts_module   = path.module
   arguments = {
     "--DATABASE_NAME" = aws_glue_catalog_database.this.name
     "--TABLE_NAME"    = "domestic"
@@ -299,7 +283,6 @@ module "export_non_domestic_data_by_year" {
   job_name         = "Export non-domestic data by year to S3"
   role_arn         = aws_iam_role.glueServiceRole.arn
   script_file_name = "export_by_year.py"
-  scripts_module   = path.module
   arguments = {
     "--DATABASE_NAME" = aws_glue_catalog_database.this.name
     "--TABLE_NAME"    = "non_domestic"
@@ -314,7 +297,6 @@ module "export_dec_data_by_year" {
   job_name         = "Export display data by year to S3"
   role_arn         = aws_iam_role.glueServiceRole.arn
   script_file_name = "export_by_year.py"
-  scripts_module   = path.module
   arguments = {
     "--DATABASE_NAME" = aws_glue_catalog_database.this.name
     "--TABLE_NAME"    = "display"
@@ -329,7 +311,6 @@ module "export_json_domestic_data_by_year" {
   job_name         = "Export JSON domestic data by year to S3"
   role_arn         = aws_iam_role.glueServiceRole.arn
   script_file_name = "export_json_by_year.py"
-  scripts_module   = path.module
   arguments = {
     "--DATABASE_NAME"    = aws_glue_catalog_database.this.name
     "--TABLE_NAME"       = "json_documents"
@@ -345,7 +326,6 @@ module "export_json_non_domestic_data_by_year" {
   job_name         = "Export JSON non-domestic data by year to S3"
   role_arn         = aws_iam_role.glueServiceRole.arn
   script_file_name = "export_json_by_year.py"
-  scripts_module   = path.module
   worker_type      = local.worker_type
   arguments = {
     "--DATABASE_NAME"    = aws_glue_catalog_database.this.name
@@ -362,7 +342,6 @@ module "export_json_non_domestic_rr_data_by_year" {
   job_name         = "Export json non-domestic RR data by year to S3"
   role_arn         = aws_iam_role.glueServiceRole.arn
   script_file_name = "export_json_by_year.py"
-  scripts_module   = path.module
   worker_type      = local.worker_type
   arguments = {
     "--DATABASE_NAME"    = aws_glue_catalog_database.this.name
@@ -379,7 +358,6 @@ module "export_json_dec_data_by_year" {
   job_name         = "Export JSON display data by year to S3"
   role_arn         = aws_iam_role.glueServiceRole.arn
   script_file_name = "export_json_by_year.py"
-  scripts_module   = path.module
   worker_type      = local.worker_type
   arguments = {
     "--DATABASE_NAME"    = aws_glue_catalog_database.this.name
@@ -396,7 +374,6 @@ module "export_json_dec_rr_data_by_year" {
   job_name         = "Export JSON display rr data by year to S3"
   role_arn         = aws_iam_role.glueServiceRole.arn
   script_file_name = "export_json_by_year.py"
-  scripts_module   = path.module
   worker_type      = local.worker_type
   arguments = {
     "--DATABASE_NAME"    = aws_glue_catalog_database.this.name
