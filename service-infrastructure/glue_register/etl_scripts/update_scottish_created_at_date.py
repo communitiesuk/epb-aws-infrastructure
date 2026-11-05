@@ -46,9 +46,57 @@ df = (
         .cache()
 )
 
+
+# Add optional columns if they were completely absent to prevent later errors
+optional_columns = [
+    "RRN",
+    "DEC-RRN",
+    "AR-RRN",
+    "CreatedAt"
+]
+
+for column in optional_columns:
+    if column not in df.columns:
+        df = df.withColumn(
+            column,
+            F.lit(None).cast("string")
+        )
+
 record_count = df.count()
 
 print(f"Number of JSON records read: {record_count}")
+
+# For DEC-AR metadata this will split out records with both DEC and AR RRNs so both records get updated
+# If there is just a DEC-RRN, this will be used as the assessment_id
+# For everything else it will use the RRN as the assessment_id
+df = (
+    df
+    .withColumn(
+        "assessment_ids",
+        F.when(
+            F.col("RRN").isNotNull(),
+            F.array(F.col("RRN"))
+        ).otherwise(
+            F.array(
+                F.col("DEC-RRN"),
+                F.col("AR-RRN")
+            )
+        )
+    )
+    .withColumn(
+        "assessment_id",
+        F.explode("assessment_ids")
+    )
+    .filter(F.col("assessment_id").isNotNull())
+)
+
+df = df.cache()
+
+assessment_record_count = df.count()
+
+print(
+    f"Number of assessment IDs found: {assessment_record_count}"
+)
 
 # -----------------------------
 # Filter valid CreatedAt rows
@@ -60,7 +108,7 @@ with_created_at = df.filter(F.col("CreatedAt").isNotNull())
 # -----------------------------
 updates = (
     with_created_at.select(
-        F.col("RRN").alias("assessment_id"),
+        F.col("assessment_id").alias("assessment_id"),
         F.to_timestamp(F.col("CreatedAt")).alias("created_at")
     )
     # important for large datasets → improves JDBC parallelism

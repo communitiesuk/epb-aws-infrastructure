@@ -52,3 +52,7 @@ variable "output_bucket_read_policy" {
 variable "storage_bucket" {
   type = string
 }
+
+variable "python_modules" {
+  type = string
+}

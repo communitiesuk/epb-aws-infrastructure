@@ -1366,6 +1366,7 @@ module "register_glue" {
   vpc_id                    = module.networking.vpc_id
   storage_bucket            = module.scotland_metadata[0].bucket_name
   output_bucket_read_policy = module.scotland_metadata[0].s3_read_access_policy_arn
+  python_modules            = "pg8000==1.31.6"
 }
 
 module "epb_data_user_credentials" {
