@@ -2,7 +2,7 @@ module "update_scottish_created_at_date" {
   source           = "./etl_job"
   bucket_name      = var.storage_bucket
   glue_connector   = [aws_glue_connection.this.name]
-  job_name         = "Update Scottish CreatedAt date"
+  job_name         = "${var.prefix}-update-scottish-createdAt"
   role_arn         = aws_iam_role.glueServiceRole.arn
   script_file_name = "update_scottish_created_at_date.py"
   scripts_module   = path.module
@@ -20,7 +20,7 @@ module "update_scottish_address_ids" {
   source           = "./etl_job"
   bucket_name      = var.storage_bucket
   glue_connector   = [aws_glue_connection.this.name]
-  job_name         = "Update Scottish address_ids"
+  job_name         = "${var.prefix}-update-scottish-addressId"
   role_arn         = aws_iam_role.glueServiceRole.arn
   script_file_name = "update_scottish_address_ids.py"
   scripts_module   = path.module
@@ -38,7 +38,7 @@ module "insert_scottish_green_deals" {
   source           = "./etl_job"
   bucket_name      = var.storage_bucket
   glue_connector   = [aws_glue_connection.this.name]
-  job_name         = "Insert Scottish green deals"
+  job_name         = "${var.prefix}-insert-scottish-green-deals"
   role_arn         = aws_iam_role.glueServiceRole.arn
   script_file_name = "insert_scottish_green_deals.py"
   scripts_module   = path.module
@@ -61,7 +61,7 @@ module "update_scottish_status" {
   source           = "./etl_job"
   bucket_name      = var.storage_bucket
   glue_connector   = [aws_glue_connection.this.name]
-  job_name         = "Update Scottish Statuses"
+  job_name         = "${var.prefix}-update-scottish-cancelledAt"
   role_arn         = aws_iam_role.glueServiceRole.arn
   script_file_name = "update_scottish_status.py"
   scripts_module   = path.module
