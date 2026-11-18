@@ -3,7 +3,7 @@ locals {
   fluentbit_container_name       = "${var.prefix}-container-fluentbit"
   migration_container_name       = "${var.prefix}-container-db-migration"
   ecr_image                      = local.has_ecr == 1 ? "${aws_ecr_repository.this[0].repository_url}:latest" : var.external_ecr
-  has_address_base_updater_image = var.address_base_updater_ecr != null ? true : false
+  has_address_base_updater_image = var.has_address_base_updater_image
   address_base_container_name    = "${var.prefix}-container-address-base-updater"
 }
 

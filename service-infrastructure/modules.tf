@@ -548,8 +548,9 @@ module "register_api_database_v2" {
 # group name, and reinstate a single "group_name" parameter to all "aurora_rds" modules in this file.
 
 module "scheduled_tasks_application" {
-  source                   = "./application"
-  address_base_updater_ecr = module.address_base_updater_ecr.ecr_url
+  source                         = "./application"
+  address_base_updater_ecr       = module.address_base_updater_ecr.ecr_url
+  has_address_base_updater_image = true
   additional_task_execution_role_policy_arns = {
     "Redis_access" : data.aws_iam_policy.elasticache_full_access.arn
   }
@@ -568,6 +569,7 @@ module "scheduled_tasks_application" {
   environment_variables         = {}
   exec_cmd_task_cpu             = var.environment == "intg" ? 512 : 1024
   exec_cmd_task_ram             = var.environment == "intg" ? 2048 : 8192
+  create_ecr                    = false
   external_ecr                  = module.register_api_application.ecr_repository_url
   fluentbit_ecr_url             = module.fluentbit_config.fluentbit_ecr_url
   fluentbit_config_arn          = module.fluentbit_config.config_arn
@@ -652,6 +654,7 @@ module "warehouse_scheduled_tasks_application" {
   task_max_capacity             = 3
   task_desired_capacity         = 0
   task_min_capacity             = 0
+  create_ecr                    = false
   external_ecr                  = module.warehouse_application.ecr_repository_url
   has_target_tracking           = false
   cloudwatch_ecs_events_arn     = module.logging.cloudwatch_ecs_events_arn

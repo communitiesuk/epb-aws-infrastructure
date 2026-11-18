@@ -10,7 +10,7 @@ terraform {
 }
 
 locals {
-  has_ecr = var.external_ecr == "" ? 1 : 0
+  has_ecr = var.create_ecr ? 1 : 0
 
   parameters = {
     for k, v in var.parameters :

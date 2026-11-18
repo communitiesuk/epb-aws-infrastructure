@@ -164,9 +164,21 @@ variable "external_ecr" {
   default = ""
 }
 
+variable "create_ecr" {
+  description = "Whether this module should create its own ECR repository. Set to false when reusing another module's ECR via external_ecr, since count cannot depend on that computed value."
+  type        = bool
+  default     = true
+}
+
 variable "address_base_updater_ecr" {
   type    = string
   default = null
+}
+
+variable "has_address_base_updater_image" {
+  description = "Whether to create the address-base-updater task definition. Set explicitly rather than inferring from address_base_updater_ecr, since that value is computed from another module's resource and count cannot depend on it."
+  type        = bool
+  default     = false
 }
 
 variable "exec_cmd_task_cpu" {
