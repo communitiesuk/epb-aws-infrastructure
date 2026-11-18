@@ -1,0 +1,83 @@
+environment           = ""
+region                = "eu-west-2"
+storage_backup_period = 1
+ci_account_id         = ""
+backup_account_id     = ""
+find_service_url      = "find-energy-certificate..."
+get_service_url       = "getting-new-energy-certificate..."
+data_service_url      = "get-energy-performance-data..."
+domain_name           = "..."
+subject_alternative_names = ["*.",
+  "find-energy-certificate...",
+  "getting-new-energy-certificate..."
+]
+vpc_cidr_block           = ""
+banned_ip_addresses      = []
+banned_ipv6_addresses    = []
+permitted_ip_addresses   = []
+permitted_ipv6_addresses = []
+task_desired_capacity    = 2
+task_min_capacity        = 2
+task_max_capacity        = 8
+task_cpu                 = 1024
+task_memory              = 2048
+
+parameters = {
+  "APP_ENV" : "production"
+  "DOMESTIC_APPROVED_SOFTWARE" : "{}"
+  "EPB_TEAM_SLACK_URL" : ""
+  "EPB_TEAM_MAIN_SLACK_URL" : ""
+  "EPB_UNLEASH_AUTH_TOKEN" : ""
+  "ONELOGIN_CLIENT_ID" : ""
+  "ONELOGIN_HOST_URL" : ""
+  "FRONTEND_EPB_AUTH_CLIENT_ID" : ""
+  "FRONTEND_EPB_AUTH_CLIENT_SECRET" : ""
+  "REGISTER_API_EPB_AUTH_CLIENT_ID" : ""
+  "REGISTER_API_EPB_AUTH_CLIENT_SECRET" : ""
+  "JWT_ISSUER" : "uk.gov.communities.epbr.auth...."
+  "JWT_SECRET" : ""
+  "LANG" : "en_GB.UTF-8"
+  "LOGSTASH_HOST" : ""
+  "LOGSTASH_PORT" : ""
+  "OPEN_DATA_REPORT_TYPE" : ""
+  "OS_DATA_HUB_API_KEY" : ""
+  "OS_NGD_MONTHLY_DATA_PACKAGE_ID" : ""
+  "NON_DOMESTIC_APPROVED_SOFTWARE" : "{}"
+  "NOTIFY_CLIENT_API_KEY" : ""
+  "NOTIFY_EMAIL_RECIPIENT" : ""
+  "NOTIFY_TEMPLATE_ID" : ""
+  "NOTIFY_DATA_API_KEY" : ""
+  "NOTIFY_DATA_TEMPLATE_ID" : ""
+  "NOTIFY_OPT_OUT_TEMPLATE_ID" : ""
+  "NOTIFY_OPT_OUT_EMAIL_RECIPIENT" : ""
+  "NOTIFY_DATA_EMAIL_USERS_TEMPLATE_ID" : ""
+  "RACK_ENV" : "deployment"
+  "RAILS_ENV" : "production"
+  "SENTRY_DSN_AUTH_SERVER" : ""
+  "SENTRY_DSN_DATA_WAREHOUSE" : ""
+  "SENTRY_DSN_REGISTER_API" : ""
+  "SENTRY_DSN_REGISTER_WORKER" : ""
+  "SENTRY_DSN_FRONTEND" : ""
+  "SENTRY_DSN_ADDRESSING" : ""
+  "SENTRY_DSN_DATA_FRONTEND" : ""
+  "SLACK_EPB_BOT_TOKEN" : ""
+  "STAGE" : "e.g. integration"
+  "STATIC_START_PAGE_FINDING_EN" : "NULL"
+  "STATIC_START_PAGE_FINDING_CY" : "NULL"
+  "STATIC_START_PAGE_GETTING_EN" : "NULL"
+  "STATIC_START_PAGE_GETTING_CY" : "NULL"
+  "TOGGLES_SECRET" : ""
+  "URL_PREFIX" : "/auth"
+  "VALID_DOMESTIC_SCHEMAS" : ""
+  "VALID_NON_DOMESTIC_SCHEMAS" : ""
+  "WAREHOUSE_EPB_AUTH_CLIENT_ID" : ""
+  "WAREHOUSE_EPB_AUTH_CLIENT_SECRET" : ""
+  "GTM_PROPERTY_FINDING" : ""
+}
+postgres_versions = {
+  addressing     = ""
+  auth           = ""
+  toggles        = ""
+  register       = ""
+  warehouse      = ""
+}
