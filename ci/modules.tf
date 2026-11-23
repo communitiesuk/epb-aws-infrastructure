@@ -33,7 +33,7 @@ module "app_test_image_pipeline" {
   configuration       = "aws-ruby-node"
 
   github_repository       = "epb-docker-images"
-  github_branch           = "master"
+  github_branch           = "main"
   github_organisation     = var.github_organisation
   codestar_connection_arn = module.codestar_connection.codestar_connection_arn
   region                  = var.region
@@ -57,7 +57,7 @@ module "auth-server-pipeline" {
   codebuild_role_arn      = module.codebuild_role.aws_codebuild_role_arn
   pipeline_name           = "epbr-auth-server-pipeline"
   github_repository       = "epb-auth-server"
-  github_branch           = "master"
+  github_branch           = "main"
   github_organisation     = var.github_organisation
   integration_prefix      = var.integration_prefix
   staging_prefix          = var.staging_prefix
@@ -81,7 +81,7 @@ module "auth-tools-pipeline" {
   codebuild_role_arn      = module.codebuild_role.aws_codebuild_role_arn
   pipeline_name           = "epbr-auth-tools-pipeline"
   github_repository       = "epb-auth-tools"
-  github_branch           = "master"
+  github_branch           = "main"
   github_organisation     = var.github_organisation
   codestar_connection_arn = module.codestar_connection.codestar_connection_arn
   project_name            = "epbr-auth-tools"
@@ -96,7 +96,7 @@ module "register-api-pipeline" {
   codebuild_role_arn          = module.codebuild_role.aws_codebuild_role_arn
   pipeline_name               = "epbr-register-api-pipeline"
   github_repository           = "epb-register-api"
-  github_branch               = "master"
+  github_branch               = "main"
   github_organisation         = var.github_organisation
   integration_prefix          = var.integration_prefix
   staging_prefix              = var.staging_prefix
@@ -140,7 +140,7 @@ module "frontend-pipeline" {
   codebuild_role_arn      = module.codebuild_role.aws_codebuild_role_arn
   pipeline_name           = "epbr-frontend-pipeline"
   github_repository       = "epb-frontend"
-  github_branch           = "master"
+  github_branch           = "main"
   github_organisation     = var.github_organisation
   integration_prefix      = var.integration_prefix
   staging_prefix          = var.staging_prefix
@@ -258,7 +258,7 @@ module "toggles-pipeline" {
   codebuild_role_arn      = module.codebuild_role.aws_codebuild_role_arn
   pipeline_name           = "epbr-toggles-pipeline"
   github_repository       = "epb-toggles"
-  github_branch           = "master"
+  github_branch           = "main"
   github_organisation     = var.github_organisation
   integration_prefix      = var.integration_prefix
   staging_prefix          = var.staging_prefix
@@ -299,7 +299,7 @@ module "tech_docs_pipeline" {
   artefact_bucket_arn     = module.artefact.codepipeline_bucket_arn
   codebuild_role_arn      = module.codebuild_role.aws_codebuild_role_arn
   codestar_connection_arn = module.codestar_connection.codestar_connection_arn
-  github_branch           = "master"
+  github_branch           = "main"
   github_repository       = "epb-tech-docs"
   github_organisation     = var.github_organisation
   region                  = var.region
@@ -315,7 +315,7 @@ module "api_docs_pipeline" {
   artefact_bucket_arn     = module.artefact.codepipeline_bucket_arn
   codebuild_role_arn      = module.codebuild_role.aws_codebuild_role_arn
   codestar_connection_arn = module.codestar_connection.codestar_connection_arn
-  github_branch           = "master"
+  github_branch           = "main"
   github_repository       = "epb-register-api"
   github_organisation     = var.github_organisation
   region                  = var.region
@@ -341,7 +341,7 @@ module "prototypes_pipeline" {
   artefact_bucket_arn     = module.artefact.codepipeline_bucket_arn
   codebuild_role_arn      = module.codebuild_role.aws_codebuild_role_arn
   codestar_connection_arn = module.codestar_connection.codestar_connection_arn
-  github_branch           = "master"
+  github_branch           = "main"
   github_repository       = "epb-prototypes"
   github_organisation     = var.github_organisation
   region                  = var.region

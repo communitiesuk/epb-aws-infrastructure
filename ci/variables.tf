@@ -42,7 +42,7 @@ variable "region" {
 }
 
 variable "smoketests_branch" {
-  default = "master"
+  default = "main"
   type    = string
 }
 
