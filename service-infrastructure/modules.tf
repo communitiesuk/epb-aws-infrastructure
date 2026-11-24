@@ -1427,5 +1427,5 @@ module "reboot_auth_db_schedule" {
 module "fluentbit_config" {
   source            = "./fluentbit_config"
   prefix            = local.prefix
-  fluentbit_ecr_url = "public.ecr.aws/aws-observability/aws-for-fluent-bit:init-3.5.7"
+  fluentbit_ecr_url = "public.ecr.aws/aws-observability/aws-for-fluent-bit:init-3.5.10"
 }
