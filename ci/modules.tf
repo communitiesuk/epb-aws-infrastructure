@@ -1,3 +1,12 @@
+locals {
+  cross_account_role_arns = [
+    "arn:aws:iam::${var.account_ids["integration"]}:role/ci-server",
+    "arn:aws:iam::${var.account_ids["staging"]}:role/ci-server",
+    "arn:aws:iam::${var.account_ids["production"]}:role/ci-server",
+    "arn:aws:iam::${var.account_ids["developer"]}:role/ci-server",
+  ]
+}
+
 module "account_security" {
   source = "./modules/account_security"
 }
@@ -19,7 +28,7 @@ module "codebuild_role" {
   source                         = "./modules/service_codebuild_role"
   codepipeline_bucket_arn        = module.artefact.codepipeline_bucket_arn
   performance_reports_bucket_arn = module.performance_reports.codepipeline_bucket_arn
-  cross_account_role_arns        = var.cross_account_role_arns
+  cross_account_role_arns        = local.cross_account_role_arns
   codestar_connection_arn        = module.codestar_connection.codestar_connection_arn
   s3_buckets_to_access           = [var.tech_docs_bucket_repo, var.api_docs_bucket]
 }

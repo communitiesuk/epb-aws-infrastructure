@@ -1,0 +1,13 @@
+account_ids = {
+  integration=""
+  staging=""
+  production=""
+  developer=""
+}
+tech_docs_bucket_repo = "epbr-tech-docs-repo"
+api_docs_bucket = "epbr-api-docs"
+docker_hub_access_token = ""
+docker_hub_organisation = ""
+parameters = {
+  EPB_TEAM_MAIN_SLACK_URL = ""
+}

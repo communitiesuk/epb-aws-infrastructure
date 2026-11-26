@@ -1,0 +1,7 @@
+ci_account_id = ""
+login_credentials_hash = ""
+domain_name = ""
+parameters = {
+  PROTOTYPES_PASSWORD = ""
+  EPB_TEAM_MAIN_SLACK_URL = ""
+}

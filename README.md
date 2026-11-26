@@ -127,6 +127,8 @@ The infrastructure used for the S3 backend is defined via terraform in the `/sta
     Example:  
     `aws-vault exec integration -- terraform apply`
 
+    You will need to provide a name for the new environment
+
 
 ## Terraforming infrastrcuture
 The repo is sub divided into terraform for the following EPB infrastructure
